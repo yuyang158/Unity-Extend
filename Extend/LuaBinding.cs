@@ -1,7 +1,6 @@
 ﻿using SerializableCollections;
 using System;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace XLua.Extend {
     public class LuaBinding : MonoBehaviour {

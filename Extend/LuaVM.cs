@@ -15,7 +15,16 @@ namespace XLua.Extend {
         public static LuaEnv Default { get; private set; }
 
         public static object[] LoadFileAtPath( this LuaEnv env, string luaFileName ) {
-            return env.DoString( string.Format( "return require '{0}'", luaFileName ) );
+            var rets = env.DoString( string.Format( "return require '{0}'", luaFileName ) );
+            return rets;
         }
+
+#if UNITY_EDITOR
+        public static object[] LoadTmpFileAtPath( this LuaEnv env, string luaFileName ) {
+            var asset = Resources.Load<TextAsset>( "Lua/" + luaFileName + ".lua" );
+            var rets = env.DoString( asset.bytes );
+            return rets;
+        }
+#endif
     }
 }
