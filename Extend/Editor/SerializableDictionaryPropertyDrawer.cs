@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace SerializableCollections {
     public abstract class SerializableDictionaryPropertyDrawer : PropertyDrawer {
-        bool foldout = true;
+        protected bool foldout = true;
 
         public override float GetPropertyHeight( SerializedProperty property, GUIContent label ) {
             var height = base.GetPropertyHeight( property, label );
@@ -16,7 +16,10 @@ namespace SerializableCollections {
                 ? ( dictionary.Count + 1 ) * EditorGUIUtility.singleLineHeight
                 : EditorGUIUtility.singleLineHeight;
         }
+    }
 
+    [CustomPropertyDrawer( typeof( XLua.Extend.LuaBinding.StringGOSerializableDictionary ) )]
+    public class ExtendedSerializableDictionaryPropertyDrawer : SerializableDictionaryPropertyDrawer {
         public override void OnGUI( Rect position, SerializedProperty property, GUIContent label ) {
             position.height = EditorGUIUtility.singleLineHeight;
             var target = property.serializedObject.targetObject;
@@ -37,10 +40,5 @@ namespace SerializableCollections {
                 }
             }
         }
-    }
-
-    [CustomPropertyDrawer( typeof( XLua.Extend.LuaBinding.StringGOSerializableDictionary ) )]
-    public class ExtendedSerializableDictionaryPropertyDrawer : SerializableDictionaryPropertyDrawer {
-
     }
 }
