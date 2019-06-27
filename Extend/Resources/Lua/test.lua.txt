@@ -1,0 +1,18 @@
+local M = class()
+
+local binding = {
+	btn = CS.UnityEngine.UI.Button,
+	text = CS.UnityEngine.UI.Text
+}
+
+function M:ctor(go)
+	self.go = go
+end
+
+function M:awake()
+	self.btn.onClick:AddListener(function ()
+		print("click")
+	end)
+end
+
+return M, binding

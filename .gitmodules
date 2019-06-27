@@ -1,0 +1,3 @@
+[submodule "xLua"]
+	path = xLua
+	url = https://github.com/Tencent/xLua.git
