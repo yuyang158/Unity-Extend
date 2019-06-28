@@ -20,8 +20,8 @@ namespace XLua.Extend {
 
         public StringGOSerializableDictionary bindingContainer;
 
-        private LuaTable bindInstance;
-        void Awake() {
+        protected LuaTable bindInstance;
+        protected virtual void Awake() {
             var ret = LuaVM.Default.LoadFileAtPath( luaFileName );
             var classTable = ret[0] as LuaTable;
             var constructor = classTable.Get<LuaFunction>( "new" );

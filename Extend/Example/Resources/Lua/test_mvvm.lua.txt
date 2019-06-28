@@ -1,0 +1,25 @@
+local mvvm = require("mvvm")
+local doc = mvvm.new_doc("test", {text = "", toggle = false})
+local time = CS.UnityEngine.Time
+
+local M = class()
+function M:ctor(go)
+    self.go = go
+    self.time = 0
+    self.counter = 0
+end
+
+function M:awake()
+end
+
+function M:update()
+    self.time = self.time + time.deltaTime
+    if self.time > 1 then
+        self.counter = self.counter + 1
+        doc.text = string.format("conter %d", self.counter)
+        doc.toggle = not doc.toggle
+        self.time = 0
+    end
+end
+
+return M

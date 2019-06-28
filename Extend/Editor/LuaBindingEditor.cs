@@ -11,6 +11,10 @@ namespace XLua.Extend {
             if( GUILayout.Button( "Reload Lua File" ) ) {
                 var target = serializedObject.targetObject as LuaBinding;
                 var rets = LuaVM.Default.LoadTmpFileAtPath( target.luaFileName );
+                if( rets.Length <= 1 ) {
+                    return;
+                }
+
                 var bindingConfig = rets[1] as LuaTable;
                 var old = target.bindingContainer;
                 target.bindingContainer = new LuaBinding.StringGOSerializableDictionary();
@@ -29,5 +33,10 @@ namespace XLua.Extend {
                 EditorUtility.SetDirty( target );
             }
         }
+    }
+
+    [CustomEditor( typeof( LuaBinding_Update ) )]
+    public class LuaBinding_UpdateEditor : LuaBindingEditor {
+
     }
 }
