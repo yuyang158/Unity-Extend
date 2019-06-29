@@ -50,13 +50,12 @@ public static class XLuaGenConfig
         "ShaderVariantCollection", "SimpleJson.Reflection",
         "CoroutineTween", "GraphicRebuildTracker",
         "Advertisements", "UnityEditor", "WSA",
-        "EventProvider", "Apple",
-        "ClusterInput", "Motion", 
+        "EventProvider", "Apple", "Motion", 
         "UnityEngine.UI.ReflectionMethodsCache", "NativeLeakDetection",
         "NativeLeakDetectionMode", "WWWAudioExtensions", "UnityEngine.Experimental",
         "CanvasRenderer", "AnimatorControllerParameter", "AudioSetting", "Caching",
-        "IsJoystickPreconfigured", "DrivenRectTransformTracker", "LightProbeGroup",
-        "UnityEngine.Light", "OnRebuildRequested", "imageContentsHash"
+        "DrivenRectTransformTracker", "LightProbeGroup", "Animation",
+        "UnityEngine.Light", "WebCam", "Human", "QualitySettings", "LOD", "ParticleSystem"
     };
 
     static bool isExcluded( Type type ) {
@@ -244,7 +243,11 @@ public static class XLuaGenConfig
                 new List<string>(){"UnityEngine.WWW", "threadPriority"},
     #endif
                 new List<string>(){"UnityEngine.Texture2D", "alphaIsTransparency"},
-                new List<string>(){"UnityEngine.Security", "GetChainOfTrustValue"},
+                new List<string>(){ "UnityEngine.UI.Graphic", "OnRebuildRequested"},
+                new List<string>(){ "UnityEngine.UI.Text", "OnRebuildRequested"},
+                new List<string>(){ "UnityEngine.Input", "IsJoystickPreconfigured", "System.String"},
+                new List<string>(){"UnityEngine.Texture", "imageContentsHash"},
+                new List<string>(){ "UnityEngine.Security", "GetChainOfTrustValue"},
                 new List<string>(){"UnityEngine.CanvasRenderer", "OnRequestRebuild"},
                 new List<string>(){"UnityEngine.Light", "areaSize"},
                 new List<string>(){"UnityEngine.Light", "lightmapBakeType"},
