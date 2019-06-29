@@ -2,6 +2,7 @@
 using UnityEngine;
 
 namespace XLua.Extend {
+    [CSharpCallLua]
     public class LuaMVVM : MonoBehaviour {
         public class RandomList<T> : List<T> {
             public bool SwapRemove( T item ) {
@@ -42,12 +43,13 @@ namespace XLua.Extend {
         }
 
         private Dictionary<string, MVVMBindingList> bindings = new Dictionary<string, MVVMBindingList>();
-        private LuaFunction fetchMethod;
+        private delegate Dictionary<string, Dictionary<string, object>> FetchChangeMethod();
+        private FetchChangeMethod fetchMethod;
 
         void Awake() {
             var rets = LuaVM.Default.LoadFileAtPath( "mvvm" );
             var module = rets[0] as LuaTable;
-            fetchMethod = module.GetInPath<LuaFunction>( "fetch_all" );
+            fetchMethod = module.GetInPath<FetchChangeMethod>( "fetch_all" );
         }
 
         public void RegisterBinding( LuaMVVMBinding binding ) {
@@ -65,16 +67,17 @@ namespace XLua.Extend {
         }
 
         void LateUpdate() {
-            var changes = fetchMethod.Call()[0] as LuaTable;
-            changes.ForEach( ( string name, LuaTable change ) => {
-                change.ForEach( ( string fullPath, object value ) => {
-                    if( bindings.TryGetValue( fullPath, out MVVMBindingList list ) ) {
-                        foreach( var item in list ) {
-                            item.Change( value );
+            var changes = fetchMethod();
+            foreach( var item in changes ) {
+                var name = item.Key;
+                foreach( var dirtyValue in item.Value ) {
+                    if( bindings.TryGetValue( dirtyValue.Key, out MVVMBindingList list ) ) {
+                        foreach( var binding in list ) {
+                            binding.Change( dirtyValue.Value );
                         }
                     }
-                } );
-            } );
+                }
+            }
         }
     }
 }

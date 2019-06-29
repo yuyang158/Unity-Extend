@@ -3,6 +3,7 @@ using System;
 using UnityEngine;
 
 namespace XLua.Extend {
+    [CSharpCallLua]
     public class LuaBinding : MonoBehaviour {
         public string luaFileName;
 
@@ -19,6 +20,7 @@ namespace XLua.Extend {
         }
 
         public StringGOSerializableDictionary bindingContainer;
+        public delegate void UnityFunction( LuaTable self );
 
         protected LuaTable bindInstance;
         protected virtual void Awake() {
@@ -34,8 +36,8 @@ namespace XLua.Extend {
                 }
             }
 
-            var awakeFunc = bindInstance.Get<LuaFunction>( "awake" );
-            awakeFunc.Call( bindInstance );
+            var awakeFunc = bindInstance.Get<UnityFunction>( "awake" );
+            awakeFunc( bindInstance );
         }
     }
 }

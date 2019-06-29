@@ -1,13 +1,14 @@
 ﻿namespace XLua.Extend {
+    [CSharpCallLua]
     public class LuaBinding_Update : LuaBinding {
-        private LuaFunction update;
+        private UnityFunction update;
         protected override void Awake() {
             base.Awake();
-            update = bindInstance.GetInPath<LuaFunction>( "update" );
+            update = bindInstance.GetInPath<UnityFunction>( "update" );
         }
 
         void Update() {
-            update.Call( bindInstance );
+            update( bindInstance );
         }
     }
 }
