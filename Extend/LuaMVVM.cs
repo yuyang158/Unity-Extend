@@ -44,11 +44,13 @@ namespace XLua.Extend {
 
         private Dictionary<string, MVVMBindingList> bindings = new Dictionary<string, MVVMBindingList>();
         private delegate Dictionary<string, Dictionary<string, object>> FetchChangeMethod();
+
         private FetchChangeMethod fetchMethod;
+        private LuaTable module;
 
         void Awake() {
             var rets = LuaVM.Default.LoadFileAtPath( "mvvm" );
-            var module = rets[0] as LuaTable;
+            module = rets[0] as LuaTable;
             fetchMethod = module.GetInPath<FetchChangeMethod>( "fetch_all" );
         }
 
@@ -64,6 +66,11 @@ namespace XLua.Extend {
             if( bindings.TryGetValue( binding.path, out MVVMBindingList list ) ) {
                 list.SwapRemove( binding );
             }
+        }
+
+        public LuaTable GetDocRoot( string path ) {
+            var func = module.GetInPath<LuaFunction>( "get_doc" );
+            return func.Call( path )[0] as LuaTable;
         }
 
         void LateUpdate() {
