@@ -2,9 +2,11 @@
 
 namespace XLua.Extend.LM {
     public class LMTextBinding : LuaMVVMBinding {
-        private Text text;
+        public Text text;
         private void Awake() {
-            text = GetComponent<Text>();
+            if( !text ) {
+                text = GetComponent<Text>();
+            }
         }
 
         public override void Change( object value ) {

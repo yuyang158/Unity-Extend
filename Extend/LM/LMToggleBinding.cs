@@ -2,9 +2,11 @@
 
 namespace XLua.Extend.LM {
     public class LMToggleBinding : LMBooleanBinding {
-        private Toggle toggle;
+        public Toggle toggle;
         void Awake() {
-            toggle = GetComponent<Toggle>();
+            if( !toggle ) {
+                toggle = GetComponent<Toggle>();
+            }
         }
 
         public override void ChangeBoolean( bool b ) {

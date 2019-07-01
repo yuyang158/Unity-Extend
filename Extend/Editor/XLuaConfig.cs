@@ -55,7 +55,7 @@ public static class XLuaGenConfig
         "NativeLeakDetectionMode", "WWWAudioExtensions", "UnityEngine.Experimental",
         "CanvasRenderer", "AnimatorControllerParameter", "AudioSetting", "Caching",
         "DrivenRectTransformTracker", "LightProbeGroup", "Animation",
-        "UnityEngine.Light", "WebCam", "Human", "QualitySettings", "LOD", "ParticleSystem"
+        "UnityEngine.Light", "WebCam", "Human", "QualitySettings", "LOD", "ParticleSystem", "UIVertex"
     };
 
     static bool isExcluded( Type type ) {
