@@ -4,7 +4,7 @@
 * LuaBinding.cs
 * Example\Resources\Lua\test_binding.lua.txt
 
-2.Unity UI与Lua Table的绑定
+2. Unity UI与Lua Table的绑定
 * Assets\Extend\Example\Resources\Lua\mvvm.lua.txt
 * BindingDemo场景中MVVM开头相关节点
 
