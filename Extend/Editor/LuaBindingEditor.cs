@@ -9,28 +9,29 @@ namespace XLua.Extend {
             base.OnInspectorGUI();
 
             if( GUILayout.Button( "Reload Lua File" ) ) {
-                var target = serializedObject.targetObject as LuaBinding;
-                var rets = LuaVM.Default.LoadTmpFileAtPath( target.luaFileName );
-                if( rets.Length <= 1 ) {
+                var targetObject = serializedObject.targetObject as LuaBinding;
+                var retValues = LuaVM.Default.LoadTmpFileAtPath( targetObject.luaFileName );
+                if( retValues.Length < 1 ) {
                     return;
                 }
 
-                var bindingConfig = rets[1] as LuaTable;
-                var old = target.bindingContainer;
-                target.bindingContainer = new LuaBinding.StringGOSerializableDictionary();
+                var klass = retValues[0] as LuaTable;
+                var bindingConfig = klass.Get<LuaTable>( "binding" );
+                var old = targetObject.bindingContainer;
+                targetObject.bindingContainer = new LuaBinding.StringGOSerializableDictionary();
 
-                bindingConfig.ForEach( ( string name, LuaTable typ ) => {
-                    if( old.TryGetValue( name, out LuaBinding.LuaUnityBinding binding ) &&
+                bindingConfig.ForEach( ( string varName, LuaTable typ ) => {
+                    if( old.TryGetValue( varName, out var binding ) &&
                         !( binding.type == null && binding.go == null ) ) {
-                        target.bindingContainer.Add( name, binding );
+                        targetObject.bindingContainer.Add( varName, binding );
                     }
                     else {
-                        target.bindingContainer.Add( name, new LuaBinding.LuaUnityBinding() {
+                        targetObject.bindingContainer.Add( varName, new LuaBinding.LuaUnityBinding() {
                             type = typ.GetInPath<Type>( "UnderlyingSystemType" )
                         } );
                     }
                 } );
-                EditorUtility.SetDirty( target );
+                EditorUtility.SetDirty( targetObject );
             }
         }
     }

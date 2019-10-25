@@ -8,10 +8,12 @@ namespace XLua.Extend.LM {
             image.sprite = value as Sprite;
         }
 
-        void Awake() {
+        private void Awake() {
             if( !image ) {
                 image = GetComponent<Image>();
             }
+
+            image.type.ToString();
         }
     }
 }

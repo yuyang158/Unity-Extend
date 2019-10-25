@@ -42,28 +42,28 @@ namespace XLua.Extend {
             private set;
         }
 
-        private Dictionary<string, MVVMBindingList> bindings = new Dictionary<string, MVVMBindingList>();
+        private readonly Dictionary<string, MVVMBindingList> bindings = new Dictionary<string, MVVMBindingList>();
         private delegate Dictionary<string, Dictionary<string, object>> FetchChangeMethod();
 
         private FetchChangeMethod fetchMethod;
         private LuaTable module;
 
-        void Awake() {
-            var rets = LuaVM.Default.LoadFileAtPath( "mvvm" );
-            module = rets[0] as LuaTable;
+        private void Awake() {
+            var ret = LuaVM.Default.LoadFileAtPath( "mvvm" );
+            module = ret[0] as LuaTable;
             fetchMethod = module.GetInPath<FetchChangeMethod>( "fetch_all" );
         }
 
         public void RegisterBinding( LuaMVVMBinding binding ) {
-            if( !bindings.TryGetValue( binding.path, out MVVMBindingList list ) ) {
+            if( !bindings.TryGetValue( binding.path, out var list ) ) {
                 list = new MVVMBindingList();
                 bindings.Add( binding.path, list );
             }
             list.Add( binding );
         }
 
-        public void UnreigsterBinding( LuaMVVMBinding binding ) {
-            if( bindings.TryGetValue( binding.path, out MVVMBindingList list ) ) {
+        public void UnregisterBinding( LuaMVVMBinding binding ) {
+            if( bindings.TryGetValue( binding.path, out var list ) ) {
                 list.SwapRemove( binding );
             }
         }
@@ -73,15 +73,13 @@ namespace XLua.Extend {
             return func.Call( path )[0] as LuaTable;
         }
 
-        void LateUpdate() {
+        private void LateUpdate() {
             var changes = fetchMethod();
             foreach( var item in changes ) {
-                var name = item.Key;
                 foreach( var dirtyValue in item.Value ) {
-                    if( bindings.TryGetValue( dirtyValue.Key, out MVVMBindingList list ) ) {
-                        foreach( var binding in list ) {
-                            binding.Change( dirtyValue.Value );
-                        }
+                    if( !bindings.TryGetValue( dirtyValue.Key, out var list ) ) continue;
+                    foreach( var binding in list ) {
+                        binding.Change( dirtyValue.Value );
                     }
                 }
             }

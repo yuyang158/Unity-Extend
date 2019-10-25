@@ -28,7 +28,7 @@ namespace XLua.Extend.LM {
             }
         }
 
-        void Start() {
+        private void Start() {
             Debug.Assert( component );
         }
     }

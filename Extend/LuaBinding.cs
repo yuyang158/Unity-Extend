@@ -20,7 +20,8 @@ namespace XLua.Extend {
         }
 
         public StringGOSerializableDictionary bindingContainer;
-        public delegate void UnityFunction( LuaTable self );
+
+        protected delegate void UnityFunction( LuaTable self );
 
         protected LuaTable bindInstance;
         protected virtual void Awake() {

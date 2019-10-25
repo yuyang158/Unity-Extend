@@ -9,7 +9,7 @@ namespace XLua.Extend {
         }
 
         protected virtual void OnDisable() {
-            LuaMVVM.Instance.UnreigsterBinding( this );
+            LuaMVVM.Instance.UnregisterBinding( this );
         }
 
         public abstract void Change( object value );
@@ -17,20 +17,20 @@ namespace XLua.Extend {
 
     public abstract class LMBooleanBinding : LuaMVVMBinding {
         public sealed override void Change( object value ) {
-            bool b = (bool)value;
+            var b = (bool)value;
             ChangeBoolean( b );
         }
 
-        public abstract void ChangeBoolean( bool v );
+        protected abstract void ChangeBoolean( bool v );
     }
 
     public abstract class LMFloatBinding : LuaMVVMBinding {
         public override void Change( object value ) {
-            float f = (float)value;
+            var f = (float)value;
             ChangeFloat( f );
         }
 
-        public abstract void ChangeFloat( float v );
+        protected abstract void ChangeFloat( float v );
     }
 
     public abstract class LMIntegerBinding : LuaMVVMBinding {
@@ -38,6 +38,7 @@ namespace XLua.Extend {
             long l = (long)value;
             ChangeInteger( l );
         }
-        public abstract void ChangeInteger( long v );
+
+        protected abstract void ChangeInteger( long v );
     }
 }

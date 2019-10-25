@@ -3,26 +3,26 @@ using UnityEngine;
 
 namespace XLua.Extend.LM {
     public class LMInitializer : MonoBehaviour {
-        void Start() {
-            Dictionary<string, LuaTable> usedDocRoots = new Dictionary<string, LuaTable>();
+        private void Start() {
+            var usedDocRoots = new Dictionary<string, LuaTable>();
             var bindings = GetComponentsInChildren<LuaMVVMBinding>();
             foreach( var binding in bindings ) {
-                var pathes = binding.path.Split( '.' );
-                var rootName = pathes[0];
+                var splitPath = binding.path.Split( '.' );
+                var rootName = splitPath[0];
 
-                if( !usedDocRoots.TryGetValue( rootName, out LuaTable doc ) ) {
+                if( !usedDocRoots.TryGetValue( rootName, out var doc ) ) {
                     doc = LuaMVVM.Instance.GetDocRoot( rootName );
                     usedDocRoots.Add( rootName, doc );
                 }
 
                 var node = doc;
-                for( int i = 1; i < pathes.Length; i++ ) {
-                    var path = pathes[i];
-                    if( i != pathes.Length - 1 ) {
+                for( var i = 1; i < splitPath.Length; i++ ) {
+                    var path = splitPath[i];
+                    if( i != splitPath.Length - 1 ) {
                         node = node.GetInPath<LuaTable>( path );
                     }
                     else {
-                        object obj = node.GetInPath<object>( path );
+                        var obj = node.GetInPath<object>( path );
                         binding.Change( obj );
                     }
                 }
