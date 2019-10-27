@@ -1,0 +1,14 @@
+{
+  "name": "xlsxconvert",
+  "version": "1.0.0",
+  "description": "convert xlsx to csv and generate emmylua intellisense code",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "yuyang",
+  "license": "ISC",
+  "dependencies": {
+    "xlsx": "0.15.1"
+  }
+}
