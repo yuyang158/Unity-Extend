@@ -9,17 +9,11 @@ wb.SheetNames.forEach(sheetName => {
     csvData = csvData.replace(regex, '"')
     regex = /\t"/gi
     csvData = csvData.replace(regex, '\t')
+    regex = /"\t/gi
+    csvData = csvData.replace(regex, '\t')
     
-    fs.writeFileSync(`./${sheetName}.csv`, csvData)
-
-    const lines = csvData.split('\n')
-    const keys = lines[0].split('\t')
-    const types = lines[1].split('\t')
-
-    let emmyLua = `---@class ${sheetName}\n`
-    for(let i = 0; i < keys.length; i++) {
-        const key = keys[i]
-        
-        emmyLua += '---@field '
+    if(!fs.existsSync('./config')) {
+        fs.mkdirSync('./config')
     }
+    fs.writeFileSync(`./config/${sheetName}.csv`, csvData)
 })
