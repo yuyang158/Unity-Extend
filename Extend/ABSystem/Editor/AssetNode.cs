@@ -19,11 +19,21 @@ namespace ABSystem.Editor {
 
 		public string AssetBundleName {
 			get => importer.assetBundleName;
-			private set => importer.assetBundleName = value;
+			private set {
+				Calculated = true;
+				if(importer.assetBundleName == value)
+					return;
+				importer.assetBundleName = value;
+			} 
 		}
 
 		private readonly List<AssetNode> referenceNodes = new List<AssetNode>();
 		private readonly AssetImporter importer;
+
+		public bool Calculated {
+			private get;
+			set;
+		}
 
 		public AssetNode(string path) {
 			importer = AssetImporter.GetAtPath( path );
@@ -94,7 +104,7 @@ namespace ABSystem.Editor {
 		}
 
 		public void CalculateABName() {
-			if( !string.IsNullOrEmpty( AssetBundleName ) )
+			if( Calculated )
 				return;
 
 			if( OuterLink ) {

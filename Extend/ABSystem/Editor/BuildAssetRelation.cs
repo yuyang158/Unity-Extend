@@ -9,7 +9,7 @@ namespace ABSystem.Editor {
 	public static class BuildAssetRelation {
 		private static readonly Dictionary<string, AssetNode> assetNodes = new Dictionary<string, AssetNode>();
 		private static readonly Dictionary<string, AssetNode> allAssetNodes = new Dictionary<string, AssetNode>( 40960 );
-
+		private static List<StaticABSetting> manualSettings;
 		private static readonly string[] ignoreExtensions = {
 			".cs",
 			".lua",
@@ -21,7 +21,9 @@ namespace ABSystem.Editor {
 			if( Array.IndexOf( ignoreExtensions, extension ) >= 0 )
 				return null;
 			if( !allAssetNodes.TryGetValue( filePath, out var dependencyNode ) ) {
-				dependencyNode = new AssetNode( filePath );
+				dependencyNode = new AssetNode( filePath ) {
+					Calculated = ContainInManualSettingDirectory( filePath )
+				};
 				if( !dependencyNode.IsValid )
 					return null;
 				allAssetNodes.Add( filePath, dependencyNode );
@@ -31,13 +33,53 @@ namespace ABSystem.Editor {
 			return dependencyNode;
 		}
 
-		public static void BuildRelation() {
+		public static void BuildRelation( List<StaticABSetting> settings ) {
 			assetNodes.Clear();
 			allAssetNodes.Clear();
+
+			manualSettings = settings;
+			foreach( var setting in manualSettings ) {
+				var settingFiles = Directory.GetFiles( setting.Path );
+				foreach( var filePath in settingFiles ) {
+					if(Path.GetExtension( filePath ) == ".meta")
+						continue;
+
+					var importer = AssetImporter.GetAtPath( filePath );
+					if(!importer)
+						continue;
+					
+					var abName = string.Empty;
+					switch( setting.Op ) {
+						case StaticABSetting.Operation.ALL_IN_ONE:
+							abName = setting.Path;
+							break;
+						case StaticABSetting.Operation.STAY_RESOURCES:
+							break;
+						case StaticABSetting.Operation.EACH_FOLDER_ONE:
+							var directoryName = Path.GetDirectoryName( filePath );
+							abName = FormatPath( directoryName );
+							break;
+						default:
+							throw new ArgumentOutOfRangeException();
+					}
+
+					importer.assetBundleName = abName;
+				}
+				
+			}
 
 			var files = Directory.GetFiles( "Assets/Resources", "*", SearchOption.AllDirectories );
 			EditorUtility.DisplayProgressBar( "Process resources asset", "", 0 );
 			EditorCoroutineUtility.StartCoroutineOwnerless( RelationProcess( files ) );
+		}
+
+		// \\ -> /
+		private static string FormatPath(string path) {
+			return path.Replace( '\\', '/' );
+		}
+
+		private static bool ContainInManualSettingDirectory( string path ) {
+			return manualSettings.Find( setting => path.Contains( setting.Path ) ) != null;
 		}
 
 		private static IEnumerator RelationProcess(IReadOnlyCollection<string> files) {
@@ -48,8 +90,10 @@ namespace ABSystem.Editor {
 				if( Array.IndexOf( ignoreExtensions, extension ) >= 0 || filePath.Contains( ".svn" ) )
 					continue;
 
-				var formatPath = filePath.Replace( '\\', '/' );
-				var node = new AssetNode( formatPath );
+				var formatPath = FormatPath( filePath );
+				var node = new AssetNode( formatPath ) {
+					Calculated = ContainInManualSettingDirectory( formatPath )
+				};
 				if(!node.IsValid)
 					 continue;
 				assetNodes.Add( formatPath, node );
@@ -85,9 +129,7 @@ namespace ABSystem.Editor {
 			//var sb = new StringBuilder();
 			foreach( var node in allAssetNodes ) {
 				//sb.Append( node.Value.BuildGraphviz() );
-				if( string.IsNullOrEmpty( node.Value.AssetBundleName ) ) {
-					node.Value.CalculateABName();
-				} 
+				node.Value.CalculateABName();
 				progress++;
 				EditorUtility.DisplayProgressBar( "Assign bundle name", $"{progress} / {allAssetNodes.Count}", progress / (float) allAssetNodes.Count );
 				yield return null;

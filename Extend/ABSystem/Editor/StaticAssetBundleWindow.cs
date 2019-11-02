@@ -15,7 +15,7 @@ namespace ABSystem.Editor {
 
 		private ReorderableList reList;
 		private StaticABSettings settingRoot;
-		private const string SETTING_FILE_PATH = "ABSystem/Editor/settings.asset";
+		private const string SETTING_FILE_PATH = "Assets/Extend/ABSystem/Editor/settings.asset";
 
 		private void OnEnable() {
 			if( settingRoot == null ) {
@@ -23,6 +23,10 @@ namespace ABSystem.Editor {
 				if( settingRoot == null ) {
 					settingRoot = CreateInstance<StaticABSettings>();
 					AssetDatabase.CreateAsset( settingRoot, SETTING_FILE_PATH );
+				}
+
+				if( settingRoot.Settings == null ) {
+					settingRoot.Settings = new List<StaticABSetting>();
 				}
 			}
 			
@@ -59,10 +63,10 @@ namespace ABSystem.Editor {
 			rect.width = 100;
 			rect.height = EditorGUIUtility.singleLineHeight;
 			if( GUI.Button( rect, "Start Build" ) ) {
-				BuildAssetRelation.BuildRelation();
+				BuildAssetRelation.BuildRelation(settingRoot.Settings);
 			}
 			
-			if(GUI.Button( rect, "" ))
+			// if(GUI.Button( rect, "" ))
 			EditorGUILayout.EndHorizontal();
 		}
 	}
