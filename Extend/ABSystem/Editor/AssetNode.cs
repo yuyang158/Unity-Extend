@@ -6,26 +6,29 @@ using UnityEngine;
 
 namespace ABSystem.Editor {
 	public class AssetNode {
-		private string Path => importer.assetPath;
+		public string AssetPath => importer.assetPath;
 
 		private string AssetName {
 			get {
 				var assetName = System.IO.Path.GetDirectoryName( importer.assetPath ) + "/" + System.IO.Path.GetFileNameWithoutExtension( importer.assetPath );
 				assetName = assetName.Replace( '\\', '/' );
 				return assetName;
-				// return System.IO.Path.GetFileNameWithoutExtension( importer.assetPath );
 			}	
 		}
 
 		public string AssetBundleName {
 			get => importer.assetBundleName;
-			private set {
+			set {
 				Calculated = true;
 				if(importer.assetBundleName == value)
 					return;
 				importer.assetBundleName = value;
 			} 
 		}
+
+		public string GUID => AssetDatabase.AssetPathToGUID( AssetPath );
+
+		public ulong AssetTimeStamp => importer.assetTimeStamp;
 
 		private readonly List<AssetNode> referenceNodes = new List<AssetNode>();
 		private readonly AssetImporter importer;
@@ -50,7 +53,7 @@ namespace ABSystem.Editor {
 		}
 
 		public void BuildRelation() {
-			var dependencies = AssetDatabase.GetDependencies( Path );
+			var dependencies = AssetDatabase.GetDependencies( AssetPath );
 			foreach( var filePath in dependencies ) {
 				var dependencyNode = BuildAssetRelation.GetNode( filePath );
 				dependencyNode?.AddReferenceNode( this );
@@ -90,7 +93,7 @@ namespace ABSystem.Editor {
 
 		private bool OuterLink {
 			get {
-				if( System.IO.Path.GetExtension( Path ) == ".prefab" )
+				if( System.IO.Path.GetExtension( AssetPath ) == ".prefab" )
 					return false;
 
 				if( importer is TextureImporter textureImporter ) {
