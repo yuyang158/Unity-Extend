@@ -9,7 +9,7 @@ using Directory = UnityEngine.Windows.Directory;
 
 namespace ABSystem.Editor {
 	public class StaticAssetBundleWindow : EditorWindow {
-		[MenuItem( "MyMenu/Do Something2" )]
+		[MenuItem( "Window/AB Builder" )]
 		private static void Init() {
 			var window = (StaticAssetBundleWindow) GetWindow( typeof(StaticAssetBundleWindow) );
 			window.Show();
@@ -85,7 +85,7 @@ namespace ABSystem.Editor {
 		private static string buildRoot;
 		private static string outputPath;
 
-		private static void BuildOutputDirectory() {
+		private static string BuildOutputDirectory() {
 			var buildTarget = EditorUserBuildSettings.activeBuildTarget;
 			buildRoot = $"{Application.dataPath}/ABBuild";
 			if( !Directory.Exists( buildRoot ) ) {
@@ -96,6 +96,8 @@ namespace ABSystem.Editor {
 			if( !Directory.Exists( outputPath ) ) {
 				Directory.CreateDirectory( outputPath );
 			}
+
+			return outputPath;
 		}
 
 		private static void ExportResourcesPackageConf() {
@@ -109,7 +111,7 @@ namespace ABSystem.Editor {
 		}
 
 		public void BuildUpdateAssetBundles(string versionFilePath = null) {
-			BuildOutputDirectory();
+			var outputDir = BuildOutputDirectory();
 			if( string.IsNullOrEmpty( versionFilePath ) ) {
 				versionFilePath = EditorUtility.OpenFilePanel( "Open version file", buildRoot, "bin" );
 				if( string.IsNullOrEmpty( versionFilePath ) )
@@ -117,11 +119,28 @@ namespace ABSystem.Editor {
 			}
 
 			BuildAssetRelation.Clear();
-			BuildAssetRelation.BuildBaseVersionData( versionFilePath );
+			var allABs = BuildAssetRelation.BuildBaseVersionData( versionFilePath );
 			BuildAssetRelation.BuildRelation( settingRoot.Settings, () => {
 				ExportResourcesPackageConf();
-				BuildPipeline.BuildAssetBundles( outputPath, BuildAssetBundleOptions.DeterministicAssetBundle | BuildAssetBundleOptions.ChunkBasedCompression,
+				var manifest = BuildPipeline.BuildAssetBundles( outputPath, BuildAssetBundleOptions.DeterministicAssetBundle | BuildAssetBundleOptions.ChunkBasedCompression,
 					EditorUserBuildSettings.activeBuildTarget );
+
+				foreach( var abName in manifest.GetAllAssetBundles() ) {
+					if( allABs.Contains( abName ) ) continue;
+					BuildAssetRelation.NeedUpdateBundles.Add( abName );
+					allABs.Add( abName );
+				}
+
+				var date = DateTime.Now;
+				var localTime = date.ToLocalTime();
+				var dateString = $"{localTime.Year}-{localTime.Month}-{localTime.Day}_{localTime.Hour}-{localTime.Minute}-{localTime.Second}";
+				outputDir += $"update_{dateString}.txt";
+				using( var writer = new StreamWriter( outputDir ) ) {
+					foreach( var needUpdateABName in BuildAssetRelation.NeedUpdateBundles ) {
+						var fileInfo = new FileInfo( needUpdateABName );
+						writer.WriteLine( $"{needUpdateABName}:{fileInfo.Length}" );
+					}
+				}
 			} );
 		}
 

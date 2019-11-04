@@ -40,19 +40,26 @@ namespace ABSystem.Editor {
 		public static IEnumerable<AssetNode> ResourcesNodes => resourcesNodes.Values;
 		public static IEnumerable<AssetNode> AllNodes => allAssetNodes.Values;
 
+		public static IList<string> NeedUpdateBundles => needUpdateBundles;
+
 		public static void Clear() {
 			resourcesNodes.Clear();
 			allAssetNodes.Clear();
 		}
 
-		public static void BuildBaseVersionData(string versionConfPath) {
+		public static HashSet<string> BuildBaseVersionData(string versionConfPath) {
 			needUpdateBundles.Clear();
+			var allAssetBundles = new HashSet<string>();
 			using( var fileStream = new FileStream( versionConfPath, FileMode.Open ) ) {
 				using( var reader = new BinaryReader( fileStream ) ) {
 					while( fileStream.Position < fileStream.Length ) {
 						var guid = reader.ReadString();
 						var abName = reader.ReadString();
 						var timestamp = reader.ReadUInt64();
+						
+						if( !allAssetBundles.Contains( abName ) ) {
+							allAssetBundles.Add( abName );
+						}
 						
 						var assetPath = AssetDatabase.GUIDToAssetPath( guid );
 						if( string.IsNullOrEmpty( assetPath ) ) {
@@ -70,6 +77,8 @@ namespace ABSystem.Editor {
 					}
 				}
 			}
+
+			return allAssetBundles;
 		}
 
 		public static void BuildRelation(List<StaticABSetting> settings, Action completeCallback) {
