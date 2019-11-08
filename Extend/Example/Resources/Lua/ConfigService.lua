@@ -40,6 +40,9 @@ local columnDataConverter = {
         }
 
         return setmetatable(v, linkTypeMetaTable)
+    end,
+    ["boolean"] = function(data)
+        return data == "1"
     end
 }
 
