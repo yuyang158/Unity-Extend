@@ -11,6 +11,7 @@ using System;
 using XLua;
 using System.Reflection;
 using System.Linq;
+using UnityEngine;
 
 //配置的详细介绍请看Doc下《XLua的配置.doc》
 public static class XLuaGenConfig
@@ -71,28 +72,36 @@ public static class XLuaGenConfig
     [LuaCallCSharp]
     public static IEnumerable<Type> LuaCallCSharp {
         get {
-            List<string> namespaces = new List<string>() // 在这里添加名字空间
+            var namespaces = new List<string>() // 在这里添加名字空间
             {
                 "UnityEngine",
-                "UnityEngine.UI",
-                "XLua.Extend.LuaUtil"
+                "UnityEngine.UI"
             };
             var unityTypes = ( from assembly in AppDomain.CurrentDomain.GetAssemblies()
                                where !( assembly.ManifestModule is System.Reflection.Emit.ModuleBuilder )
                                from type in assembly.GetExportedTypes()
                                where type.Namespace != null && namespaces.Contains( type.Namespace ) && !isExcluded( type )
-                                       && type.BaseType != typeof( MulticastDelegate ) && !type.IsInterface && !type.IsEnum
+                                       && type.BaseType != typeof( MulticastDelegate ) && !type.IsInterface && !type.IsEnum && !type.IsValueType
                                select type );
+            var basicMathValueType = new Type[] {
+                typeof(Vector2),
+                typeof(Vector3),
+                typeof(Vector4),
+                typeof(Quaternion)
+            };
 
-            string[] customAssemblys = new string[] {
+            unityTypes = unityTypes.Concat( basicMathValueType );
+            var customAssemblys = new string[] {
                 "Assembly-CSharp",
             };
             var customTypes = ( from assembly in customAssemblys.Select( s => Assembly.Load( s ) )
                                 from type in assembly.GetExportedTypes()
-                                where type.Namespace == null || !type.Namespace.StartsWith( "XLua" )
-                                        && type.BaseType != typeof( MulticastDelegate ) && !type.IsInterface && !type.IsEnum
+                                where type.BaseType != typeof( MulticastDelegate ) && !type.IsInterface && !type.IsEnum && 
+                                      type.GetCustomAttributes(typeof(CSharpCallLuaAttribute), true).Length > 0
                                 select type );
-            return unityTypes.Concat( customTypes );
+
+            var arr = customTypes.ToArray();
+            return unityTypes.Concat( arr );
         }
     }
 

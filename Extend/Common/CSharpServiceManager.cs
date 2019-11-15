@@ -16,7 +16,9 @@ namespace Common {
 
 	public class CSharpServiceManager : MonoBehaviour {
 		public enum ServiceType {
-			AB_SERVICE
+			AB_SERVICE,
+			MVVM_SERVICE,
+			TICK_SERVICE
 		}
 
 		private static bool initialized;
@@ -40,6 +42,7 @@ namespace Common {
 			}
 
 			services.Add( service.ServiceType, service );
+			service.Initialize();
 			if( service is IServiceUpdate update ) {
 				updatableServices.Add( update );
 			}
@@ -56,8 +59,8 @@ namespace Common {
 			}
 		}
 
-		public static IService Get( ServiceType typ ) {
-			return services[typ];
+		public static T Get<T>( ServiceType typ ) where T : IService {
+			return (T)services[typ];
 		}
 
 		private void Update() {

@@ -1,46 +1,48 @@
-﻿using SerializableCollections;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
+using XLua;
+using Object = UnityEngine.Object;
 
-namespace XLua.Extend {
-    [CSharpCallLua]
-    public class LuaBinding : MonoBehaviour {
-        public string luaFileName;
+namespace Extend {
+	[CSharpCallLua, LuaCallCSharp]
+	public class LuaBinding : MonoBehaviour {
+		public string LuaFile;
 
-        [Serializable]
-        public class LuaUnityBinding {
-            [SerializeField]
-            public Type type;
-            [SerializeField]
-            public MonoBehaviour go;
-        }
+		private void Awake() {
+			if( string.IsNullOrEmpty( LuaFile ) )
+				return;
+			var ret = LuaVM.Default.LoadFileAtPath( LuaFile );
+			var luaClass = ret[0] as LuaTable;
+			var constructor = luaClass.Get<LuaFunction>( "new" );
+			constructor.Call( gameObject );
+		}
 
-        [Serializable]
-        public class StringGOSerializableDictionary : SerializableDictionary<string, LuaUnityBinding> {
-        }
+		[Serializable]
+		public class LuaUnityBinding {
+			public Object UnityObject;
+			public string VariableName;
+		}
 
-        public StringGOSerializableDictionary bindingContainer;
+		[HideInInspector] public List<LuaUnityBinding> BindingContainer;
+		private LuaTable bindInstance;
 
-        protected delegate void UnityFunction( LuaTable self );
-
-        protected LuaTable bindInstance;
-        protected virtual void Awake() {
-            var ret = LuaVM.Default.LoadFileAtPath( luaFileName );
-            var classTable = ret[0] as LuaTable;
-            var constructor = classTable.Get<LuaFunction>( "new" );
-            bindInstance = constructor.Call( gameObject )[0] as LuaTable;
-
-            if( bindingContainer != null ) {
-                foreach( var item in bindingContainer ) {
-                    if( item.Value.go )
-                        bindInstance.SetInPath( item.Key, item.Value.go );
-                }
-            }
-
-            var awakeFunc = bindInstance.Get<UnityFunction>( "awake" );
-            awakeFunc( bindInstance );
-        }
-    }
+		public void Bind(LuaTable instance) {
+			bindInstance = instance;
+			if( BindingContainer == null ) return;
+			foreach( var binding in BindingContainer ) {
+				if( binding.UnityObject ) {
+					if( !string.IsNullOrEmpty( binding.VariableName ) ) {
+						bindInstance.Set( binding.VariableName, binding.UnityObject );
+					}
+					else {
+						Debug.LogWarning( $"Variable name component is empty : {binding.UnityObject}" );
+					}
+				}
+				else {
+					Debug.LogWarning( $"Binding component is null : {binding.VariableName}" );
+				}
+			}
+		}
+	}
 }
-
-

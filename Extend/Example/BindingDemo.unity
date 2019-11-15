@@ -239,7 +239,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f5519bffd2cdf04fb2370f42c70548b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  path: test.text
+  path: text
   text: {fileID: 0}
 --- !u!114 &286822994
 MonoBehaviour:
@@ -507,7 +507,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   path: test.toggle
-  toggle: {fileID: 0}
 --- !u!114 &830991506
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -749,7 +748,6 @@ GameObject:
   - component: {fileID: 1304325726}
   - component: {fileID: 1304325725}
   - component: {fileID: 1304325730}
-  - component: {fileID: 1304325731}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -769,22 +767,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b707bd6caa68448419b0d3a7ed790234, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  luaFileName: test_binding
-  bindingContainer:
-    buckets: ffffffff0100000000000000
-    count: 2
-    entriesHashCode: 8d73124c3ea5fb6600000000
-    entriesNext: ffffffffffffffff00000000
-    entriesKey:
-    - text
-    - btn
-    - 
-    entriesValue:
-    - go: {fileID: 89573286}
-    - go: {fileID: 1179511801}
-    - go: {fileID: 0}
-    freeCount: 0
-    freeList: -1
+  LuaFile: 
+  BindingContainer: []
 --- !u!114 &1304325726
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -879,35 +863,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1304325724}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b31503fdaeecd244b9f1572ffc59bfbe, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  luaFileName: test_mvvm
-  bindingContainer:
-    buckets: ffffffffffffffffffffffff
-    count: 0
-    entriesHashCode: 000000000000000000000000
-    entriesNext: 000000000000000000000000
-    entriesKey:
-    - 
-    - 
-    - 
-    entriesValue:
-    - go: {fileID: 0}
-    - go: {fileID: 0}
-    - go: {fileID: 0}
-    freeCount: 0
-    freeList: -1
---- !u!114 &1304325731
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1304325724}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0ca274d119bfdb843897f4f0459d527f, type: 3}
+  m_Script: {fileID: 11500000, guid: 061bfba48d6f79f4c8981fca65409938, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1554515058

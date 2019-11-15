@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-namespace XLua.Extend.LM {
+namespace Extend.LM {
     public class LMImageBinding : LuaMVVMBinding {
         public Image image;
         public override void Change( object value ) {
@@ -12,8 +12,6 @@ namespace XLua.Extend.LM {
             if( !image ) {
                 image = GetComponent<Image>();
             }
-
-            image.type.ToString();
         }
     }
 }

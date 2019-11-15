@@ -1,7 +1,7 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
+using XLua;
 
-namespace XLua.Extend {
+namespace Extend {
     public static class LuaVM {
         static LuaVM() {
             Default = new LuaEnv();
@@ -14,7 +14,7 @@ namespace XLua.Extend {
             Default.LoadFileAtPath( "class" );
             Default.LoadFileAtPath( "PreRequest" );
 
-            LuaDLL.Lua.lua_atpanic( Default.L, ptr => {
+            XLua.LuaDLL.Lua.lua_atpanic( Default.L, ptr => {
                 Debug.LogError( "PANIC" );
                 return 0;
             } );

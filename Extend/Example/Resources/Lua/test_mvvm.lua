@@ -1,7 +1,7 @@
 local mvvm = require("mvvm")
 local doc = mvvm.new_doc("test", {text = "", toggle = false, gold = 10})
 local time = CS.UnityEngine.Time
-local LuaUtil = CS.XLua.Extend.LuaUtil
+local LuaUtil = CS.XLua.LuaUtil
 
 local SM = require "ServiceManager"
 

@@ -1,6 +1,7 @@
 local tracedoc = require("tracedoc")
 local M = {}
 local docs = {}
+local next = next
 
 function M.new_doc(name, init)
     local doc = tracedoc.new(init)
@@ -27,8 +28,10 @@ end
 function M.fetch_all()
     local changes = {}
     for name, doc in pairs(docs) do
-        local change = tracedoc.commit(doc, {}, name .. ".")
-        changes[name] = change
+        local change = tracedoc.commit(doc, {})
+        if next(change) then
+            changes[name] = change
+        end
     end
 
     return changes

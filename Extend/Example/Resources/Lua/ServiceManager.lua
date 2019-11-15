@@ -2,7 +2,8 @@ local M = {}
 local services = {}
 
 M.SERVICE_TYPE = {
-    CONFIG = 1
+    CONFIG = 1,
+    TICK = 2
 }
 
 function M.GetService(typ)
@@ -18,5 +19,6 @@ function M.RegisterService(typ, service)
     service.Init()
     services[typ] = service
 end
+_ServiceManager = M
 
 return M

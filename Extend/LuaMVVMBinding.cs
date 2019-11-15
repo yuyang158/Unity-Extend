@@ -1,15 +1,23 @@
-﻿using UnityEngine;
+﻿using System;
+using Common;
+using UnityEngine;
 
-namespace XLua.Extend {
+namespace Extend {
     public abstract class LuaMVVMBinding : MonoBehaviour {
         public string path;
 
+        private void Awake() {
+            
+        }
+
         protected virtual void OnEnable() {
-            LuaMVVM.Instance.RegisterBinding( this );
+            var luaMvvm = CSharpServiceManager.Get<LuaMVVM>( CSharpServiceManager.ServiceType.MVVM_SERVICE );
+            luaMvvm.RegisterBinding( this );
         }
 
         protected virtual void OnDisable() {
-            LuaMVVM.Instance.UnregisterBinding( this );
+            var luaMvvm = CSharpServiceManager.Get<LuaMVVM>( CSharpServiceManager.ServiceType.MVVM_SERVICE );
+            luaMvvm.UnregisterBinding( this );
         }
 
         public abstract void Change( object value );

@@ -1,43 +1,75 @@
-using UnityEngine;
-using UnityEditor;
 using System;
+using UnityEditor;
+using System.Reflection;
+using UnityEditorInternal;
+using UnityEngine;
 
-namespace XLua.Extend {
+namespace Extend {
     [CustomEditor( typeof( LuaBinding ) )]
-    public class LuaBindingEditor : Editor {
-        public override void OnInspectorGUI() {
-            base.OnInspectorGUI();
+    public class LuaBindingEditor : UnityEditor.Editor {
+        private ReorderableList bindingList;
+        private void OnEnable() {
+            var bindingProp = serializedObject.FindProperty( "BindingContainer" );
+            bindingList = new ReorderableList( serializedObject, bindingProp );
+            bindingList.drawHeaderCallback += rect => {
+                EditorGUI.LabelField( rect, "Component Binding" );
+            };
 
-            if( GUILayout.Button( "Reload Lua File" ) ) {
-                var targetObject = serializedObject.targetObject as LuaBinding;
-                var retValues = LuaVM.Default.LoadTmpFileAtPath( targetObject.luaFileName );
-                if( retValues.Length < 1 ) {
-                    return;
+            var luaBinding = target as LuaBinding;
+            bindingList.onAddCallback += _ => {
+                luaBinding.BindingContainer.Add( new LuaBinding.LuaUnityBinding() );
+                serializedObject.Update();
+            };
+            
+            var bindingType = typeof(LuaBinding.LuaUnityBinding);
+            bindingList.drawElementCallback += (rect, index, active, focused) => {
+                rect.height = EditorGUIUtility.singleLineHeight;
+                var elementProp = bindingProp.GetArrayElementAtIndex( index );
+                var fields = bindingType.GetFields( BindingFlags.Public | BindingFlags.Instance );
+                foreach( var field in fields ) {
+                    var prop = elementProp.FindPropertyRelative( field.Name );
+                    EditorGUI.PropertyField( rect, prop );
+                    rect.y += EditorGUIUtility.singleLineHeight;
                 }
 
-                var klass = retValues[0] as LuaTable;
-                var bindingConfig = klass.Get<LuaTable>( "binding" );
-                var old = targetObject.bindingContainer;
-                targetObject.bindingContainer = new LuaBinding.StringGOSerializableDictionary();
-
-                bindingConfig.ForEach( ( string varName, LuaTable typ ) => {
-                    if( old.TryGetValue( varName, out var binding ) &&
-                        !( binding.type == null && binding.go == null ) ) {
-                        targetObject.bindingContainer.Add( varName, binding );
+                var binding = luaBinding.BindingContainer[index];
+                if( binding.UnityObject ) {
+                    Component[] components;
+                    int selectedIndex;
+                    if( binding.UnityObject is GameObject gameObject ) {
+                        components = gameObject.GetComponents<Component>();
+                        selectedIndex = components.Length;
                     }
                     else {
-                        targetObject.bindingContainer.Add( varName, new LuaBinding.LuaUnityBinding() {
-                            type = typ.GetInPath<Type>( "UnderlyingSystemType" )
-                        } );
+                        var component = ( binding.UnityObject as Component );
+                        components = component.GetComponents<Component>();
+                        selectedIndex = Array.IndexOf( components, component );
                     }
-                } );
-                EditorUtility.SetDirty( targetObject );
-            }
+                    var componentNames = new string[components.Length + 1];
+                    for( var i = 0; i < components.Length; i++ ) {
+                        componentNames[i] = components[i].GetType().Name;
+                    }
+
+                    componentNames[componentNames.Length - 1] = "GameObject";
+                    
+                    var selectIndex = EditorGUI.Popup( rect, "可选组件", selectedIndex, componentNames );
+                    if( selectIndex < components.Length ) {
+                        binding.UnityObject = components[selectIndex];
+                    }
+                    else {
+                        binding.UnityObject = components[0].gameObject;
+                    }
+                }
+                
+                serializedObject.ApplyModifiedProperties();
+            };
+
+            bindingList.elementHeight = EditorGUIUtility.singleLineHeight * 3;
         }
-    }
 
-    [CustomEditor( typeof( LuaBinding_Update ) )]
-    public class LuaBinding_UpdateEditor : LuaBindingEditor {
-
+        public override void OnInspectorGUI() {
+            base.OnInspectorGUI();
+            bindingList.DoLayoutList();
+        }
     }
 }

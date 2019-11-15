@@ -2,8 +2,9 @@
 using System.IO;
 using UnityEngine;
 using UnityEngine.Assertions;
+using XLua;
 
-namespace XLua.Extend.LuaUtil {
+namespace Extend.LuaUtil {
 	[LuaCallCSharp]
 	public static class ConfigUtil {
 		private const string CONFIG_PATH_PREFIX = "Config/";

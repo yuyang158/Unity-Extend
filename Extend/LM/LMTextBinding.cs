@@ -1,6 +1,6 @@
 ﻿using UnityEngine.UI;
 
-namespace XLua.Extend.LM {
+namespace Extend.LM {
     public class LMTextBinding : LuaMVVMBinding {
         public Text text;
         private void Awake() {

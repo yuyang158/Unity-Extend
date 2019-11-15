@@ -1,6 +1,6 @@
 ---@class ConfigService
 local M = {}
-local ConfigUtil = CS.XLua.Extend.LuaUtil.ConfigUtil
+local ConfigUtil = CS.Extend.LuaUtil.ConfigUtil
 local configs = {}
 local math = math
 local tonumber = tonumber

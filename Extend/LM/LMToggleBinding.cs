@@ -1,17 +1,19 @@
-﻿using UnityEngine.UI;
+﻿using UnityEngine;
+using UnityEngine.UI;
 
-namespace XLua.Extend.LM {
-    public class LMToggleBinding : LMBooleanBinding {
-        public Toggle toggle;
+namespace Extend.LM {
+	[RequireComponent( typeof(Toggle) )]
+	public class LMToggleBinding : LMBooleanBinding {
+		private Toggle toggle;
 
-        private void Awake() {
-            if( !toggle ) {
-                toggle = GetComponent<Toggle>();
-            }
-        }
+		private void Awake() {
+			if( !toggle ) {
+				toggle = GetComponent<Toggle>();
+			}
+		}
 
-        protected override void ChangeBoolean( bool b ) {
-            toggle.isOn = b;
-        }
-    }
+		protected override void ChangeBoolean(bool b) {
+			toggle.isOn = b;
+		}
+	}
 }

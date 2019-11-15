@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace XLua.Extend.LM {
+namespace Extend.LM {
     public class LMReflectionBinding : LuaMVVMBinding {
         public Component component;
         public string fieldName;
