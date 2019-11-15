@@ -18,7 +18,7 @@
 
 * 读取以\t为分隔符的csv文件
 * 格式：第一行为Key，第二行为该列类型，第三行为列描述
-* 支持类型 int number string json link
+* 支持类型 int number string json link boolean
 * link类型为外链id，可以在lua中直接访问对应链接表
 * 相关实现代码为Example/Resources/Lua/ConfigService.lua
 
