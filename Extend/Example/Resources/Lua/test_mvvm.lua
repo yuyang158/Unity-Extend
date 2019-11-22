@@ -3,7 +3,7 @@ local doc = mvvm.new_doc("test", {text = "", toggle = false, gold = 10})
 local time = CS.UnityEngine.Time
 local LuaUtil = CS.XLua.LuaUtil
 
-local SM = require "ServiceManager"
+-- local SM = require "ServiceManager"
 
 local M = class()
 function M:ctor(go)
@@ -17,12 +17,12 @@ function M:awake()
     self.red = LuaUtil.UnityExtension4XLua.LoadSprite("red")
 
     ---@type ConfigService
-    local configService = SM.GetService(SM.SERVICE_TYPE.CONFIG)
+    --[[local configService = SM.GetService(SM.SERVICE_TYPE.CONFIG)
     local rowData = configService.GetConfigRow("excel1", "E1_3")
     print(rowData.test1)
     print(rowData.test2)
     print(rowData.test3)
-    print(rowData.excel2.test1)
+    print(rowData.excel2.test1)]]
 end
 
 function M:update()

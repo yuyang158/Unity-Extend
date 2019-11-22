@@ -1,3 +1,9 @@
+---@class TestBinding
+---@field btn1 CS.UnityEngine.UI.Button
+---@field txt CS.UnityEngine.UI.Text
+---@field num number
+---@field str string
+
 local M = class()
 local mvvm = require("mvvm")
 local SM = require("ServiceManager")
@@ -17,6 +23,7 @@ function M:ctor(go)
             timeLast = 0
             doc.a = doc.a + 1
             doc.c[2] = math.random( 1, 100 )
+            self.txt.text = doc.a
         end
     end)
 end

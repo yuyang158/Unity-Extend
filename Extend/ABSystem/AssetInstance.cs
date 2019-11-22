@@ -16,7 +16,7 @@ namespace ABSystem {
 
 		public override void Destroy() {
 			RefAB.Release();
-			var service =(ABService)CSharpServiceManager.Get( CSharpServiceManager.ServiceType.AB_SERVICE );
+			var service = CSharpServiceManager.Get<ABService>( CSharpServiceManager.ServiceType.AB_SERVICE );
 			service.RemoveAsset( AssetPath );
 		}
 	}

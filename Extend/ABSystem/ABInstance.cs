@@ -22,7 +22,7 @@ namespace ABSystem {
 				dependency.Release();
 			}
 
-			var service =(ABService)CSharpServiceManager.Get( CSharpServiceManager.ServiceType.AB_SERVICE );
+			var service = CSharpServiceManager.Get<ABService>( CSharpServiceManager.ServiceType.AB_SERVICE );
 			service.RemoveAB( ABPath );
 			
 			AB.Unload( false );
