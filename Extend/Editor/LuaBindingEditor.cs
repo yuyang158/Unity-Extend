@@ -46,7 +46,18 @@ namespace Extend {
 				}
 
 				foreach( var field in descriptor.Fields ) {
+					if(field.FieldName.StartsWith("_"))
+						continue;
 					
+					if( field.FieldType.Contains("[]") ) {
+
+					}
+					else if( field.FieldType.StartsWith("CS.") ) {
+						
+					}
+					else {
+						
+					}
 				}
 			}
 
