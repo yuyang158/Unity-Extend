@@ -18,8 +18,11 @@ namespace Extend.Editor {
 		public LuaClassDescriptor(TextReader reader) {
 			Fields = new List<LuaClassField>();
 
-			var line = reader.ReadLine();
-			while( !string.IsNullOrEmpty(line) ) {
+			while( true ) {
+				var line = reader.ReadLine();
+				if(string.IsNullOrEmpty(line))
+					break;
+				
 				string[] statements;
 				if( line.StartsWith("---@class") ) {
 					statements = line.Split(' ');
@@ -28,7 +31,6 @@ namespace Extend.Editor {
 						var baseClassName = statements[3];
 						BaseClass = LuaClassEditorFactory.GetDescriptor(baseClassName);
 					}
-
 					continue;
 				}
 
@@ -59,7 +61,7 @@ namespace Extend.Editor {
 			}
 
 			var path = className.Replace('.', '/');
-			var asset = AssetDatabase.LoadAssetAtPath<TextAsset>("Extend/Example/Lua/" + path + ".lua");
+			var asset = Resources.Load<TextAsset>("Lua/" + path);
 
 			if( !asset.text.Contains("---@class") ) {
 				return null;

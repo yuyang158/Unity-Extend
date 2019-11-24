@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
+using Common;
 using UnityEngine;
+using XLua;
 
-namespace XLua.Extend.LM {
+namespace Extend.LM {
     public class LMInitializer : MonoBehaviour {
         private void Start() {
             var usedDocRoots = new Dictionary<string, LuaTable>();
@@ -11,7 +13,8 @@ namespace XLua.Extend.LM {
                 var rootName = splitPath[0];
 
                 if( !usedDocRoots.TryGetValue( rootName, out var doc ) ) {
-                    doc = LuaMVVM.Instance.GetDocRoot( rootName );
+                    var mvvm = CSharpServiceManager.Get<LuaMVVM>(CSharpServiceManager.ServiceType.MVVM_SERVICE);
+                    doc = mvvm.GetDocRoot( rootName );
                     usedDocRoots.Add( rootName, doc );
                 }
 

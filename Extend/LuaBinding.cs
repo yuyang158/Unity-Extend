@@ -8,20 +8,24 @@ using Object = UnityEngine.Object;
 namespace Extend {
 	[CSharpCallLua, LuaCallCSharp]
 	public class LuaBinding : MonoBehaviour {
+		[Serializable]
+		public class BindingDictionaryContainer : SerializableDictionary<string, object> {
+			
+		}
+		
 		public string LuaFile;
 
 		private void Awake() {
 			if( string.IsNullOrEmpty( LuaFile ) )
 				return;
 			var ret = LuaVM.Default.LoadFileAtPath( LuaFile );
-			var luaClass = ret[0] as LuaTable;
-			if( luaClass == null )
+			if( !( ret[0] is LuaTable luaClass ) )
 				return;
 			var constructor = luaClass.Get<LuaFunction>( "new" );
 			constructor?.Call( gameObject );
 		}
 
-		[HideInInspector] public SerializableDictionary<string, object> BindingContainer;
+		[HideInInspector] public BindingDictionaryContainer BindingContainer;
 		private LuaTable bindInstance;
 
 		public void Bind(LuaTable instance) {

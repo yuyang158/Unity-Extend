@@ -747,7 +747,6 @@ GameObject:
   - component: {fileID: 1304325727}
   - component: {fileID: 1304325726}
   - component: {fileID: 1304325725}
-  - component: {fileID: 1304325730}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -767,7 +766,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b707bd6caa68448419b0d3a7ed790234, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  LuaFile: 
+  LuaFile: Lua/UI/TestPanel
+  BindingContainer:
+    buckets: ffffffff03000000ffffffff04000000ffffffff02000000ffffffff
+    count: 5
+    entriesHashCode: b62e22473ea5fb66c0b72c16bcb72c1659a7fb660000000000000000
+    entriesNext: ffffffffffffffffffffffff00000000010000000000000000000000
+    entriesKey:
+    - txt
+    - btn
+    - b
+    - f
+    - str
+    - 
+    - 
+    freeCount: 0
+    freeList: -1
 --- !u!114 &1304325726
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -854,18 +868,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
---- !u!114 &1304325730
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1304325724}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 061bfba48d6f79f4c8981fca65409938, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1554515058
 GameObject:
   m_ObjectHideFlags: 0
