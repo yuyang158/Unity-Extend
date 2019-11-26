@@ -2,43 +2,59 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Extend.Editor;
+using Extend.LuaBindingData;
 using UnityEditor;
+using UnityEditor.SceneManagement;
+using UnityEditor.UI;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
-namespace Extend {
+namespace Extend.Editor {
 	[CustomEditor(typeof(LuaBinding))]
 	public class LuaBindingEditor : UnityEditor.Editor {
 		private LuaBinding binding;
-		private static readonly Dictionary<string, Action<string, string>> specialTypeActions = new Dictionary<string, Action<string, string>>();
-		private LuaClassDescriptor descriptor;
+		private static readonly string[] basicTypes = {"string", "number", "boolean", "integer"};
 
-		public LuaBindingEditor() {
-			specialTypeActions.Clear();
-			specialTypeActions.Add("number", (label, fieldName) => {
-				var val = binding.BindingContainer.ContainsKey(fieldName) ? binding.BindingContainer[fieldName] : default(double);
-				binding.BindingContainer[fieldName] = EditorGUILayout.DoubleField(label, (double)val);
-			});
-			
-			specialTypeActions.Add("string", (label, fieldName) => {
-				var val = binding.BindingContainer.ContainsKey(fieldName) ? binding.BindingContainer[fieldName] : string.Empty;
-				binding.BindingContainer[fieldName] = EditorGUILayout.TextField(label, (string)val);
-			});
-			
-			specialTypeActions.Add("boolean", (label, fieldName) => {
-				var val = binding.BindingContainer.ContainsKey(fieldName) ? binding.BindingContainer[fieldName] : default(bool);
-				binding.BindingContainer[fieldName] = EditorGUILayout.Toggle(label, (bool)val);
-			});
-		}
+		private static readonly Type[] basicBindingTypes = {
+			typeof(LuaBindingStringData),
+			typeof(LuaBindingNumberData),
+			typeof(LuaBindingBooleanData),
+			typeof(LuaBindingIntegerData)
+		};
+
+		private LuaClassDescriptor descriptor;
+		private readonly List<LuaBindingDataBase> isUsedBinding = new List<LuaBindingDataBase>();
 
 		private void OnEnable() {
 			binding = target as LuaBinding;
-			
 			if( string.IsNullOrEmpty(binding.LuaFile) || !File.Exists(Application.dataPath + "/Resources/" + binding.LuaFile + ".lua") ) {
 				return;
 			}
 
 			descriptor = LuaClassEditorFactory.GetDescriptorWithFilePath(binding.LuaFile);
+		}
+
+		private void CheckBinding(LuaClassField field, Type dataBindType) {
+			LuaBindingDataBase matched = null;
+			foreach( var bind in binding.BindingContainer ) {
+				if( bind.FieldName != field.FieldName ) continue;
+				if( bind.GetType() != dataBindType ) continue;
+				matched = bind;
+				break;
+			}
+
+			if( matched == null ) {
+				matched = Activator.CreateInstance(dataBindType) as LuaBindingDataBase;
+				matched.FieldName = field.FieldName;
+				binding.BindingContainer.Add(matched);
+			}
+
+			isUsedBinding.Add(matched);
+			matched.FieldType = field.FieldType;
+		}
+
+		private void CheckBinding<T>(LuaClassField field) where T : LuaBindingDataBase {
+			CheckBinding(field, typeof(T));
 		}
 
 		public override void OnInspectorGUI() {
@@ -53,43 +69,72 @@ namespace Extend {
 				}
 
 				if( binding.BindingContainer == null ) {
-					binding.BindingContainer = new LuaBinding.BindingDictionaryContainer();
+					binding.BindingContainer = new List<LuaBindingDataBase>();
 				}
 
+				if( binding.BindingContainer.Any(bind => bind == null) ) {
+					binding.BindingContainer.Clear();
+				}
+
+				isUsedBinding.Clear();
 				foreach( var field in descriptor.Fields ) {
-					if(field.FieldName.StartsWith("_"))
+					if( field.FieldName.StartsWith("_") )
 						continue;
 
-					binding.BindingContainer.TryGetValue(field.FieldName, out var val);
-					var label = string.IsNullOrEmpty(field.Comment) ? field.FieldName : field.Comment;
 					if( field.FieldType.Contains("[]") ) {
-						
+						CheckBinding<LuaBindingUOArrayData>(field);
 					}
 					else if( field.FieldType.StartsWith("CS.") ) {
 						var typeName = field.FieldType.Substring(3);
-						var type = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes()).First(x => x.FullName == typeName);
+						var type = String2TypeCache.GetType(typeName);
 						if( type == null ) {
 							EditorGUILayout.HelpBox($"Can not find type : {typeName}", MessageType.Error);
 						}
 						else {
-							val = EditorGUILayout.ObjectField(label, (UnityEngine.Object)val, type, true);
-							binding.BindingContainer[field.FieldName] = val;
+							CheckBinding<LuaBindingUOData>(field);
 						}
 					}
 					else {
-						if( specialTypeActions.TryGetValue(field.FieldType, out var processAction) ) {
-							processAction(label, field.FieldName);
+						var index = Array.IndexOf(basicTypes, field.FieldType);
+						if( index >= 0 ) {
+							var typ = basicBindingTypes[index];
+							CheckBinding(field, typ);
 						}
 						else {
-							val = EditorGUILayout.ObjectField(label, (UnityEngine.Object)val, typeof(LuaBinding), true);
-							binding.BindingContainer[field.FieldName] = val;	
+							CheckBinding<LuaBindingUOData>(field);
 						}
 					}
 				}
+
+				if( binding.BindingContainer.Count != isUsedBinding.Count ) {
+					binding.BindingContainer.Clear();
+					binding.BindingContainer.AddRange(isUsedBinding);
+				}
 			}
 
-			if( GUILayout.Button("重新加载Lua文件") ) {
-				LuaClassEditorFactory.ReloadDescriptor(descriptor.ClassName);
+			serializedObject.UpdateIfRequiredOrScript();
+			var fields = target.GetType().GetFields();
+			foreach( var fieldInfo in fields ) {
+				if( !fieldInfo.IsPublic || !fieldInfo.FieldType.IsArray )
+					continue;
+				var prop = serializedObject.FindProperty(fieldInfo.Name);
+				if( prop == null || prop.isArray == false )
+					continue;
+
+				var arr = fieldInfo.GetValue(target) as Array;
+				for( var i = 0; i < prop.arraySize; i++ ) {
+					var arrElem = arr.GetValue(i) as LuaBindingDataBase;
+					var elementProp = prop.GetArrayElementAtIndex(i);
+					var dataProp = elementProp.FindPropertyRelative("Data");
+					arrElem.OnPropertyDrawer(dataProp);
+				}
+			}
+
+			serializedObject.ApplyModifiedProperties();
+
+			if( !GUILayout.Button("重新加载Lua文件") ) {
+				if( descriptor == null ) return;
+				descriptor = LuaClassEditorFactory.ReloadDescriptor(descriptor.ClassName);	
 			}
 		}
 	}

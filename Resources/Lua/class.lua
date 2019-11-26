@@ -1,3 +1,4 @@
+---@class integer
 function class(super)
     local class_type = {}
     class_type.ctor = false
