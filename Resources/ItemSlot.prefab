@@ -50,7 +50,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b707bd6caa68448419b0d3a7ed790234, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  LuaFile: Lua/UI/ItemSlot
+  LuaFile: UI/ItemSlot
   IntData: []
   BoolData: []
   NumData: []

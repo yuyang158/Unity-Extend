@@ -112,6 +112,31 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &163999692 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 163999692, guid: f27608ab5a414db4f9ff9d5c7c70e5e5,
+    type: 3}
+  m_PrefabInstance: {fileID: 3122048485817845379}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &163999695
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 163999692}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 6aa6923d941342f4db5adff9a3f9704d, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1 &654936720
 GameObject:
   m_ObjectHideFlags: 0
@@ -445,6 +470,56 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Pivot.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3122048484682131678, guid: f27608ab5a414db4f9ff9d5c7c70e5e5,
+        type: 3}
+      propertyPath: LuaFile
+      value: UI/TestPanel
+      objectReference: {fileID: 0}
+    - target: {fileID: 5042921480255219422, guid: f27608ab5a414db4f9ff9d5c7c70e5e5,
+        type: 3}
+      propertyPath: LuaFile
+      value: UI/ItemSlot
+      objectReference: {fileID: 0}
+    - target: {fileID: 163999692, guid: f27608ab5a414db4f9ff9d5c7c70e5e5, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 163999694, guid: f27608ab5a414db4f9ff9d5c7c70e5e5, type: 3}
+      propertyPath: States.Array.data[0].AnimatorSwitchers.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 163999694, guid: f27608ab5a414db4f9ff9d5c7c70e5e5, type: 3}
+      propertyPath: States.Array.data[1].AnimatorSwitchers.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 163999694, guid: f27608ab5a414db4f9ff9d5c7c70e5e5, type: 3}
+      propertyPath: States.Array.data[0].AnimatorSwitchers.Array.data[0].Ani
+      value: 
+      objectReference: {fileID: 163999695}
+    - target: {fileID: 163999694, guid: f27608ab5a414db4f9ff9d5c7c70e5e5, type: 3}
+      propertyPath: States.Array.data[0].AnimatorSwitchers.Array.data[0].Value.NameHash
+      value: -1682086748
+      objectReference: {fileID: 0}
+    - target: {fileID: 163999694, guid: f27608ab5a414db4f9ff9d5c7c70e5e5, type: 3}
+      propertyPath: States.Array.data[1].AnimatorSwitchers.Array.data[0].Ani
+      value: 
+      objectReference: {fileID: 163999695}
+    - target: {fileID: 163999694, guid: f27608ab5a414db4f9ff9d5c7c70e5e5, type: 3}
+      propertyPath: States.Array.data[1].AnimatorSwitchers.Array.data[0].Value.NameHash
+      value: -1682086748
+      objectReference: {fileID: 0}
+    - target: {fileID: 163999694, guid: f27608ab5a414db4f9ff9d5c7c70e5e5, type: 3}
+      propertyPath: States.Array.data[0].AnimatorSwitchers.Array.data[0].Value.iV
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3554713, guid: f27608ab5a414db4f9ff9d5c7c70e5e5, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1159291519, guid: f27608ab5a414db4f9ff9d5c7c70e5e5, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f27608ab5a414db4f9ff9d5c7c70e5e5, type: 3}

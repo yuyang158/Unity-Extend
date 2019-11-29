@@ -27,7 +27,7 @@ namespace Extend.Editor {
 
 		private void OnEnable() {
 			binding = target as LuaBinding;
-			if( string.IsNullOrEmpty(binding.LuaFile) || !File.Exists(Application.dataPath + "/Resources/" + binding.LuaFile + ".lua") ) {
+			if( string.IsNullOrEmpty(binding.LuaFile) || !File.Exists(Application.dataPath + "/Resources/Lua/" + binding.LuaFile + ".lua") ) {
 				return;
 			}
 
@@ -59,7 +59,7 @@ namespace Extend.Editor {
 
 		public override void OnInspectorGUI() {
 			base.OnInspectorGUI();
-			if( string.IsNullOrEmpty(binding.LuaFile) || !File.Exists(Application.dataPath + "/Resources/" + binding.LuaFile + ".lua") ) {
+			if( string.IsNullOrEmpty(binding.LuaFile) || !File.Exists(Application.dataPath + "/Resources/Lua/" + binding.LuaFile + ".lua") ) {
 				EditorGUILayout.HelpBox("需要设置Lua文件！", MessageType.Error);
 			}
 			else {

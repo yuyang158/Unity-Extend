@@ -49,6 +49,9 @@ local columnDataConverter = {
 ---@ param columnType string
 ---@ param columnData table
 local function convert_column_data(columnData, columnType, key)
+    if not columnData or #columnData == 0 then
+        return
+    end
     return columnDataConverter[columnType](columnData, key)
 end
 

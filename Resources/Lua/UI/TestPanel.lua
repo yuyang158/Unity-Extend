@@ -6,6 +6,7 @@
 ---@field str string
 ---@field bool boolean
 ---@field i integer
+---@field stateSwitcher CS.Extend.Switcher.StateSwitcher
 local M = class()
 
 function M:ctor()
