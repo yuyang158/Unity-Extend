@@ -3,10 +3,11 @@
 
 ## 功能
 
-1. 自动向Lua实例中绑定Unity组件，相关文件：
+1. 通过分析注释内容(emmylua)反射lua变量，Unity组件（单个、数组）、string、number、integer、boolean，相关文件：
 
 * LuaBinding.cs
-* Example\Resources\Lua\test_binding.lua.txt
+* Resources/Lua/UI/TestPanel.lua
+* Resources/Lua/UI/ItemSlot.lua
 
 2. Unity UI与Lua Table的绑定
 
