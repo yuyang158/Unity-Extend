@@ -118,6 +118,18 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 3122048485817845379}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &163999694 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 163999694, guid: f27608ab5a414db4f9ff9d5c7c70e5e5,
+    type: 3}
+  m_PrefabInstance: {fileID: 3122048485817845379}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 163999692}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d8e3f34a8c83b1a40804bd559e3171c6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!95 &163999695
 Animator:
   serializedVersion: 3
@@ -473,9 +485,24 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3122048484682131678, guid: f27608ab5a414db4f9ff9d5c7c70e5e5,
         type: 3}
+      propertyPath: UOData.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3122048484682131678, guid: f27608ab5a414db4f9ff9d5c7c70e5e5,
+        type: 3}
       propertyPath: LuaFile
       value: UI/TestPanel
       objectReference: {fileID: 0}
+    - target: {fileID: 3122048484682131678, guid: f27608ab5a414db4f9ff9d5c7c70e5e5,
+        type: 3}
+      propertyPath: UOData.Array.data[2].FieldName
+      value: stateSwitcher
+      objectReference: {fileID: 0}
+    - target: {fileID: 3122048484682131678, guid: f27608ab5a414db4f9ff9d5c7c70e5e5,
+        type: 3}
+      propertyPath: UOData.Array.data[2].Data
+      value: 
+      objectReference: {fileID: 163999694}
     - target: {fileID: 5042921480255219422, guid: f27608ab5a414db4f9ff9d5c7c70e5e5,
         type: 3}
       propertyPath: LuaFile
