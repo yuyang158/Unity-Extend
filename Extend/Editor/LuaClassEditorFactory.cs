@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
 
@@ -12,42 +14,67 @@ namespace Extend.Editor {
 
 	public class LuaClassDescriptor {
 		public string ClassName;
-		public List<LuaClassField> Fields;
-		public LuaClassDescriptor BaseClass;
+		public readonly List<LuaClassField> Fields = new List<LuaClassField>();
+		public readonly List<string> Methods = new List<string>();
+		private LuaClassDescriptor baseClass;
 
 		public LuaClassDescriptor(TextReader reader) {
-			Fields = new List<LuaClassField>();
+			Reload(reader);
+		}
+
+		public void Reload(TextReader reader) {
+			Fields.Clear();
+			Methods.Clear();
 
 			while( true ) {
 				var line = reader.ReadLine();
-				if(string.IsNullOrEmpty(line))
+				if( line == null )
 					break;
-				
+
+				if( line == string.Empty )
+					continue;
+
 				string[] statements;
 				if( line.StartsWith("---@class") ) {
 					statements = line.Split(' ');
 					ClassName = statements[1];
 					if( statements.Length == 4 ) {
 						var baseClassName = statements[3];
-						BaseClass = LuaClassEditorFactory.GetDescriptor(baseClassName);
+						baseClass = LuaClassEditorFactory.GetDescriptor(baseClassName);
 					}
-					continue;
+				}
+				else if( line.StartsWith("---@field") ) {
+					statements = line.Split(' ');
+					if( statements.Length < 3 ) {
+						Debug.LogWarning($"Can not recognized line : {line}");
+						continue;
+					}
+
+					Fields.Add(new LuaClassField {
+						FieldName = statements[1],
+						FieldType = statements[2],
+						Comment = statements.Length > 3 ? statements[3] : ""
+					});
+				}
+				else {
+					var match = Regex.Match(line, @"M.\w+");
+					if( !match.Success ) {
+						continue;
+					}
+
+					var methodName = match.Value.Substring(2);
+					if( !methodName.StartsWith("_") ) {
+						Methods.Add(methodName);
+					}
+				}
+			}
+
+			if( baseClass != null ) {
+				foreach( var baseMethodName in baseClass.Methods.Where(baseMethodName => !Methods.Contains(baseMethodName)) ) {
+					Methods.Add(baseMethodName);
 				}
 
-				if( !line.StartsWith("---@field") )
-					continue;
-
-				statements = line.Split(' ');
-				if( statements.Length < 3 ) {
-					Debug.LogWarning($"Can not recognized line : {line}");
-					continue;
-				}
-
-				Fields.Add(new LuaClassField() {
-					FieldName = statements[1],
-					FieldType = statements[2],
-					Comment = statements.Length > 3 ? statements[3] : ""
-				});
+				Fields.AddRange(baseClass.Fields);
 			}
 		}
 	}
@@ -81,14 +108,15 @@ namespace Extend.Editor {
 			using( var reader = new StringReader(asset.text) ) {
 				while( true ) {
 					var line = reader.ReadLine();
-					if(string.IsNullOrEmpty(line))
+					if( string.IsNullOrEmpty(line) )
 						break;
 
 					if( !line.StartsWith("---@class") ) continue;
 					var statements = line.Split(' ');
 					if( statements.Length < 2 ) {
 						break;
-					} 
+					}
+
 					var className = statements[1];
 					return GetDescriptor(className);
 				}
@@ -98,7 +126,20 @@ namespace Extend.Editor {
 		}
 
 		public static LuaClassDescriptor ReloadDescriptor(string className) {
-			descriptors.Remove(className);
+			if( descriptors.TryGetValue(className, out var descriptor) ) {
+				var path = className.Replace('.', '/');
+				var asset = Resources.Load<TextAsset>("Lua/" + path);
+
+				if( !asset ) {
+					return null;
+				}
+
+				using( var reader = new StringReader(asset.text) ) {
+					descriptor.Reload(reader);
+					return descriptor;
+				}
+			}
+
 			return GetDescriptor(className);
 		}
 	}

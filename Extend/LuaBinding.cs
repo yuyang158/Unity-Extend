@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Extend.LuaBindingData;
 using UnityEngine;
 using XLua;
@@ -31,8 +30,6 @@ namespace Extend {
 
 		public LuaTable LuaInstance => bindInstance;
 		
-		[HideInInspector]
-
 		public void Bind(LuaTable instance) {
 			bindInstance = instance;
 			if( BindingContainer == null ) return;

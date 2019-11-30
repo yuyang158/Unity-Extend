@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using XLua;
 
 namespace Extend.Switcher {
+	[LuaCallCSharp]
 	public class StateSwitcher : MonoBehaviour {
 		[Serializable]
 		public class State {
