@@ -9,7 +9,8 @@ namespace ABSystem.Editor {
 		public enum Operation {
 			ALL_IN_ONE,
 			STAY_RESOURCES,
-			EACH_FOLDER_ONE
+			EACH_FOLDER_ONE,
+			EACH_A_AB
 		}
 		
 		public DefaultAsset FolderPath;
@@ -19,6 +20,8 @@ namespace ABSystem.Editor {
 	}
 
 	public class StaticABSettings : ScriptableObject {
+		public DefaultAsset SpriteAtlasFolder;
+		
 		public List<StaticABSetting> Settings;
 	}
 }

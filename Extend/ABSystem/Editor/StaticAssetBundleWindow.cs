@@ -9,77 +9,77 @@ using Directory = UnityEngine.Windows.Directory;
 
 namespace ABSystem.Editor {
 	public class StaticAssetBundleWindow : EditorWindow {
-		[MenuItem( "Window/AB Builder" )]
+		[MenuItem("Window/AB Builder")]
 		private static void Init() {
-			var window = (StaticAssetBundleWindow) GetWindow( typeof(StaticAssetBundleWindow) );
+			var window = (StaticAssetBundleWindow)GetWindow(typeof(StaticAssetBundleWindow));
 			window.Show();
 		}
 
 		private ReorderableList reList;
 		private StaticABSettings settingRoot;
+		private SerializedObject serializedObject;
 		private const string SETTING_FILE_PATH = "Assets/Extend/ABSystem/Editor/settings.asset";
 
 		private void OnEnable() {
 			if( settingRoot == null ) {
-				settingRoot = AssetDatabase.LoadAssetAtPath<StaticABSettings>( SETTING_FILE_PATH );
+				settingRoot = AssetDatabase.LoadAssetAtPath<StaticABSettings>(SETTING_FILE_PATH);
 				if( settingRoot == null ) {
 					settingRoot = CreateInstance<StaticABSettings>();
-					AssetDatabase.CreateAsset( settingRoot, SETTING_FILE_PATH );
-				}
-
-				if( settingRoot.Settings == null ) {
-					settingRoot.Settings = new List<StaticABSetting>();
+					AssetDatabase.CreateAsset(settingRoot, SETTING_FILE_PATH);
 				}
 			}
 
-			reList = new ReorderableList( settingRoot.Settings, typeof(StaticABSetting) );
-			reList.drawHeaderCallback += rect => { EditorGUI.LabelField( rect, "AB特殊处理列表" ); };
-
+			serializedObject = new SerializedObject(settingRoot);
+			var settingsProp = serializedObject.FindProperty("Settings");
+			reList = new ReorderableList(serializedObject, settingsProp);
+			reList.drawHeaderCallback += rect => { EditorGUI.LabelField(rect, "AB特殊处理列表"); };
 			reList.drawElementCallback += (rect, index, active, focused) => {
-				rect.y += ( rect.height - EditorGUIUtility.singleLineHeight ) / 2;
-				rect.height = EditorGUIUtility.singleLineHeight;
+				rect.height = EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
 				var totalWidth = position.width;
 				rect.width = totalWidth / 2;
-
-				var setting = settingRoot.Settings[index];
-				var asset = EditorGUI.ObjectField( rect, "路径", setting.FolderPath, typeof(DefaultAsset), false ) as DefaultAsset;
-				if( asset != setting.FolderPath ) {
-					var path = AssetDatabase.GetAssetPath( asset );
-					if( System.IO.Directory.Exists( path ) ) {
-						setting.FolderPath = asset;
-					}
-				}
+				
+				var settingProp = settingsProp.GetArrayElementAtIndex(index);
+				var pathProp = settingProp.FindPropertyRelative("FolderPath");
+				EditorGUI.PropertyField(rect, pathProp, new GUIContent("路径"));
 
 				rect.x += rect.width + 5;
 				rect.width = totalWidth - rect.x;
-				setting.Op = (StaticABSetting.Operation) EditorGUI.EnumPopup( rect, "操作", setting.Op );
+				var opProp = settingProp.FindPropertyRelative("Op");
+				EditorGUI.PropertyField(rect, opProp);
+				serializedObject.ApplyModifiedProperties();
 			};
 		}
 
 		private const int BOTTOM_BUTTON_COUNT = 3;
 
 		private void OnGUI() {
+			var atlasProp = serializedObject.FindProperty("SpriteAtlasFolder");
+			EditorGUILayout.PropertyField(atlasProp, new GUIContent("Atlas Root"));
+			EditorGUILayout.Space();
+
 			reList.DoLayoutList();
+			EditorGUILayout.Space();
 
 			var rect = EditorGUILayout.BeginHorizontal();
-			var width = position.width / BOTTOM_BUTTON_COUNT;
+			var segmentWidth = position.width / BOTTOM_BUTTON_COUNT;
 			rect.height = EditorGUIUtility.singleLineHeight;
 			rect.x = 5;
-			rect.width = width - 5;
-			if( GUI.Button( rect, "Build Whole New AB" ) ) {
-				BuildWholeAssetBundles();
+			rect.width = segmentWidth - 10;
+			if( GUI.Button(rect, "Rebuild All AB") ) {
+				RebuildAllAssetBundles();
 			}
 
-			rect.x += width;
-			if( GUI.Button( rect, "Build Update AB" ) ) {
+			rect.x += segmentWidth;
+			if( GUI.Button(rect, "Build Update AB") ) {
 				BuildUpdateAssetBundles();
 			}
 
-			rect.x += width;
-			if( GUI.Button( rect, "Save Config" ) ) {
+			rect.x += segmentWidth;
+			if( GUI.Button(rect, "Save Config") ) {
+				AssetDatabase.SaveAssets();
 			}
-
 			EditorGUILayout.EndHorizontal();
+			serializedObject.ApplyModifiedProperties();
 		}
 
 		private static string buildRoot;
@@ -88,13 +88,13 @@ namespace ABSystem.Editor {
 		private static string BuildOutputDirectory() {
 			var buildTarget = EditorUserBuildSettings.activeBuildTarget;
 			buildRoot = $"{Application.dataPath}/ABBuild";
-			if( !Directory.Exists( buildRoot ) ) {
-				Directory.CreateDirectory( buildRoot );
+			if( !Directory.Exists(buildRoot) ) {
+				Directory.CreateDirectory(buildRoot);
 			}
 
 			outputPath = $"{buildRoot}/{buildTarget.ToString()}";
-			if( !Directory.Exists( outputPath ) ) {
-				Directory.CreateDirectory( outputPath );
+			if( !Directory.Exists(outputPath) ) {
+				Directory.CreateDirectory(outputPath);
 			}
 
 			return outputPath;
@@ -102,66 +102,90 @@ namespace ABSystem.Editor {
 
 		private static void ExportResourcesPackageConf() {
 			// generate resources file to ab map config file
-			using( var writer = new StreamWriter( $"{outputPath}/package.conf" ) ) {
+			using( var writer = new StreamWriter($"{outputPath}/package.conf") ) {
 				foreach( var resourcesNode in BuildAssetRelation.ResourcesNodes ) {
 					var assetPath = resourcesNode.AssetPath.ToLower();
-					writer.WriteLine( $"{assetPath}|{resourcesNode.AssetBundleName}" );
+					writer.WriteLine($"{assetPath}|{resourcesNode.AssetBundleName}");
 				}
 			}
 		}
 
 		public void BuildUpdateAssetBundles(string versionFilePath = null) {
 			var outputDir = BuildOutputDirectory();
-			if( string.IsNullOrEmpty( versionFilePath ) ) {
-				versionFilePath = EditorUtility.OpenFilePanel( "Open version file", buildRoot, "bin" );
-				if( string.IsNullOrEmpty( versionFilePath ) )
+			if( string.IsNullOrEmpty(versionFilePath) ) {
+				versionFilePath = EditorUtility.OpenFilePanel("Open version file", buildRoot, "bin");
+				if( string.IsNullOrEmpty(versionFilePath) )
 					return;
 			}
 
+			BuildAtlasAB();
 			BuildAssetRelation.Clear();
-			var allABs = BuildAssetRelation.BuildBaseVersionData( versionFilePath );
-			BuildAssetRelation.BuildRelation( settingRoot.Settings, () => {
+			var allABs = BuildAssetRelation.BuildBaseVersionData(versionFilePath);
+			BuildAssetRelation.BuildRelation(settingRoot.Settings, spritesInAtlas, () => {
 				ExportResourcesPackageConf();
-				var manifest = BuildPipeline.BuildAssetBundles( outputPath, BuildAssetBundleOptions.DeterministicAssetBundle | BuildAssetBundleOptions.ChunkBasedCompression,
-					EditorUserBuildSettings.activeBuildTarget );
+				var manifest = BuildPipeline.BuildAssetBundles(outputPath,
+					BuildAssetBundleOptions.DeterministicAssetBundle | BuildAssetBundleOptions.ChunkBasedCompression,
+					EditorUserBuildSettings.activeBuildTarget);
 
 				foreach( var abName in manifest.GetAllAssetBundles() ) {
-					if( allABs.Contains( abName ) ) continue;
-					BuildAssetRelation.NeedUpdateBundles.Add( abName );
-					allABs.Add( abName );
+					if( allABs.Contains(abName) ) continue;
+					BuildAssetRelation.NeedUpdateBundles.Add(abName);
+					allABs.Add(abName);
 				}
 
 				var date = DateTime.Now;
 				var localTime = date.ToLocalTime();
 				var dateString = $"{localTime.Year}-{localTime.Month}-{localTime.Day}_{localTime.Hour}-{localTime.Minute}-{localTime.Second}";
 				outputDir += $"update_{dateString}.txt";
-				using( var writer = new StreamWriter( outputDir ) ) {
+				using( var writer = new StreamWriter(outputDir) ) {
 					foreach( var needUpdateABName in BuildAssetRelation.NeedUpdateBundles ) {
-						var fileInfo = new FileInfo( needUpdateABName );
-						writer.WriteLine( $"{needUpdateABName}:{fileInfo.Length}" );
+						var fileInfo = new FileInfo(needUpdateABName);
+						writer.WriteLine($"{needUpdateABName}:{fileInfo.Length}");
 					}
 				}
-			} );
+			});
 		}
 
-		public void BuildWholeAssetBundles() {
+		private readonly HashSet<string> spritesInAtlas = new HashSet<string>();
+
+		private void BuildAtlasAB() {
+			spritesInAtlas.Clear();
+			var atlasDirectory = AssetDatabase.GetAssetPath(settingRoot.SpriteAtlasFolder);
+			var atlases = System.IO.Directory.GetFiles(atlasDirectory, "*.spriteatlas");
+			foreach( var atlas in atlases ) {
+				var directory = Path.GetDirectoryName(atlas) ?? "";
+				var abName = Path.Combine(directory, Path.GetFileNameWithoutExtension(atlas));
+				var dependencies = AssetDatabase.GetDependencies(atlas);
+				foreach( var dependency in dependencies ) {
+					var spriteImporter = AssetImporter.GetAtPath(dependency);
+					if( spriteImporter is TextureImporter ) {
+						spriteImporter.assetBundleName = abName;
+						spritesInAtlas.Add(dependency.ToLower());
+					}
+				}
+			}
+		}
+
+		public void RebuildAllAssetBundles() {
 			BuildOutputDirectory();
 			BuildAssetRelation.Clear();
-			BuildAssetRelation.BuildRelation( settingRoot.Settings, () => {
+			BuildAtlasAB();
+			
+			BuildAssetRelation.BuildRelation(settingRoot.Settings, spritesInAtlas, () => {
 				ExportResourcesPackageConf();
-				using( var fileStream = new FileStream( $"{buildRoot}/contentversion.bin", FileMode.OpenOrCreate, FileAccess.Write ) ) {
-					using( var writer = new BinaryWriter( fileStream ) ) {
+				using( var fileStream = new FileStream($"{buildRoot}/contentversion.bin", FileMode.OpenOrCreate, FileAccess.Write) ) {
+					using( var writer = new BinaryWriter(fileStream) ) {
 						foreach( var node in BuildAssetRelation.AllNodes ) {
-							writer.Write( node.GUID );
-							writer.Write( node.AssetBundleName );
-							writer.Write( node.AssetTimeStamp );
+							writer.Write(node.GUID);
+							writer.Write(node.AssetBundleName);
+							writer.Write(node.AssetTimeStamp);
 						}
 					}
 				}
 
-				BuildPipeline.BuildAssetBundles( outputPath, BuildAssetBundleOptions.DeterministicAssetBundle | BuildAssetBundleOptions.ChunkBasedCompression,
-					EditorUserBuildSettings.activeBuildTarget );
-			} );
+				BuildPipeline.BuildAssetBundles(outputPath, BuildAssetBundleOptions.DeterministicAssetBundle | BuildAssetBundleOptions.ChunkBasedCompression,
+					EditorUserBuildSettings.activeBuildTarget);
+			});
 		}
 	}
 }

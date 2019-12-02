@@ -13,8 +13,10 @@ namespace Extend.LuaBindingData {
 		protected UnityEngine.GUIContent editorContent;
 		public virtual void OnPropertyDrawer(UnityEditor.SerializedProperty prop) {
 			if( editorContent == null || string.IsNullOrEmpty(editorContent.text) ) {
-				editorContent = new UnityEngine.GUIContent(FieldName);
+				var name = UnityEditor.ObjectNames.NicifyVariableName(FieldName);
+				editorContent = new UnityEngine.GUIContent(name);
 			}
+			
 			UnityEditor.EditorGUILayout.PropertyField(prop, editorContent);
 		}
 #endif

@@ -28,6 +28,7 @@ namespace Extend.Switcher {
 		}
 
 		public State[] States;
+		private string currentState;
 
 		private void Awake() {
 			foreach( var state in States ) {
@@ -36,6 +37,9 @@ namespace Extend.Switcher {
 		}
 
 		public void Switch(string stateName) {
+			if(currentState == stateName)
+				return;
+			
 			var result = Array.Find(States, state => state.StateName == stateName);
 			if( result == null ) {
 				Debug.LogError($"Can not find state {stateName}");
@@ -43,6 +47,7 @@ namespace Extend.Switcher {
 			}
 			
 			result.Switch();
+			currentState = stateName;
 		}
 	}
 }

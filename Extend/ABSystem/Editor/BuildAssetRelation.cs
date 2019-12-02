@@ -4,13 +4,14 @@ using System.Collections.Generic;
 using System.IO;
 using Unity.EditorCoroutines.Editor;
 using UnityEditor;
+using UnityEngine;
 
 namespace ABSystem.Editor {
 	public static class BuildAssetRelation {
 		private static readonly Dictionary<string, AssetNode> resourcesNodes = new Dictionary<string, AssetNode>();
 		private static readonly Dictionary<string, AssetNode> allAssetNodes = new Dictionary<string, AssetNode>( 40960 );
 		private static List<StaticABSetting> manualSettings;
-		private static List<string> needUpdateBundles = new List<string>();
+		private static readonly List<string> needUpdateBundles = new List<string>();
 
 		private static readonly string[] ignoreExtensions = {
 			".cs",
@@ -81,8 +82,10 @@ namespace ABSystem.Editor {
 			return allAssetBundles;
 		}
 
-		public static void BuildRelation(List<StaticABSetting> settings, Action completeCallback) {
+		private static HashSet<string> s_spritesInAtlas;
+		public static void BuildRelation(List<StaticABSetting> settings, HashSet<string> spritesInAtlas, Action completeCallback) {
 			manualSettings = settings;
+			s_spritesInAtlas = spritesInAtlas;
 			foreach( var setting in manualSettings ) {
 				var settingFiles = Directory.GetFiles( setting.Path );
 				foreach( var filePath in settingFiles ) {
@@ -92,8 +95,12 @@ namespace ABSystem.Editor {
 					var importer = AssetImporter.GetAtPath( filePath );
 					if( !importer )
 						continue;
+					
+					if(spritesInAtlas.Contains(FormatPath(filePath.ToLower())))
+						continue;
 
 					var abName = string.Empty;
+					var directoryName = Path.GetDirectoryName( filePath ) ?? "";
 					switch( setting.Op ) {
 						case StaticABSetting.Operation.ALL_IN_ONE:
 							abName = setting.Path;
@@ -101,8 +108,10 @@ namespace ABSystem.Editor {
 						case StaticABSetting.Operation.STAY_RESOURCES:
 							break;
 						case StaticABSetting.Operation.EACH_FOLDER_ONE:
-							var directoryName = Path.GetDirectoryName( filePath );
 							abName = FormatPath( directoryName );
+							break;
+						case StaticABSetting.Operation.EACH_A_AB:
+							abName = FormatPath(Path.Combine(directoryName, Path.GetFileNameWithoutExtension(filePath)));
 							break;
 						default:
 							throw new ArgumentOutOfRangeException();
@@ -123,6 +132,8 @@ namespace ABSystem.Editor {
 		}
 
 		private static bool ContainInManualSettingDirectory(string path) {
+			if( s_spritesInAtlas.Contains(path.ToLower()) )
+				return true;
 			return manualSettings.Find( setting => path.Contains( setting.Path ) ) != null;
 		}
 

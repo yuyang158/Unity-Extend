@@ -12,4 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 0}
   m_Name: settings
   m_EditorClassIdentifier: Assembly-CSharp-Editor:ABSystem.Editor:StaticABSettings
-  Settings: []
+  SpriteAtlasFolder: {fileID: 102900000, guid: 2f26b1c14ce71734f900a3a777780238, type: 3}
+  Settings:
+  - FolderPath: {fileID: 102900000, guid: b5943f7fc0a60214991b43924cb31649, type: 3}
+    Op: 0
+  - FolderPath: {fileID: 102900000, guid: ef00e05cdf5c000458f3f6a6bf61d58f, type: 3}
+    Op: 3
