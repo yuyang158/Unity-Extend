@@ -15,7 +15,6 @@ namespace ABSystem.Editor {
 
 		private static readonly string[] ignoreExtensions = {
 			".cs",
-			".lua",
 			".meta"
 		};
 
@@ -87,7 +86,7 @@ namespace ABSystem.Editor {
 			manualSettings = settings;
 			s_spritesInAtlas = spritesInAtlas;
 			foreach( var setting in manualSettings ) {
-				var settingFiles = Directory.GetFiles( setting.Path );
+				var settingFiles = Directory.GetFiles( setting.Path, "*.*", SearchOption.AllDirectories );
 				foreach( var filePath in settingFiles ) {
 					if( Array.IndexOf( ignoreExtensions, Path.GetExtension( filePath ) ) >= 0 )
 						continue;

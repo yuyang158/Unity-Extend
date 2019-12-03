@@ -8,6 +8,7 @@ using XLua;
 namespace Extend {
 	[CSharpCallLua, LuaCallCSharp]
 	public class LuaBinding : MonoBehaviour, ISerializationCallbackReceiver {
+		[AssetPath(AssetType = typeof(TextAsset), order = 1, RootDir = "Assets/Resources/Lua")]
 		public string LuaFile;
 
 		private void Awake() {
@@ -26,12 +27,11 @@ namespace Extend {
 
 		[BlackList, NonSerialized]
 		public List<LuaBindingDataBase> BindingContainer;
-		private LuaTable bindInstance;
 
-		public LuaTable LuaInstance => bindInstance;
-		
+		public LuaTable LuaInstance { get; private set; }
+
 		public void Bind(LuaTable instance) {
-			bindInstance = instance;
+			LuaInstance = instance;
 			if( BindingContainer == null ) return;
 			foreach( var binding in BindingContainer ) {
 				binding.ApplyToLuaInstance(instance);

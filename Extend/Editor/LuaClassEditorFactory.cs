@@ -102,7 +102,7 @@ namespace Extend.Editor {
 		}
 
 		public static LuaClassDescriptor GetDescriptorWithFilePath(string path) {
-			var asset = Resources.Load<TextAsset>("Lua/" + path);
+			var asset = Resources.Load<TextAsset>("Lua/" + path.Substring(0, path.Length - 4));
 			if( !asset )
 				return null;
 			using( var reader = new StringReader(asset.text) ) {

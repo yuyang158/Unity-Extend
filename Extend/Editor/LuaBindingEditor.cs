@@ -59,8 +59,9 @@ namespace Extend.Editor {
 
 		public override void OnInspectorGUI() {
 			base.OnInspectorGUI();
-			if( string.IsNullOrEmpty(binding.LuaFile) || !File.Exists(Application.dataPath + "/Resources/Lua/" + binding.LuaFile + ".lua") ) {
+			if( string.IsNullOrEmpty(binding.LuaFile) ) {
 				EditorGUILayout.HelpBox("需要设置Lua文件！", MessageType.Error);
+				return;
 			}
 			else {
 				if( descriptor == null ) {
@@ -70,10 +71,6 @@ namespace Extend.Editor {
 
 				if( binding.BindingContainer == null ) {
 					binding.BindingContainer = new List<LuaBindingDataBase>();
-				}
-
-				if( binding.BindingContainer.Any(bind => bind == null) ) {
-					binding.BindingContainer.Clear();
 				}
 
 				isUsedBinding.Clear();

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Text;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace ABSystem.Editor {
 	public class AssetNode {
@@ -19,10 +20,12 @@ namespace ABSystem.Editor {
 		public string AssetBundleName {
 			get => importer.assetBundleName;
 			set {
+				Assert.IsFalse(Calculated);
 				Calculated = true;
-				if(importer.assetBundleName == value)
+				var abName = value.ToLower();
+				if(importer.assetBundleName == abName)
 					return;
-				importer.assetBundleName = value;
+				importer.assetBundleName = abName;
 			} 
 		}
 
@@ -102,7 +105,7 @@ namespace ABSystem.Editor {
 					}
 				}
 
-				return string.IsNullOrEmpty( AssetBundleName );
+				return true;
 			}
 		}
 

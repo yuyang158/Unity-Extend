@@ -85,9 +85,9 @@ namespace ABSystem.Editor {
 		private static string buildRoot;
 		private static string outputPath;
 
-		private static string BuildOutputDirectory() {
+		private static string MakeOutputDirectory() {
 			var buildTarget = EditorUserBuildSettings.activeBuildTarget;
-			buildRoot = $"{Application.dataPath}/ABBuild";
+			buildRoot = $"{Application.streamingAssetsPath}/ABBuild";
 			if( !Directory.Exists(buildRoot) ) {
 				Directory.CreateDirectory(buildRoot);
 			}
@@ -111,7 +111,7 @@ namespace ABSystem.Editor {
 		}
 
 		public void BuildUpdateAssetBundles(string versionFilePath = null) {
-			var outputDir = BuildOutputDirectory();
+			var outputDir = MakeOutputDirectory();
 			if( string.IsNullOrEmpty(versionFilePath) ) {
 				versionFilePath = EditorUtility.OpenFilePanel("Open version file", buildRoot, "bin");
 				if( string.IsNullOrEmpty(versionFilePath) )
@@ -167,7 +167,7 @@ namespace ABSystem.Editor {
 		}
 
 		public void RebuildAllAssetBundles() {
-			BuildOutputDirectory();
+			MakeOutputDirectory();
 			BuildAssetRelation.Clear();
 			BuildAtlasAB();
 			

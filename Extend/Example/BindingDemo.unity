@@ -369,6 +369,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 3122048484682131678, guid: f27608ab5a414db4f9ff9d5c7c70e5e5,
+        type: 3}
+      propertyPath: LuaFile
+      value: UI/TestPanel.lua
+      objectReference: {fileID: 0}
     - target: {fileID: 3122048484682131679, guid: f27608ab5a414db4f9ff9d5c7c70e5e5,
         type: 3}
       propertyPath: m_Name

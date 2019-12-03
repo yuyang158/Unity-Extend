@@ -18,7 +18,7 @@ namespace ABSystem.Editor {
 
 		public string Path => FolderPath ? AssetDatabase.GetAssetPath( FolderPath ) : string.Empty;
 	}
-
+	
 	public class StaticABSettings : ScriptableObject {
 		public DefaultAsset SpriteAtlasFolder;
 		
