@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
-using Directory = UnityEngine.Windows.Directory;
 
-namespace ABSystem.Editor {
+namespace Extend.AssetService.Editor {
 	public class StaticAssetBundleWindow : EditorWindow {
 		[MenuItem("Window/AB Builder")]
 		private static void Init() {
@@ -151,7 +149,7 @@ namespace ABSystem.Editor {
 		private void BuildAtlasAB() {
 			spritesInAtlas.Clear();
 			var atlasDirectory = AssetDatabase.GetAssetPath(settingRoot.SpriteAtlasFolder);
-			var atlases = System.IO.Directory.GetFiles(atlasDirectory, "*.spriteatlas");
+			var atlases = Directory.GetFiles(atlasDirectory, "*.spriteatlas");
 			foreach( var atlas in atlases ) {
 				var directory = Path.GetDirectoryName(atlas) ?? "";
 				var abName = Path.Combine(directory, Path.GetFileNameWithoutExtension(atlas));

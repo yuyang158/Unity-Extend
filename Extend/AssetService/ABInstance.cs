@@ -1,8 +1,7 @@
-using Common;
-using ABSystem;
+using Extend.Common;
 using UnityEngine;
 
-namespace ABSystem {
+namespace Extend.AssetService {
 	public class ABInstance : RefObject {
 		public AssetBundle AB { get; }
 		private string ABPath { get; }
@@ -22,7 +21,7 @@ namespace ABSystem {
 				dependency.Release();
 			}
 
-			var service = CSharpServiceManager.Get<ABService>( CSharpServiceManager.ServiceType.AB_SERVICE );
+			var service = CSharpServiceManager.Get<ABService>( CSharpServiceManager.ServiceType.ASSET_SERVICE );
 			service.RemoveAB( ABPath );
 			
 			AB.Unload( false );

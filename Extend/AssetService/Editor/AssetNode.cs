@@ -2,10 +2,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEditor;
-using UnityEngine;
 using UnityEngine.Assertions;
 
-namespace ABSystem.Editor {
+namespace Extend.AssetService.Editor {
 	public class AssetNode {
 		public string AssetPath => importer.assetPath;
 

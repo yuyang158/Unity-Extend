@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace ABSystem.Editor {
+namespace Extend.AssetService.Editor {
 	[Serializable]
 	public class StaticABSetting {
 		public enum Operation {

@@ -4,9 +4,8 @@ using System.Collections.Generic;
 using System.IO;
 using Unity.EditorCoroutines.Editor;
 using UnityEditor;
-using UnityEngine;
 
-namespace ABSystem.Editor {
+namespace Extend.AssetService.Editor {
 	public static class BuildAssetRelation {
 		private static readonly Dictionary<string, AssetNode> resourcesNodes = new Dictionary<string, AssetNode>();
 		private static readonly Dictionary<string, AssetNode> allAssetNodes = new Dictionary<string, AssetNode>( 40960 );

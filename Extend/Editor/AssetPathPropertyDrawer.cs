@@ -1,3 +1,4 @@
+using System.IO;
 using Extend.LuaBindingData;
 using UnityEditor;
 using UnityEngine;
@@ -7,7 +8,7 @@ namespace Extend.Editor {
 	public class AssetPathPropertyDrawer : PropertyDrawer {
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label) {
 			var pathAttr = attribute as AssetPathAttribute;
-			var path = $"{pathAttr.RootDir}/{property.stringValue}";
+			var path = $"{pathAttr.RootDir}/{property.stringValue}{pathAttr.Extension}";
 			var asset = AssetDatabase.LoadAssetAtPath<Object>(path);
 			var newAsset = EditorGUILayout.ObjectField(property.displayName, asset, pathAttr.AssetType, false);
 			if( newAsset == null ) {
@@ -15,12 +16,13 @@ namespace Extend.Editor {
 			}
 			else if( newAsset != asset ) {
 				var newPath = AssetDatabase.GetAssetPath(newAsset);
-				if( !newPath.StartsWith(pathAttr.RootDir) ) {
+				if( !newPath.StartsWith(pathAttr.RootDir) || Path.GetExtension(newPath) != pathAttr.Extension ) {
 					property.stringValue = "";
 					return;
 				}
 				
-				property.stringValue = newPath.Substring(pathAttr.RootDir.Length + 1);
+				property.stringValue = newPath.Substring(pathAttr.RootDir.Length + 1, 
+					newPath.Length - pathAttr.RootDir.Length - pathAttr.Extension.Length - 1);
 			}
 		}
 	}

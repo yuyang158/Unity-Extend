@@ -130,7 +130,14 @@ public static class XLuaGenConfig
                     }
                 }
             }
-            return delegate_types.Distinct().ToList();
+            var list = delegate_types.Distinct().ToList();
+            list.AddRange(
+            new [] {
+                typeof(Action),
+                typeof(Action<float>),
+                typeof(Action<bool>)
+            });
+            return list;
         }
     }
     //--------------end 纯lua编程配置参考----------------------------

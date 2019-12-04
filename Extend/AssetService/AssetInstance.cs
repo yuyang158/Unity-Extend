@@ -1,7 +1,7 @@
-using Common;
+using Extend.Common;
 using UnityEngine;
 
-namespace ABSystem {
+namespace Extend.AssetService {
 	public class AssetInstance : RefObject {
 		public Object UnityObject { get; }
 		private ABInstance RefAB { get; }
@@ -9,14 +9,16 @@ namespace ABSystem {
 		
 		public AssetInstance(Object unityObj, string assetPath, ABInstance refAB) {
 			UnityObject = unityObj;
-			RefAB = refAB;
-			RefAB.IncRef();
+			if( refAB != null ) {
+				RefAB = refAB;
+				RefAB.IncRef();	
+			}
 			AssetPath = assetPath;
 		}
 
 		public override void Destroy() {
-			RefAB.Release();
-			var service = CSharpServiceManager.Get<ABService>( CSharpServiceManager.ServiceType.AB_SERVICE );
+			RefAB?.Release();
+			var service = CSharpServiceManager.Get<IAssetService>( CSharpServiceManager.ServiceType.ASSET_SERVICE );
 			service.RemoveAsset( AssetPath );
 		}
 	}

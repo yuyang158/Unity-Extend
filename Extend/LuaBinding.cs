@@ -8,7 +8,7 @@ using XLua;
 namespace Extend {
 	[CSharpCallLua, LuaCallCSharp]
 	public class LuaBinding : MonoBehaviour, ISerializationCallbackReceiver {
-		[AssetPath(AssetType = typeof(TextAsset), order = 1, RootDir = "Assets/Resources/Lua")]
+		[AssetPath(AssetType = typeof(TextAsset), order = 1, RootDir = "Assets/Resources/Lua", Extension = ".lua")]
 		public string LuaFile;
 
 		private void Awake() {

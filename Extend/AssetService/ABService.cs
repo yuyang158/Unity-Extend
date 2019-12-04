@@ -1,15 +1,13 @@
 using System.Collections.Generic;
 using System.IO;
-using ABSystem;
-using Common;
+using Extend.Common;
 using UnityEngine;
 using UnityEngine.Assertions;
 
-namespace ABSystem {
-	public class ABService : IService, IServiceUpdate {
-		public CSharpServiceManager.ServiceType ServiceType => CSharpServiceManager.ServiceType.AB_SERVICE;
+namespace Extend.AssetService {
+	public class ABService : IAssetService {
+		public CSharpServiceManager.ServiceType ServiceType => CSharpServiceManager.ServiceType.ASSET_SERVICE;
 
-		private bool usingAssetBundle;
 		private AssetBundleManifest manifest;
 		private readonly Dictionary<string, string> resources2ABMapping = new Dictionary<string, string>();
 		private readonly Dictionary<string, AssetInstance> loadedAsset = new Dictionary<string, AssetInstance>();
@@ -19,13 +17,6 @@ namespace ABSystem {
 		private string streamingAssetsABDirectory;
 
 		public void Initialize() {
-			if( Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.OSXEditor ) {
-				usingAssetBundle = false;
-				return;
-			}
-
-			usingAssetBundle = true;
-
 			var manifestBundleName = string.Empty;
 			switch( Application.platform ) {
 				case RuntimePlatform.Android:
@@ -60,30 +51,21 @@ namespace ABSystem {
 			}
 		}
 
-		public T Load<T>(string path) where T : Object {
-			if( !usingAssetBundle ) return Resources.Load<T>( path );
+		public AssetReference Load(string path) {
 			path = "assets/resources/" + path.ToLower();
 			if( loadedAsset.TryGetValue( path, out var asset ) ) {
-				asset.IncRef();
-				return asset.UnityObject as T;
+				return new AssetReference(asset);
 			}
 
 			if( !resources2ABMapping.TryGetValue( path, out var abPath ) ) return null;
 			var ab = LoadSingleABInstance( abPath );
-			var unityObject = ab.AB.LoadAsset<T>( path );
+			var unityObject = ab.AB.LoadAsset<Object>( path );
+			if( !unityObject ) {
+				return null;
+			}
 			var assetInstance = new AssetInstance(unityObject, path, ab);
 			loadedAsset.Add( path, assetInstance );
-			assetInstance.IncRef();
-			return assetInstance.UnityObject as T;
-
-		}
-
-		public void Release( Object unityObj ) {
-			var path = unityObj.name;
-			if( loadedAsset.TryGetValue( path, out var asset ) ) {
-				Assert.AreEqual( asset.UnityObject, unityObj );
-				asset.Release();
-			}
+			return new AssetReference(assetInstance);
 		}
 
 		public void RemoveAsset(string assetPath) {
@@ -94,7 +76,6 @@ namespace ABSystem {
 			loadedAssetBundles.Remove( abPath );
 		}
 		
-
 		private ABInstance LoadSingleABInstance(string path) {
 			if( loadedAssetBundles.TryGetValue( path, out var ab ) ) {
 				return ab;

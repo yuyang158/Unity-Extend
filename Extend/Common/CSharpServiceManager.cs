@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Common {
+namespace Extend.Common {
 	public interface IService {
 		CSharpServiceManager.ServiceType ServiceType { get; }
 		void Initialize();
@@ -16,7 +16,7 @@ namespace Common {
 
 	public class CSharpServiceManager : MonoBehaviour {
 		public enum ServiceType {
-			AB_SERVICE,
+			ASSET_SERVICE,
 			MVVM_SERVICE,
 			TICK_SERVICE
 		}

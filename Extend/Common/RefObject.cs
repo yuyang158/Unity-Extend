@@ -1,4 +1,4 @@
-namespace Common {
+namespace Extend.Common {
 	public abstract class RefObject {
 		private int refCount;
 		public void IncRef() {
