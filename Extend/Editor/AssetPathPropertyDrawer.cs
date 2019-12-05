@@ -6,6 +6,10 @@ using UnityEngine;
 namespace Extend.Editor {
 	[CustomPropertyDrawer(typeof(AssetPathAttribute))]
 	public class AssetPathPropertyDrawer : PropertyDrawer {
+		public override float GetPropertyHeight(SerializedProperty property, GUIContent label) {
+			return EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+		}
+
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label) {
 			var pathAttr = attribute as AssetPathAttribute;
 			var path = $"{pathAttr.RootDir}/{property.stringValue}{pathAttr.Extension}";

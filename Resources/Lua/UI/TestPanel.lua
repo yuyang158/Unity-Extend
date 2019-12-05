@@ -17,4 +17,6 @@ function M:awake()
     
 end
 
+function M:OnClick()
+end
 return M

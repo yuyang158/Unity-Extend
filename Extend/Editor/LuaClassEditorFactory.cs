@@ -63,7 +63,7 @@ namespace Extend.Editor {
 					}
 
 					var methodName = match.Value.Substring(2);
-					if( !methodName.StartsWith("_") ) {
+					if( !methodName.StartsWith("_") && methodName[0] == char.ToUpper(methodName[0]) ) {
 						Methods.Add(methodName);
 					}
 				}
@@ -89,6 +89,8 @@ namespace Extend.Editor {
 
 			var path = className.Replace('.', '/');
 			var asset = Resources.Load<TextAsset>("Lua/" + path);
+			if( !asset )
+				return null;
 
 			if( !asset.text.Contains("---@class") ) {
 				return null;
@@ -126,8 +128,8 @@ namespace Extend.Editor {
 		}
 
 		public static LuaClassDescriptor ReloadDescriptor(string className) {
+			var path = className.Replace('.', '/');
 			if( descriptors.TryGetValue(className, out var descriptor) ) {
-				var path = className.Replace('.', '/');
 				var asset = Resources.Load<TextAsset>("Lua/" + path);
 
 				if( !asset ) {

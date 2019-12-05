@@ -27,11 +27,12 @@ namespace Extend.Editor {
 
 		private void OnEnable() {
 			binding = target as LuaBinding;
-			if( string.IsNullOrEmpty(binding.LuaFile) || !File.Exists(Application.dataPath + "/Resources/Lua/" + binding.LuaFile + ".lua") ) {
+			var luaPathProp = serializedObject.FindProperty("LuaFile");
+			if( string.IsNullOrEmpty(luaPathProp.stringValue) || !File.Exists(Application.dataPath + "/Resources/Lua/" + luaPathProp.stringValue + ".lua") ) {
 				return;
 			}
 
-			descriptor = LuaClassEditorFactory.GetDescriptorWithFilePath(binding.LuaFile);
+			descriptor = LuaClassEditorFactory.GetDescriptorWithFilePath(luaPathProp.stringValue);
 		}
 
 		private void CheckBinding(LuaClassField field, Type dataBindType) {
@@ -59,13 +60,15 @@ namespace Extend.Editor {
 
 		public override void OnInspectorGUI() {
 			base.OnInspectorGUI();
-			if( string.IsNullOrEmpty(binding.LuaFile) ) {
+			var luaPathProp = serializedObject.FindProperty("LuaFile");
+			if( string.IsNullOrEmpty(luaPathProp.stringValue) ) {
 				EditorGUILayout.HelpBox("需要设置Lua文件！", MessageType.Error);
 				return;
 			}
 			else {
 				if( descriptor == null ) {
-					descriptor = LuaClassEditorFactory.GetDescriptorWithFilePath(binding.LuaFile);
+					EditorGUILayout.HelpBox("需要设置Lua文件！", MessageType.Error);
+					descriptor = LuaClassEditorFactory.GetDescriptorWithFilePath(luaPathProp.stringValue);
 					return;
 				}
 
