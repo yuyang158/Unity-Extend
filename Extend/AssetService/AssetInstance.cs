@@ -2,24 +2,38 @@ using Extend.Common;
 using UnityEngine;
 
 namespace Extend.AssetService {
-	public class AssetInstance : RefObject {
-		public Object UnityObject { get; }
-		private ABInstance RefAB { get; }
+	public class AssetInstance : AssetRefObject {
+		public Object UnityObject { get; private set; }
+		private AssetBundleInstance RefAssetBundle { get; set; }
 		private string AssetPath { get; }
-		
-		public AssetInstance(Object unityObj, string assetPath, ABInstance refAB) {
-			UnityObject = unityObj;
-			if( refAB != null ) {
-				RefAB = refAB;
-				RefAB.IncRef();	
-			}
+
+		public AssetInstance(string assetPath) {
 			AssetPath = assetPath;
 		}
 
+		public void SetAsset(Object unityObj, AssetBundleInstance refAssetBundle) {
+			UnityObject = unityObj;
+			if( refAssetBundle != null ) {
+				RefAssetBundle = refAssetBundle;
+				RefAssetBundle.IncRef();	
+			}
+			Status = UnityObject ? AssetStatus.DONE : AssetStatus.FAIL;
+		}
+
 		public override void Destroy() {
-			RefAB?.Release();
-			var service = CSharpServiceManager.Get<IAssetService>( CSharpServiceManager.ServiceType.ASSET_SERVICE );
-			service.RemoveAsset( AssetPath );
+			RefAssetBundle?.Release();
+		}
+		
+		public static int GenerateHash(string path) {
+			return path.GetHashCode();
+		}
+
+		public override int GetHashCode() {
+			return GenerateHash(AssetPath);
+		}
+
+		public override string ToString() {
+			return AssetPath;
 		}
 	}
 }

@@ -1,5 +1,7 @@
 using System;
+using Extend.Common;
 using UnityEngine;
+using UnityEngine.Assertions;
 using Object = UnityEngine.Object;
 
 namespace Extend.AssetService {
@@ -7,6 +9,7 @@ namespace Extend.AssetService {
 	public class AssetReference {
 		private readonly AssetInstance asset;
 		public AssetReference(AssetInstance instance) {
+			Assert.IsTrue( instance.Status == AssetRefObject.AssetStatus.NONE );
 			asset = instance;
 			asset.IncRef();
 		}
