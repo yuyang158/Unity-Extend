@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Object = System.Object;
 
 namespace Extend.Common {
 	public interface IService {
@@ -18,7 +19,8 @@ namespace Extend.Common {
 		public enum ServiceType {
 			ASSET_SERVICE,
 			MVVM_SERVICE,
-			TICK_SERVICE
+			TICK_SERVICE,
+			COROUTINE_SERVICE
 		}
 
 		private static bool initialized;
@@ -30,6 +32,7 @@ namespace Extend.Common {
 
 			initialized = true;
 			var go = new GameObject( "CSharpServiceManager" );
+			DontDestroyOnLoad(go);
 			go.AddComponent<CSharpServiceManager>();
 		}
 

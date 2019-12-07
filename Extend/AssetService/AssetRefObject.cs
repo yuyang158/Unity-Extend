@@ -10,18 +10,16 @@ namespace Extend.AssetService {
 			FAIL
 		}
 
-		private AssetStatus status = AssetStatus.DONE;
+		private AssetStatus status = AssetStatus.NONE;
 		public AssetStatus Status {
 			get => status;
-			protected set {
+			set {
 				status = value;
-				if( status == AssetStatus.FAIL ) {
-					throw new Exception($"Load asset fail : {ToString()}");
-				}
+				OnStatusChanged?.Invoke(Status, this);
 			}
 		}
 
-		public int ContainerLocation;
+		public event Action<AssetStatus, AssetRefObject> OnStatusChanged;
 
 		public float ZeroRefTimeStart {
 			get;

@@ -16,7 +16,7 @@ namespace Extend.AssetService.Editor {
 		private ReorderableList reList;
 		private StaticABSettings settingRoot;
 		private SerializedObject serializedObject;
-		private const string SETTING_FILE_PATH = "Assets/Extend/ABSystem/Editor/settings.asset";
+		private const string SETTING_FILE_PATH = "Assets/Extend/AssetService/Editor/settings.asset";
 
 		private void OnEnable() {
 			if( settingRoot == null ) {
@@ -148,6 +148,8 @@ namespace Extend.AssetService.Editor {
 
 		private void BuildAtlasAB() {
 			spritesInAtlas.Clear();
+			if(!settingRoot.SpriteAtlasFolder)
+				return;
 			var atlasDirectory = AssetDatabase.GetAssetPath(settingRoot.SpriteAtlasFolder);
 			var atlases = Directory.GetFiles(atlasDirectory, "*.spriteatlas");
 			foreach( var atlas in atlases ) {

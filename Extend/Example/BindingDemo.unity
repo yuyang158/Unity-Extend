@@ -121,6 +121,24 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &200989634 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3122048484848823675, guid: f27608ab5a414db4f9ff9d5c7c70e5e5,
+    type: 3}
+  m_PrefabInstance: {fileID: 1289327436}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &200989637
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 200989634}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a30147e68056d844863170a031c3b63, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &654936720
 GameObject:
   m_ObjectHideFlags: 0
@@ -286,6 +304,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1219935052, guid: f27608ab5a414db4f9ff9d5c7c70e5e5, type: 3}
+      propertyPath: ClickEvent.Events.Array.data[0].LuaMethodName
+      value: OnClick
+      objectReference: {fileID: 0}
     - target: {fileID: 3122048484682131679, guid: f27608ab5a414db4f9ff9d5c7c70e5e5,
         type: 3}
       propertyPath: m_Name
@@ -396,7 +418,24 @@ PrefabInstance:
       propertyPath: m_Pivot.y
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    - target: {fileID: 3122048484848823674, guid: f27608ab5a414db4f9ff9d5c7c70e5e5,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 200989637}
+    - target: {fileID: 3122048484848823674, guid: f27608ab5a414db4f9ff9d5c7c70e5e5,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: OnClick
+      objectReference: {fileID: 0}
+    - target: {fileID: 3122048484848823674, guid: f27608ab5a414db4f9ff9d5c7c70e5e5,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 1219935054, guid: f27608ab5a414db4f9ff9d5c7c70e5e5, type: 3}
+    - {fileID: 1219935053, guid: f27608ab5a414db4f9ff9d5c7c70e5e5, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: f27608ab5a414db4f9ff9d5c7c70e5e5, type: 3}
 --- !u!1 &1631701308
 GameObject:

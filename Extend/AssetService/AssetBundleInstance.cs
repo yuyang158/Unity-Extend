@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using Extend.Common;
 using UnityEngine;
@@ -12,9 +13,17 @@ namespace Extend.AssetService {
 			ABPath = string.Intern(abPath);
 		}
 
-		public void SetAssetBundle(AssetBundle ab, AssetBundleInstance[] deps) {
+		public void SetAssetBundle(AssetBundle ab, string[] deps) {
 			AB = ab;
-			dependencies = deps;
+			var service = CSharpServiceManager.Get<AssetService>(CSharpServiceManager.ServiceType.ASSET_SERVICE);
+			var assetBundles = new AssetBundleInstance[deps.Length];
+			for( var i = 0; i < deps.Length; i++ ) {
+				var hash = GenerateHash(deps[i]);
+				var dep = service.Container.TryGetAsset(hash);
+				assetBundles[i] = dep as AssetBundleInstance ?? throw new Exception($"Can not find dependency : {deps[i]}");
+			}
+			
+			dependencies = assetBundles;
 			foreach( var dependency in dependencies ) {
 				dependency.IncRef();
 			}
