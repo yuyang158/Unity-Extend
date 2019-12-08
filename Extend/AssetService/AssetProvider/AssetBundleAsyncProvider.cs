@@ -17,9 +17,6 @@ namespace Extend.AssetService.AssetProvider {
 		private readonly Dictionary<string, AssetBundlePath> asset2ABMap = new Dictionary<string, AssetBundlePath>();
 
 		public override void Initialize() {
-			streamingAssetsPath = Path.Combine(Application.streamingAssetsPath, "/ABBuild/");
-			persistentDataPath = Path.Combine(Application.persistentDataPath, "/ABBuild/");
-
 			string platform;
 			if( Application.platform == RuntimePlatform.IPhonePlayer ) {
 				platform = "iOS";
@@ -30,6 +27,8 @@ namespace Extend.AssetService.AssetProvider {
 			else {
 				platform = "StandaloneWindows64";
 			}
+			streamingAssetsPath = Path.Combine(Application.streamingAssetsPath, "ABBuild", platform);
+			persistentDataPath = Path.Combine(Application.persistentDataPath, "ABBuild", platform);
 
 			var manifestPath = DetermineLocation(platform);
 			var manifestAB = AssetBundle.LoadFromFile(manifestPath);
@@ -41,17 +40,20 @@ namespace Extend.AssetService.AssetProvider {
 				while( !string.IsNullOrEmpty(line) ) {
 					var segments = line.Split('|');
 					Assert.AreEqual(segments.Length, 2);
-					var name = segments[0];
-					asset2ABMap.Add(name, new AssetBundlePath() {
-						Path = DetermineLocation(segments[1]),
+					var fullPath = segments[0];
+					var extension = Path.GetExtension(fullPath);
+					fullPath = fullPath.Substring(17, fullPath.Length - 17 - extension.Length);
+					asset2ABMap.Add(fullPath, new AssetBundlePath() {
+						Path = segments[0],
 						ABName = segments[1]
 					});
+					line = reader.ReadLine();
 				}
 			}
 		}
 
 		public override void Provide(AssetAsyncLoadHandle loadHandle) {
-			if( !asset2ABMap.TryGetValue(loadHandle.Location, out var abPathContext) ) {
+			if( !asset2ABMap.TryGetValue(loadHandle.Location.ToLower(), out var abPathContext) ) {
 				Debug.LogError($"Can not file asset at {loadHandle.Location}");
 				loadHandle.Complete(null);
 			}
@@ -63,20 +65,27 @@ namespace Extend.AssetService.AssetProvider {
 				loadHandle.Container.Put(asset);
 			}
 
-			var mainABHash = AssetBundleInstance.GenerateHash(abPathContext.Path);
+			var mainABHash = AssetBundleInstance.GenerateHash(abPathContext.ABName);
 			var mainABInstance = loadHandle.Container.TryGetAsset(mainABHash);
 			if( mainABInstance == null ) {
-				mainABInstance = new AssetInstance(abPathContext.Path);
+				mainABInstance = new AssetBundleInstance(abPathContext.ABName);
 				loadHandle.Container.Put(mainABInstance);
 				var allDependencies = manifest.GetAllDependencies(abPathContext.ABName);
+				foreach( var dependency in allDependencies ) {
+					var depHash = AssetBundleInstance.GenerateHash(dependency);
+					var depAsset = loadHandle.Container.TryGetAsset(depHash);
+					if( depAsset == null ) {
+						loadHandle.Container.Put(new AssetBundleInstance(dependency));
+					}
+				}
 				operators.Add(new ABAsyncGroupOperator(allDependencies));
 			}
 
 			if( mainABInstance.Status != AssetRefObject.AssetStatus.DONE ) {
-				operators.Add(new ABAsyncGroupOperator(new[] {abPathContext.Path}));
+				operators.Add(new ABAsyncGroupOperator(new[] {abPathContext.ABName}));
 			}
 			operators.Add(new ABAssetAsyncOperation(mainABHash, asset as AssetInstance));
-			var op = new AssetOperators() {
+			var op = new AssetOperators {
 				Operators = operators.ToArray()
 			};
 			op.Execute(loadHandle);
@@ -87,7 +96,7 @@ namespace Extend.AssetService.AssetProvider {
 		}
 
 		public static string DetermineLocation(string path) {
-			var streamingAsset = streamingAssetsPath + path;
+			var streamingAsset = Path.Combine(streamingAssetsPath, path);
 			if( File.Exists(streamingAsset) ) {
 				return streamingAsset;
 			}

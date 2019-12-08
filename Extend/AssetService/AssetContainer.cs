@@ -30,12 +30,12 @@ namespace Extend.AssetService {
 				var asset = assets[i];
 				if( asset.Status == AssetRefObject.AssetStatus.DONE && asset.GetRefCount() <= 0 &&
 				    ( ignoreTime || Time.time - asset.ZeroRefTimeStart > MAX_ASSET_ZERO_REF_DURATION ) ) {
-					i--;
 					asset.Destroy();
 					var last = assets[assets.Count - 1];
 					assets[i] = last;
 					assets.RemoveAt(assets.Count - 1);
 					hashAssetDic.Remove(asset.GetHashCode());
+					i--;
 				}
 			}
 

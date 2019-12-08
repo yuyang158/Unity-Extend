@@ -11,7 +11,7 @@ namespace Extend.AssetService {
 
 		public AssetReference Result { get; private set; }
 		public float Progress { get; private set; }
-		public string Location { get; }
+		public string Location { get; set; }
 		public AssetContainer Container { get; }
 		public AssetAsyncProvider Provider { get; }
 
@@ -47,6 +47,7 @@ namespace Extend.AssetService {
 			else {
 				asset = new AssetInstance(Location);
 				asset.OnStatusChanged += OnAssetReady;
+				Container.Put(asset);
 			}
 
 			Container.Put(asset);

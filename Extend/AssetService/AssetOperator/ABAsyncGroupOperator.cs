@@ -30,7 +30,7 @@ namespace Extend.AssetService.AssetOperator {
 				var hash = AssetBundleInstance.GenerateHash(path);
 				var asset = handle.Container.TryGetAsset(hash);
 				if( asset == null ) {
-					throw new Exception("Logic error");
+					throw new Exception("Logic error : " + path);
 				}
 
 				var location = AssetBundleAsyncProvider.DetermineLocation(path);

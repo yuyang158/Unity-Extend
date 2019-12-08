@@ -11,11 +11,14 @@ namespace Extend.AssetService {
 			
 		public void Initialize() {
 			if( Application.isEditor ) {
-				asyncProvider = new ResourcesAsyncProvider();
+				// asyncProvider = new ResourcesAsyncProvider();
+				asyncProvider = new AssetBundleAsyncProvider();
 			}
 			else {
 				asyncProvider = new AssetBundleAsyncProvider();
 			}
+			
+			asyncProvider.Initialize();
 		}
 
 		public void Destroy() {
