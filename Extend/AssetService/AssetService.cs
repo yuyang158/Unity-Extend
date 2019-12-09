@@ -6,19 +6,18 @@ namespace Extend.AssetService {
 	public class AssetService : IService, IServiceUpdate {
 		public CSharpServiceManager.ServiceType ServiceType => CSharpServiceManager.ServiceType.ASSET_SERVICE;
 		public AssetContainer Container { get; } = new AssetContainer();
-
-		private AssetAsyncProvider asyncProvider;
-			
+		
+		private AssetLoadProvider provider;
 		public void Initialize() {
 			if( Application.isEditor ) {
-				// asyncProvider = new ResourcesAsyncProvider();
-				asyncProvider = new AssetBundleAsyncProvider();
+				provider = new ResourcesLoadProvider();
+				// provider = new AssetBundleLoadProvider();
 			}
 			else {
-				asyncProvider = new AssetBundleAsyncProvider();
+				provider = new AssetBundleLoadProvider();
 			}
 			
-			asyncProvider.Initialize();
+			provider.Initialize();
 		}
 
 		public void Destroy() {
@@ -29,19 +28,12 @@ namespace Extend.AssetService {
 		}
 
 		public AssetReference Load(string path) {
-			var hash = AssetInstance.GenerateHash(path);
-			if( !( Container.TryGetAsset(hash) is AssetInstance asset ) ) {
-				asset = new AssetInstance(path);
-				Container.Put(asset);
-				var unityObject = Resources.Load<Object>(path);
-				asset.SetAsset(unityObject, null);
-			}
-			
-			return new AssetReference(asset);
+			path = provider.FormatAssetPath(path);
+			return provider.Provide(path, Container);
 		}
 
 		public AssetAsyncLoadHandle LoadAsync(string path) {
-			var handle = new AssetAsyncLoadHandle(Container, asyncProvider, path);
+			var handle = new AssetAsyncLoadHandle(Container, provider, path);
 			handle.Execute();
 			return handle;
 		}

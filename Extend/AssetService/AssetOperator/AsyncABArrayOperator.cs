@@ -3,11 +3,11 @@ using Extend.AssetService.AssetProvider;
 using UnityEngine;
 
 namespace Extend.AssetService.AssetOperator {
-	public class ABAsyncGroupOperator : AssetOperatorBase {
+	public class AsyncABArrayOperator : AssetOperatorBase {
 		private readonly string[] assetBundlePaths;
 		private int loadedCount;
 
-		public ABAsyncGroupOperator(string[] assetBundles) {
+		public AsyncABArrayOperator(string[] assetBundles) {
 			assetBundlePaths = assetBundles;
 		}
 
@@ -17,8 +17,8 @@ namespace Extend.AssetService.AssetOperator {
 			}
 		}
 
-		private void OnAssetStatusChanged(AssetRefObject.AssetStatus status, AssetRefObject asset) {
-			if( status == AssetRefObject.AssetStatus.DONE ) {
+		private void OnAssetStatusChanged(AssetRefObject asset) {
+			if( asset.IsFinished ) {
 				loadedCount++;
 				asset.OnStatusChanged -= OnAssetStatusChanged;
 				CheckFinish();
@@ -33,7 +33,7 @@ namespace Extend.AssetService.AssetOperator {
 					throw new Exception("Logic error : " + path);
 				}
 
-				var location = AssetBundleAsyncProvider.DetermineLocation(path);
+				var location = AssetBundleLoadProvider.DetermineLocation(path);
 				switch( asset.Status ) {
 					case AssetRefObject.AssetStatus.NONE:
 					case AssetRefObject.AssetStatus.ASYNC_LOADING: {
@@ -42,7 +42,7 @@ namespace Extend.AssetService.AssetOperator {
 						var assetBundleInstance = asset as AssetBundleInstance;
 						var req = AssetBundle.LoadFromFileAsync(location);
 						req.completed += _ => {
-							var abProvider = handle.Provider as AssetBundleAsyncProvider;
+							var abProvider = handle.Provider as AssetBundleLoadProvider;
 							assetBundleInstance.SetAssetBundle(req.assetBundle, abProvider.GetDirectDependencies(path));
 						};
 						break;

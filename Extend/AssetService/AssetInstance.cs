@@ -8,14 +8,14 @@ namespace Extend.AssetService {
 		private string AssetPath { get; }
 
 		public AssetInstance(string assetPath) {
-			AssetPath = assetPath;
+			AssetPath = string.Intern(assetPath);
 		}
 
 		public void SetAsset(Object unityObj, AssetBundleInstance refAssetBundle) {
 			UnityObject = unityObj;
 			if( refAssetBundle != null ) {
 				RefAssetBundle = refAssetBundle;
-				RefAssetBundle.IncRef();	
+				RefAssetBundle.IncRef();
 			}
 			Status = UnityObject ? AssetStatus.DONE : AssetStatus.FAIL;
 		}

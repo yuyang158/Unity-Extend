@@ -1,35 +1,36 @@
 using System;
 using System.Collections;
+using Extend.AssetService.AssetProvider;
 
 namespace Extend.AssetService {
 	public class AssetAsyncLoadHandle : IEnumerator {
-		public AssetAsyncLoadHandle(AssetContainer container, AssetAsyncProvider provider, string path) {
+		public AssetAsyncLoadHandle(AssetContainer container, AssetLoadProvider provider, string path) {
 			Container = container;
 			Provider = provider;
-			Location = string.Intern(path);
+			Location = string.Intern(Provider.FormatAssetPath(path));
 		}
 
 		public AssetReference Result { get; private set; }
 		public float Progress { get; private set; }
 		public string Location { get; set; }
 		public AssetContainer Container { get; }
-		public AssetAsyncProvider Provider { get; }
+		public AssetLoadProvider Provider { get; }
 
 		public int AssetHashCode => AssetInstance.GenerateHash(Location);
 		public event Action<AssetAsyncLoadHandle, bool> OnComplete;
 
 		public void Complete(AssetInstance asset) {
 			if( asset == null ) {
-				OnComplete(this, false);
+				OnComplete?.Invoke(this, false);
 			}
 			else {
 				Result = new AssetReference(asset);
-				OnComplete(this, asset.Status == AssetRefObject.AssetStatus.DONE);
+				OnComplete?.Invoke(this, asset.Status == AssetRefObject.AssetStatus.DONE);
 			}
 		}
 
 		public void Execute() {
-			var hashCode = Provider.GetAssetHashCode(Location);
+			var hashCode = AssetInstance.GenerateHash(Location);
 			var asset = Container.TryGetAsset(hashCode);
 			if( asset != null ) {
 				if( asset.Status == AssetRefObject.AssetStatus.DONE ) {
@@ -50,12 +51,11 @@ namespace Extend.AssetService {
 				Container.Put(asset);
 			}
 
-			Container.Put(asset);
-			Provider.Provide(this);
+			Provider.ProvideAsync(this);
 		}
 
-		private void OnAssetReady(AssetRefObject.AssetStatus status, AssetRefObject asset) {
-			if( status == AssetRefObject.AssetStatus.DONE ) {
+		private void OnAssetReady(AssetRefObject asset) {
+			if( asset.IsFinished ) {
 				asset.OnStatusChanged -= OnAssetReady;
 				Result = new AssetReference(asset as AssetInstance);
 				OnComplete?.Invoke(this, true);

@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.Assertions;
 
 namespace Extend.AssetService.AssetProvider {
-	public class AssetBundleAsyncProvider : AssetAsyncProvider {
+	public class AssetBundleLoadProvider : AssetLoadProvider {
 		private struct AssetBundlePath {
 			public string Path;
 			public string ABName;
@@ -16,6 +16,10 @@ namespace Extend.AssetService.AssetProvider {
 		private static string persistentDataPath;
 		private readonly Dictionary<string, AssetBundlePath> asset2ABMap = new Dictionary<string, AssetBundlePath>();
 
+		public override string FormatAssetPath(string path) {
+			return base.FormatAssetPath(path).ToLower();
+		}
+
 		public override void Initialize() {
 			string platform;
 			if( Application.platform == RuntimePlatform.IPhonePlayer ) {
@@ -25,7 +29,7 @@ namespace Extend.AssetService.AssetProvider {
 				platform = "Android";
 			}
 			else {
-				platform = "StandaloneWindows64";
+				platform = "StandaloneWindows";
 			}
 			streamingAssetsPath = Path.Combine(Application.streamingAssetsPath, "ABBuild", platform);
 			persistentDataPath = Path.Combine(Application.persistentDataPath, "ABBuild", platform);
@@ -44,18 +48,19 @@ namespace Extend.AssetService.AssetProvider {
 					var extension = Path.GetExtension(fullPath);
 					fullPath = fullPath.Substring(17, fullPath.Length - 17 - extension.Length);
 					asset2ABMap.Add(fullPath, new AssetBundlePath() {
-						Path = segments[0],
-						ABName = segments[1]
+						Path = string.Intern(segments[0]),
+						ABName = string.Intern(segments[1])
 					});
 					line = reader.ReadLine();
 				}
 			}
 		}
 
-		public override void Provide(AssetAsyncLoadHandle loadHandle) {
-			if( !asset2ABMap.TryGetValue(loadHandle.Location.ToLower(), out var abPathContext) ) {
+		public override void ProvideAsync(AssetAsyncLoadHandle loadHandle) {
+			if( !asset2ABMap.TryGetValue(loadHandle.Location, out var abPathContext) ) {
 				Debug.LogError($"Can not file asset at {loadHandle.Location}");
 				loadHandle.Complete(null);
+				return;
 			}
 
 			var operators = new List<AssetOperatorBase>(4);
@@ -78,17 +83,64 @@ namespace Extend.AssetService.AssetProvider {
 						loadHandle.Container.Put(new AssetBundleInstance(dependency));
 					}
 				}
-				operators.Add(new ABAsyncGroupOperator(allDependencies));
+				operators.Add(new AsyncABArrayOperator(allDependencies));
 			}
 
-			if( mainABInstance.Status != AssetRefObject.AssetStatus.DONE ) {
-				operators.Add(new ABAsyncGroupOperator(new[] {abPathContext.ABName}));
+			if( !mainABInstance.IsFinished ) {
+				operators.Add(new AsyncABArrayOperator(new[] {abPathContext.ABName}));
 			}
-			operators.Add(new ABAssetAsyncOperation(mainABHash, asset as AssetInstance));
+			operators.Add(new AsyncABAssetOperator(mainABHash, asset as AssetInstance));
 			var op = new AssetOperators {
 				Operators = operators.ToArray()
 			};
+			loadHandle.Location = abPathContext.Path;
 			op.Execute(loadHandle);
+		}
+
+		public override AssetReference Provide(string path, AssetContainer container) {
+			if( !asset2ABMap.TryGetValue(path, out var abPathContext) ) {
+				Debug.LogError($"Can not file asset at {path}");
+				return null;
+			}
+
+			if( !( container.TryGetAsset(AssetBundleInstance.GenerateHash(path)) is AssetInstance asset ) ) {
+				asset = new AssetInstance(path);
+				container.Put(asset);
+			}
+			
+			var mainABHash = AssetBundleInstance.GenerateHash(abPathContext.ABName);
+			if( !( container.TryGetAsset(mainABHash) is AssetBundleInstance mainABInstance ) ) {
+				mainABInstance = new AssetBundleInstance(abPathContext.ABName);
+				container.Put(mainABInstance);
+				var needLoadPaths = new List<AssetBundleInstance>();
+				var allDependencies = manifest.GetAllDependencies(abPathContext.ABName);
+				foreach( var dependency in allDependencies ) {
+					var depHash = AssetBundleInstance.GenerateHash(dependency);
+					var depAsset = container.TryGetAsset(depHash) as AssetBundleInstance;
+					if( depAsset == null ) {
+						depAsset = new AssetBundleInstance(dependency);
+						container.Put(depAsset);
+					}
+					if(depAsset.IsFinished)
+						continue;
+					
+					needLoadPaths.Add(depAsset);
+				}
+
+				foreach( var dependency in needLoadPaths ) {
+					var ab = AssetBundle.LoadFromFile(DetermineLocation(dependency.ABPath));
+					dependency.SetAssetBundle(ab, GetDirectDependencies(dependency.ABPath));
+				}
+			}
+
+			if( !mainABInstance.IsFinished ) {
+				var ab = AssetBundle.LoadFromFile(DetermineLocation(mainABInstance.ABPath));
+				mainABInstance.SetAssetBundle(ab, GetDirectDependencies(mainABInstance.ABPath));
+			}
+
+			var unityObject = mainABInstance.AB.LoadAsset(abPathContext.Path);
+			asset.SetAsset(unityObject, mainABInstance);
+			return new AssetReference(asset);
 		}
 
 		public string[] GetDirectDependencies(string abName) {

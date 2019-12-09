@@ -6,7 +6,7 @@ using UnityEngine;
 namespace Extend.AssetService {
 	public class AssetBundleInstance : AssetRefObject {
 		public AssetBundle AB { get; private set; }
-		private string ABPath { get; }
+		public string ABPath { get; }
 		private AssetBundleInstance[] dependencies;
 
 		public AssetBundleInstance(string abPath) {

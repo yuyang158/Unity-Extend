@@ -15,11 +15,17 @@ namespace Extend.AssetService {
 			get => status;
 			set {
 				status = value;
-				OnStatusChanged?.Invoke(Status, this);
+				OnStatusChanged?.Invoke(this);
+
+				if( Status == AssetStatus.FAIL ) {
+					Debug.LogError("Load asset fail");
+				}
 			}
 		}
 
-		public event Action<AssetStatus, AssetRefObject> OnStatusChanged;
+		public bool IsFinished => status == AssetStatus.DONE || status == AssetStatus.FAIL;
+
+		public event Action<AssetRefObject> OnStatusChanged;
 
 		public float ZeroRefTimeStart {
 			get;
