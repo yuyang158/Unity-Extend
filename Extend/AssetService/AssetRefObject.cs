@@ -18,7 +18,7 @@ namespace Extend.AssetService {
 				OnStatusChanged?.Invoke(this);
 
 				if( Status == AssetStatus.FAIL ) {
-					Debug.LogError("Load asset fail");
+					// Debug.LogError("Load asset fail");
 				}
 			}
 		}

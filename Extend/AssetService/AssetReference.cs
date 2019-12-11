@@ -9,7 +9,6 @@ namespace Extend.AssetService {
 	public class AssetReference {
 		private readonly AssetInstance asset;
 		public AssetReference(AssetInstance instance) {
-			Assert.IsTrue( instance.Status == AssetRefObject.AssetStatus.DONE );
 			asset = instance;
 			asset.IncRef();
 		}

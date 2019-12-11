@@ -1,4 +1,7 @@
-local breakSocketHandle,debugXpCall = require("LuaDebug")("localhost",7003)
+package.cpath = package.cpath .. ';C:/Users/yang.yu/.Rider2019.2/config/plugins/intellij-emmylua/classes/debugger/emmy/windows/x64/?.dll'
+local dbg = require('emmy_core')
+dbg.tcpConnect('localhost', 9967)
+print(dbg)
 local next = next
 
 function string.split(self, delimiter)
@@ -62,5 +65,4 @@ SM.RegisterService(SM.SERVICE_TYPE.CONFIG, CS)
 SM.RegisterService(SM.SERVICE_TYPE.TICK, TS)
 
 TS.Register(function()
-    breakSocketHandle()
 end)

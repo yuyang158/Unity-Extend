@@ -1,8 +1,10 @@
 using System;
 using System.Reflection;
+using Extend.Common;
 using UnityEngine;
 using UnityEngine.Assertions;
 using XLua;
+using LuaAPI = XLua.LuaDLL.Lua;
 
 namespace Extend.LuaMVVM {
 	[Serializable]
@@ -26,11 +28,11 @@ namespace Extend.LuaMVVM {
 		public string Path;
 
 		private LuaTable dataSource;
-		private FieldInfo fieldInfo;
+		private PropertyInfo propertyInfo;
 
 		public void Start() {
-			fieldInfo = BindTarget.GetType().GetField(BindTargetProp, BindingFlags.Instance | BindingFlags.Public);
-			Assert.IsNotNull(fieldInfo, BindTargetProp);
+			propertyInfo = BindTarget.GetType().GetProperty(BindTargetProp);
+			Assert.IsNotNull(propertyInfo, BindTargetProp);
 		}
 
 		public void UpdateToSource() {
@@ -41,10 +43,14 @@ namespace Extend.LuaMVVM {
 				return;
 
 			var val = dataSource.GetInPath<object>(Path);
-			var fieldVal = fieldInfo.GetValue(BindTarget);
+			var fieldVal = propertyInfo.GetValue(BindTarget);
 			if( val != fieldVal ) {
 				dataSource.SetInPath(Path, fieldVal);
 			}
+		}
+
+		private void SetPropertyValue(object val) {
+			propertyInfo.SetValue(BindTarget, val);
 		}
 
 		public void Bind(LuaTable dataContext) {
@@ -56,13 +62,18 @@ namespace Extend.LuaMVVM {
 			var val = dataContext.GetInPath<object>(Path);
 			if( val == null ) {
 				Debug.LogError($"Not found value in path {Path}");
+				return;
 			}
 
 			if( Mode == BindMode.ONE_WAY || Mode == BindMode.TWO_WAY || Mode == BindMode.ONE_TIME ) {
-				fieldInfo.SetValue(BindTarget, val);
+				propertyInfo.SetValue(BindTarget, val);
+				if( Mode == BindMode.ONE_WAY || Mode == BindMode.TWO_WAY ) {
+					var mvvm = CSharpServiceManager.Get<LuaMVVM>(CSharpServiceManager.ServiceType.MVVM_SERVICE);
+					mvvm.SetupBindNotification(dataContext, Path, SetPropertyValue);
+				}
 			}
 			else if( Mode == BindMode.ONE_WAY_TO_SOURCE ) {
-				dataSource.SetInPath(Path, fieldInfo.GetValue(BindTarget));
+				dataSource.SetInPath(Path, propertyInfo.GetValue(BindTarget));
 			}
 		}
 	}

@@ -28,6 +28,8 @@ namespace Extend.AssetService.AssetProvider {
 			}
 
 			var unityObject = Resources.Load<Object>(path);
+			if( !unityObject )
+				return null;
 			if( asset == null ) {
 				asset = new AssetInstance(path);
 			}
