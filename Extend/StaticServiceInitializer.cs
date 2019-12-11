@@ -9,7 +9,6 @@ namespace Extend {
 		private static void OnInit() {
 			CSharpServiceManager.Initialize();
 			CSharpServiceManager.Register(new AssetService.AssetService());
-			CSharpServiceManager.Register(new LuaMVVM());
 			CSharpServiceManager.Register(new TickService());
 			CSharpServiceManager.Register(new GlobalCoroutineRunnerService());
 		}

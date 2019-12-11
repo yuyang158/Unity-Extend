@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Extend.LuaBindingData;
+using Extend.LuaMVVM;
 using UnityEngine;
+using UnityEngine.UI;
 using XLua;
 
 namespace Extend {
@@ -51,11 +54,14 @@ namespace Extend {
 		[HideInInspector]
 		public LuaBindingUOArrayData[] UOArrayData;
 
+		[HideInInspector, LuaMVVMBindOptionsAttribute]
+		public LuaMVVMBindingOptions BindingOptions;
+
 		public void OnBeforeSerialize() {
-			var fieldInfos = GetType().GetFields();
+			var fieldInfos = GetType().GetFields(BindingFlags.Public);
 			if( BindingContainer == null || BindingContainer.Count == 0 ) {
 				foreach( var info in fieldInfos ) {
-					if( info.FieldType.IsArray ) {
+					if( info.FieldType.IsArray && info.FieldType.GetElementType().IsSubclassOf(typeof(LuaBindingDataBase)) ) {
 						info.SetValue(this, null);
 					}
 				}
@@ -63,7 +69,7 @@ namespace Extend {
 			}
 
 			foreach( var fieldInfo in fieldInfos ) {
-				if( !fieldInfo.FieldType.IsArray ) continue;
+				if( !fieldInfo.FieldType.IsArray || !fieldInfo.FieldType.GetElementType().IsSubclassOf(typeof(LuaBindingDataBase)) ) continue;
 				var count = BindingContainer.Count(bind => bind.GetType() == fieldInfo.FieldType.GetElementType());
 
 				if( count > 0 ) {

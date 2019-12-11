@@ -33,15 +33,10 @@ namespace Extend.AssetService {
 			var hashCode = AssetInstance.GenerateHash(Location);
 			var asset = Container.TryGetAsset(hashCode);
 			if( asset != null ) {
-				if( asset.Status == AssetRefObject.AssetStatus.DONE ) {
+				if( asset.IsFinished ) {
 					Progress = 1;
 					Result = new AssetReference(asset as AssetInstance);
-					OnComplete?.Invoke(this, true);
-					return;
-				}
-
-				if( asset.Status == AssetRefObject.AssetStatus.FAIL ) {
-					OnComplete?.Invoke(this, false);
+					OnComplete?.Invoke(this, asset.Status == AssetRefObject.AssetStatus.DONE);
 					return;
 				}
 			}
