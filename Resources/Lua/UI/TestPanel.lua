@@ -13,7 +13,8 @@ end
 
 function M:awake()
     self.data = {
-        text = "1"
+        text = "1",
+        toggle = true
     }
     self.__CSBinding:SetDataContext(self.data)
 end
@@ -22,5 +23,6 @@ function M:OnClick(evt)
     local meta = getmetatable(self.data)
     assert(meta and meta.__newindex)
     self.data.text = tostring(math.tointeger(self.data.text) + 1)
+    self.data.toggle = not self.data.toggle
 end
 return M

@@ -1,5 +1,11 @@
 local rawset = rawset
 local rawget = rawget
+local ipairs = ipairs
+local getmetatable = getmetatable
+local setmetatable = setmetatable
+local assert = assert
+local tinsert = table.insert
+
 local meta = {
     __newindex = function(t, k, v)
         if t[k] == v then
@@ -23,11 +29,6 @@ local meta = {
     end
 }
 
-local getmetatable = getmetatable
-local setmetatable = setmetatable
-local assert = assert
-local tinsert = table.insert
-
 local M = {}
 function M.SetupLuaNotification(t, k, callback)
     local oldMeta = getmetatable(t)
@@ -47,6 +48,12 @@ function M.SetupLuaNotification(t, k, callback)
         t.__notifications[k] = notifications
     end
     tinsert(notifications, callback)
+end
+
+function M.RawSetLuaDataSource(t, k, v)
+    assert(t.__values)
+    assert(t.__values[k] ~= nil)
+    rawset(t.__values, k, v)
 end
 
 return M
