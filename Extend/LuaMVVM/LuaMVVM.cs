@@ -9,12 +9,15 @@ namespace Extend.LuaMVVM {
 		public CSharpServiceManager.ServiceType ServiceType => CSharpServiceManager.ServiceType.MVVM_SERVICE;
 
 		private delegate void SetupLuaNotification(LuaTable t, string key, Action<object> callback);
+		private delegate void RawSetLuaDataSource(LuaTable t, string key, object val);
 
 		private SetupLuaNotification setupLuaNotification;
+		private RawSetLuaDataSource rawSetLuaDataSource;
 		public void Initialize() {
 			var ret = LuaVM.Default.LoadFileAtPath("mvvm");
 			var module = ret[0] as LuaTable;
 			setupLuaNotification = module.GetInPath<SetupLuaNotification>("SetupLuaNotification");
+			rawSetLuaDataSource = module.GetInPath<RawSetLuaDataSource>("RawSetLuaDataSource");
 		}
 
 		public void SetupBindNotification(LuaTable dataSource, string key, Action<object> callback) {
@@ -23,6 +26,10 @@ namespace Extend.LuaMVVM {
 				return;
 			}
 			setupLuaNotification(dataSource, key, callback);
+		}
+
+		public void RawSetDataSource(LuaTable dataSource, string key, object val) {
+			rawSetLuaDataSource(dataSource, key, val);
 		}
 
 		public void Destroy() {

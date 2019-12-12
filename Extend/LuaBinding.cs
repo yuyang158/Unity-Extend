@@ -37,6 +37,12 @@ namespace Extend {
 			awake(luaTable);
 		}
 
+		private void Update() {
+			foreach( var option in BindingOptions.Options ) {
+				option.UpdateToSource();
+			}
+		}
+
 		[BlackList, NonSerialized]
 		public List<LuaBindingDataBase> BindingContainer;
 

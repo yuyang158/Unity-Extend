@@ -30,6 +30,16 @@ namespace Extend.Switcher {
 		public State[] States;
 		private string currentState;
 
+		public string CurrentState {
+			get => currentState;
+			set {
+				if(currentState == value)
+					return;
+				currentState = value;
+				Switch(currentState);
+			}
+		}
+
 		private void Awake() {
 			foreach( var state in States ) {
 				state.Init();

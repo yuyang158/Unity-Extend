@@ -29,6 +29,7 @@ namespace Extend.LuaMVVM {
 
 		private LuaTable dataSource;
 		private PropertyInfo propertyInfo;
+		private object value;
 
 		public void Start() {
 			propertyInfo = BindTarget.GetType().GetProperty(BindTargetProp);
@@ -42,14 +43,16 @@ namespace Extend.LuaMVVM {
 			if(Mode != BindMode.TWO_WAY && Mode != BindMode.ONE_WAY_TO_SOURCE)
 				return;
 
-			var val = dataSource.GetInPath<object>(Path);
 			var fieldVal = propertyInfo.GetValue(BindTarget);
-			if( val != fieldVal ) {
-				dataSource.SetInPath(Path, fieldVal);
+			if( value != fieldVal ) {
+				var mvvm = CSharpServiceManager.Get<LuaMVVM>(CSharpServiceManager.ServiceType.MVVM_SERVICE);
+				mvvm.RawSetDataSource(dataSource, Path, value);
+				value = fieldVal;
 			}
 		}
 
 		private void SetPropertyValue(object val) {
+			value = val;
 			propertyInfo.SetValue(BindTarget, val);
 		}
 
@@ -70,10 +73,14 @@ namespace Extend.LuaMVVM {
 				if( Mode == BindMode.ONE_WAY || Mode == BindMode.TWO_WAY ) {
 					var mvvm = CSharpServiceManager.Get<LuaMVVM>(CSharpServiceManager.ServiceType.MVVM_SERVICE);
 					mvvm.SetupBindNotification(dataContext, Path, SetPropertyValue);
+					if( Mode == BindMode.TWO_WAY ) {
+						value = val;
+					}
 				}
 			}
 			else if( Mode == BindMode.ONE_WAY_TO_SOURCE ) {
-				dataSource.SetInPath(Path, propertyInfo.GetValue(BindTarget));
+				value = propertyInfo.GetValue(BindTarget);
+				dataSource.SetInPath(Path, value);
 			}
 		}
 	}
