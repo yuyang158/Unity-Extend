@@ -11,9 +11,8 @@
 
 2. Unity UI与Lua Table的绑定
 
-* Assets\Extend\Example\Resources\Lua\mvvm.lua.txt
+* Assets\Extend\Example\Resources\Lua\mvvm.lua
 * BindingDemo场景中MVVM开头相关节点
-* 核心功能文件tracedoc.lua.txt参考：[tracedoc](https://blog.codingnow.com/2017/02/tracedoc.html)
 
 3. 配置文件读取
 
