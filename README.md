@@ -22,10 +22,11 @@
 * link类型为外链id，可以在lua中直接访问对应链接表
 * 相关实现代码为Example/Resources/Lua/ConfigService.lua
 
-4. AssetBundle打包（开发中）
+4. AssetBundle打包
 * 手动强制指定文件夹AssetBundleName
 * 自动分析资源依赖，去除依赖短链
 * 自动生成文件位置描述
+* 自动生成更新描述文件
 
 ## Demo查看方法
 
