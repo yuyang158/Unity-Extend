@@ -1,18 +1,22 @@
 using System;
 using System.Linq;
+using Extend.Common;
 using UnityEditor;
 using UnityEngine;
 
-namespace Extend.Switcher.Editor {
-	[CustomPropertyDrawer(typeof(AnimatorSwitcher))]
-	public class AnimatorSwitcherEditor : PropertyDrawer {
+namespace Extend.Editor {
+	[CustomPropertyDrawer(typeof(AnimatorParamProcessor))]
+	public class AnimatorParamProcessorDrawer : PropertyDrawer {
+		private static readonly GUIContent AnimatorName = new GUIContent("Animator");
+		
 		public override float GetPropertyHeight(SerializedProperty property, GUIContent label) {
-			var animatorProp = property.FindPropertyRelative("Ani");
+			var singleLineHeight = EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+			var animatorProp = property.FindPropertyRelative("ani");
 			var animator = animatorProp.objectReferenceValue as Animator;
 			if( !animator ) {
-				return EditorGUIUtility.singleLineHeight;
+				return singleLineHeight;
 			}
-			var valueProp = property.FindPropertyRelative("Value");
+			var valueProp = property.FindPropertyRelative("paramValue");
 			var nameHashProp = valueProp.FindPropertyRelative("NameHash");
 			foreach( var param in animator.parameters ) {
 				if( param.nameHash == nameHashProp.intValue ) {
@@ -20,28 +24,28 @@ namespace Extend.Switcher.Editor {
 						case AnimatorControllerParameterType.Float:
 						case AnimatorControllerParameterType.Int:
 						case AnimatorControllerParameterType.Bool:
-							return EditorGUIUtility.singleLineHeight * 3;
+							return singleLineHeight * 3;
 						case AnimatorControllerParameterType.Trigger:
-							return EditorGUIUtility.singleLineHeight * 2;
+							return singleLineHeight * 2;
 						default:
 							throw new ArgumentOutOfRangeException();
 					}
 				}
 			}
 
-			return EditorGUIUtility.singleLineHeight * 2;
+			return singleLineHeight * 2;
 		}
 
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label) {
 			position.height = EditorGUIUtility.singleLineHeight;
-			var animatorProp = property.FindPropertyRelative("Ani");
-			EditorGUI.ObjectField(position, animatorProp, new GUIContent("Animator"));
-			position.y += EditorGUIUtility.singleLineHeight;
+			var animatorProp = property.FindPropertyRelative("ani");
+			EditorGUI.ObjectField(position, animatorProp, AnimatorName);
+			position.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
 
 			var animator = animatorProp.objectReferenceValue as Animator;
 			if( animator ) {
 				var paramNames = animator.parameters.Select(param => param.name).ToArray();
-				var valueProp = property.FindPropertyRelative("Value");
+				var valueProp = property.FindPropertyRelative("paramValue");
 				var nameHashProp = valueProp.FindPropertyRelative("NameHash");
 				var index = Array.FindIndex(paramNames, paramName => Animator.StringToHash(paramName) == nameHashProp.intValue);
 				index = EditorGUI.Popup(position, "Parameter", index, paramNames);

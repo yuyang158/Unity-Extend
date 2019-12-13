@@ -11,6 +11,10 @@ namespace Extend.UI.Animation {
 		public float Elasticity = 1;
 		public float Delay;
 
+		[SerializeField]
+		private bool active;
+		public bool IsActive => active;
+
 		public abstract Tweener Active(Transform t);
 	}
 }

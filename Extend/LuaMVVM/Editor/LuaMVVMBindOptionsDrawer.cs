@@ -14,22 +14,22 @@ namespace Extend.LuaMVVM.Editor {
 			return mvvmBindList.headerHeight + mvvmBindList.elementHeight * (mvvmBindList.count == 0 ? 1 : mvvmBindList.count) + mvvmBindList.footerHeight + 5;
 		}
 		
-		private Rect[] GetRowRects(Rect rect) {
-			Rect[] rects = new Rect[4];
+		private static Rect[] GetRowRects(Rect rect) {
+			var rects = new Rect[4];
 
 			rect.height = EditorGUIUtility.singleLineHeight;
 			rect.y += 2;
 
-			Rect enabledRect = rect;
+			var enabledRect = rect;
 			enabledRect.width *= 0.3f;
 
-			Rect goRect = enabledRect;
+			var goRect = enabledRect;
 			goRect.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
 
-			Rect functionRect = rect;
+			var functionRect = rect;
 			functionRect.xMin = goRect.xMax + 5;
 
-			Rect argRect = functionRect;
+			var argRect = functionRect;
 			argRect.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
 
 			rects[0] = enabledRect;
@@ -52,11 +52,11 @@ namespace Extend.LuaMVVM.Editor {
 			mvvmBindList.elementHeight = ( EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing ) * 2;
 			mvvmBindList.drawElementCallback += (rect, index, active, focused) => {
 				rect.y++;
-				Rect[] subRects = GetRowRects(rect);
-				Rect enabledRect = subRects[0];
-				Rect goRect = subRects[2];
-				Rect functionRect = subRects[1];
-				Rect argRect = subRects[3];
+				var subRects = GetRowRects(rect);
+				var enabledRect = subRects[0];
+				var functionRect = subRects[1];
+				var goRect = subRects[2];
+				var argRect = subRects[3];
 				
 				var prop = property.GetArrayElementAtIndex(index);
 				var bindTargetProp = prop.FindPropertyRelative("BindTarget");

@@ -14,15 +14,15 @@ namespace Extend.UI.Animation {
 		public void Active(Transform t) {
 			if( tweenerArray == null ) {
 				tweenerArray = new Tweener[3];
-				if( Move != null ) {
+				if( Move.IsActive ) {
 					tweenerArray[0] = Move.Active(t);
 				}
 
-				if( Rotation != null ) {
+				if( Rotation.IsActive ) {
 					tweenerArray[1] = Rotation.Active(t);
 				}
 
-				if( Scale != null ) {
+				if( Scale.IsActive ) {
 					tweenerArray[2] = Scale.Active(t);
 				}
 			}

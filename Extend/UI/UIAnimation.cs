@@ -1,4 +1,5 @@
 using System;
+using Extend.Common;
 using Extend.UI.Animation;
 using UnityEngine;
 
@@ -16,8 +17,6 @@ namespace UI.Animation {
 		private PunchCombined punch;
 
 		[SerializeField, HideInInspector]
-		private Animator animator;
-
-		private AnimatorControllerParameter param;
+		private AnimatorParamProcessor processor;
 	}
 }
