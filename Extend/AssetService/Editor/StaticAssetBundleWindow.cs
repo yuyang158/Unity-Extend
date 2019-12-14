@@ -14,9 +14,10 @@ namespace Extend.AssetService.Editor {
 		}
 
 		private ReorderableList reList;
+		private ReorderableList otherDependencyList;
 		private StaticABSettings settingRoot;
 		private SerializedObject serializedObject;
-		private const string SETTING_FILE_PATH = "Assets/Extend/AssetService/Editor/settings.asset";
+		public const string SETTING_FILE_PATH = "Assets/Extend/AssetService/Editor/settings.asset";
 
 		private void OnEnable() {
 			if( settingRoot == null ) {
@@ -46,6 +47,23 @@ namespace Extend.AssetService.Editor {
 				EditorGUI.PropertyField(rect, opProp);
 				serializedObject.ApplyModifiedProperties();
 			};
+			
+			var otherDepend = serializedObject.FindProperty("ExtraDependencyAssets");
+			otherDependencyList = new ReorderableList(otherDepend.serializedObject, otherDepend);
+			otherDependencyList.drawHeaderCallback += rect => { EditorGUI.LabelField(rect, "非Resources依赖"); };
+			otherDependencyList.drawElementCallback += (rect, index, active, focused) => {
+				rect.height = EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+				var dependProp = otherDependencyList.serializedProperty.GetArrayElementAtIndex(index);
+				EditorGUI.BeginChangeCheck();
+				EditorGUI.PropertyField(rect, dependProp);
+				if( EditorGUI.EndChangeCheck() && dependProp.objectReferenceValue != null ) {
+					var path = AssetDatabase.GetAssetPath(dependProp.objectReferenceValue);
+					if( string.IsNullOrEmpty(path) || path.ToLower().StartsWith("assets/resources") ) {
+						dependProp.objectReferenceValue = null;
+					}
+				}
+				serializedObject.ApplyModifiedProperties();
+			};
 		}
 
 		private const int BOTTOM_BUTTON_COUNT = 3;
@@ -56,6 +74,9 @@ namespace Extend.AssetService.Editor {
 			EditorGUILayout.Space();
 
 			reList.DoLayoutList();
+			EditorGUILayout.Space();
+			
+			otherDependencyList.DoLayoutList();
 			EditorGUILayout.Space();
 
 			var rect = EditorGUILayout.BeginHorizontal();

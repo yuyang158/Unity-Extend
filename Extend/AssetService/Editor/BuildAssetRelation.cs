@@ -9,7 +9,7 @@ namespace Extend.AssetService.Editor {
 	public static class BuildAssetRelation {
 		private static readonly Dictionary<string, AssetNode> resourcesNodes = new Dictionary<string, AssetNode>();
 		private static readonly Dictionary<string, AssetNode> allAssetNodes = new Dictionary<string, AssetNode>( 40960 );
-		private static List<StaticABSetting> manualSettings;
+		private static StaticABSetting[] manualSettings;
 		private static readonly List<string> needUpdateBundles = new List<string>();
 
 		private static readonly string[] ignoreExtensions = {
@@ -81,7 +81,7 @@ namespace Extend.AssetService.Editor {
 		}
 
 		private static HashSet<string> s_spritesInAtlas;
-		public static void BuildRelation(List<StaticABSetting> settings, HashSet<string> spritesInAtlas, Action completeCallback) {
+		public static void BuildRelation(StaticABSetting[] settings, HashSet<string> spritesInAtlas, Action completeCallback) {
 			manualSettings = settings;
 			s_spritesInAtlas = spritesInAtlas;
 			foreach( var setting in manualSettings ) {
@@ -132,7 +132,8 @@ namespace Extend.AssetService.Editor {
 		private static bool ContainInManualSettingDirectory(string path) {
 			if( s_spritesInAtlas.Contains(path.ToLower()) )
 				return true;
-			return manualSettings.Find( setting => path.Contains( setting.Path ) ) != null;
+
+			return Array.Find(manualSettings, setting => path.Contains(setting.Path)) != null;
 		}
 
 		private static IEnumerator RelationProcess(IReadOnlyCollection<string> files, Action completeCallback) {

@@ -6,12 +6,15 @@ namespace Extend.AssetService {
 	public class AssetService : IService, IServiceUpdate {
 		public CSharpServiceManager.ServiceType ServiceType => CSharpServiceManager.ServiceType.ASSET_SERVICE;
 		public AssetContainer Container { get; } = new AssetContainer();
-		
 		private AssetLoadProvider provider;
+
+		private readonly bool assetBundleMode;
+		public AssetService(bool forceABMode = false) {
+			assetBundleMode = forceABMode;
+		}
 		public void Initialize() {
-			if( Application.isEditor ) {
+			if( Application.isEditor && assetBundleMode == false ) {
 				provider = new ResourcesLoadProvider();
-				// provider = new AssetBundleLoadProvider();
 			}
 			else {
 				provider = new AssetBundleLoadProvider();
@@ -36,6 +39,11 @@ namespace Extend.AssetService {
 			var handle = new AssetAsyncLoadHandle(Container, provider, path);
 			handle.Execute();
 			return handle;
+		}
+
+		public AssetBundleInstance TryGetAssetBundleInstance(string path) {
+			var hash = AssetBundleInstance.GenerateHash(path);
+			return Container.TryGetAsset(hash) as AssetBundleInstance;
 		}
 	}
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Extend.AssetService.Editor {
 	[Serializable]
@@ -22,6 +23,12 @@ namespace Extend.AssetService.Editor {
 	public class StaticABSettings : ScriptableObject {
 		public DefaultAsset SpriteAtlasFolder;
 		
-		public List<StaticABSetting> Settings;
+		public StaticABSetting[] Settings;
+
+		public Object[] ExtraDependencyAssets;
+
+		public bool ContainExtraObject(Object obj) {
+			return Array.Find(ExtraDependencyAssets, dep => dep == obj);
+		}
 	}
 }

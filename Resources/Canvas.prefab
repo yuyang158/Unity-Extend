@@ -132,12 +132,13 @@ MonoBehaviour:
     - GO: {fileID: 1159291519}
       Active: 0
     AnimatorSwitchers:
-    - Ani: {fileID: 163999695}
-      Value:
-        NameHash: -1682086748
-        fV: 0
-        iV: 1
-        bV: 0
+    - Processor:
+        ani: {fileID: 0}
+        paramValue:
+          NameHash: 0
+          fV: 0
+          iV: 0
+          bV: 0
   - StateName: Disable
     GOActiveSwitchers:
     - GO: {fileID: 3554713}
@@ -145,12 +146,13 @@ MonoBehaviour:
     - GO: {fileID: 1159291519}
       Active: 1
     AnimatorSwitchers:
-    - Ani: {fileID: 163999695}
-      Value:
-        NameHash: -1682086748
-        fV: 0
-        iV: 0
-        bV: 0
+    - Processor:
+        ani: {fileID: 0}
+        paramValue:
+          NameHash: 0
+          fV: 0
+          iV: 0
+          bV: 0
 --- !u!95 &163999695
 Animator:
   serializedVersion: 3
@@ -556,6 +558,7 @@ GameObject:
   - component: {fileID: 3122048484682131676}
   - component: {fileID: 3122048484682131677}
   - component: {fileID: 3122048484682131678}
+  - component: {fileID: 4715215087481736618}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -694,6 +697,22 @@ MonoBehaviour:
       BindTargetProp: isOn
       Mode: 1
       Path: toggle
+--- !u!114 &4715215087481736618
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3122048484682131679}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e48f74fc779610a42bede13f636d45a6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Ref:
+    unityObject: {fileID: 6390549661633764971, guid: 965235a07500cad4f99506c29c358053,
+      type: 3}
+    assetPath: assets/resources/itemslot.prefab
 --- !u!1 &3122048484848823675
 GameObject:
   m_ObjectHideFlags: 0
@@ -1316,12 +1335,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 965235a07500cad4f99506c29c358053, type: 3}
---- !u!224 &8814139608626446380 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 2318703892685510424, guid: 965235a07500cad4f99506c29c358053,
-    type: 3}
-  m_PrefabInstance: {fileID: 6521121694910027572}
-  m_PrefabAsset: {fileID: 0}
 --- !u!114 &7818203317726262709 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3891246276778271361, guid: 965235a07500cad4f99506c29c358053,
@@ -1334,6 +1347,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b707bd6caa68448419b0d3a7ed790234, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!224 &8814139608626446380 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 2318703892685510424, guid: 965235a07500cad4f99506c29c358053,
+    type: 3}
+  m_PrefabInstance: {fileID: 6521121694910027572}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &7133964448283596177
 PrefabInstance:
   m_ObjectHideFlags: 0

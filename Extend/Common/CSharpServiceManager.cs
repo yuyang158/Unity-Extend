@@ -23,14 +23,14 @@ namespace Extend.Common {
 			COROUTINE_SERVICE
 		}
 
-		private static bool initialized;
+		public static bool Initialized { get; private set; }
 
 		public static void Initialize() {
-			if( initialized ) {
+			if( Initialized ) {
 				throw new Exception( "CSharpServiceManager already exist" );
 			}
 
-			initialized = true;
+			Initialized = true;
 			var go = new GameObject( "CSharpServiceManager" );
 			DontDestroyOnLoad(go);
 			go.AddComponent<CSharpServiceManager>();

@@ -1,16 +1,24 @@
 using System;
 using Extend.Common;
 using UnityEngine;
-using UnityEngine.Assertions;
 using Object = UnityEngine.Object;
 
 namespace Extend.AssetService {
-	
-	public class AssetReference {
-		private readonly AssetInstance asset;
+	[Serializable]
+	public class AssetReference : ISerializationCallbackReceiver {
+		private AssetInstance asset;
+		[SerializeField, HideInInspector]
+		private Object unityObject;
+		[SerializeField, HideInInspector]
+		private string assetPath;
+		
 		public AssetReference(AssetInstance instance) {
 			asset = instance;
 			asset.IncRef();
+		}
+
+		public AssetReference() {
+			
 		}
 
 		~AssetReference() {
@@ -31,6 +39,23 @@ namespace Extend.AssetService {
 
 		public override string ToString() {
 			return asset.UnityObject.name;
+		}
+
+		public void OnBeforeSerialize() {
+			
+		}
+
+		public void OnAfterDeserialize() {
+			if(!CSharpServiceManager.Initialized)
+				return;
+			
+			var service = CSharpServiceManager.Get<AssetService>(CSharpServiceManager.ServiceType.ASSET_SERVICE);
+			var bundle = service.TryGetAssetBundleInstance(assetPath);
+			if(bundle == null)
+				return;
+			
+			asset = new AssetInstance(string.Empty);
+			asset.SetAsset(unityObject, bundle);
 		}
 	}
 }
