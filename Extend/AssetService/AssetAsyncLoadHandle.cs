@@ -1,8 +1,10 @@
 using System;
 using System.Collections;
 using Extend.AssetService.AssetProvider;
+using XLua;
 
 namespace Extend.AssetService {
+	[LuaCallCSharp]
 	public class AssetAsyncLoadHandle : IEnumerator {
 		public AssetAsyncLoadHandle(AssetContainer container, AssetLoadProvider provider, string path) {
 			Container = container;
@@ -13,12 +15,15 @@ namespace Extend.AssetService {
 		public AssetReference Result { get; private set; }
 		public float Progress { get; private set; }
 		public string Location { get; set; }
+		[BlackList]
 		public AssetContainer Container { get; }
+		[BlackList]
 		public AssetLoadProvider Provider { get; }
 
 		public int AssetHashCode => AssetInstance.GenerateHash(Location);
 		public event Action<AssetAsyncLoadHandle, bool> OnComplete;
 
+		[BlackList]
 		public void Complete(AssetInstance asset) {
 			if( asset == null ) {
 				OnComplete?.Invoke(this, false);
@@ -29,6 +34,7 @@ namespace Extend.AssetService {
 			}
 		}
 
+		[BlackList]
 		public void Execute() {
 			var hashCode = AssetInstance.GenerateHash(Location);
 			var asset = Container.TryGetAsset(hashCode);
@@ -57,17 +63,21 @@ namespace Extend.AssetService {
 			}
 		}
 
+		[BlackList]
 		public override string ToString() {
 			return $"Load {Location}";
 		}
 
+		[BlackList]
 		public bool MoveNext() {
 			return Result == null;
 		}
 
+		[BlackList]
 		public void Reset() {
 		}
 
+		[BlackList]
 		public object Current => Result;
 	}
 }

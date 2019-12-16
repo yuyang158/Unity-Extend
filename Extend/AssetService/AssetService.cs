@@ -1,19 +1,29 @@
 using Extend.AssetService.AssetProvider;
 using Extend.Common;
 using UnityEngine;
+using XLua;
 
 namespace Extend.AssetService {
+	[LuaCallCSharp]
 	public class AssetService : IService, IServiceUpdate {
+		[BlackList]
 		public CSharpServiceManager.ServiceType ServiceType => CSharpServiceManager.ServiceType.ASSET_SERVICE;
+		[BlackList]
 		public AssetContainer Container { get; } = new AssetContainer();
 		private AssetLoadProvider provider;
 
-		private readonly bool assetBundleMode;
+		private readonly bool forceAssetBundleMode;
 		public AssetService(bool forceABMode = false) {
-			assetBundleMode = forceABMode;
+			forceAssetBundleMode = forceABMode;
 		}
+
+		public static AssetService Get() {
+			return CSharpServiceManager.Get<AssetService>(CSharpServiceManager.ServiceType.ASSET_SERVICE);
+		}
+		
+		[BlackList]
 		public void Initialize() {
-			if( Application.isEditor && assetBundleMode == false ) {
+			if( Application.isEditor && forceAssetBundleMode == false ) {
 				provider = new ResourcesLoadProvider();
 			}
 			else {
@@ -23,9 +33,11 @@ namespace Extend.AssetService {
 			provider.Initialize();
 		}
 
+		[BlackList]
 		public void Destroy() {
 		}
 
+		[BlackList]
 		public void Update() {
 			Container.Collect();
 		}
@@ -41,6 +53,7 @@ namespace Extend.AssetService {
 			return handle;
 		}
 
+		[BlackList]
 		public AssetBundleInstance TryGetAssetBundleInstance(string path) {
 			var hash = AssetBundleInstance.GenerateHash(path);
 			return Container.TryGetAsset(hash) as AssetBundleInstance;

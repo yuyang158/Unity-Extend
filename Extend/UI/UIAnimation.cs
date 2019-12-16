@@ -18,5 +18,20 @@ namespace UI.Animation {
 
 		[SerializeField, HideInInspector]
 		private AnimatorParamProcessor processor;
+
+		public void Active(Transform t) {
+			switch( Mode ) {
+				case AnimationMode.PUNCH:
+					punch.Active(t);
+					break;
+				case AnimationMode.STATE:
+					break;
+				case AnimationMode.ANIMATOR:
+					processor.Apply();
+					break;
+				default:
+					throw new ArgumentOutOfRangeException();
+			}
+		}
 	}
 }

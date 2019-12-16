@@ -1,10 +1,11 @@
 using System;
 using Extend.Common;
 using UnityEngine;
+using XLua;
 using Object = UnityEngine.Object;
 
 namespace Extend.AssetService {
-	[Serializable]
+	[Serializable, LuaCallCSharp]
 	public class AssetReference : ISerializationCallbackReceiver {
 		private AssetInstance asset;
 		[SerializeField, HideInInspector]
@@ -28,23 +29,50 @@ namespace Extend.AssetService {
 		public T GetAsset<T>() where T : Object {
 			return asset.UnityObject as T;
 		}
-		
-		public T Instantiate<T>(Transform parent = null, bool stayWorldPosition = false) where T : Object {
-			return Object.Instantiate(asset.UnityObject, parent, stayWorldPosition) as T;
+
+		public Texture GetTexture() {
+			return GetAsset<Texture>();
 		}
 		
-		public T Instantiate<T>( Vector3 position, Quaternion quaternion, Transform parent = null) where T : Object {
-			return Object.Instantiate(asset.UnityObject, position, quaternion, parent) as T;
+		public Sprite GetSprite() {
+			return GetAsset<Sprite>();
+		}
+		
+		public GameObject GetPrefab() {
+			return GetAsset<GameObject>();
+		}
+		
+		public TextAsset GetTextAsset() {
+			return GetAsset<TextAsset>();
+		}
+		
+		public AudioClip GetAudio() {
+			return GetAsset<AudioClip>();
 		}
 
+		public Material GetMaterial() {
+			return GetAsset<Material>();
+		}
+		
+		public GameObject Instantiate(Transform parent = null, bool stayWorldPosition = false) {
+			return Object.Instantiate(asset.UnityObject, parent, stayWorldPosition) as GameObject;
+		}
+		
+		public GameObject Instantiate( Vector3 position, Quaternion quaternion, Transform parent = null) {
+			return Object.Instantiate(asset.UnityObject, position, quaternion, parent) as GameObject;
+		}
+
+		[BlackList]
 		public override string ToString() {
 			return asset.UnityObject.name;
 		}
 
+		[BlackList]
 		public void OnBeforeSerialize() {
 			
 		}
 
+		[BlackList]
 		public void OnAfterDeserialize() {
 			if(!CSharpServiceManager.Initialized)
 				return;

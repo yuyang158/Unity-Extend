@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Assertions;
 using Object = System.Object;
 
 namespace Extend.Common {
@@ -40,6 +41,7 @@ namespace Extend.Common {
 		private static readonly List<IServiceUpdate> updatableServices = new List<IServiceUpdate>();
 
 		public static void Register(IService service) {
+			Assert.IsTrue(Initialized);
 			if( services.ContainsKey( service.ServiceType ) ) {
 				throw new Exception( $"Service {service.ServiceType} exist." );
 			}
@@ -52,6 +54,7 @@ namespace Extend.Common {
 		}
 
 		public static void Unregister(ServiceType type) {
+			Assert.IsTrue(Initialized);
 			if( services.ContainsKey( type ) ) {
 				var service = services[type];
 				service.Destroy();
@@ -63,6 +66,7 @@ namespace Extend.Common {
 		}
 
 		public static T Get<T>( ServiceType typ ) where T : IService {
+			Assert.IsTrue(Initialized);
 			return (T)services[typ];
 		}
 

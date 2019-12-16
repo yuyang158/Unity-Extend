@@ -1,16 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Reflection;
 using Extend.LuaBindingData;
 using UnityEditor;
-using UnityEditor.SceneManagement;
-using UnityEditor.UI;
-using UnityEditorInternal;
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 namespace Extend.Editor {
 	[CustomEditor(typeof(LuaBinding))]
