@@ -42,7 +42,16 @@ namespace Extend.LuaBindingData {
 				};
 				reList.drawElementCallback += (rect, index, active, focused) => {
 					var elemProp = reList.serializedProperty.GetArrayElementAtIndex(index);
-					UnityEditor.EditorGUI.ObjectField(rect, elemProp, type);
+					UnityEditor.EditorGUI.BeginChangeCheck();
+					UnityEditor.EditorGUI.ObjectField(rect, elemProp, type, editorContent);
+					if( UnityEditor.EditorGUI.EndChangeCheck() ) {
+						var path = UnityEditor.AssetDatabase.GetAssetPath(elemProp.objectReferenceValue);
+						if(string.IsNullOrEmpty(path))
+							return;
+
+						UnityEditor.EditorUtility.DisplayDialog("ERROR", $"{FieldName} should use AssetReference to a non scene object!", "OK");
+						elemProp.objectReferenceValue = null;
+					}
 				};
 			}
 

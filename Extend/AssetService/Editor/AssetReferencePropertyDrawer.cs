@@ -7,7 +7,9 @@ namespace Extend.AssetService.Editor {
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label) {
 			var objProp = property.FindPropertyRelative("unityObject");
 			EditorGUI.BeginChangeCheck();
-			EditorGUI.PropertyField(position, objProp, new GUIContent(property.displayName));
+			if(!label.text.Contains("(Asset)"))
+				label.text += " (Asset)";
+			EditorGUI.PropertyField(position, objProp, label);
 			var dirty = EditorGUI.EndChangeCheck();
 			if(!dirty)
 				return;
@@ -28,10 +30,9 @@ namespace Extend.AssetService.Editor {
 					}
 					else {
 						var settings = AssetDatabase.LoadAssetAtPath<StaticABSettings>(StaticAssetBundleWindow.SETTING_FILE_PATH);
-						if( !settings.ContainExtraObject(objProp.objectReferenceValue) ) {
-							EditorUtility.DisplayDialog("ERROR", $"无法在配置中找到资源:{objProp.objectReferenceValue}", "OK");
-							objProp.objectReferenceValue = null;
-						}
+						if( settings.ContainExtraObject(objProp.objectReferenceValue) ) return;
+						EditorUtility.DisplayDialog("ERROR", $"无法在配置中找到资源:{objProp.objectReferenceValue}", "OK");
+						objProp.objectReferenceValue = null;
 					}
 				}
 			}

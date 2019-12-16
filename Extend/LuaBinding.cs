@@ -74,13 +74,15 @@ namespace Extend {
 		[HideInInspector]
 		public LuaBindingUOData[] UOData;
 		[HideInInspector]
+		public LuaBindingAssetReferenceData[] AssetReferenceData;
+		[HideInInspector]
 		public LuaBindingUOArrayData[] UOArrayData;
 
 		[HideInInspector, LuaMVVMBindOptionsAttribute]
 		public LuaMVVMBindingOptions BindingOptions;
 
 		public void OnBeforeSerialize() {
-			var fieldInfos = GetType().GetFields(BindingFlags.Public);
+			var fieldInfos = GetType().GetFields();
 			if( BindingContainer == null || BindingContainer.Count == 0 ) {
 				foreach( var info in fieldInfos ) {
 					if( info.FieldType.IsArray && info.FieldType.GetElementType().IsSubclassOf(typeof(LuaBindingDataBase)) ) {

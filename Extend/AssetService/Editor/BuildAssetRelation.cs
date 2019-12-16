@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using Unity.EditorCoroutines.Editor;
 using UnityEditor;
 
 namespace Extend.AssetService.Editor {
@@ -121,7 +120,7 @@ namespace Extend.AssetService.Editor {
 
 			var files = Directory.GetFiles( "Assets/Resources", "*", SearchOption.AllDirectories );
 			EditorUtility.DisplayProgressBar( "Process resources asset", "", 0 );
-			EditorCoroutineUtility.StartCoroutineOwnerless( RelationProcess( files, completeCallback ) );
+			Unity.EditorCoroutines.Editor.EditorCoroutineUtility.StartCoroutineOwnerless( RelationProcess( files, completeCallback ) );
 		}
 
 		// \\ -> /

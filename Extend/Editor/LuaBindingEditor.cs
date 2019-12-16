@@ -87,7 +87,12 @@ namespace Extend.Editor {
 						EditorGUILayout.HelpBox($"Can not find type : {typeName}", MessageType.Error);
 					}
 					else {
-						CheckBinding<LuaBindingUOData>(field);
+						if( field.FieldType == "CS.Extend.AssetService.AssetReference" ) {
+							CheckBinding<LuaBindingAssetReferenceData>(field);
+						}
+						else {
+							CheckBinding<LuaBindingUOData>(field);
+						}
 					}
 				}
 				else {
@@ -110,7 +115,7 @@ namespace Extend.Editor {
 			serializedObject.UpdateIfRequiredOrScript();
 			var fields = target.GetType().GetFields();
 			foreach( var fieldInfo in fields ) {
-				if( !fieldInfo.IsPublic || !fieldInfo.FieldType.IsArray || !fieldInfo.FieldType.GetElementType().IsSubclassOf(typeof(LuaBindingDataBase)))
+				if( !fieldInfo.IsPublic || !fieldInfo.FieldType.IsArray || !fieldInfo.FieldType.GetElementType().IsSubclassOf(typeof(LuaBindingDataBase)) )
 					continue;
 				var prop = serializedObject.FindProperty(fieldInfo.Name);
 				if( prop == null || prop.isArray == false )
