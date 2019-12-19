@@ -1,4 +1,5 @@
 using System;
+using DG.Tweening;
 using Extend.Common;
 using Extend.UI.Animation;
 using UnityEngine;
@@ -13,25 +14,32 @@ namespace UI.Animation {
 		}
 
 		public AnimationMode Mode;
+
 		[SerializeField, HideInInspector]
 		private PunchCombined punch;
 
 		[SerializeField, HideInInspector]
+		private StateCombine state;
+
+		[SerializeField, HideInInspector]
 		private AnimatorParamProcessor processor;
 
-		public void Active(Transform t) {
+		public Tween[] Active(Transform t) {
 			switch( Mode ) {
 				case AnimationMode.PUNCH:
 					punch.Active(t);
-					break;
+					return punch.AllTween;
 				case AnimationMode.STATE:
-					break;
+					state.Active(t);
+					return state.AllTween;
 				case AnimationMode.ANIMATOR:
 					processor.Apply();
 					break;
 				default:
 					throw new ArgumentOutOfRangeException();
 			}
+
+			return null;
 		}
 	}
 }

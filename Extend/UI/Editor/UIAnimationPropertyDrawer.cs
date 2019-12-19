@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using System.Globalization;
+using DG.DOTweenEditor;
 using UI.Animation;
 using UnityEditor;
 using UnityEngine;
@@ -6,15 +9,21 @@ using UnityEngine;
 namespace Extend.UI.Editor {
 	[CustomPropertyDrawer(typeof(UIAnimation))]
 	public class UIAnimationPropertyDrawer : PropertyDrawer {
+		private static readonly float lineHeight = EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+
 		public override float GetPropertyHeight(SerializedProperty property, GUIContent label) {
-			var lineHeight = EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
-			
 			var modeProp = property.FindPropertyRelative("Mode");
 			var mode = (UIAnimation.AnimationMode)modeProp.intValue;
 			switch( mode ) {
 				case UIAnimation.AnimationMode.PUNCH:
 				case UIAnimation.AnimationMode.STATE:
-					return lineHeight * 2 + (lineHeight * 2 + EditorGUIUtility.standardVerticalSpacing) * animationModeActiveCount;
+					float previewHeight = 0;
+					if( animationModeActiveCount > 0 ) {
+						previewHeight = lineHeight;
+					}
+
+					var singleAnimHeight = mode == UIAnimation.AnimationMode.PUNCH ? lineHeight * 2 : lineHeight * 3;
+					return lineHeight * 2 + ( singleAnimHeight + EditorGUIUtility.standardVerticalSpacing ) * animationModeActiveCount + previewHeight;
 				case UIAnimation.AnimationMode.ANIMATOR:
 					return lineHeight * 4;
 				default:
@@ -22,14 +31,21 @@ namespace Extend.UI.Editor {
 			}
 		}
 
-		private static readonly string[] transformModeTypes = { "Move", "Rotation", "Scale" };
-		private static readonly Color[] transformModeColors = {new Color(0, 0.5f, 0, 0.4f), new Color(0.45f, 0.4f, 0, 0.4f), new Color(0.4f, 0, 0, 0.4f)};
-		private static readonly Color[] transformModeLabelColors = {new Color(0, 1, 0), new Color(1f, 0.7f, 0), new Color(0.75f, 0, 0)};
+		private static readonly string[] punchTransformModeTypes = {"Move", "Rotation", "Scale"};
+		private static readonly string[] stateTransformModeTypes = {"Move", "Rotation", "Scale", "Fade"};
+
+		private static readonly Color[] transformModeColors = {
+			new Color(0, 0.5f, 0, 0.4f),
+			new Color(0.45f, 0.4f, 0, 0.4f),
+			new Color(0.4f, 0, 0, 0.4f),
+			new Color(0.4f, 0, 0.4f, 0.4f) 
+		};
 
 		private static readonly GUIContent[] punchFields = {
 			new GUIContent("Duration"), new GUIContent("Vibrato"),
 			new GUIContent("Elasticity"), new GUIContent("Delay")
 		};
+
 		private int animationModeActiveCount;
 
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label) {
@@ -39,65 +55,38 @@ namespace Extend.UI.Editor {
 			EditorGUI.PropertyField(position, modeProp);
 
 			var mode = (UIAnimation.AnimationMode)modeProp.intValue;
-			position.y += EditorGUIUtility.standardVerticalSpacing + EditorGUIUtility.singleLineHeight;
+			position.y += lineHeight;
 			switch( mode ) {
 				case UIAnimation.AnimationMode.PUNCH:
 				case UIAnimation.AnimationMode.STATE:
-					var transformModeSelectionRect = position;
-					transformModeSelectionRect.width = position.width * 0.3333f;
-					SerializedProperty animationProp = null; 
-					if( mode == UIAnimation.AnimationMode.PUNCH ) {
-						animationProp = property.FindPropertyRelative("punch");
+					if( animationModeActiveCount > 0 ) {
+						var previewRect = position;
+						previewRect.xMax = previewRect.x + 120;
+						DrawPreview(property, previewRect);
+						position.y += lineHeight;
 					}
 
-					animationModeActiveCount = 0;
-					for( var i = 0; i < 3; i++ ) {
-						var type = transformModeTypes[i];
-						var typProp = animationProp.FindPropertyRelative(type);
-						var activeProp = typProp.FindPropertyRelative("active");
-
-						activeProp.boolValue = EditorGUI.ToggleLeft(transformModeSelectionRect, type, activeProp.boolValue);
-						transformModeSelectionRect.x = transformModeSelectionRect.xMax;
-						if(activeProp.boolValue)
-							animationModeActiveCount++;
-					}
+					var animationProp = property.FindPropertyRelative(mode == UIAnimation.AnimationMode.PUNCH ? "punch" : "state");
+					var types = mode == UIAnimation.AnimationMode.PUNCH ? punchTransformModeTypes : stateTransformModeTypes;
+					DrawAnimationMode(position, animationProp, types);
 
 					var originLabelWidth = EditorGUIUtility.labelWidth;
-					for( var i = 0; i < 3; i++ ) {
-						var type = transformModeTypes[i];
+					for( var i = 0; i < types.Length; i++ ) {
+						var type = types[i];
 						var typProp = animationProp.FindPropertyRelative(type);
 						var activeProp = typProp.FindPropertyRelative("active");
-						if(!activeProp.boolValue)
+						if( !activeProp.boolValue )
 							continue;
-						position.y += EditorGUIUtility.standardVerticalSpacing + EditorGUIUtility.singleLineHeight;
-						var punchRect = position;
-						var punchProp = typProp.FindPropertyRelative("Punch");
-						var backgroundRect = punchRect;
-						punchRect.xMax -= 5;
-						backgroundRect.height = ( EditorGUIUtility.standardVerticalSpacing + EditorGUIUtility.singleLineHeight ) * 2;
-						EditorGUI.DrawRect(backgroundRect, transformModeColors[i]);
-						GUI.backgroundColor = transformModeColors[i];
-						EditorGUI.PropertyField(punchRect, punchProp, new GUIContent(transformModeTypes[i]));
-						position.y += EditorGUIUtility.standardVerticalSpacing + EditorGUIUtility.singleLineHeight;
-						punchRect = position;
-						punchRect.xMax -= 5;
-						punchRect.width *= .25f;
-						EditorGUIUtility.labelWidth = punchRect.width / 2;
-						var durationProp = typProp.FindPropertyRelative("Duration");
-						EditorGUI.PropertyField(punchRect, durationProp);
-						punchRect.x = punchRect.xMax;
-						var vibratoProp = typProp.FindPropertyRelative("Vibrato");
-						EditorGUI.PropertyField(punchRect, vibratoProp);
-						punchRect.x = punchRect.xMax;
-						var elasticityProp = typProp.FindPropertyRelative("Elasticity");
-						EditorGUI.PropertyField(punchRect, elasticityProp);
-						punchRect.x = punchRect.xMax;
-						var delayProp = typProp.FindPropertyRelative("Delay");
-						EditorGUI.PropertyField(punchRect, delayProp);
+						position.y += lineHeight;
+						if( mode == UIAnimation.AnimationMode.PUNCH )
+							DrawPunchGui(ref position, typProp, i);
+						else
+							DrawStateGui(ref position, typProp, i);
+						
 						position.y += EditorGUIUtility.standardVerticalSpacing;
 						EditorGUIUtility.labelWidth = originLabelWidth;
 					}
-					
+
 					break;
 				case UIAnimation.AnimationMode.ANIMATOR:
 					var animatorProcessorProp = property.FindPropertyRelative("processor");
@@ -105,6 +94,106 @@ namespace Extend.UI.Editor {
 					break;
 				default:
 					throw new ArgumentOutOfRangeException();
+			}
+		}
+
+		private static void DrawPunchGui(ref Rect position, SerializedProperty typProp, int index) {
+			var punchRect = position;
+			var punchProp = typProp.FindPropertyRelative("punch");
+			var backgroundRect = punchRect;
+			punchRect.xMax -= 5;
+			backgroundRect.height = ( EditorGUIUtility.standardVerticalSpacing + EditorGUIUtility.singleLineHeight ) * 2;
+			EditorGUI.DrawRect(backgroundRect, transformModeColors[index]);
+			GUI.backgroundColor = transformModeColors[index];
+			EditorGUI.PropertyField(punchRect, punchProp, new GUIContent(punchTransformModeTypes[index]));
+			position.y += lineHeight;
+			punchRect = position;
+			punchRect.xMax -= 5;
+			punchRect.width *= .25f;
+			EditorGUIUtility.labelWidth = punchRect.width / 2;
+			var durationProp = typProp.FindPropertyRelative("duration");
+			EditorGUI.PropertyField(punchRect, durationProp);
+			punchRect.x = punchRect.xMax;
+			var vibratoProp = typProp.FindPropertyRelative("vibrato");
+			EditorGUI.PropertyField(punchRect, vibratoProp);
+			punchRect.x = punchRect.xMax;
+			var elasticityProp = typProp.FindPropertyRelative("elasticity");
+			EditorGUI.PropertyField(punchRect, elasticityProp);
+			punchRect.x = punchRect.xMax;
+			var delayProp = typProp.FindPropertyRelative("delay");
+			EditorGUI.PropertyField(punchRect, delayProp);
+		}
+		
+		private static void DrawStateGui(ref Rect position, SerializedProperty typProp, int index) {
+			var backgroundRect = position;
+			backgroundRect.height = ( EditorGUIUtility.standardVerticalSpacing + EditorGUIUtility.singleLineHeight ) * 3;
+			EditorGUI.DrawRect(backgroundRect, transformModeColors[index]);
+			GUI.backgroundColor = transformModeColors[index];
+			var stateRect = position;
+			stateRect.xMax -= 5;
+			stateRect.width *= .5f;
+			var originLabelWidth = EditorGUIUtility.labelWidth;
+			EditorGUIUtility.labelWidth = stateRect.width / 2;
+			var durationProp = typProp.FindPropertyRelative("duration");
+			EditorGUI.PropertyField(stateRect, durationProp);
+			stateRect.x = stateRect.xMax;
+			var delayProp = typProp.FindPropertyRelative("delay");
+			EditorGUI.PropertyField(stateRect, delayProp);;
+			position.y += lineHeight;
+			stateRect = position;
+			stateRect.xMax -= 5;
+			EditorGUIUtility.labelWidth = originLabelWidth;
+			var valPropName = stateTransformModeTypes[index].ToLower();
+			var valProp = typProp.FindPropertyRelative(valPropName);
+			EditorGUI.PropertyField(stateRect, valProp);
+			position.y += lineHeight;
+			stateRect = position;
+			stateRect.xMax -= 5;
+			var easeProp = typProp.FindPropertyRelative("ease");
+			EditorGUI.PropertyField(stateRect, easeProp);
+		}
+
+		private void DrawAnimationMode(Rect transformModeSelectionRect, SerializedProperty animationProp, IReadOnlyCollection<string> types) {
+			animationModeActiveCount = 0;
+			transformModeSelectionRect.width /= types.Count;
+			foreach( var type in types ) {
+				var typProp = animationProp.FindPropertyRelative(type);
+				var activeProp = typProp.FindPropertyRelative("active");
+
+				activeProp.boolValue = EditorGUI.ToggleLeft(transformModeSelectionRect, type, activeProp.boolValue);
+				transformModeSelectionRect.x = transformModeSelectionRect.xMax;
+				if( activeProp.boolValue )
+					animationModeActiveCount++;
+			}
+		}
+
+		private void DrawPreview(SerializedProperty property, Rect previewRect) {
+			if( GUI.Button(previewRect, "Preview") ) {
+				DOTweenEditorPreview.Stop(true);
+				var previewGO = GameObject.Find("-[ DOTween Preview ► ]-");
+				UnityEngine.Object.DestroyImmediate(previewGO);
+				var previewComponent = property.serializedObject.targetObject as IUIAnimationPreview;
+				var allTween = previewComponent.CollectPreviewTween();
+				if( allTween == null )
+					return;
+
+				foreach( var tween in allTween ) {
+					if( tween == null )
+						continue;
+
+					DOTweenEditorPreview.PrepareTweenForPreview(tween);
+				}
+
+				DOTweenEditorPreview.Start();
+				previewGO = GameObject.Find("-[ DOTween Preview ► ]-");
+				previewGO.hideFlags |= HideFlags.HideAndDontSave;
+			}
+
+			previewRect.x = previewRect.xMax + 5;
+			if( GUI.Button(previewRect, "Stop") ) {
+				DOTweenEditorPreview.Stop(true);
+				var previewGO = GameObject.Find("-[ DOTween Preview ► ]-");
+				UnityEngine.Object.DestroyImmediate(previewGO);
 			}
 		}
 	}

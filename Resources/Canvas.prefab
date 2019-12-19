@@ -680,6 +680,12 @@ MonoBehaviour:
     Data: {fileID: 3122048484848823674}
   - FieldName: stateSwitcher
     Data: {fileID: 163999694}
+  AssetReferenceData:
+  - FieldName: slot
+    Data:
+      unityObject: {fileID: 3014654897190167003, guid: a42633f7a4f45a244af65d63ff549b07,
+        type: 3}
+      assetPath: assets/resources/button.prefab
   UOArrayData:
   - FieldName: slots
     Data:

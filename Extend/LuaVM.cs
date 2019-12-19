@@ -1,5 +1,4 @@
-﻿using Extend.AssetService;
-using Extend.Common;
+﻿using Extend.Common;
 using UnityEngine;
 using XLua;
 
@@ -18,11 +17,6 @@ namespace Extend {
 
             Default.LoadFileAtPath( "class" );
             Default.LoadFileAtPath( "PreRequest" );
-
-            XLua.LuaDLL.Lua.lua_atpanic( Default.L, ptr => {
-                Debug.LogError( "PANIC" );
-                return 0;
-            } );
         }
 
         public static LuaEnv Default { get; private set; }

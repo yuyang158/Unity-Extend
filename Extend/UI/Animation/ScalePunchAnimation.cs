@@ -5,7 +5,10 @@ using UnityEngine;
 namespace Extend.UI.Animation {
 	[Serializable]
 	public class ScalePunchAnimation  : PunchAnimation {
-		public override Tweener Active(Transform t) {
+		public ScalePunchAnimation() {
+			Punch = Vector3.one;
+		}
+		protected override Tween DoGenerateTween(Transform t) {
 			return t.DOPunchScale(Punch, Duration, Vibrato, Elasticity).SetDelay(Delay);
 		}
 	}

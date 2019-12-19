@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Extend.UI.Animation {
 	[Serializable]
 	public class MovePunchAnimation : PunchAnimation {
-		public override Tweener Active(Transform t) {
+		protected override Tween DoGenerateTween(Transform t) {
 			return t.DOPunchPosition(Punch, Duration, Vibrato, Elasticity).SetDelay(Delay);
 		}
 	}

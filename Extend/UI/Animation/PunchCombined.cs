@@ -9,34 +9,25 @@ namespace Extend.UI.Animation {
 		public RotationPunchAnimation Rotation;
 		public ScalePunchAnimation Scale;
 
-		private Tweener[] tweenerArray;
+		public Tween[] AllTween { get; private set; } = new Tween[3];
 
 		public void Active(Transform t) {
-			if( tweenerArray == null ) {
-				tweenerArray = new Tweener[3];
-				if( Move.IsActive ) {
-					tweenerArray[0] = Move.Active(t);
+			BuildAllTween(t);
+			if( Application.isPlaying ) {
+				foreach( var tweener in AllTween ) {
+					tweener?.Restart();
 				}
-
-				if( Rotation.IsActive ) {
-					tweenerArray[1] = Rotation.Active(t);
-				}
-
-				if( Scale.IsActive ) {
-					tweenerArray[2] = Scale.Active(t);
-				}
-			}
-
-			foreach( var tweener in tweenerArray ) {
-				tweener?.Restart();
 			}
 		}
 
-		public void Stop() {
-			if( tweenerArray == null )
-				return;
+		private void BuildAllTween(Transform t) {
+			AllTween[0] = Move.Active(t);
+			AllTween[1] = Rotation.Active(t);
+			AllTween[2] = Scale.Active(t);
+		}
 
-			foreach( var tweener in tweenerArray ) {
+		public void Stop() {
+			foreach( var tweener in AllTween ) {
 				tweener.Complete();
 			}
 		}
