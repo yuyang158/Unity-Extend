@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
 using Extend.AssetService.AssetProvider;
+using Extend.Common;
+using UnityEngine;
 using XLua;
 
 namespace Extend.AssetService {
@@ -12,54 +14,63 @@ namespace Extend.AssetService {
 			Location = string.Intern(Provider.FormatAssetPath(path));
 		}
 
-		public AssetReference Result { get; private set; }
+		public AssetReference Result => new AssetReference(Asset);
+
 		public float Progress { get; private set; }
 		public string Location { get; set; }
+
 		[BlackList]
 		public AssetContainer Container { get; }
+
 		[BlackList]
 		public AssetLoadProvider Provider { get; }
 
 		public int AssetHashCode => AssetInstance.GenerateHash(Location);
 		public event Action<AssetAsyncLoadHandle, bool> OnComplete;
+		public AssetInstance Asset { get; set; }
 
 		[BlackList]
-		public void Complete(AssetInstance asset) {
-			if( asset == null ) {
-				OnComplete?.Invoke(this, false);
-			}
-			else {
-				Result = new AssetReference(asset);
-				OnComplete?.Invoke(this, asset.Status == AssetRefObject.AssetStatus.DONE);
-			}
+		public void Complete() {
+			Progress = 1;
+			OnComplete?.Invoke(this, Asset.Status == AssetRefObject.AssetStatus.DONE);
 		}
 
+		private static readonly WaitForEndOfFrame frameEnd = new WaitForEndOfFrame();
+
+		private IEnumerator AsyncLoadedAssetCallback() {
+			yield return frameEnd;
+			Complete();
+		}
+		
 		[BlackList]
 		public void Execute() {
 			var hashCode = AssetInstance.GenerateHash(Location);
-			var asset = Container.TryGetAsset(hashCode);
-			if( asset != null ) {
-				if( asset.IsFinished ) {
-					Progress = 1;
-					Result = new AssetReference(asset as AssetInstance);
-					OnComplete?.Invoke(this, asset.Status == AssetRefObject.AssetStatus.DONE);
+			Asset = Container.TryGetAsset(hashCode) as AssetInstance;
+			if( Asset != null ) {
+				if( Asset.IsFinished ) {
+					var service = CSharpServiceManager.Get<GlobalCoroutineRunnerService>(CSharpServiceManager.ServiceType.COROUTINE_SERVICE);
+					service.StartCoroutine(AsyncLoadedAssetCallback());
 					return;
 				}
 			}
 			else {
-				asset = new AssetInstance(Location);
-				asset.OnStatusChanged += OnAssetReady;
-				Container.Put(asset);
+				Asset = new AssetInstance(Location);
+				Container.Put(Asset);
 			}
 
+			Asset.OnStatusChanged += OnAssetReady;
 			Provider.ProvideAsync(this);
 		}
 
+		[BlackList]
+		public void ExecuteWithGUID() {
+			Location = Provider.ConvertGUID2Path(Location);
+			Execute();
+		}
 		private void OnAssetReady(AssetRefObject asset) {
 			if( asset.IsFinished ) {
 				asset.OnStatusChanged -= OnAssetReady;
-				Result = new AssetReference(asset as AssetInstance);
-				OnComplete?.Invoke(this, true);
+				Complete();
 			}
 		}
 
@@ -70,7 +81,7 @@ namespace Extend.AssetService {
 
 		[BlackList]
 		public bool MoveNext() {
-			return Result == null;
+			return !Asset.IsFinished;
 		}
 
 		[BlackList]

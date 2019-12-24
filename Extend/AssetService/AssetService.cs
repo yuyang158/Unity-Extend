@@ -46,9 +46,24 @@ namespace Extend.AssetService {
 			path = provider.FormatAssetPath(path);
 			return provider.Provide(path, Container);
 		}
+		
+		public AssetInstance LoadAsset(string path) {
+			path = provider.FormatAssetPath(path);
+			return provider.ProvideAsset(path, Container);
+		}
+		
+		public AssetInstance LoadAssetWithGUID(string guid) {
+			return provider.ProvideAssetWithGUID(guid, Container);
+		}
 
 		public AssetAsyncLoadHandle LoadAsync(string path) {
 			var handle = new AssetAsyncLoadHandle(Container, provider, path);
+			handle.Execute();
+			return handle;
+		}
+		
+		public AssetAsyncLoadHandle LoadAsyncWithGUID(string guid) {
+			var handle = new AssetAsyncLoadHandle(Container, provider, guid);
 			handle.Execute();
 			return handle;
 		}

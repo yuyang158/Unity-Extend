@@ -15,6 +15,7 @@ namespace Extend.AssetService.AssetProvider {
 		private static string streamingAssetsPath;
 		private static string persistentDataPath;
 		private readonly Dictionary<string, AssetBundlePath> asset2ABMap = new Dictionary<string, AssetBundlePath>();
+		private readonly Dictionary<string, AssetBundlePath> guid2AssetPath = new Dictionary<string, AssetBundlePath>();
 
 		public override string FormatAssetPath(string path) {
 			return base.FormatAssetPath(path).ToLower();
@@ -43,33 +44,32 @@ namespace Extend.AssetService.AssetProvider {
 				var line = reader.ReadLine();
 				while( !string.IsNullOrEmpty(line) ) {
 					var segments = line.Split('|');
-					Assert.AreEqual(segments.Length, 2);
+					Assert.AreEqual(segments.Length, 3);
 					var fullPath = segments[0];
 					var extension = Path.GetExtension(fullPath);
 					fullPath = fullPath.Substring(17, fullPath.Length - 17 - extension.Length);
-					asset2ABMap.Add(fullPath, new AssetBundlePath() {
-						Path = string.Intern(segments[0]),
-						ABName = string.Intern(segments[1])
-					});
+					var assetPath = segments[0];
+					var assetAB = segments[1];
+					var assetGUID = segments[2];
+					var abContext = new AssetBundlePath {
+						Path = string.Intern(assetPath),
+						ABName = string.Intern(assetAB)
+					};
+					asset2ABMap.Add(fullPath, abContext);
+					guid2AssetPath.Add(assetGUID, abContext);
 					line = reader.ReadLine();
 				}
 			}
 		}
 
 		public override void ProvideAsync(AssetAsyncLoadHandle loadHandle) {
-			if( !asset2ABMap.TryGetValue(loadHandle.Location, out var abPathContext) ) {
-				Debug.LogError($"Can not file asset at {loadHandle.Location}");
-				loadHandle.Complete(null);
+			if( !TryGetABContext(loadHandle.Location, out var abPathContext) ) {
+				loadHandle.Asset.Status = AssetRefObject.AssetStatus.FAIL;
+				loadHandle.Complete();
 				return;
 			}
 
 			var operators = new List<AssetOperatorBase>(4);
-			var asset = loadHandle.Container.TryGetAsset(loadHandle.AssetHashCode);
-			if( asset == null ) {
-				asset = new AssetInstance(loadHandle.Location);
-				loadHandle.Container.Put(asset);
-			}
-
 			var mainABHash = AssetBundleInstance.GenerateHash(abPathContext.ABName);
 			var mainABInstance = loadHandle.Container.TryGetAsset(mainABHash);
 			if( mainABInstance == null ) {
@@ -89,7 +89,7 @@ namespace Extend.AssetService.AssetProvider {
 			if( !mainABInstance.IsFinished ) {
 				operators.Add(new AsyncABArrayOperator(new[] {abPathContext.ABName}));
 			}
-			operators.Add(new AsyncABAssetOperator(mainABHash, asset as AssetInstance));
+			operators.Add(new AsyncABAssetOperator(mainABHash, loadHandle.Asset));
 			var op = new AssetOperators {
 				Operators = operators.ToArray()
 			};
@@ -97,9 +97,21 @@ namespace Extend.AssetService.AssetProvider {
 			op.Execute(loadHandle);
 		}
 
-		public override AssetReference Provide(string path, AssetContainer container) {
-			if( !asset2ABMap.TryGetValue(path, out var abPathContext) ) {
+		private bool TryGetABContext(string path, out AssetBundlePath context) {
+			if( !asset2ABMap.TryGetValue(path, out context) ) {
 				Debug.LogError($"Can not file asset at {path}");
+				return false;
+			}
+			return true;
+		}
+
+		public override AssetReference Provide(string path, AssetContainer container) {
+			var asset = ProvideAsset(path, container);
+			return new AssetReference(asset);
+		}
+
+		internal override AssetInstance ProvideAsset(string path, AssetContainer container) {
+			if( !TryGetABContext(path, out var abPathContext) ) {
 				return null;
 			}
 
@@ -140,7 +152,15 @@ namespace Extend.AssetService.AssetProvider {
 
 			var unityObject = mainABInstance.AB.LoadAsset(abPathContext.Path);
 			asset.SetAsset(unityObject, mainABInstance);
-			return new AssetReference(asset);
+			return asset;
+		}
+
+		internal override AssetInstance ProvideAssetWithGUID(string guid, AssetContainer container) {
+			return guid2AssetPath.TryGetValue(guid, out var pathContext) ? ProvideAsset(pathContext.Path, container) : null;
+		}
+
+		internal override string ConvertGUID2Path(string guid) {
+			return guid2AssetPath.TryGetValue(guid, out var pathContext) ? pathContext.Path : null;
 		}
 
 		public string[] GetDirectDependencies(string abName) {

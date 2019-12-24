@@ -123,8 +123,9 @@ namespace Extend.AssetService.Editor {
 			// generate resources file to ab map config file
 			using( var writer = new StreamWriter($"{outputPath}/package.conf") ) {
 				foreach( var resourcesNode in BuildAssetRelation.ResourcesNodes ) {
+					var guid = AssetDatabase.AssetPathToGUID(resourcesNode.AssetPath);
 					var assetPath = resourcesNode.AssetPath.ToLower();
-					writer.WriteLine($"{assetPath}|{resourcesNode.AssetBundleName}");
+					writer.WriteLine($"{assetPath}|{resourcesNode.AssetBundleName}|{guid}");
 				}
 			}
 		}

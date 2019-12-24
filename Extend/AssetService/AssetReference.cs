@@ -1,19 +1,18 @@
 using System;
+using System.Collections;
 using Extend.Common;
 using UnityEngine;
+using UnityEngine.Assertions;
 using XLua;
 using Object = UnityEngine.Object;
 
 namespace Extend.AssetService {
 	[Serializable, LuaCallCSharp]
-	public class AssetReference : ISerializationCallbackReceiver {
+	public class AssetReference {
 		private AssetInstance asset;
 
 		[SerializeField, HideInInspector]
-		private Object unityObject;
-
-		[SerializeField, HideInInspector]
-		private string assetPath;
+		private string assetGUID;
 
 		public AssetReference(AssetInstance instance) {
 			asset = instance;
@@ -24,13 +23,22 @@ namespace Extend.AssetService {
 		}
 
 		~AssetReference() {
-			asset.Release();
+			asset?.Release();
 		}
 
-		public Object UnityObject => unityObject;
-
 		public T GetAsset<T>() where T : Object {
+			if( asset == null ) {
+				asset = AssetService.Get().LoadAssetWithGUID(assetGUID);
+			}
+			
 			return asset.UnityObject as T;
+		}
+
+		public IEnumerator LoadAsync() {
+			var handle = AssetService.Get().LoadAsyncWithGUID(assetGUID);
+			Assert.IsNotNull(handle.Asset);
+			asset = handle.Asset;
+			return handle;
 		}
 
 		public Texture GetTexture() {
@@ -68,24 +76,6 @@ namespace Extend.AssetService {
 		[BlackList]
 		public override string ToString() {
 			return asset.UnityObject.name;
-		}
-
-		[BlackList]
-		public void OnBeforeSerialize() {
-		}
-
-		[BlackList]
-		public void OnAfterDeserialize() {
-			if( !CSharpServiceManager.Initialized )
-				return;
-
-			var service = CSharpServiceManager.Get<AssetService>(CSharpServiceManager.ServiceType.ASSET_SERVICE);
-			var bundle = service.TryGetAssetBundleInstance(assetPath);
-			if( bundle == null )
-				return;
-
-			asset = new AssetInstance(string.Empty);
-			asset.SetAsset(unityObject, bundle);
 		}
 	}
 }
