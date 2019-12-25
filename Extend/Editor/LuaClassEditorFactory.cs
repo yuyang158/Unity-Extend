@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -44,16 +45,31 @@ namespace Extend.Editor {
 					}
 				}
 				else if( line.StartsWith("---@field") ) {
-					statements = line.Split(' ');
+					string declareField;
+					var comment = string.Empty;
+					var index = line.LastIndexOf("@", StringComparison.Ordinal);
+					if( index >= 4 ) {
+						declareField = line.Substring(0, index);
+						comment = line.Substring(index + 1);
+					}
+					else {
+						declareField = line;
+					}
+
+					statements = declareField.Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries);
 					if( statements.Length < 3 ) {
-						Debug.LogWarning($"Can not recognized line : {line}");
+						Debug.LogWarning($"Can not recognized field line : {line}");
+						continue;
+					}
+
+					if( statements.Length >= 4 && statements[1] != "public" ) {
 						continue;
 					}
 
 					Fields.Add(new LuaClassField {
-						FieldName = statements[1],
-						FieldType = statements[2],
-						Comment = statements.Length > 3 ? statements[3] : ""
+						FieldName = statements.Length == 3 ? statements[1] : statements[2],
+						FieldType = statements.Length == 3 ? statements[2] : statements[3],
+						Comment = comment
 					});
 				}
 				else {

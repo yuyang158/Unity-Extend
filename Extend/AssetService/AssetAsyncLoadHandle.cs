@@ -25,9 +25,11 @@ namespace Extend.AssetService {
 		[BlackList]
 		public AssetLoadProvider Provider { get; }
 
+		[BlackList]
 		public int AssetHashCode => AssetInstance.GenerateHash(Location);
+
 		public event Action<AssetAsyncLoadHandle, bool> OnComplete;
-		public AssetInstance Asset { get; set; }
+		public AssetInstance Asset { get; private set; }
 
 		[BlackList]
 		public void Complete() {
@@ -41,21 +43,19 @@ namespace Extend.AssetService {
 			yield return frameEnd;
 			Complete();
 		}
-		
+
 		[BlackList]
 		public void Execute() {
 			var hashCode = AssetInstance.GenerateHash(Location);
 			Asset = Container.TryGetAsset(hashCode) as AssetInstance;
-			if( Asset != null ) {
-				if( Asset.IsFinished ) {
-					var service = CSharpServiceManager.Get<GlobalCoroutineRunnerService>(CSharpServiceManager.ServiceType.COROUTINE_SERVICE);
-					service.StartCoroutine(AsyncLoadedAssetCallback());
-					return;
-				}
-			}
-			else {
+			if( Asset == null ) {
 				Asset = new AssetInstance(Location);
 				Container.Put(Asset);
+			}
+			else if( Asset.IsFinished ) {
+				var service = CSharpServiceManager.Get<GlobalCoroutineRunnerService>(CSharpServiceManager.ServiceType.COROUTINE_SERVICE);
+				service.StartCoroutine(AsyncLoadedAssetCallback());
+				return;
 			}
 
 			Asset.OnStatusChanged += OnAssetReady;
@@ -67,6 +67,7 @@ namespace Extend.AssetService {
 			Location = Provider.ConvertGUID2Path(Location);
 			Execute();
 		}
+
 		private void OnAssetReady(AssetRefObject asset) {
 			if( asset.IsFinished ) {
 				asset.OnStatusChanged -= OnAssetReady;

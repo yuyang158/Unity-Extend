@@ -1,11 +1,15 @@
 using System;
+using System.Reflection;
 using Extend.AssetService;
 using XLua;
 
 namespace Extend.LuaBindingData {
 	[Serializable]
 	public class LuaBindingAssetReferenceData : LuaBindingDataBase {
+		public Type AssetType { private get; set; }
+
 		public AssetReference Data;
+
 		public override void ApplyToLuaInstance(LuaTable instance) {
 			instance.SetInPath(FieldName, Data);
 		}
@@ -17,6 +21,7 @@ namespace Extend.LuaBindingData {
 				editorContent = new UnityEngine.GUIContent(name);
 			}
 
+			editorContent.tooltip = AssetType == null ? string.Empty : AssetType.FullName;
 			UnityEditor.EditorGUILayout.PropertyField(prop, editorContent);
 		}
 #endif

@@ -31,7 +31,7 @@ namespace Extend.Editor {
 			descriptor = LuaClassEditorFactory.GetDescriptorWithFilePath(luaPathProp.stringValue);
 		}
 
-		private void CheckBinding(LuaClassField field, Type dataBindType) {
+		private LuaBindingDataBase CheckBinding(LuaClassField field, Type dataBindType) {
 			LuaBindingDataBase matched = null;
 			foreach( var bind in binding.BindingContainer ) {
 				if( bind.FieldName != field.FieldName ) continue;
@@ -48,10 +48,11 @@ namespace Extend.Editor {
 
 			isUsedBinding.Add(matched);
 			matched.FieldType = field.FieldType;
+			return matched;
 		}
 
-		private void CheckBinding<T>(LuaClassField field) where T : LuaBindingDataBase {
-			CheckBinding(field, typeof(T));
+		private T CheckBinding<T>(LuaClassField field) where T : LuaBindingDataBase {
+			return CheckBinding(field, typeof(T)) as T;
 		}
 
 		public override void OnInspectorGUI() {
@@ -88,7 +89,10 @@ namespace Extend.Editor {
 					}
 					else {
 						if( field.FieldType == "CS.Extend.AssetService.AssetReference" ) {
-							CheckBinding<LuaBindingAssetReferenceData>(field);
+							var match = CheckBinding<LuaBindingAssetReferenceData>(field);
+							if( !string.IsNullOrEmpty(field.Comment) && field.Comment.StartsWith("CS.") ) {
+								match.AssetType = String2TypeCache.GetType(field.Comment.Substring(3));
+							}
 						}
 						else {
 							CheckBinding<LuaBindingUOData>(field);
