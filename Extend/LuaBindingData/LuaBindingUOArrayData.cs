@@ -1,4 +1,5 @@
 using System;
+using Extend.Common;
 using XLua;
 
 namespace Extend.LuaBindingData {

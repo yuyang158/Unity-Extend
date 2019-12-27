@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Extend.Common;
 using Extend.LuaBindingData;
 using UnityEditor;
 using UnityEngine;

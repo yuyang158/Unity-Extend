@@ -1,0 +1,15 @@
+{
+    "name": "Extend.Common",
+    "references": [
+        "GUID:080c65797650dd641ba11fe79ad277f3"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
