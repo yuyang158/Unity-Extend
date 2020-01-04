@@ -22,8 +22,8 @@ namespace Extend.LuaUtil {
 
 		public static LuaTable LoadConfigFile(string filename) {
 			var service = CSharpServiceManager.Get<AssetService.AssetService>(CSharpServiceManager.ServiceType.ASSET_SERVICE);
-			var assetRef = service.Load( CONFIG_PATH_PREFIX + filename );
-			var asset = assetRef.GetAsset<TextAsset>();
+			var assetRef = service.Load( CONFIG_PATH_PREFIX + filename, typeof(TextAsset) );
+			var asset = assetRef.GetTextAsset();
 			using( var reader = new StringReader( asset.text ) ) {
 				var keys = reader.ReadLine();
 				var types = reader.ReadLine();

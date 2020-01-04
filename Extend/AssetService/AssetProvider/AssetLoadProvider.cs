@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace Extend.AssetService.AssetProvider {
@@ -9,12 +10,11 @@ namespace Extend.AssetService.AssetProvider {
 			return path.Replace('\\', '/');
 		}
 
-		public abstract void ProvideAsync(AssetAsyncLoadHandle loadHandle);
+		public abstract void ProvideAsync(AssetAsyncLoadHandle loadHandle, Type typ);
 
-		public abstract AssetReference Provide(string path, AssetContainer container);
+		public abstract AssetReference Provide(string path, AssetContainer container, Type typ);
 
-		internal abstract AssetInstance ProvideAsset(string path, AssetContainer container);
-		internal abstract AssetInstance ProvideAssetWithGUID(string guid, AssetContainer container);
+		internal abstract AssetInstance ProvideAssetWithGUID<T>(string guid, AssetContainer container);
 		internal abstract string ConvertGUID2Path(string guid);
 	}
 }

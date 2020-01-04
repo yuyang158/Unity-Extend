@@ -10,27 +10,27 @@ namespace Extend.AssetService.AssetOperator {
 
 		public float Progress => currentOpIndex / (float)Operators.Length;
 
-		private void DoExecute(AssetAsyncLoadHandle handle) {
+		private void DoExecute(AssetAsyncLoadHandle handle, Type typ) {
 			if(currentOpIndex >= Operators.Length)
 				return;
 			
-			Operators[currentOpIndex].Execute(handle);
+			Operators[currentOpIndex].Execute(handle, typ);
 		}
 
-		public void Execute(AssetAsyncLoadHandle handle) {
+		public void Execute(AssetAsyncLoadHandle handle, Type typ) {
 			foreach( var op in Operators ) {
 				op.OnComplete += _ => {
 					currentOpIndex += 1;
-					DoExecute(handle);
+					DoExecute(handle, typ);
 				};
 			}
 
-			DoExecute(handle);
+			DoExecute(handle, typ);
 		}
 	}
 	
 	public abstract class AssetOperatorBase {
 		public Action<AssetOperatorBase> OnComplete;
-		public abstract void Execute(AssetAsyncLoadHandle handle);
+		public abstract void Execute(AssetAsyncLoadHandle handle, Type typ);
 	}
 }

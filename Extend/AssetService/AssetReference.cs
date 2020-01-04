@@ -14,9 +14,11 @@ namespace Extend.AssetService {
 		[SerializeField, HideInInspector]
 		private string assetGUID;
 
+		public AssetRefObject.AssetStatus AssetStatus => asset?.Status ?? AssetRefObject.AssetStatus.NONE;
+
 		public AssetReference(AssetInstance instance) {
 			asset = instance;
-			asset.IncRef();
+			asset?.IncRef();
 		}
 
 		public AssetReference() {
@@ -26,17 +28,49 @@ namespace Extend.AssetService {
 			asset?.Release();
 		}
 
-		public T GetAsset<T>() where T : Object {
+		private T GetAsset<T>() where T : Object {
 			if( asset == null ) {
-				asset = AssetService.Get().LoadAssetWithGUID(assetGUID);
+				asset = AssetService.Get().LoadAssetWithGUID<T>(assetGUID);
 			}
 			
-			Assert.AreEqual(asset.Status, AssetRefObject.AssetStatus.DONE);
+			Assert.AreEqual(asset.Status, AssetRefObject.AssetStatus.DONE, asset.Status.ToString());
 			return asset.UnityObject as T;
 		}
 
-		public AssetAsyncLoadHandle LoadAsync() {
-			var handle = AssetService.Get().LoadAsyncWithGUID(assetGUID);
+		public Sprite GetSprite() {
+			return GetAsset<Sprite>();
+		}
+
+		public Texture GetTexture() {
+			return GetAsset<Texture>();
+		}
+		
+		public Texture3D GetTexture3D() {
+			return GetAsset<Texture3D>();
+		}
+		
+		public TextAsset GetTextAsset() {
+			return GetAsset<TextAsset>();
+		}
+		
+		public Material GetMaterial() {
+			return GetAsset<Material>();
+		}
+		
+		public GameObject GetGameObject() {
+			return GetAsset<GameObject>();
+		}
+		
+		public AudioClip GetAudioClip() {
+			return GetAsset<AudioClip>();
+		}
+		
+		public AnimationClip GetAnimationClip() {
+			return GetAsset<AnimationClip>();
+		}
+		
+		public AssetAsyncLoadHandle LoadAsync(Type typ) {
+			var handle = AssetService.Get().LoadAsyncWithGUID(assetGUID, typ);
 			Assert.IsNotNull(handle.Asset);
 			asset = handle.Asset;
 			return handle;
@@ -53,12 +87,7 @@ namespace Extend.AssetService {
 		}
 
 		public override string ToString() {
-			return (asset == null || !asset.UnityObject) ? "Empty" : asset.UnityObject.name;
+			return (asset == null || !asset.UnityObject) ? "Not loaded" : asset.UnityObject.name;
 		}
-	}
-
-	[Serializable, LuaCallCSharp]
-	public class AssetReferenceT<T> : AssetReference where T : Object {
-		
 	}
 }

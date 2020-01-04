@@ -10,7 +10,7 @@ namespace Extend {
 			DOTween.Init(true, true, LogBehaviour.Default);
 
 			CSharpServiceManager.Initialize();
-			CSharpServiceManager.Register(new AssetService.AssetService());
+			CSharpServiceManager.Register(new AssetService.AssetService(true));
 			CSharpServiceManager.Register(new TickService());
 			CSharpServiceManager.Register(new GlobalCoroutineRunnerService());
 			CSharpServiceManager.Register(new LuaMVVM.LuaMVVM());

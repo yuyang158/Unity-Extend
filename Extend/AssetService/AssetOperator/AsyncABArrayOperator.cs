@@ -25,7 +25,7 @@ namespace Extend.AssetService.AssetOperator {
 			}
 		}
 
-		public override void Execute(AssetAsyncLoadHandle handle) {
+		public override void Execute(AssetAsyncLoadHandle handle, Type typ) {
 			foreach( var path in assetBundlePaths ) {
 				var hash = AssetBundleInstance.GenerateHash(path);
 				var asset = handle.Container.TryGetAsset(hash);

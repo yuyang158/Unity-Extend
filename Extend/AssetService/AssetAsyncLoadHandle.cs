@@ -6,7 +6,7 @@ using UnityEngine;
 using XLua;
 
 namespace Extend.AssetService {
-	[LuaCallCSharp]
+	[LuaCallCSharp, CSharpCallLua]
 	public class AssetAsyncLoadHandle : IEnumerator {
 		public AssetAsyncLoadHandle(AssetContainer container, AssetLoadProvider provider, string path) {
 			Container = container;
@@ -28,13 +28,14 @@ namespace Extend.AssetService {
 		[BlackList]
 		public int AssetHashCode => AssetInstance.GenerateHash(Location);
 
-		public event Action<AssetAsyncLoadHandle, bool> OnComplete;
+		public delegate void OnAssetLoadComplete(AssetAsyncLoadHandle handle);
+		public event OnAssetLoadComplete OnComplete;
 		public AssetInstance Asset { get; private set; }
 
 		[BlackList]
 		public void Complete() {
 			Progress = 1;
-			OnComplete?.Invoke(this, Asset.Status == AssetRefObject.AssetStatus.DONE);
+			OnComplete?.Invoke(this);
 		}
 
 		private static readonly WaitForEndOfFrame frameEnd = new WaitForEndOfFrame();
@@ -45,7 +46,7 @@ namespace Extend.AssetService {
 		}
 
 		[BlackList]
-		public void Execute() {
+		public void Execute(Type typ) {
 			var hashCode = AssetInstance.GenerateHash(Location);
 			Asset = Container.TryGetAsset(hashCode) as AssetInstance;
 			if( Asset == null ) {
@@ -59,13 +60,7 @@ namespace Extend.AssetService {
 			}
 
 			Asset.OnStatusChanged += OnAssetReady;
-			Provider.ProvideAsync(this);
-		}
-
-		[BlackList]
-		public void ExecuteWithGUID() {
-			Location = Provider.ConvertGUID2Path(Location);
-			Execute();
+			Provider.ProvideAsync(this, typ);
 		}
 
 		private void OnAssetReady(AssetRefObject asset) {

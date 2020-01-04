@@ -1,7 +1,9 @@
+using System;
 using Extend.AssetService.AssetProvider;
 using Extend.Common;
 using UnityEngine;
 using XLua;
+using Object = UnityEngine.Object;
 
 namespace Extend.AssetService {
 	[LuaCallCSharp]
@@ -42,36 +44,24 @@ namespace Extend.AssetService {
 			Container.Collect();
 		}
 
-		public AssetReference Load(string path) {
+		public AssetReference Load(string path, Type typ) {
 			path = provider.FormatAssetPath(path);
-			return provider.Provide(path, Container);
+			return provider.Provide(path, Container, typ);
 		}
 		
-		public AssetInstance LoadAsset(string path) {
-			path = provider.FormatAssetPath(path);
-			return provider.ProvideAsset(path, Container);
-		}
-		
-		public AssetInstance LoadAssetWithGUID(string guid) {
-			return provider.ProvideAssetWithGUID(guid, Container);
+		internal AssetInstance LoadAssetWithGUID<T>(string guid) where T : Object {
+			return provider.ProvideAssetWithGUID<T>(guid, Container);
 		}
 
-		public AssetAsyncLoadHandle LoadAsync(string path) {
+		public AssetAsyncLoadHandle LoadAsync(string path, Type typ) {
 			var handle = new AssetAsyncLoadHandle(Container, provider, path);
-			handle.Execute();
+			handle.Execute(typ);
 			return handle;
 		}
 		
-		public AssetAsyncLoadHandle LoadAsyncWithGUID(string guid) {
-			var handle = new AssetAsyncLoadHandle(Container, provider, guid);
-			handle.Execute();
-			return handle;
-		}
-
-		[BlackList]
-		public AssetBundleInstance TryGetAssetBundleInstance(string path) {
-			var hash = AssetBundleInstance.GenerateHash(path);
-			return Container.TryGetAsset(hash) as AssetBundleInstance;
+		internal AssetAsyncLoadHandle LoadAsyncWithGUID(string guid, Type typ) {
+			var path = provider.ConvertGUID2Path(guid);
+			return LoadAsync(path, typ);
 		}
 	}
 }
