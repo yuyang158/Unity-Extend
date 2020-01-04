@@ -1,15 +1,30 @@
 {
     "name": "Extend.Common",
     "references": [
-        "GUID:080c65797650dd641ba11fe79ad277f3"
+        "GUID:1ae79c5d9dfa44148922832bd25464a5"
     ],
-    "includePlatforms": [],
+    "includePlatforms": [
+        "Android",
+        "BJM",
+        "Editor",
+        "iOS",
+        "LinuxStandalone64",
+        "Lumin",
+        "macOSStandalone",
+        "PS4",
+        "Switch",
+        "tvOS",
+        "WSA",
+        "WebGL",
+        "WindowsStandalone32",
+        "WindowsStandalone64",
+        "XboxOne"
+    ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": [],
-    "noEngineReferences": false
+    "versionDefines": []
 }

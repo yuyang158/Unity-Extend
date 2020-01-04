@@ -1,9 +1,9 @@
 {
     "name": "Extend.AssetService",
     "references": [
-        "GUID:080c65797650dd641ba11fe79ad277f3",
         "GUID:a0197fa3abfc2fe4fb2da0787a4b4009",
-        "GUID:478a2357cc57436488a56e564b08d223"
+        "GUID:478a2357cc57436488a56e564b08d223",
+        "GUID:1ae79c5d9dfa44148922832bd25464a5"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
@@ -12,6 +12,5 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": [],
-    "noEngineReferences": false
+    "versionDefines": []
 }
