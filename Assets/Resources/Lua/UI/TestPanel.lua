@@ -9,15 +9,22 @@
 local M = class()
 
 function M:ctor()
-    
+
 end
 
 function M:awake()
     self.data = {
         text = "1",
-        toggle = true
+        toggle = true,
+        items = {
+            { sprite = nil, count = "1" },
+            { sprite = nil, count = "2" },
+            { sprite = nil, count = "3" }
+        }
     }
-    self.__CSBinding:SetDataContext(self.data)
+
+    self.mvvmBinding = self.__CSBinding:GetComponent(typeof(CS.Extend.LuaMVVM.LuaMVVMBinding))
+    self.mvvmBinding:SetDataContext(self.data)
 end
 
 function M:OnClick(evt)
@@ -25,5 +32,6 @@ function M:OnClick(evt)
     assert(meta and meta.__newindex)
     self.data.text = tostring(math.tointeger(self.data.text) + 1)
     self.data.toggle = not self.data.toggle
+    self.data.items[2].count = tostring(math.random(1, 10))
 end
 return M

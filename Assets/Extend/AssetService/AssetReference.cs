@@ -15,6 +15,7 @@ namespace Extend.AssetService {
 		private string assetGUID;
 
 		public AssetRefObject.AssetStatus AssetStatus => asset?.Status ?? AssetRefObject.AssetStatus.NONE;
+		public bool IsFinished => asset?.IsFinished ?? false;
 
 		public AssetReference(AssetInstance instance) {
 			asset = instance;

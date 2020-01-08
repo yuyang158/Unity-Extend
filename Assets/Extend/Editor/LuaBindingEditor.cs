@@ -135,9 +135,6 @@ namespace Extend.Editor {
 				}
 			}
 
-			var bindOptionsProp = serializedObject.FindProperty("BindingOptions");
-			EditorGUILayout.PropertyField(bindOptionsProp);
-
 			serializedObject.ApplyModifiedProperties();
 
 			if( GUILayout.Button("重新加载Lua文件") ) {

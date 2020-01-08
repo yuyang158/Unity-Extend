@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2318703892685510424}
-  - component: {fileID: 3891246276778271361}
+  - component: {fileID: -3656158973627189330}
   m_Layer: 5
   m_Name: ItemSlot
   m_TagString: Untagged
@@ -38,7 +38,7 @@ RectTransform:
   m_AnchoredPosition: {x: 217.5, y: 30.9}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &3891246276778271361
+--- !u!114 &-3656158973627189330
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -47,22 +47,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 6390549661633764971}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b707bd6caa68448419b0d3a7ed790234, type: 3}
+  m_Script: {fileID: 11500000, guid: dfa2b115f71eec346a4675d16e2aab90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  LuaFile: UI/ItemSlot
-  IntData: []
-  BoolData: []
-  NumData: []
-  StrData: []
-  UOData:
-  - FieldName: imgItem
-    Data: {fileID: 6390549663542877325}
-  - FieldName: txtCount
-    Data: {fileID: 6390549662719057511}
-  UOArrayData: []
   BindingOptions:
-    Options: []
+    Options:
+    - BindTarget: {fileID: 6390549663542877325}
+      BindTargetProp: sprite
+      Mode: 0
+      Path: sprite
+    - BindTarget: {fileID: 6390549662719057511}
+      BindTargetProp: text
+      Mode: 0
+      Path: count
 --- !u!1 &6390549662719057509
 GameObject:
   m_ObjectHideFlags: 0

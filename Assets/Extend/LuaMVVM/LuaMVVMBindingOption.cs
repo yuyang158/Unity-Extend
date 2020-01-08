@@ -64,23 +64,30 @@ namespace Extend.LuaMVVM {
 
 			var val = dataContext.GetInPath<object>(Path);
 			if( val == null ) {
-				Debug.LogError($"Not found value in path {Path}");
+				Debug.LogWarning($"Not found value in path {Path}");
 				return;
 			}
 
-			if( Mode == BindMode.ONE_WAY || Mode == BindMode.TWO_WAY || Mode == BindMode.ONE_TIME ) {
-				propertyInfo.SetValue(BindTarget, val);
-				if( Mode == BindMode.ONE_WAY || Mode == BindMode.TWO_WAY ) {
-					var mvvm = CSharpServiceManager.Get<LuaMVVM>(CSharpServiceManager.ServiceType.MVVM_SERVICE);
-					mvvm.SetupBindNotification(dataContext, Path, SetPropertyValue);
-					if( Mode == BindMode.TWO_WAY ) {
-						value = val;
+			switch( Mode ) {
+				case BindMode.ONE_WAY:
+				case BindMode.TWO_WAY:
+				case BindMode.ONE_TIME: {
+					propertyInfo.SetValue(BindTarget, val);
+					if( Mode == BindMode.ONE_WAY || Mode == BindMode.TWO_WAY ) {
+						var mvvm = CSharpServiceManager.Get<LuaMVVM>(CSharpServiceManager.ServiceType.MVVM_SERVICE);
+						mvvm.SetupBindNotification(dataContext, Path, SetPropertyValue);
+						if( Mode == BindMode.TWO_WAY ) {
+							value = val;
+						}
 					}
+					break;
 				}
-			}
-			else if( Mode == BindMode.ONE_WAY_TO_SOURCE ) {
-				value = propertyInfo.GetValue(BindTarget);
-				dataSource.SetInPath(Path, value);
+				case BindMode.ONE_WAY_TO_SOURCE:
+					value = propertyInfo.GetValue(BindTarget);
+					dataSource.SetInPath(Path, value);
+					break;
+				default:
+					throw new ArgumentOutOfRangeException();
 			}
 		}
 	}

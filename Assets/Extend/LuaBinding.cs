@@ -29,18 +29,8 @@ namespace Extend {
 			var luaTable = ret[0] as LuaTable;
 			Bind(luaTable);
 
-			foreach( var option in BindingOptions.Options ) {
-				option.Start();
-			}
-
 			var awake = luaTable.Get<LuaAwake>("awake");
 			awake(luaTable);
-		}
-
-		private void Update() {
-			foreach( var option in BindingOptions.Options ) {
-				option.UpdateToSource();
-			}
 		}
 
 		[BlackList, NonSerialized]
@@ -54,12 +44,6 @@ namespace Extend {
 			if( BindingContainer == null ) return;
 			foreach( var binding in BindingContainer ) {
 				binding.ApplyToLuaInstance(instance);
-			}
-		}
-
-		public void SetDataContext(LuaTable dataSource) {
-			foreach( var option in BindingOptions.Options ) {
-				option.Bind(dataSource);
 			}
 		}
 
@@ -77,9 +61,6 @@ namespace Extend {
 		public LuaBindingAssetReferenceData[] AssetReferenceData;
 		[HideInInspector]
 		public LuaBindingUOArrayData[] UOArrayData;
-
-		[HideInInspector, LuaMVVMBindOptionsAttribute]
-		public LuaMVVMBindingOptions BindingOptions;
 
 		public void OnBeforeSerialize() {
 			var fieldInfos = GetType().GetFields();
