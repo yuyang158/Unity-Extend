@@ -1,0 +1,22 @@
+ManifestFileVersion: 0
+CRC: 3333833078
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 7c3b845f6c1952f94376bdb9d96fab1f
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 8d614ba2bf78fe185c64b512c1591e5d
+HashAppended: 0
+ClassTypes:
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 213
+  Script: {instanceID: 0}
+- Class: 687078895
+  Script: {instanceID: 0}
+Assets:
+- Assets/Resources/Sprites/red.png
+- Assets/Resources/Sprites/green.png
+- Assets/SpriteAtlas/ALL.spriteatlas
+Dependencies: []

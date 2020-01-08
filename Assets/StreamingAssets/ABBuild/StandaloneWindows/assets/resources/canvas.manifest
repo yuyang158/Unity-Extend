@@ -1,0 +1,61 @@
+ManifestFileVersion: 0
+CRC: 4114482769
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: ed61d5777b7bb46f0dfa0433ddea6a9b
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 72abe2cdfb04373ecf61f98a6bca89ae
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 91
+  Script: {instanceID: 0}
+- Class: 95
+  Script: {instanceID: 0}
+- Class: 114
+  Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: d8e3f34a8c83b1a40804bd559e3171c6, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: b707bd6caa68448419b0d3a7ed790234, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: e48f74fc779610a42bede13f636d45a6, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 1a016cfed1e747c40ab602074289ab0c, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 9085046f02f69544eb97fd06b6048fe2, type: 3}
+- Class: 115
+  Script: {instanceID: 0}
+- Class: 128
+  Script: {instanceID: 0}
+- Class: 213
+  Script: {instanceID: 0}
+- Class: 222
+  Script: {instanceID: 0}
+- Class: 223
+  Script: {instanceID: 0}
+- Class: 224
+  Script: {instanceID: 0}
+Assets:
+- Assets/Resources/Canvas.prefab
+- Assets/Resources/SwitchTestController.controller
+Dependencies:
+- D:/git/xLua-Extend/xLua/Assets/StreamingAssets/ABBuild/StandaloneWindows/assets/resources/itemslot
+- D:/git/xLua-Extend/xLua/Assets/StreamingAssets/ABBuild/StandaloneWindows/assets/spriteatlas/all
