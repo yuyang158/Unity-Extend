@@ -11,7 +11,6 @@ local mvvm = require("mvvm")
 local AssetService = CS.Extend.AssetService.AssetService
 
 function M:ctor()
-
 end
 
 function M:awake()
@@ -29,7 +28,7 @@ function M:awake()
     self.mvvmBinding:SetDataContext(self.data)
 end
 
-function M:OnClick(evt)
+function M:OnClick()
     local meta = getmetatable(self.data)
     assert(meta and meta.__newindex)
     self.data.text = tostring(math.tointeger(self.data.text) + 1)

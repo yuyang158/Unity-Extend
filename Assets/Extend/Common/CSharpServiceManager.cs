@@ -19,6 +19,7 @@ namespace Extend.Common {
 	public class CSharpServiceManager : MonoBehaviour {
 		public enum ServiceType {
 			ASSET_SERVICE,
+			SPRITE_ASSET_SERVICE,
 			MVVM_SERVICE,
 			TICK_SERVICE,
 			COROUTINE_SERVICE

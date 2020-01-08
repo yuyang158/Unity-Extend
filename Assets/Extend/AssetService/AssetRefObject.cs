@@ -7,7 +7,8 @@ namespace Extend.AssetService {
 			NONE,
 			ASYNC_LOADING,
 			DONE,
-			FAIL
+			FAIL,
+			DESTROYED
 		}
 
 		private AssetStatus status = AssetStatus.NONE;

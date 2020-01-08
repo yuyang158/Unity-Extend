@@ -672,7 +672,7 @@ MonoBehaviour:
     Data: 0
   StrData:
   - FieldName: str
-    Data: 
+    Data: 12abc
   UOData:
   - FieldName: txt
     Data: {fileID: 3122048485905318181}

@@ -21,6 +21,7 @@ namespace Extend.AssetService {
 		}
 
 		public override void Destroy() {
+			Status = AssetStatus.DESTROYED;
 			RefAssetBundle?.Release();
 		}
 		
