@@ -29,7 +29,9 @@ local meta = {
     end
 }
 
-local M = {}
+local M = {
+    placeholder = {}
+}
 function M.SetupLuaNotification(t, k, callback)
     local oldMeta = getmetatable(t)
     if oldMeta ~= meta then

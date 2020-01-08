@@ -13,11 +13,16 @@ namespace Extend.LuaMVVM {
 
 		private SetupLuaNotification setupLuaNotification;
 		private RawSetLuaDataSource rawSetLuaDataSource;
+		
+		public static LuaTable MVVMPlaceholder { private set; get; }
+		
 		public void Initialize() {
 			var ret = LuaVM.Default.LoadFileAtPath("mvvm");
 			var module = ret[0] as LuaTable;
 			setupLuaNotification = module.GetInPath<SetupLuaNotification>("SetupLuaNotification");
 			rawSetLuaDataSource = module.GetInPath<RawSetLuaDataSource>("RawSetLuaDataSource");
+
+			MVVMPlaceholder = module.GetInPath<LuaTable>("placeholder");
 		}
 
 		public void SetupBindNotification(LuaTable dataSource, string key, Action<object> callback) {

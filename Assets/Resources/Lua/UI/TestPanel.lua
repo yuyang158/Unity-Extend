@@ -7,6 +7,8 @@
 ---@field str string
 ---@field stateSwitcher CS.Extend.Switcher.StateSwitcher
 local M = class()
+local mvvm = require("mvvm")
+local AssetService = CS.Extend.AssetService.AssetService
 
 function M:ctor()
 
@@ -17,9 +19,9 @@ function M:awake()
         text = "1",
         toggle = true,
         items = {
-            { sprite = nil, count = "1" },
-            { sprite = nil, count = "2" },
-            { sprite = nil, count = "3" }
+            { sprite = mvvm.placeholder, count = "1" },
+            { sprite = mvvm.placeholder, count = "2" },
+            { sprite = mvvm.placeholder, count = "3" }
         }
     }
 
