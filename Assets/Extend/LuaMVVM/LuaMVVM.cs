@@ -17,7 +17,7 @@ namespace Extend.LuaMVVM {
 		public static LuaTable MVVMPlaceholder { private set; get; }
 		
 		public void Initialize() {
-			var ret = LuaVM.Default.LoadFileAtPath("mvvm");
+			var ret = LuaVM.Default.LoadFileAtPath("mvvm/mvvm");
 			var module = ret[0] as LuaTable;
 			setupLuaNotification = module.GetInPath<SetupLuaNotification>("SetupLuaNotification");
 			rawSetLuaDataSource = module.GetInPath<RawSetLuaDataSource>("RawSetLuaDataSource");

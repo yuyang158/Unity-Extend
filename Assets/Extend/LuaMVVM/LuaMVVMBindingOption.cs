@@ -74,10 +74,7 @@ namespace Extend.LuaMVVM {
 				case BindMode.ONE_WAY:
 				case BindMode.TWO_WAY:
 				case BindMode.ONE_TIME: {
-					if( !Equals(val, LuaMVVM.MVVMPlaceholder) ) {
-						propertyInfo.SetValue(BindTarget, val);
-					}
-						
+					SetPropertyValue(val);
 					if( Mode == BindMode.ONE_WAY || Mode == BindMode.TWO_WAY ) {
 						var mvvm = CSharpServiceManager.Get<LuaMVVM>(CSharpServiceManager.ServiceType.MVVM_SERVICE);
 						mvvm.SetupBindNotification(dataContext, Path, SetPropertyValue);

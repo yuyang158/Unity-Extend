@@ -8,6 +8,7 @@ namespace Extend {
         static LuaVM() {
             Default = new LuaEnv();
             Default.AddLoader( ( ref string filename ) => {
+                filename = filename.Replace('.', '/');
                 var service = CSharpServiceManager.Get<AssetService.AssetService>(CSharpServiceManager.ServiceType.ASSET_SERVICE);
                 var assetRef = service.Load( $"Lua/{filename}", typeof(TextAsset) );
                 if( assetRef == null || assetRef.AssetStatus != AssetRefObject.AssetStatus.DONE )

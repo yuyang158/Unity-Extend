@@ -7,7 +7,7 @@
 ---@field str string
 ---@field stateSwitcher CS.Extend.Switcher.StateSwitcher
 local M = class()
--- local mvvm = require("mvvm")
+local mvvm = require("mvvm/mvvm")
 -- local AssetService = CS.Extend.AssetService.AssetService
 
 function M:ctor()
@@ -18,23 +18,24 @@ function M:awake()
 end
 
 function M:start()
-    self.data = {
-        text = "1",
-        toggle = true,
-        items = {
-            { sprite = "Sprites/red", count = "1" },
-            { sprite = "Sprites/green", count = "2" },
-            { sprite = "Sprites/red", count = "3" }
+    self.vm = {
+        data = {
+            text = "1",
+            toggle = true,
+            items = {
+                { sprite = "Sprites/red", count = "1" },
+                { sprite = "Sprites/green", count = "2" },
+                { sprite = "Sprites/red", count = "3" }
+            }
         }
-    }
-    self.mvvmBinding:SetDataContext(self.data)
+    } 
+    mvvm.BuildDataSource(self.vm)
+    self.mvvmBinding:SetDataContext(self.vm)
 end
 
 function M:OnClick()
-    local meta = getmetatable(self.data)
-    assert(meta and meta.__newindex)
-    self.data.text = tostring(math.tointeger(self.data.text) + 1)
-    self.data.toggle = not self.data.toggle
-    self.data.items[2].count = tostring(math.random(1, 10))
+    self.vm.text = tostring(math.tointeger(self.data.text) + 1)
+    self.vm.toggle = not self.vm.toggle
+    self.vm.items[2].count = tostring(math.random(1, 10))
 end
 return M
