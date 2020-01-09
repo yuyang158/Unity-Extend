@@ -7,24 +7,26 @@
 ---@field str string
 ---@field stateSwitcher CS.Extend.Switcher.StateSwitcher
 local M = class()
-local mvvm = require("mvvm")
-local AssetService = CS.Extend.AssetService.AssetService
+-- local mvvm = require("mvvm")
+-- local AssetService = CS.Extend.AssetService.AssetService
 
 function M:ctor()
 end
 
 function M:awake()
+    self.mvvmBinding = self.__CSBinding:GetComponent(typeof(CS.Extend.LuaMVVM.LuaMVVMBinding))
+end
+
+function M:start()
     self.data = {
         text = "1",
         toggle = true,
         items = {
-            { sprite = mvvm.placeholder, count = "1" },
-            { sprite = mvvm.placeholder, count = "2" },
-            { sprite = mvvm.placeholder, count = "3" }
+            { sprite = "Sprites/red", count = "1" },
+            { sprite = "Sprites/green", count = "2" },
+            { sprite = "Sprites/red", count = "3" }
         }
     }
-
-    self.mvvmBinding = self.__CSBinding:GetComponent(typeof(CS.Extend.LuaMVVM.LuaMVVMBinding))
     self.mvvmBinding:SetDataContext(self.data)
 end
 

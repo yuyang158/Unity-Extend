@@ -128,6 +128,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 433822263, guid: f27608ab5a414db4f9ff9d5c7c70e5e5, type: 3}
+      propertyPath: BindingOptions.Options.Array.data[1].Mode
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3122048484682131679, guid: f27608ab5a414db4f9ff9d5c7c70e5e5,
         type: 3}
       propertyPath: m_Name

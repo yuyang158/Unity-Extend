@@ -14,7 +14,7 @@ namespace Extend {
 		[AssetPath(AssetType = typeof(TextAsset), order = 1, RootDir = "Assets/Resources/Lua", Extension = ".lua")]
 		public string LuaFile;
 
-		private delegate void LuaAwake(LuaTable self);
+		private delegate void LuaUnityEventFunction(LuaTable self);
 
 		private void Awake() {
 			if( string.IsNullOrEmpty(LuaFile) )
@@ -29,8 +29,13 @@ namespace Extend {
 			var luaTable = ret[0] as LuaTable;
 			Bind(luaTable);
 
-			var awake = luaTable.Get<LuaAwake>("awake");
+			var awake = luaTable.Get<LuaUnityEventFunction>("awake");
 			awake(luaTable);
+		}
+
+		private void Start() {
+			var start = LuaInstance.Get<LuaUnityEventFunction>("start");
+			start(LuaInstance);
 		}
 
 		[BlackList, NonSerialized]

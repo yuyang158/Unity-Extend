@@ -5,11 +5,10 @@ using UnityEngine.UI;
 using XLua;
 
 namespace Extend.AssetService {
-	[LuaCallCSharp]
 	public class SpriteAssetService : IService, IServiceUpdate {
-		private class SpriteLoadingCallback {
-			public static void Create(Image img, SpriteRenderer spriteRenderer, AssetInstance asset, string path) {
-				new SpriteLoadingCallback(asset, img, spriteRenderer, path);
+		public class SpriteLoadingHandle {
+			public static SpriteLoadingHandle Create(Image img, SpriteRenderer spriteRenderer, AssetInstance asset, string path) {
+				return new SpriteLoadingHandle(asset, img, spriteRenderer, path);
 			}
 
 			private readonly string mPath;
@@ -17,7 +16,7 @@ namespace Extend.AssetService {
 			private readonly Image mImg;
 			private readonly SpriteRenderer mSpriteRenderer;
 
-			private SpriteLoadingCallback(AssetInstance asset, Image img, SpriteRenderer spriteRenderer, string path) {
+			private SpriteLoadingHandle(AssetInstance asset, Image img, SpriteRenderer spriteRenderer, string path) {
 				mAsset = asset;
 				mPath = path;
 				mSpriteRenderer = spriteRenderer;
@@ -32,6 +31,10 @@ namespace Extend.AssetService {
 					TryApplySprite(mImg, mSpriteRenderer, mAsset, mPath);
 				}
 			}
+
+			public void GiveUp() {
+				mAsset.OnStatusChanged -= OnAssetStatusChanged;
+			}
 		}
 
 		public CSharpServiceManager.ServiceType ServiceType => CSharpServiceManager.ServiceType.SPRITE_ASSET_SERVICE;
@@ -42,7 +45,8 @@ namespace Extend.AssetService {
 
 		private readonly Dictionary<string, AssetInstance> sprites = new Dictionary<string, AssetInstance>();
 
-		public void SetUIImage(Image img, SpriteRenderer spriteRenderer, string path, bool sync = false) {
+		public SpriteLoadingHandle SetUIImage(Image img, SpriteRenderer spriteRenderer, string path, bool sync = false) {
+			SpriteLoadingHandle ret = null;
 			if( sprites.TryGetValue(path, out var spriteAsset) ) {
 				if( spriteAsset.Status == AssetRefObject.AssetStatus.DESTROYED ) {
 					sprites.Remove(path);
@@ -52,9 +56,9 @@ namespace Extend.AssetService {
 						TryApplySprite(img, spriteRenderer, spriteAsset, path);
 					}
 					else {
-						SpriteLoadingCallback.Create(img, spriteRenderer, spriteAsset, path);
+						ret = SpriteLoadingHandle.Create(img, spriteRenderer, spriteAsset, path);
 					}
-					return;
+					return ret;
 				}
 			}
 
@@ -66,10 +70,11 @@ namespace Extend.AssetService {
 			else {
 				var loadHandle = AssetService.Get().LoadAsync(path, typeof(Sprite));
 				spriteAsset = loadHandle.Asset;
-				SpriteLoadingCallback.Create(img, spriteRenderer, spriteAsset, path);
+				ret = SpriteLoadingHandle.Create(img, spriteRenderer, spriteAsset, path);
 			}
 
 			sprites.Add(path, spriteAsset);
+			return ret;
 		}
 
 		public void Release(string key) {
@@ -93,15 +98,12 @@ namespace Extend.AssetService {
 			}
 		}
 
-		[BlackList]
 		public void Initialize() {
 		}
 
-		[BlackList]
 		public void Destroy() {
 		}
 
-		[BlackList]
 		public void Update() {
 		}
 	}

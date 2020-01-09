@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Assertions;
-using Object = System.Object;
 
 namespace Extend.Common {
 	public interface IService {
