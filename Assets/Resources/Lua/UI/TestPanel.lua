@@ -6,6 +6,7 @@
 ---@field num number
 ---@field str string
 ---@field stateSwitcher CS.Extend.Switcher.StateSwitcher
+
 local M = class()
 local mvvm = require("mvvm/mvvm")
 -- local AssetService = CS.Extend.AssetService.AssetService
@@ -22,20 +23,29 @@ function M:start()
         data = {
             text = "1",
             toggle = true,
+            a = 1,
+            b = 5,
             items = {
                 { sprite = "Sprites/red", count = "1" },
                 { sprite = "Sprites/green", count = "2" },
                 { sprite = "Sprites/red", count = "3" }
             }
+        },
+        computed = {
+            sum = function(data)
+                return data.a + data.b
+            end
         }
     } 
-    mvvm.BuildDataSource(self.vm)
-    self.mvvmBinding:SetDataContext(self.vm)
+    local vm, context = mvvm.BuildDataSource(self.vm)
+    self.vm = vm
+    self.mvvmBinding:SetDataContext(context)
 end
 
 function M:OnClick()
-    self.vm.text = tostring(math.tointeger(self.data.text) + 1)
+    self.vm.text = tostring(math.tointeger(self.vm.text) + 1)
     self.vm.toggle = not self.vm.toggle
-    self.vm.items[2].count = tostring(math.random(1, 10))
+    self.vm.items[2].count = math.random(1, 10)
+    self.vm.a = self.vm.a + 1
 end
 return M

@@ -11,7 +11,7 @@ namespace Extend.LuaMVVM {
 	public class LuaMVVMBindingOptions {
 		public LuaMVVMBindingOption[] Options;
 	}
-	
+
 	[Serializable]
 	public class LuaMVVMBindingOption {
 		public enum BindMode {
@@ -31,31 +31,43 @@ namespace Extend.LuaMVVM {
 		private PropertyInfo propertyInfo;
 		private object value;
 
+		private delegate object MVVMGet(LuaTable self, string path);
+		private delegate void MVVMSet(LuaTable self, string path, object val);
+
+		[CSharpCallLua]
+		private MVVMGet mvvmGet;
+		[CSharpCallLua]
+		private MVVMSet mvvmSet;
+
 		public void Start() {
 			propertyInfo = BindTarget.GetType().GetProperty(BindTargetProp);
 			Assert.IsNotNull(propertyInfo, BindTargetProp);
 		}
 
 		public void UpdateToSource() {
-			if(dataSource == null)
+			if( dataSource == null )
 				return;
-			
-			if(Mode != BindMode.TWO_WAY && Mode != BindMode.ONE_WAY_TO_SOURCE)
+
+			if( Mode != BindMode.TWO_WAY && Mode != BindMode.ONE_WAY_TO_SOURCE )
 				return;
 
 			var fieldVal = propertyInfo.GetValue(BindTarget);
 			if( value != fieldVal ) {
-				var mvvm = CSharpServiceManager.Get<LuaMVVM>(CSharpServiceManager.ServiceType.MVVM_SERVICE);
-				mvvm.RawSetDataSource(dataSource, Path, value);
+				mvvmSet(dataSource, Path, value);
 				value = fieldVal;
 			}
 		}
 
 		private void SetPropertyValue(object val) {
-			if(Equals(val, LuaMVVM.MVVMPlaceholder))
+			if( Equals(val, LuaMVVM.MVVMPlaceholder) )
 				return;
-			value = val;
-			propertyInfo.SetValue(BindTarget, val);
+			if( propertyInfo.PropertyType == typeof(string) ) {
+				value = val.ToString();
+			}
+			else {
+				value = val;
+			}
+			propertyInfo.SetValue(BindTarget, value);
 		}
 
 		public void Bind(LuaTable dataContext) {
@@ -64,7 +76,9 @@ namespace Extend.LuaMVVM {
 				return;
 			}
 
-			var val = dataContext.GetInPath<object>(Path);
+			mvvmGet = dataContext.Get<MVVMGet>("get");
+			mvvmSet = dataContext.Get<MVVMSet>("set");
+			var val = mvvmGet(dataContext, Path);
 			if( val == null ) {
 				Debug.LogWarning($"Not found value in path {Path}");
 				return;
@@ -86,7 +100,7 @@ namespace Extend.LuaMVVM {
 				}
 				case BindMode.ONE_WAY_TO_SOURCE:
 					value = propertyInfo.GetValue(BindTarget);
-					dataSource.SetInPath(Path, value);
+					mvvmSet(dataContext, Path, value);
 					break;
 				default:
 					throw new ArgumentOutOfRangeException();

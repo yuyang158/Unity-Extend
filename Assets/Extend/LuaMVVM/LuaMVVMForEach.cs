@@ -36,13 +36,16 @@ namespace Extend.LuaMVVM {
 			}
 			var prefab = Asset.GetGameObject();
 			generatedAsset.Clear();
-			LuaArrayData.ForEach((object index, LuaTable dataContext) => {
+			for( var i = 1; ; i++ ) {
+				var dataContext = LuaArrayData.Get<int, LuaTable>(i);
+				if(dataContext == null)
+					break;
 				var go = Instantiate(prefab, transform, false);
-				go.name = $"{prefab.name}_{index}";
+				go.name = $"{prefab.name}_{i}";
 				generatedAsset.Add(go);
 				var mvvmBinding = go.GetComponent<LuaMVVMBinding>();
 				mvvmBinding.SetDataContext(dataContext);
-			});
+			}
 		}
 	}
 }

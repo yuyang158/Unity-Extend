@@ -1,6 +1,8 @@
-package.cpath = package.cpath .. ';C:/Users/yang.yu/.Rider2019.2/config/plugins/intellij-emmylua/classes/debugger/emmy/windows/x64/?.dll'
+package.cpath = package.cpath .. ';C:/Users/yuyan/.Rider2019.3/config/plugins/intellij-emmylua/classes/debugger/emmy/windows/x64/?.dll'
 local dbg = require('emmy_core')
 dbg.tcpConnect('localhost', 9967)
+
+require('util')
 local next = next
 
 function string.split(self, delimiter)

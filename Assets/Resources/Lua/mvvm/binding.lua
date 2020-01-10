@@ -1,8 +1,9 @@
-local getmetatable, setmetatable, type, pairs, assert, rawget = getmetatable, setmetatable, type, pairs, assert, rawget
+local getmetatable, setmetatable, type, pairs, assert, rawget, ipairs = getmetatable, setmetatable, type, pairs, assert, rawget, ipairs
 local M = {}
 local mark = {}
 local dep = require('mvvm.dep')
 local util = require('util')
+local tinsert = table.insert
 
 local function empty_function()
 end
@@ -15,9 +16,9 @@ end
 
 local currentdep
 
-local function build_computed(computed, raw, source)
+local function build_computed(computed, source)
     if not computed then
-        return raw
+        return
     end
 
     local _computed = {
@@ -36,20 +37,21 @@ local function build_computed(computed, raw, source)
         else
             error("only support value type : function, table")
         end
-        _computed.__deps[k] = dep.new()
+        _computed.__deps[k] = dep.new(k)
+        computed[k] = nil
     end
-    
-    return setmetatable(raw, {
+
+    return setmetatable(computed, {
+        __getters = _computed.__getters,
+        __setters = _computed.__setters,
         __index = function(_, k)
-            local val = rawget(raw. k)
-            if val then
-                return val 
-            end
             local getter = _computed.__getters[k]
             if not getter then return end
             currentdep = _computed.__deps[k]
             local ret = getter(source)
-            currentdep:fetch(source)
+            local tmp = currentdep
+            currentdep = nil
+            tmp:fetch(source)
             return ret
         end,
         __newindex = function(_, k, value)
@@ -72,14 +74,32 @@ local function build_data(data, path)
     end
     
     local callbacks = {}
+    local function watch(_, k, cb)
+        local cbs = callbacks[k] or {}
+        tinsert(cbs, cb)
+        callbacks[k] = cbs
+    end
     return setmetatable(data, {
         __index = function(_, k)
-            if currentdep then currentdep:record(append_key(path, k)) end
+            if k == "watch" then
+                return watch
+            end
+            if currentdep then 
+                currentdep:record(append_key(path, k)) 
+            end
             return _data[k]
         end,
         __newindex = function(_, k, v)
-            local callback = callbacks[k]
-            callback(data, v)
+            assert(currentdep == nil, append_key(path, k))
+            if _data[k] == v then 
+                return
+            end
+            _data[k] = type(v) == "table" and build_data(v, append_key(path, k)) or v
+            local cbs = callbacks[k]
+            if not cbs then return end
+            for _, cb in ipairs(cbs) do
+                cb(data, v)
+            end
         end
     })
 end
@@ -89,31 +109,79 @@ function M.bind(source)
     
     local meta = getmetatable(source)
     if meta and meta.__mark == mark then return end
-    
-    local _data = build_data(source.data, '')
-    source.data = nil
 
-    build_computed(source.computed, _data)
+    local data = build_data(source.data, '')
+    local computed = build_computed(source.computed, source)
+    
+    source.data = nil
     source.computed = nil
 
-    meta = {
-        __deps = {},
-        __raw = _data,
-        __index = function(_, k)
-            local ret = rawget(_data, k)
-            if not ret then
-                return _data[k]
+    local computedmeta = getmetatable(computed)
+    local computed_cbs = {}
+    local index = {
+        watch = function(_, path, cb)
+            local keys = util.parse_path(path)
+            if #keys == 1 and computed then
+                local key = keys[1]
+                if computedmeta.__getters[key] then
+                    local cbs = computed_cbs[key] or {}
+                    tinsert(cbs, cb)
+                    computed_cbs[key] = cbs
+                    return
+                end
             end
-            if currentdep then currentdep:record(append_key(path, k)) end
-            return ret
+            local final = data
+            for index, key in ipairs(keys) do
+                if index == #keys then
+                    final:watch(key, cb)
+                    return
+                end
+                final = final[key]
+            end
         end,
-        __newindex = function(_, k, v)
-            if type(v) == "table" then
-                v = M.bind(v, append_key(path, k))
+        computed_trigger = function(_, key)
+            local val = computed[key]
+            local cbs = computed_cbs[key]
+            if not cbs then return end
+            for _, callback in ipairs(cbs) do
+                callback(source, val)
+            end
+        end,
+        get = function(_, path)
+            local keys = util.parse_path(path)
+            if #keys == 1 and computed then
+                local val = computed[path]
+                if val then return val end
+            end
+            local final = data
+            for index, key in ipairs(keys) do
+                if index == #keys then
+                    return final[key]
+                end
+                final = final[key]
+            end
+        end,
+        set = function(_, path, v)
+            local keys = util.parse_path(path)
+            if #keys == 1 and computedmeta then
+                local setter = computedmeta.__setters[path]
+                if setter then
+                    computed[path] = v
+                    return
+                end
+            end
+            local final = data
+            for index, key in ipairs(keys) do
+                if index == #keys then
+                    final[key] = v
+                end
+                final = final[key]
             end
         end
     }
-    return setmetatable(source, meta)
+    return setmetatable(source, {__index = function(_, k)
+        return index[k] or index.get(source, k)
+    end})
 end
 
 

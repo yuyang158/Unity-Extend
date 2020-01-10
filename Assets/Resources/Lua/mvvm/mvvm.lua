@@ -1,28 +1,24 @@
-local rawset, rawget, ipairs, getmetatable, setmetatable, assert, type = rawset, rawget, ipairs, getmetatable, setmetatable, assert, type
-local tinsert = table.insert
-local util = require('util')
+local binding = require('mvvm.binding')
+local getmetatable, setmetatable = getmetatable, setmetatable
 
-local M = {
-    placeholder = {}
-}
-
-local metaFlag = {}
-local function append_key(path, key)
-    if not path or path == '' then return key end
-    if type(key) ~= 'number' and type(key) ~= 'string' then error('not support key type' .. type(key)) end
-    return (type(key) == 'number') and (path .. '[' .. key .. ']') or (path .. '.'..key)
-end
+local M = {}
 
 function M.BuildDataSource(source)
-    
+    local bind = binding.bind(source)
+    return setmetatable({}, {
+        __index = bind.get,
+        __newindex = bind.set
+    }), bind
 end
 
 function M.SetupLuaNotification(t, path, callback)
-    
+    t:watch(path, function(_, v)
+        callback(v)
+    end)
 end
 
 function M.RawSetLuaDataSource(t, k, v)
-    
+    t:set(k, v)
 end
 
 return M
