@@ -25,6 +25,9 @@ function M:start()
             toggle = true,
             a = 1,
             b = 5,
+            c = {
+                d = 20
+            },
             items = {
                 { sprite = "Sprites/red", count = "1" },
                 { sprite = "Sprites/green", count = "2" },
@@ -33,7 +36,7 @@ function M:start()
         },
         computed = {
             sum = function(data)
-                return data.a + data.b
+                return string.format("sum : %.2f", data.a + data.b + data.c.d)
             end
         }
     } 
@@ -46,5 +49,6 @@ function M:OnClick()
     self.vm.toggle = not self.vm.toggle
     self.vm.items[2].count = math.random(1, 10)
     self.vm.a = self.vm.a + 1
+    self.vm.c.d = math.random(100, 1000) / 73
 end
 return M
