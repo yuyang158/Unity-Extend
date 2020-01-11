@@ -81,9 +81,6 @@ local function build_data(data, path)
             callbacks[k] = cbs
         end,
         get = function(_, k)
-            if k == "watch" then
-                return watch
-            end
             if currentdep then
                 currentdep:record(append_key(path, k))
             end
@@ -103,7 +100,12 @@ local function build_data(data, path)
         end
     }
     return setmetatable(data, {
-        __index = methods,
+        __index = function(_, k)
+            return methods[k] or methods.get(data, k)
+        end,
+        __newindex = function(_, k, v)
+            return methods.set(data, k, v)
+        end,
         __pairs = function()
             return next, _data, nil
         end
@@ -180,14 +182,20 @@ function M.bind(source)
             for index, key in ipairs(keys) do
                 if index == #keys then
                     final:set(key, v)
+                    return
                 end
                 final = final:get(key)
             end
         end
     }
-    return setmetatable(source, {__index = function(_, k)
-        return index[k] or index.get(source, k)
-    end})
+    return setmetatable(source, {
+        __index = function(_, k)
+            return index[k] or index.get(source, k) 
+        end,
+        __newindex = function(_, k, v)
+            index.set(source, k, v)
+        end
+    })
 end
 
 

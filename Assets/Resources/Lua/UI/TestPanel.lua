@@ -37,9 +37,8 @@ function M:start()
             end
         }
     } 
-    local vm, context = mvvm.BuildDataSource(self.vm)
-    self.vm = vm
-    self.mvvmBinding:SetDataContext(context)
+    mvvm.BuildDataSource(self.vm)
+    self.mvvmBinding:SetDataContext(self.vm)
 end
 
 function M:OnClick()
