@@ -11,7 +11,8 @@
 
 2. Unity UI与Lua Table的绑定
 
-* Assets\Extend\Example\Resources\Lua\mvvm.lua
+* LuaMVVMBinding.cs LuaMVVMForEach.cs
+* mvvm.lua
 * BindingDemo场景中MVVM开头相关节点
 
 3. 配置文件读取
