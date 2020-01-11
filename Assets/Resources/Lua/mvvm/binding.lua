@@ -3,7 +3,7 @@ local M = {}
 local mark = {}
 local dep = require('mvvm.dep')
 local util = require('util')
-local tinsert = table.insert
+local tinsert, tremove = table.insert, table.remove
 
 local function empty_function()
 end
@@ -99,6 +99,12 @@ local function build_data(data, path)
             local cbs = callbacks[k]
             if not cbs then 
                 return
+            end
+            for i, v in ipairs(cbs) do
+                if v == cb then
+                    tremove(cbs, i)
+                    break
+                end
             end
         end,
         __get = function(_, k)
