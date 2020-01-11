@@ -31,7 +31,7 @@ namespace Extend.LuaMVVM {
 		private PropertyInfo propertyInfo;
 		private object value;
 
-		private delegate object MVVMGet(LuaTable self, string path);
+		public delegate object MVVMGet(LuaTable self, string path);
 		private delegate void MVVMSet(LuaTable self, string path, object val);
 
 		[CSharpCallLua]
@@ -52,7 +52,7 @@ namespace Extend.LuaMVVM {
 				return;
 
 			var fieldVal = propertyInfo.GetValue(BindTarget);
-			if( value != fieldVal ) {
+			if( !Equals(value, fieldVal) ) {
 				mvvmSet(dataSource, Path, value);
 				value = fieldVal;
 			}
