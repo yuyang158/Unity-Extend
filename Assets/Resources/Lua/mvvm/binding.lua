@@ -1,4 +1,4 @@
-local getmetatable, setmetatable, type, pairs, assert, rawget, ipairs, next = getmetatable, setmetatable, type, pairs, assert, rawget, ipairs, next
+local getmetatable, setmetatable, type, pairs, assert, ipairs, next = getmetatable, setmetatable, type, pairs, assert, ipairs, next
 local M = {}
 local mark = {}
 local dep = require('mvvm.dep')
@@ -75,18 +75,39 @@ local function build_data(data, path)
 
     local callbacks = {}
     local methods = {
-        watch = function(_, k, cb)
+        watch = function(_, p, cb)
+            local keys = util.parse_path(p)
+            if #keys == 1 then
+                data.__watch(p, cb)
+                return
+            end
+            local last = data
+            for index, key in ipairs(keys) do
+                if index == #keys then
+                    last.__watch(key, cb)
+                    return
+                end
+                last = last[key]
+            end
+        end,
+        __watch = function(k, cb)
             local cbs = callbacks[k] or {}
             tinsert(cbs, cb)
             callbacks[k] = cbs
         end,
-        get = function(_, k)
+        detach = function(_, k, cb)
+            local cbs = callbacks[k]
+            if not cbs then 
+                return
+            end
+        end,
+        __get = function(_, k)
             if currentdep then
                 currentdep:record(append_key(path, k))
             end
             return _data[k]
         end,
-        set = function(_, k, v)
+        __set = function(_, k, v)
             assert(currentdep == nil, append_key(path, k))
             if _data[k] == v then
                 return
@@ -101,10 +122,10 @@ local function build_data(data, path)
     }
     return setmetatable(data, {
         __index = function(_, k)
-            return methods[k] or methods.get(data, k)
+            return methods[k] or methods.__get(data, k)
         end,
         __newindex = function(_, k, v)
-            return methods.set(data, k, v)
+            return methods.__set(data, k, v)
         end,
         __pairs = function()
             return next, _data, nil
@@ -128,24 +149,13 @@ function M.bind(source)
     local computed_cbs = {}
     local index = {
         watch = function(_, path, cb)
-            local keys = util.parse_path(path)
-            if #keys == 1 and computed then
-                local key = keys[1]
-                if computedmeta.__getters[key] then
-                    local cbs = computed_cbs[key] or {}
-                    tinsert(cbs, cb)
-                    computed_cbs[key] = cbs
-                    return
-                end
+            if computed and computedmeta.__getters[path] then
+                local cbs = computed_cbs[path] or {}
+                tinsert(cbs, cb)
+                computed_cbs[path] = cbs
+                return
             end
-            local final = data
-            for index, key in ipairs(keys) do
-                if index == #keys then
-                    final:watch(key, cb)
-                    return
-                end
-                final = final[key]
-            end
+            data:watch(path, cb)
         end,
         computed_trigger = function(_, key)
             local val = computed[key]
@@ -155,37 +165,19 @@ function M.bind(source)
                 callback(source, val)
             end
         end,
-        get = function(_, path)
-            local keys = util.parse_path(path)
-            if #keys == 1 and computed then
-                local val = computed[path]
+        get = function(_, k)
+            if computed then
+                local val = computed[k]
                 if val then return val end
             end
-            local final = data
-            for index, key in ipairs(keys) do
-                if index == #keys then
-                    return final:get(key)
-                end
-                final = final:get(key)
-            end
+            return data:__get(k)
         end,
-        set = function(_, path, v)
-            local keys = util.parse_path(path)
-            if #keys == 1 and computedmeta then
-                local setter = computedmeta.__setters[path]
-                if setter then
-                    computed[path] = v
-                    return
-                end
+        set = function(_, k, v)
+            if computedmeta and computedmeta.__setters[k] then
+                computed[k] = v
+                return
             end
-            local final = data
-            for index, key in ipairs(keys) do
-                if index == #keys then
-                    final:set(key, v)
-                    return
-                end
-                final = final:get(key)
-            end
+            data:__set(k, v)
         end
     }
     return setmetatable(source, {

@@ -14,9 +14,6 @@ namespace Extend.LuaMVVM {
 		private LuaTable arrayData;
 		private readonly List<GameObject> generatedAsset = new List<GameObject>();
 		
-		private delegate LuaTable MVVMGetArrayElement(LuaTable self, object index);
-		[CSharpCallLua]
-		private MVVMGetArrayElement mvvmGet;
 		
 		public LuaTable LuaArrayData {
 			get => arrayData;
@@ -31,8 +28,6 @@ namespace Extend.LuaMVVM {
 				else {
 					DoGenerate();
 				}
-
-				mvvmGet = arrayData.Get<MVVMGetArrayElement>("get");
 			}
 		}
 
@@ -40,7 +35,7 @@ namespace Extend.LuaMVVM {
 			var prefab = Asset.GetGameObject();
 			int finalIndex;
 			for( var i = 1; ; i++ ) {
-				var dataContext = mvvmGet(arrayData, i);
+				var dataContext = arrayData.Get<int, LuaTable>(i);
 				if( dataContext == null ) {
 					finalIndex = i;
 					break;
