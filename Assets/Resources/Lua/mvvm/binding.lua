@@ -1,4 +1,4 @@
-local getmetatable, setmetatable, type, pairs, assert, rawget, ipairs = getmetatable, setmetatable, type, pairs, assert, rawget, ipairs
+local getmetatable, setmetatable, type, pairs, assert, rawget, ipairs, next = getmetatable, setmetatable, type, pairs, assert, rawget, ipairs, next
 local M = {}
 local mark = {}
 local dep = require('mvvm.dep')
@@ -72,26 +72,26 @@ local function build_data(data, path)
         end
         data[k] = nil
     end
-    
+
     local callbacks = {}
-    local function watch(_, k, cb)
-        local cbs = callbacks[k] or {}
-        tinsert(cbs, cb)
-        callbacks[k] = cbs
-    end
-    return setmetatable(data, {
-        __index = function(_, k)
+    local methods = {
+        watch = function(_, k, cb)
+            local cbs = callbacks[k] or {}
+            tinsert(cbs, cb)
+            callbacks[k] = cbs
+        end,
+        get = function(_, k)
             if k == "watch" then
                 return watch
             end
-            if currentdep then 
-                currentdep:record(append_key(path, k)) 
+            if currentdep then
+                currentdep:record(append_key(path, k))
             end
             return _data[k]
         end,
-        __newindex = function(_, k, v)
+        set = function(_, k, v)
             assert(currentdep == nil, append_key(path, k))
-            if _data[k] == v then 
+            if _data[k] == v then
                 return
             end
             _data[k] = type(v) == "table" and build_data(v, append_key(path, k)) or v
@@ -100,6 +100,12 @@ local function build_data(data, path)
             for _, cb in ipairs(cbs) do
                 cb(data, v)
             end
+        end
+    }
+    return setmetatable(data, {
+        __index = methods,
+        __pairs = function()
+            return next, _data, nil
         end
     })
 end
@@ -156,9 +162,9 @@ function M.bind(source)
             local final = data
             for index, key in ipairs(keys) do
                 if index == #keys then
-                    return final[key]
+                    return final:get(key)
                 end
-                final = final[key]
+                final = final:get(key)
             end
         end,
         set = function(_, path, v)
@@ -173,9 +179,9 @@ function M.bind(source)
             local final = data
             for index, key in ipairs(keys) do
                 if index == #keys then
-                    final[key] = v
+                    final:set(key, v)
                 end
-                final = final[key]
+                final = final:get(key)
             end
         end
     }
