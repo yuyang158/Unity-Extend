@@ -8,7 +8,7 @@
 ---@field stateSwitcher CS.Extend.Switcher.StateSwitcher
 
 local M = class()
-local mvvm = require("mvvm/mvvm")
+local binding = require("mvvm/binding")
 -- local AssetService = CS.Extend.AssetService.AssetService
 
 function M:ctor()
@@ -37,7 +37,7 @@ function M:start()
             end
         }
     } 
-    mvvm.BuildDataSource(self.vm)
+    binding.bind(self.vm)
     self.mvvmBinding:SetDataContext(self.vm)
 end
 

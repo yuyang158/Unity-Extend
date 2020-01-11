@@ -14,7 +14,6 @@ namespace Extend {
 			CSharpServiceManager.Register(new AssetService.SpriteAssetService());
 			CSharpServiceManager.Register(new TickService());
 			CSharpServiceManager.Register(new GlobalCoroutineRunnerService());
-			CSharpServiceManager.Register(new LuaMVVM.LuaMVVM());
 		}
 	}
 }

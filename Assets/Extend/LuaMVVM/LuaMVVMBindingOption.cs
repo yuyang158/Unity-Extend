@@ -34,14 +34,21 @@ namespace Extend.LuaMVVM {
 		public delegate object MVVMGet(LuaTable self, string path);
 		private delegate void MVVMSet(LuaTable self, string path, object val);
 
+		private delegate void WatchCallback(LuaTable self, object val);
+
 		[CSharpCallLua]
 		private MVVMGet mvvmGet;
+
 		[CSharpCallLua]
 		private MVVMSet mvvmSet;
+
+		[CSharpCallLua]
+		private WatchCallback watchCallback;
 
 		public void Start() {
 			propertyInfo = BindTarget.GetType().GetProperty(BindTargetProp);
 			Assert.IsNotNull(propertyInfo, BindTargetProp);
+			watchCallback = SetPropertyValue;
 		}
 
 		public void UpdateToSource() {
@@ -58,11 +65,9 @@ namespace Extend.LuaMVVM {
 			}
 		}
 
-		private void SetPropertyValue(object val) {
-			if( Equals(val, LuaMVVM.MVVMPlaceholder) )
-				return;
+		private void SetPropertyValue(LuaTable _, object val) {
 			if( propertyInfo.PropertyType == typeof(string) ) {
-				value = val.ToString();
+				value = val == null ? "" : val.ToString();
 			}
 			else {
 				value = val;
@@ -78,6 +83,8 @@ namespace Extend.LuaMVVM {
 
 			mvvmGet = dataContext.Get<MVVMGet>("get");
 			mvvmSet = dataContext.Get<MVVMSet>("set");
+
+			var watch = dataContext.GetInPath<LuaFunction>("watch");
 			var val = mvvmGet(dataContext, Path);
 			if( val == null ) {
 				Debug.LogWarning($"Not found value in path {Path}");
@@ -88,10 +95,9 @@ namespace Extend.LuaMVVM {
 				case BindMode.ONE_WAY:
 				case BindMode.TWO_WAY:
 				case BindMode.ONE_TIME: {
-					SetPropertyValue(val);
+					SetPropertyValue(dataContext, val);
 					if( Mode == BindMode.ONE_WAY || Mode == BindMode.TWO_WAY ) {
-						var mvvm = CSharpServiceManager.Get<LuaMVVM>(CSharpServiceManager.ServiceType.MVVM_SERVICE);
-						mvvm.SetupBindNotification(dataContext, Path, SetPropertyValue);
+						watch.Call(dataContext, Path, watchCallback);
 						if( Mode == BindMode.TWO_WAY ) {
 							value = val;
 						}
