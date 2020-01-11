@@ -40,7 +40,7 @@ function M:start()
             end
         }
     } 
-    binding.bind(self.vm)
+    binding.build(self.vm)
     self.mvvmBinding:SetDataContext(self.vm)
 end
 

@@ -139,7 +139,7 @@ local function build_data(data, path)
     })
 end
 
-function M.bind(source)
+function M.build(source)
     if type(source) ~= "table" then error("type need to be table") return end
     
     local meta = getmetatable(source)

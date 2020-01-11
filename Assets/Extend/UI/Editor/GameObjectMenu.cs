@@ -29,7 +29,7 @@ namespace Extend.UI.Editor {
 			return s_StandardResources;
 		}
 		
-		[MenuItem("GameObject/ExtendUI/UI Button", false, 0)]
+		[MenuItem("GameObject/Extend UI/UI Button", false, 0)]
 		static void CreateUIButton() {
 			var active = Selection.activeObject as GameObject;
 			if(!active)
