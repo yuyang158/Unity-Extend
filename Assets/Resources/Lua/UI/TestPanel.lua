@@ -7,6 +7,8 @@
 ---@field str string
 ---@field stateSwitcher CS.Extend.Switcher.StateSwitcher
 
+local LuaSM = require('ServiceManager')
+
 local M = class()
 local binding = require("mvvm/binding")
 -- local AssetService = CS.Extend.AssetService.AssetService
@@ -42,6 +44,14 @@ function M:start()
     } 
     binding.build(self.vm)
     self.mvvmBinding:SetDataContext(self.vm)
+
+    ---@type TickService
+    local tick = LuaSM.GetService(LuaSM.SERVICE_TYPE.TICK)
+    tick.Register(M.Tick, self)
+end
+
+function M:Tick(deltaTime)
+    self.vm.c.d = self.vm.c.d + deltaTime
 end
 
 function M:OnClick()
