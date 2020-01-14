@@ -3,7 +3,7 @@ using UnityEditor.PackageManager;
 
 namespace Extend.DebugUtil.Editor {
 	internal static class LuaProfilerMenu {
-		[MenuItem("*Lua/Attach Lua Profiler")]
+		[MenuItem("XLua/Attach Lua Profiler")]
 		private static void _ExecuteAttach() {
 			if( _isAttached ) {
 				return;
@@ -54,7 +54,7 @@ namespace Extend.DebugUtil.Editor {
 			LuaVM.Default.DoString(script, "@LoadLuaProfiler");
 		}
 
-		[MenuItem("*Lua/Detach Lua Profiler")]
+		[MenuItem("XLua/Detach Lua Profiler")]
 		private static void _ExecuteDetach() {
 			if( !_isAttached ) {
 				return;
