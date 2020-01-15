@@ -13,6 +13,7 @@ namespace Extend {
 	public class LuaBinding : MonoBehaviour, ISerializationCallbackReceiver {
 		[AssetPath(AssetType = typeof(TextAsset), order = 1, RootDir = "Assets/Resources/Lua", Extension = ".lua")]
 		public string LuaFile;
+		public LuaTable LuaInstance { get; private set; }
 
 		private delegate void LuaUnityEventFunction(LuaTable self);
 
@@ -40,9 +41,7 @@ namespace Extend {
 
 		[BlackList, NonSerialized]
 		public List<LuaBindingDataBase> BindingContainer;
-
-		public LuaTable LuaInstance { get; private set; }
-
+		
 		public void Bind(LuaTable instance) {
 			LuaInstance = instance;
 			LuaInstance.SetInPath("__CSBinding", this);

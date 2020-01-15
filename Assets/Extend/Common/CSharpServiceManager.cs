@@ -19,9 +19,9 @@ namespace Extend.Common {
 		public enum ServiceType {
 			ASSET_SERVICE,
 			SPRITE_ASSET_SERVICE,
-			MVVM_SERVICE,
 			TICK_SERVICE,
-			COROUTINE_SERVICE
+			COROUTINE_SERVICE,
+			NETWORK_SERVICE
 		}
 
 		public static bool Initialized { get; private set; }
