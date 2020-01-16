@@ -39,6 +39,11 @@ namespace Extend {
 			start(LuaInstance);
 		}
 
+		private void OnDestroy() {
+			var destroy = LuaInstance.Get<LuaUnityEventFunction>("destroy");
+			destroy(LuaInstance);
+		}
+
 		[BlackList, NonSerialized]
 		public List<LuaBindingDataBase> BindingContainer;
 		

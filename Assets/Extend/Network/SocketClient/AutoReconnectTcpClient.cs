@@ -1,7 +1,5 @@
 using System;
-using System.Collections;
 using System.Net.Sockets;
-using Extend.Common;
 using UnityEngine;
 using XLua;
 
@@ -27,8 +25,10 @@ namespace Extend.Network.SocketClient {
 		private float statusTimeLast;
 		private int reconnectTime;
 		
-		private LuaTable callback;
-		private LuaFunction statusChangedCallback;
+		private readonly LuaTable callback;
+		private readonly LuaFunction statusChangedCallback;
+		private readonly LuaFunction receivePackageCallback;
+		private readonly LuaFunction updateCallback;
 
 		private readonly byte[] receiveBuffer = new byte[65536];
 		private int receiveOffset;
@@ -43,7 +43,7 @@ namespace Extend.Network.SocketClient {
 					return;
 
 				statusTimeLast = 0;
-				if( tcpStatus == Status.RECONNECT && tcpStatus == Status.DISCONNECTED ) {
+				if( tcpStatus == Status.RECONNECT && value == Status.DISCONNECTED ) {
 					reconnectTime++;
 					if( reconnectTime <= TOTAL_RETRY_TIME ) {
 						DoConnect();
@@ -54,8 +54,7 @@ namespace Extend.Network.SocketClient {
 				tcpStatus = value;
 				statusChangedCallback.Call(callback, value);
 				if( tcpStatus == Status.CONNECTED ) {
-					var coroutineService = CSharpServiceManager.Get<GlobalCoroutineRunnerService>(CSharpServiceManager.ServiceType.COROUTINE_SERVICE);
-					coroutineService.StartCoroutine(DoReceive());
+					DoReceive();
 				}
 				else if( tcpStatus == Status.DISCONNECTED && client.Connected ) {
 					client.Close();
@@ -69,7 +68,9 @@ namespace Extend.Network.SocketClient {
 			};
 			connectionContext = new ConnectionContext();
 			callback = luaCallback;
-			statusChangedCallback = callback.GetInPath<LuaFunction>("OnStatusChanged");
+			statusChangedCallback = callback.Get<LuaFunction>("OnStatusChanged");
+			receivePackageCallback = callback.Get<LuaFunction>("OnRecvPackage");
+			updateCallback = callback.Get<LuaFunction>("OnUpdate");
 		}
 
 		public void Connect(string host, int port) {
@@ -79,43 +80,57 @@ namespace Extend.Network.SocketClient {
 			DoConnect();
 		}
 
-		private void DoConnect() {
-			TcpStatus = Status.RECONNECT;
-			client.BeginConnect(connectionContext.Host, connectionContext.Port, ar => {
-				client.EndConnect(ar);
-				TcpStatus = client.Connected ? Status.CONNECTED : Status.DISCONNECTED;
-			}, null);
+		public async void Send(byte[] buffer) {
+			var task = client.GetStream().WriteAsync(buffer, 0, buffer.Length);
+			await task;
+			if( task.IsCanceled || task.IsFaulted ) {
+				TcpStatus = Status.DISCONNECTED;
+			}
 		}
 
-		private IEnumerator DoReceive() {
+		public void Close() {
+			TcpStatus = Status.DISCONNECTED;
+		}
+
+		private async void DoConnect() {
+			TcpStatus = Status.RECONNECT;
+			await client.ConnectAsync(connectionContext.Host, connectionContext.Port);
+			TcpStatus = client.Connected ? Status.CONNECTED : Status.DISCONNECTED;
+		}
+
+		private async void DoReceive() {
 			var stream = client.GetStream();
 			while( client.Connected ) {
 				if( stream.CanRead ) {
-					var readCount = stream.Read(receiveBuffer, receiveOffset, receiveBuffer.Length - receiveOffset);
+					int readCount;
+					try {
+						readCount = await stream.ReadAsync(receiveBuffer, receiveOffset, receiveBuffer.Length - receiveOffset);
+					}
+					catch( Exception ) {
+						TcpStatus = Status.DISCONNECTED;
+						return;
+					}
 					receiveOffset += readCount;
 
 					var readOffset = 0;
 					while( true ) {
 						var packageSize = receiveBuffer[readOffset] * 256 + receiveBuffer[readOffset + 1];
-						if( packageSize > receiveOffset ) {
+						if( packageSize + 2 > receiveOffset - readOffset ) {
 							break;
 						}
 
 						var packageBuffer = new byte[packageSize];
-						Array.Copy(receiveBuffer, readOffset, packageBuffer, 0, packageSize);
-						
-						readOffset += packageSize;
+						Array.Copy(receiveBuffer, readOffset + 2, packageBuffer, 0, packageSize);
+						receivePackageCallback.Call(callback, packageBuffer);
+						readOffset += packageSize + 2;
 					}
-					if( readOffset > 0 && receiveOffset - readOffset > 0 ) {
+					if( readOffset > 0 && receiveOffset - readOffset >= 0 ) {
 						for( var i = readOffset; i < receiveOffset; i++ ) {
 							receiveBuffer[i - readOffset] = receiveBuffer[i];
 						}
-
 						receiveOffset -= readOffset;
 					}
 				}
-
-				yield return null;
 			}
 		}
 
@@ -123,6 +138,8 @@ namespace Extend.Network.SocketClient {
 		public void Update() {
 			if( TcpStatus == Status.NONE )
 				return;
+
+			updateCallback.Call(callback, Time.deltaTime);
 
 			statusTimeLast += Time.deltaTime;
 			if( TcpStatus == Status.RECONNECT ) {

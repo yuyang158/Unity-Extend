@@ -5,6 +5,7 @@ function class(super)
     class_type.super = super
     class_type.new = function(...)
         local obj = {}
+        setmetatable(obj, { __index = class_type })
         do
             local create
             create = function(c, ...)
@@ -18,7 +19,6 @@ function class(super)
 
             create(class_type, ...)
         end
-        setmetatable(obj, { __index = class_type })
         return obj
     end
 

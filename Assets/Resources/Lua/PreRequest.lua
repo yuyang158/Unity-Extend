@@ -8,9 +8,6 @@ require('util')
 local SM = require "ServiceManager"
 local CS = require "ConfigService"
 local TS = require "TickService"
-local sproto = require("sproto/sproto")
-print("sproto", sproto)
-
 
 SM.RegisterService(SM.SERVICE_TYPE.CONFIG, CS)
 SM.RegisterService(SM.SERVICE_TYPE.TICK, TS)
