@@ -40,4 +40,4 @@ sysinfo.txt
 *.unitypackage
 .DS_Store
 Assets/Plugins/Editor/JetBrains.meta
-xlua_build/
+Assembly-CSharp.csproj.DotSettings

@@ -463,6 +463,9 @@ namespace XLua.LuaDLL
 		
 		[DllImport(LUADLL, CallingConvention = CallingConvention.Cdecl)]
 		public static extern int luaopen_sproto_core(IntPtr L);//[,,m]
+		
+		[DllImport(LUADLL, CallingConvention = CallingConvention.Cdecl)]
+		public static extern int luaopen_lpeg(IntPtr L);//[,,m]
 
         [DllImport(LUADLL, CallingConvention = CallingConvention.Cdecl)]
         public static extern void lua_pushint64(IntPtr L, long n);//[,,m]
