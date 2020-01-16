@@ -94,8 +94,15 @@ namespace Extend.Network.SocketClient {
 
 		private async void DoConnect() {
 			TcpStatus = Status.RECONNECT;
-			await client.ConnectAsync(connectionContext.Host, connectionContext.Port);
-			TcpStatus = client.Connected ? Status.CONNECTED : Status.DISCONNECTED;
+			try {
+				await client.ConnectAsync(connectionContext.Host, connectionContext.Port);
+			}
+			catch( Exception ) {
+				Debug.Log($"Connection fail with exception");
+			}
+			finally {
+				TcpStatus = client.Connected ? Status.CONNECTED : Status.DISCONNECTED;
+			}
 		}
 
 		private async void DoReceive() {

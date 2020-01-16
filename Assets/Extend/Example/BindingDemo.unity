@@ -147,6 +147,26 @@ PrefabInstance:
       propertyPath: BindingOptions.Options.Array.data[3].Path
       value: sum
       objectReference: {fileID: 0}
+    - target: {fileID: 3122048484682131676, guid: f27608ab5a414db4f9ff9d5c7c70e5e5,
+        type: 3}
+      propertyPath: m_UiScaleMode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3122048484682131676, guid: f27608ab5a414db4f9ff9d5c7c70e5e5,
+        type: 3}
+      propertyPath: m_ReferenceResolution.x
+      value: 1280
+      objectReference: {fileID: 0}
+    - target: {fileID: 3122048484682131676, guid: f27608ab5a414db4f9ff9d5c7c70e5e5,
+        type: 3}
+      propertyPath: m_ReferenceResolution.y
+      value: 720
+      objectReference: {fileID: 0}
+    - target: {fileID: 3122048484682131676, guid: f27608ab5a414db4f9ff9d5c7c70e5e5,
+        type: 3}
+      propertyPath: m_MatchWidthOrHeight
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3122048484682131679, guid: f27608ab5a414db4f9ff9d5c7c70e5e5,
         type: 3}
       propertyPath: m_Name

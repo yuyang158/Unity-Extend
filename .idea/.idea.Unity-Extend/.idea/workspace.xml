@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="639f3eca-6d47-4e68-849c-3d3fc221bcfa" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Extend/Example/BindingDemo.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Extend/Example/BindingDemo.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Extend/Network/SocketClient/AutoReconnectTcpClient.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Extend/Network/SocketClient/AutoReconnectTcpClient.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Plugins/Editor.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Resources/Lua/PreRequest.lua" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Resources/Lua/PreRequest.lua" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Resources/Lua/UI/TestPanel.lua" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Resources/Lua/UI/TestPanel.lua" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/SpriteAtlas/ALL.spriteatlas" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/SpriteAtlas/ALL.spriteatlas" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/StreamingAssets.meta" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/Assets/Extend/Example/BindingDemo.unity" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.textmeshpro@2.0.1/Scripts/Runtime/TMP_TextUtilities.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Extend/Network/SocketClient/NetworkService.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.textmeshpro@2.0.1/Scripts/Runtime/TMP_RichTextTagsCommon.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Extend/Network/SocketClient/AutoReconnectTcpClient.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Extend/Editor/EmmyLuaService.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/XLua/Src/ObjectTranslator.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Extend/LuaBinding.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/DOTween/Editor/Imgs/Footer.png.meta" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/AE22A4E8-F83C-41D6-9684-AE7F557133D9/2d/c75a3417/TcpClient.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.test-framework@1.1.1/UnityEngine.TestRunner/Utils/AssemblyProvider/AssemblyWrapper.cs.meta" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.textmeshpro@2.0.1/Editor Resources/Textures/btn_AlignCenter_Light.psd.meta" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/AE22A4E8-F83C-41D6-9684-AE7F557133D9/aa/42fa4358/Socket.cs" root0="SKIP_HIGHLIGHTING" />
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/README.md" />
+        <option value="$PROJECT_DIR$/Assets/Extend/LuaBinding.cs" />
+        <option value="$PROJECT_DIR$/Assets/Extend/Editor/EmmyLuaService.cs" />
+        <option value="$PROJECT_DIR$/Assets/Resources/Lua/PreRequest.lua" />
+        <option value="$PROJECT_DIR$/Assets/Extend/Network/SocketClient/AutoReconnectTcpClient.cs" />
+        <option value="$PROJECT_DIR$/Assets/Resources/Lua/UI/TestPanel.lua" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectId" id="1WTuFPVFdIlXT1fWi2O2mIrZzcc" />
+  <component name="ProjectViewState">
+    <option name="autoscrollToSource" value="true" />
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showExcludedFiles" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="Discover.Launch.Via.Unity" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="TWShift.4" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="node.js.detected.package.eslint" value="true" />
+    <property name="node.js.detected.package.tslint" value="true" />
+    <property name="node.js.path.for.package.eslint" value="project" />
+    <property name="node.js.path.for.package.tslint" value="project" />
+    <property name="node.js.selected.package.eslint" value="(autodetect)" />
+    <property name="node.js.selected.package.tslint" value="(autodetect)" />
+  </component>
+  <component name="RunManager" selected="Emmy Debugger(NEW).LuaDebug">
+    <configuration name="Attach to Unity Editor &amp; Play" type="UNITY_DEBUG_RUN_CONFIGURATION" factoryName="UNITY_ATTACH_AND_PLAY" show_console_on_std_err="false" show_console_on_std_out="false" port="50000" address="localhost" ignored-value-for-modified-check="700">
+      <option name="allowRunningInParallel" value="false" />
+      <option name="listenPortForConnections" value="false" />
+      <option name="pid" value="700" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Attach to Unity Editor" type="UNITY_DEBUG_RUN_CONFIGURATION" factoryName="Unity Debug" show_console_on_std_err="false" show_console_on_std_out="false" port="50000" address="localhost" ignored-value-for-modified-check="700">
+      <option name="allowRunningInParallel" value="false" />
+      <option name="listenPortForConnections" value="false" />
+      <option name="pid" value="700" />
+      <method v="2" />
+    </configuration>
+    <configuration name="LuaDebug" type="lua.emmy.debugger" factoryName="Emmy Debugger(NEW)">
+      <module name="riderModule" />
+      <option name="TYPE" value="0" />
+      <option name="HOST" value="localhost" />
+      <option name="PORT" value="9966" />
+      <option name="PIPE" value="emmy" />
+      <option name="WIN_ARCH" value="1" />
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Attach to Unity Editor.Attach to Unity Editor" />
+      <item itemvalue="Attach to Unity Editor.Attach to Unity Editor &amp; Play" />
+      <item itemvalue="Emmy Debugger(NEW).LuaDebug" />
+    </list>
+  </component>
+  <component name="ServiceViewManager">
+    <option name="viewStates">
+      <list>
+        <serviceView>
+          <treeState>
+            <expand />
+            <select />
+          </treeState>
+        </serviceView>
+      </list>
+    </option>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="639f3eca-6d47-4e68-849c-3d3fc221bcfa" name="Default Changelist" comment="" />
+      <created>1579185804173</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1579185804173</updated>
+      <workItem from="1579185822667" duration="25000" />
+      <workItem from="1579185938235" duration="2084000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="UnityProjectConfiguration" hasMinimizedUI="false" />
+  <component name="UnityUnitTestConfiguration" currentTestLauncher="EditMode" />
+  <component name="WindowStateProjectService">
+    <state x="137" y="9" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1579187176985">
+      <screen x="0" y="0" width="1366" height="707" />
+    </state>
+    <state x="137" y="9" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1366.707@0.0.1366.707" timestamp="1579187176985" />
+    <state width="1323" height="213" key="GridCell.Tab.0.bottom" timestamp="1579188011139">
+      <screen x="0" y="0" width="1366" height="707" />
+    </state>
+    <state width="1323" height="213" key="GridCell.Tab.0.bottom/0.0.1366.707@0.0.1366.707" timestamp="1579188011139" />
+    <state width="1323" height="213" key="GridCell.Tab.0.center" timestamp="1579188011138">
+      <screen x="0" y="0" width="1366" height="707" />
+    </state>
+    <state width="1323" height="213" key="GridCell.Tab.0.center/0.0.1366.707@0.0.1366.707" timestamp="1579188011138" />
+    <state width="1323" height="213" key="GridCell.Tab.0.left" timestamp="1579188011138">
+      <screen x="0" y="0" width="1366" height="707" />
+    </state>
+    <state width="1323" height="213" key="GridCell.Tab.0.left/0.0.1366.707@0.0.1366.707" timestamp="1579188011138" />
+    <state width="1323" height="213" key="GridCell.Tab.0.right" timestamp="1579188011139">
+      <screen x="0" y="0" width="1366" height="707" />
+    </state>
+    <state width="1323" height="213" key="GridCell.Tab.0.right/0.0.1366.707@0.0.1366.707" timestamp="1579188011138" />
+    <state width="1323" height="213" key="GridCell.Tab.1.bottom" timestamp="1579188025165">
+      <screen x="0" y="0" width="1366" height="707" />
+    </state>
+    <state width="1323" height="213" key="GridCell.Tab.1.bottom/0.0.1366.707@0.0.1366.707" timestamp="1579188025165" />
+    <state width="1323" height="213" key="GridCell.Tab.1.center" timestamp="1579188025165">
+      <screen x="0" y="0" width="1366" height="707" />
+    </state>
+    <state width="1323" height="213" key="GridCell.Tab.1.center/0.0.1366.707@0.0.1366.707" timestamp="1579188025165" />
+    <state width="1323" height="213" key="GridCell.Tab.1.left" timestamp="1579188025164">
+      <screen x="0" y="0" width="1366" height="707" />
+    </state>
+    <state width="1323" height="213" key="GridCell.Tab.1.left/0.0.1366.707@0.0.1366.707" timestamp="1579188025164" />
+    <state width="1323" height="213" key="GridCell.Tab.1.right" timestamp="1579188025165">
+      <screen x="0" y="0" width="1366" height="707" />
+    </state>
+    <state width="1323" height="213" key="GridCell.Tab.1.right/0.0.1366.707@0.0.1366.707" timestamp="1579188025165" />
+    <state width="1323" height="213" key="GridCell.Tab.2.bottom" timestamp="1579188003782">
+      <screen x="0" y="0" width="1366" height="707" />
+    </state>
+    <state width="1323" height="213" key="GridCell.Tab.2.bottom/0.0.1366.707@0.0.1366.707" timestamp="1579188003782" />
+    <state width="1323" height="213" key="GridCell.Tab.2.center" timestamp="1579188003781">
+      <screen x="0" y="0" width="1366" height="707" />
+    </state>
+    <state width="1323" height="213" key="GridCell.Tab.2.center/0.0.1366.707@0.0.1366.707" timestamp="1579188003781" />
+    <state width="1323" height="213" key="GridCell.Tab.2.left" timestamp="1579188003781">
+      <screen x="0" y="0" width="1366" height="707" />
+    </state>
+    <state width="1323" height="213" key="GridCell.Tab.2.left/0.0.1366.707@0.0.1366.707" timestamp="1579188003781" />
+    <state width="1323" height="213" key="GridCell.Tab.2.right" timestamp="1579188003782">
+      <screen x="0" y="0" width="1366" height="707" />
+    </state>
+    <state width="1323" height="213" key="GridCell.Tab.2.right/0.0.1366.707@0.0.1366.707" timestamp="1579188003782" />
+    <state width="1323" height="213" key="GridCell.Tab.3.bottom" timestamp="1579188003783">
+      <screen x="0" y="0" width="1366" height="707" />
+    </state>
+    <state width="1323" height="213" key="GridCell.Tab.3.bottom/0.0.1366.707@0.0.1366.707" timestamp="1579188003783" />
+    <state width="1323" height="213" key="GridCell.Tab.3.center" timestamp="1579188003783">
+      <screen x="0" y="0" width="1366" height="707" />
+    </state>
+    <state width="1323" height="213" key="GridCell.Tab.3.center/0.0.1366.707@0.0.1366.707" timestamp="1579188003783" />
+    <state width="1323" height="213" key="GridCell.Tab.3.left" timestamp="1579188003782">
+      <screen x="0" y="0" width="1366" height="707" />
+    </state>
+    <state width="1323" height="213" key="GridCell.Tab.3.left/0.0.1366.707@0.0.1366.707" timestamp="1579188003782" />
+    <state width="1323" height="213" key="GridCell.Tab.3.right" timestamp="1579188003783">
+      <screen x="0" y="0" width="1366" height="707" />
+    </state>
+    <state width="1323" height="213" key="GridCell.Tab.3.right/0.0.1366.707@0.0.1366.707" timestamp="1579188003783" />
+    <state x="332" y="86" width="794" height="534" key="find.popup" timestamp="1579187832734">
+      <screen x="0" y="0" width="1366" height="707" />
+    </state>
+    <state x="332" y="86" width="794" height="534" key="find.popup/0.0.1366.707@0.0.1366.707" timestamp="1579187832734" />
+    <state x="346" y="28" width="672" height="678" key="search.everywhere.popup" timestamp="1579186496258">
+      <screen x="0" y="0" width="1366" height="707" />
+    </state>
+    <state x="346" y="28" width="672" height="678" key="search.everywhere.popup/0.0.1366.707@0.0.1366.707" timestamp="1579186496258" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/Extend/Network/SocketClient/AutoReconnectTcpClient.cs</url>
+          <line>151</line>
+          <properties documentPath="$PROJECT_DIR$/Assets/Extend/Network/SocketClient/AutoReconnectTcpClient.cs" initialLine="148">
+            <startOffsets>
+              <option value="3953" />
+            </startOffsets>
+            <endOffsets>
+              <option value="3988" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/Extend/Network/SocketClient/AutoReconnectTcpClient.cs</url>
+          <line>145</line>
+          <properties documentPath="$PROJECT_DIR$/Assets/Extend/Network/SocketClient/AutoReconnectTcpClient.cs" initialLine="142">
+            <startOffsets>
+              <option value="3818" />
+            </startOffsets>
+            <endOffsets>
+              <option value="3848" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="3" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/Extend/Network/SocketClient/NetworkService.cs</url>
+          <line>24</line>
+          <properties documentPath="$PROJECT_DIR$/Assets/Extend/Network/SocketClient/NetworkService.cs" initialLine="24">
+            <startOffsets>
+              <option value="651" />
+            </startOffsets>
+            <endOffsets>
+              <option value="683" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="4" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>
