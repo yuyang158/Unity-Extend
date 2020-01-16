@@ -19,7 +19,7 @@ end
 
 function M:awake()
     self.mvvmBinding = self.__CSBinding:GetComponent(typeof(CS.Extend.LuaMVVM.LuaMVVMBinding))
-    self.sprotoClient = SprotoClient.new()
+    self.sprotoClient = SprotoClient.new("Config/c2s", "Config/s2c")
     self.sprotoClient:Connect("192.168.129.29", 8888)
 end
 
