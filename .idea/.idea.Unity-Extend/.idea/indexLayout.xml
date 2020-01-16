@@ -16,7 +16,6 @@
       <Path>.git</Path>
       <Path>.idea</Path>
       <Path>Library</Path>
-      <Path>Temp</Path>
       <Path>Tools</Path>
       <Path>obj</Path>
       <Path>xlua_build</Path>
