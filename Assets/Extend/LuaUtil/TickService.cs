@@ -10,7 +10,8 @@ namespace Extend.LuaUtil {
 		private LuaFunction tick;
 		
 		public void Initialize() {
-			var luaGetService = LuaVM.Default.Global.GetInPath<LuaFunction>( "_ServiceManager.GetService" );
+			var luaVM = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
+			var luaGetService = luaVM.Default.Global.GetInPath<LuaFunction>( "_ServiceManager.GetService" );
 			var luaTickService = luaGetService.Call( 2 )[0] as LuaTable;
 			tick = luaTickService.Get<LuaFunction>( "Tick" );
 		}

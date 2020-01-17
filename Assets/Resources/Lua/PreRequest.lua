@@ -1,7 +1,7 @@
-package.cpath = package.cpath .. string.format(';%s%s/.Rider2019.3/config/plugins/intellij-emmylua/classes/debugger/emmy/windows/x64/?.dll', 
+--[[package.cpath = package.cpath .. string.format(';%s%s/.Rider2019.3/config/plugins/intellij-emmylua/classes/debugger/emmy/windows/x64/?.dll', 
         os.getenv("HOMEDRIVE"), os.getenv("HOMEPATH"))
 local dbg = require('emmy_core')
-dbg.tcpConnect('localhost', 9967)
+dbg.tcpConnect('localhost', 9988)]]
 
 require('util')
 
@@ -12,5 +12,6 @@ local TS = require "TickService"
 SM.RegisterService(SM.SERVICE_TYPE.CONFIG, CS)
 SM.RegisterService(SM.SERVICE_TYPE.TICK, TS)
 
-TS.Register(function()
-end)
+return function()
+    CS.clear()
+end

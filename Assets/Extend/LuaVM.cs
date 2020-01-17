@@ -1,11 +1,23 @@
-﻿using Extend.AssetService;
+﻿using System;
+using System.IO;
+using Extend.AssetService;
 using Extend.Common;
 using UnityEngine;
 using XLua;
 
 namespace Extend {
-    public static class LuaVM {
-        static LuaVM() {
+    public class LuaVM : IService, IServiceUpdate {
+        private LuaMemoryLeakChecker.Data leakData;
+        private LuaFunction OnDestroy;
+        public LuaEnv Default { get; private set; }
+
+        public object[] LoadFileAtPath(string luaFileName ) {
+            var ret = Default.DoString( $"return require '{luaFileName}'" );
+            return ret;
+        }
+
+        public CSharpServiceManager.ServiceType ServiceType => CSharpServiceManager.ServiceType.LUA_SERVICE;
+        public void Initialize() {
             Default = new LuaEnv();
             Default.AddLoader( ( ref string filename ) => {
                 filename = filename.Replace('.', '/');
@@ -17,24 +29,24 @@ namespace Extend {
                 return assetRef.GetTextAsset().bytes;
             } );
 
-            Default.LoadFileAtPath( "class" );
-            Default.LoadFileAtPath( "PreRequest" );
+            LoadFileAtPath( "class" );
+            OnDestroy = LoadFileAtPath( "PreRequest" )[0] as LuaFunction;
+            leakData = Default.StartMemoryLeakCheck();
         }
 
-        public static LuaEnv Default { get; private set; }
-
-        public static object[] LoadFileAtPath( this LuaEnv env, string luaFileName ) {
-            
-            var ret = env.DoString( $"return require '{luaFileName}'" );
-            return ret;
+        public void Destroy() {
+            OnDestroy.Call();
+            ReportLeak();
         }
 
-#if UNITY_EDITOR
-        public static object[] LoadTmpFileAtPath( this LuaEnv env, string luaFileName ) {
-            var asset = Resources.Load<TextAsset>( $"Lua/{luaFileName}" );
-            var ret = env.DoString( asset.bytes );
-            return ret;
+        public void Update() {
+            Default.Tick();
         }
-#endif
+
+        private void ReportLeak() {
+            using( var writer = new StreamWriter(Application.dataPath + "/lua_memory_report.txt") ) {
+                writer.Write(Default.MemoryLeakReport(leakData, 2));
+            }
+        }
     }
 }

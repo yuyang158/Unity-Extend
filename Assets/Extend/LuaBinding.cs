@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
+using Extend.Common;
 using Extend.LuaBindingData;
-using Extend.LuaMVVM;
 using UnityEngine;
-using UnityEngine.UI;
 using XLua;
 
 namespace Extend {
@@ -20,7 +18,7 @@ namespace Extend {
 		private void Awake() {
 			if( string.IsNullOrEmpty(LuaFile) )
 				return;
-			var ret = LuaVM.Default.LoadFileAtPath(LuaFile);
+			var ret = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE).LoadFileAtPath(LuaFile);
 			if( !( ret[0] is LuaTable luaClass ) )
 				return;
 			var constructor = luaClass.Get<LuaFunction>("new");
@@ -42,6 +40,8 @@ namespace Extend {
 		private void OnDestroy() {
 			var destroy = LuaInstance.Get<LuaUnityEventFunction>("destroy");
 			destroy(LuaInstance);
+			LuaInstance?.Dispose();
+			LuaInstance = null;
 		}
 
 		[BlackList, NonSerialized]

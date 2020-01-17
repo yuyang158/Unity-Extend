@@ -1,3 +1,4 @@
+using Extend.Common;
 using UnityEditor;
 using UnityEditor.PackageManager;
 
@@ -51,7 +52,8 @@ namespace Extend.DebugUtil.Editor {
 			end
 			debug.sethook (lua_profiler_hook, 'cr', 0)";
 
-			LuaVM.Default.DoString(script, "@LoadLuaProfiler");
+			var luaVM = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
+			luaVM.Default.DoString(script, "@LoadLuaProfiler");
 		}
 
 		[MenuItem("XLua/Detach Lua Profiler")]
@@ -62,7 +64,8 @@ namespace Extend.DebugUtil.Editor {
 
 			_isAttached = false;
 			const string script = "debug.sethook (nil)";
-			LuaVM.Default.DoString(script, "@UnloadLuaProfiler");
+			var luaVM = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
+			luaVM.Default.DoString(script, "@UnloadLuaProfiler");
 		}
 
 		private static bool _isAttached;

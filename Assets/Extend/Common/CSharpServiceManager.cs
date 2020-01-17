@@ -21,7 +21,8 @@ namespace Extend.Common {
 			SPRITE_ASSET_SERVICE,
 			TICK_SERVICE,
 			COROUTINE_SERVICE,
-			NETWORK_SERVICE
+			NETWORK_SERVICE,
+			LUA_SERVICE
 		}
 
 		public static bool Initialized { get; private set; }
@@ -73,6 +74,12 @@ namespace Extend.Common {
 		private void Update() {
 			foreach( var service in updatableServices ) {
 				service.Update();
+			}
+		}
+
+		private void OnDestroy() {
+			foreach( var service in services ) {
+				service.Value.Destroy();
 			}
 		}
 	}

@@ -1,5 +1,6 @@
 using System;
 using System.Net.Sockets;
+using Extend.Common;
 using UnityEngine;
 using XLua;
 
@@ -28,7 +29,10 @@ namespace Extend.Network.SocketClient {
 		private readonly LuaTable callback;
 		private readonly LuaFunction statusChangedCallback;
 		private readonly LuaFunction receivePackageCallback;
-		private readonly LuaFunction updateCallback;
+		
+		[CSharpCallLua]
+		public delegate void LuaUpdate(LuaTable owner);
+		public readonly LuaUpdate updateCallback;
 
 		private readonly byte[] receiveBuffer = new byte[65536];
 		private int receiveOffset;
@@ -70,7 +74,10 @@ namespace Extend.Network.SocketClient {
 			callback = luaCallback;
 			statusChangedCallback = callback.Get<LuaFunction>("OnStatusChanged");
 			receivePackageCallback = callback.Get<LuaFunction>("OnRecvPackage");
-			updateCallback = callback.Get<LuaFunction>("OnUpdate");
+			updateCallback = callback.Get<LuaUpdate>("OnUpdate");
+
+			var service = CSharpServiceManager.Get<NetworkService>(CSharpServiceManager.ServiceType.NETWORK_SERVICE);
+			service.RegisterTcpClient(this);
 		}
 
 		public void Connect(string host, int port) {
@@ -88,8 +95,10 @@ namespace Extend.Network.SocketClient {
 			}
 		}
 
-		public void Close() {
-			TcpStatus = Status.DISCONNECTED;
+		public void Destroy() {
+			client.Close();
+			var service = CSharpServiceManager.Get<NetworkService>(CSharpServiceManager.ServiceType.NETWORK_SERVICE);
+			service.UnregisterTcpClient(this);
 		}
 
 		private async void DoConnect() {
@@ -146,18 +155,12 @@ namespace Extend.Network.SocketClient {
 			if( TcpStatus == Status.NONE )
 				return;
 
-			updateCallback.Call(callback, Time.deltaTime);
-
+			updateCallback(callback);
 			statusTimeLast += Time.deltaTime;
 			if( TcpStatus == Status.RECONNECT ) {
 				if( CONNECTING_TIMEOUT_DURATION < statusTimeLast ) {
 					client.Close();
 				}
-
-				return;
-			}
-
-			if( TcpStatus == Status.CONNECTED ) {
 			}
 		}
 	}

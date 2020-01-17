@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Extend.AssetService;
 using Extend.AssetService.Attribute;
@@ -13,8 +14,11 @@ namespace Extend.LuaMVVM {
 
 		private LuaTable arrayData;
 		private readonly List<GameObject> generatedAsset = new List<GameObject>();
-		
-		
+
+		private void OnDestroy() {
+			arrayData = null;
+		}
+
 		public LuaTable LuaArrayData {
 			get => arrayData;
 			set {

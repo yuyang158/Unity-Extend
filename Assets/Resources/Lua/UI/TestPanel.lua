@@ -24,7 +24,9 @@ function M:awake()
 end
 
 function M:destroy()
-    self.sprotoClient:Close()
+    self.sprotoClient = nil
+    local tick = LuaSM.GetService(LuaSM.SERVICE_TYPE.TICK)
+    tick.Unregister(M.Tick, self)
 end
 
 function M:start()

@@ -75,10 +75,16 @@ namespace Extend.LuaMVVM {
 		}
 
 		private void TryDetach() {
-			if( detach != null && Mode == BindMode.ONE_WAY || Mode == BindMode.TWO_WAY ) {
+			if( Mode == BindMode.ONE_WAY || Mode == BindMode.TWO_WAY ) {
 				detach(dataSource, Path, watchCallback);
 				detach = null;
 			}
+			dataSource?.Dispose();
+			dataSource = null;
+		}
+
+		public override string ToString() {
+			return $"Binding {BindTarget}->{Path}";
 		}
 
 		public void Bind(LuaTable dataContext) {
@@ -105,6 +111,7 @@ namespace Extend.LuaMVVM {
 					if( Mode == BindMode.ONE_WAY || Mode == BindMode.TWO_WAY ) {
 						watch.Call(dataContext, Path, watchCallback);
 						detach = dataContext.Get<Detach>("detach");
+						Assert.IsNotNull(detach);
 						if( Mode == BindMode.TWO_WAY ) {
 							value = val;
 						}

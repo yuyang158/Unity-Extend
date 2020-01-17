@@ -37,8 +37,8 @@ function M:RegisterServerRequestCallback(name, callback, ...)
     }
 end
 
-function M:Close()
-    self.client:Close()
+function M:Destroy()
+    self.client:Destroy()
 end
 
 function M:SetCallbackTimeout(timeInSec)
@@ -73,8 +73,9 @@ end
 
 function M:OnStatusChanged(status)
     self.clientStatus = status
-    if status == AutoReconnectTcpClient.Status.CONNECTED then
-        
+    if status == AutoReconnectTcpClient.Status.RECONNECT then
+        self.wait4Responses = {}
+        self.session = 1
     end
 end
 
@@ -104,15 +105,15 @@ function M:OnRecvPackage(buffer)
     end
 end
 
-function M:OnUpdate(delta)
+function M:OnUpdate()
     if not next(self.wait4Responses) then
         return
     end
 
     for _, wait4Response in pairs(self.wait4Responses) do
-        wait4Response.time = wait4Response.time + delta
+        wait4Response.time = wait4Response.time + 0.1
         if wait4Response.time > self.callbackTimeout then
-            self.client.TcpStatus = AutoReconnectTcpClient.Status.DISCONNECT
+            -- self.client.TcpStatus = AutoReconnectTcpClient.Status.DISCONNECT
         end
     end
 end

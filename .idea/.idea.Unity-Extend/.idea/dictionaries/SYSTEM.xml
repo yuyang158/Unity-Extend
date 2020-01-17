@@ -2,7 +2,11 @@
   <dictionary name="SYSTEM">
     <words>
       <w>spack</w>
+      <w>sprotoparser</w>
+      <w>tinsert</w>
+      <w>tointeger</w>
       <w>tpack</w>
+      <w>tremove</w>
       <w>tunpack</w>
     </words>
   </dictionary>
