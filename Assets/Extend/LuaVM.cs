@@ -12,6 +12,7 @@ namespace Extend {
         public LuaEnv Default { get; private set; }
 
         public object[] LoadFileAtPath(string luaFileName ) {
+            luaFileName = luaFileName.Replace('/', '.');
             var ret = Default.DoString( $"return require '{luaFileName}'" );
             return ret;
         }
@@ -31,12 +32,12 @@ namespace Extend {
 
             LoadFileAtPath( "class" );
             OnDestroy = LoadFileAtPath( "PreRequest" )[0] as LuaFunction;
-            leakData = Default.StartMemoryLeakCheck();
+            // leakData = Default.StartMemoryLeakCheck();
         }
 
         public void Destroy() {
             OnDestroy.Call();
-            ReportLeak();
+            // ReportLeak();
         }
 
         public void Update() {

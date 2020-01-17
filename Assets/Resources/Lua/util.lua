@@ -5,6 +5,23 @@ local tonumber, tostring = tonumber, tostring
 
 
 local next = next
+string.replace = function(s, pattern, repl)
+    local i,j = string.find(s, pattern, 1, true)
+    if i and j then
+        local ret = {}
+        local start = 1
+        while i and j do
+            table.insert(ret, string.sub(s, start, i - 1))
+            table.insert(ret, repl)
+            start = j + 1
+            i,j = string.find(s, pattern, start, true)
+        end
+        table.insert(ret, string.sub(s, start))
+        return table.concat(ret)
+    end
+    return s
+end
+
 function string.split(self, delimiter)
     local result = { }
     local from = 1

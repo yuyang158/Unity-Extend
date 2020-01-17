@@ -2,37 +2,28 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="639f3eca-6d47-4e68-849c-3d3fc221bcfa" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Unity-Extend/.idea/contentModel.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Unity-Extend/.idea/contentModel.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.Unity-Extend/.idea/dictionaries/SYSTEM.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Unity-Extend/.idea/dictionaries/SYSTEM.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Unity-Extend/.idea/indexLayout.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Unity-Extend/.idea/indexLayout.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Unity-Extend/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Unity-Extend/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Extend/Common/CSharpServiceManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Extend/Common/CSharpServiceManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Extend/DebugUtil/Editor/LuaProfilerMenu.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Extend/DebugUtil/Editor/LuaProfilerMenu.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Extend/LuaBinding.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Extend/LuaBinding.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Extend/LuaBindingData/LuaBindingUOArrayData.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Extend/LuaBindingData/LuaBindingUOArrayData.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Extend/LuaMVVM/LuaMVVMBinding.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Extend/LuaMVVM/LuaMVVMBinding.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Extend/LuaMVVM/LuaMVVMBindingOption.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Extend/LuaMVVM/LuaMVVMBindingOption.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Extend/LuaMVVM/LuaMVVMForEach.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Extend/LuaMVVM/LuaMVVMForEach.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Extend/LuaUtil/ConfigUtil.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Extend/LuaUtil/ConfigUtil.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Extend/LuaUtil/TickService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Extend/LuaUtil/TickService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.Unity-Extend/riderModule.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Unity-Extend/riderModule.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Extend/Editor/LuaScriptImporter.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Extend/Editor/LuaScriptImporter.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Extend/LuaUtil/UnityExtension4XLua.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Extend/LuaUtil/UnityExtension4XLua.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Extend/LuaVM.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Extend/LuaVM.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Extend/Network/SocketClient/AutoReconnectTcpClient.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Extend/Network/SocketClient/AutoReconnectTcpClient.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Extend/StaticServiceInitializer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Extend/StaticServiceInitializer.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Resources/Lua/ConfigService.lua" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Resources/Lua/ConfigService.lua" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Plugins/Editor.meta" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Resources/Lua/PreRequest.lua" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Resources/Lua/PreRequest.lua" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Resources/Lua/UI/TestPanel.lua" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Resources/Lua/UI/TestPanel.lua" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Resources/Lua/class.lua" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Resources/Lua/class.lua" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Resources/Lua/mvvm/binding.lua" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Resources/Lua/mvvm/binding.lua" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Resources/Lua/sproto/SprotoClient.lua" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Resources/Lua/sproto/SprotoClient.lua" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Resources/Lua/util.lua" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Resources/Lua/util.lua" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/SpriteAtlas/ALL.spriteatlas" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/SpriteAtlas/ALL.spriteatlas" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/XLua/Src/xLuaCS.asmdef" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/XLua/Src/xLuaCS.asmdef.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Packages/manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/Packages/manifest.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/ProjectVersion.txt" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/ProjectVersion.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FavoritesManager">
+    <favorites_list name="Unity-Extend" />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -43,69 +34,68 @@
     </file-type-list>
   </component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/114373FF-DC3B-49A0-BFFC-CFA5A318AB60/04/10250da8/LuaEnv.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Extend/LuaBindingData/LuaBindingData.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/XLua/Src/LuaEnv.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.test-framework@1.1.1/UnityEditor.TestRunner/UnityTestProtocol/UnityTestProtocolStarter.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/XLua/Src/MethodWarpsCache.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Extend/LuaBindingData/LuaBindingBooleanData.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Extend/Editor/LuaScriptImporter.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Extend/LuaBindingData/LuaBindingAssetReferenceData.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/567DF3E0-9192-41BA-98DB-88BEC4C6696F/36/c49e28ff/RuntimeType.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.textmeshpro@2.0.1/Scripts/Runtime/TMP_RichTextTagsCommon.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.assetbundlebrowser@1.7.0/Editor/MessageList.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Extend/Editor/XLuaConfig.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Extend/Editor/EmmyLuaService.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.textmeshpro@2.0.1/Editor Resources/Textures/btn_AlignCenter_Light.psd.meta" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.editorcoroutines@0.1.0-preview.1/Editor/Unity.EditorCoroutines.Editor.asmdef.meta" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.textmeshpro@2.0.1/Scripts/Runtime/TMP_PackageResourceImporter.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Extend/Common/GlobalCoroutineRunnerService.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/XLua/Src/LuaDLL.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.textmeshpro@2.0.1/Tests/Runtime/TMP_RuntimeTests.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Extend/Common/CSharpServiceManager.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Extend/LuaVM.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/XLua/Src/ObjectCasters.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/XLua/Src/LuaFunction.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/XLua/Src/ObjectTranslatorPool.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.test-framework@1.1.1/UnityEngine.TestRunner/Utils/AssemblyProvider/AssemblyWrapper.cs.meta" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/XLua/Src/LuaTable.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/114373FF-DC3B-49A0-BFFC-CFA5A318AB60/c7/06aea561/OverloadMethodWrap.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/XLua/Src/TypeExtensions.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Extend/AssetService/AssetAsyncLoadHandle.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/XLua/Src/DelegateBridge.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/XLua/Src/ObjectTranslator.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/AE22A4E8-F83C-41D6-9684-AE7F557133D9/2d/c75a3417/TcpClient.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Extend/DebugUtil/Editor/LuaProfilerMenu.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Extend/LuaBinding.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/114373FF-DC3B-49A0-BFFC-CFA5A318AB60/90/70d67b73/LuaTable.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.textmeshpro@2.0.1/Scripts/Runtime/TMP_EditorResourceManager.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/114373FF-DC3B-49A0-BFFC-CFA5A318AB60/95/ad767f17/LuaException.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/XLua/Src/TemplateEngine/TemplateEngine.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/DOTween/Editor/Imgs/Footer.png.meta" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Extend/StaticServiceInitializer.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Extend/LuaUtil/TickService.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.textmeshpro@2.0.1/Scripts/Editor/TMP_GlyphPairAdjustmentRecordPropertyDrawer.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/114373FF-DC3B-49A0-BFFC-CFA5A318AB60/95/e660ff70/LuaFunction.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/XLua/Src/LuaMemoryLeakChecker.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/567DF3E0-9192-41BA-98DB-88BEC4C6696F/0f/05f567ef/String.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Extend/LuaMVVM/LuaMVVMForEach.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/114373FF-DC3B-49A0-BFFC-CFA5A318AB60/a1/616224d0/ObjectTranslator.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Extend/LuaMVVM/LuaMVVMBindingOption.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Extend/LuaUtil/ConfigUtil.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/XLua/Src/GenAttributes.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Extend/Example/BindingDemo.unity" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Extend/LuaBindingEvent/LuaBindingUpDownMoveEvent.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/114373FF-DC3B-49A0-BFFC-CFA5A318AB60/06/76468c00/LuaBase.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Extend/LuaBindingEvent/LuaBindingClickEvent.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Extend/LuaMVVM/LuaMVVMBinding.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Extend/LuaBindingEvent/LuaBindingDragEvent.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Extend/Network/SocketClient/AutoReconnectTcpClient.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Extend/LuaBindingEvent/LuaBindingEventBase.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Extend/Network/SocketClient/NetworkService.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.textmeshpro@2.0.1/Scripts/Runtime/TMP_TextUtilities.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Extend/LuaBindingData/LuaBindingUOArrayData.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/XLua/Src/LuaBase.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Extend/Common/GlobalCoroutineRunnerService.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/XLua/Src/DelegateBridge.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Extend/LuaBindingEvent/LuaBindingDragEvent.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/XLua/Src/ObjectTranslator.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/XLua/Src/StaticLuaCallbacks.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Extend/Common/CSharpServiceManager.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/XLua/Src/ObjectTranslatorPool.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Extend/LuaBindingEvent/LuaBindingEventBase.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/XLua/Src/TypeExtensions.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/XLua/Src/LuaTable.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Extend/LuaBindingEvent/LuaBindingUpDownMoveEvent.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Extend/Editor/LuaScriptImporter.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Extend/LuaBindingEvent/LuaBindingClickEvent.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/XLua/Src/LuaEnv.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Extend/Editor/XLuaConfig.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/XLua/Src/MethodWarpsCache.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Extend/Editor/LuaBindingEditor.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Extend/Editor/AnimatorParamProcessorDrawer.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Extend/Example/BindingDemo.unity" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/XLua/Src/Editor/Generator.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.textmeshpro@2.0.1/Scripts/Editor/TMP_GlyphPairAdjustmentRecordPropertyDrawer.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Extend/LuaMVVM/LuaMVVMBinding.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Extend/DebugUtil/Editor/LuaProfilerMenu.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Extend/LuaMVVM/LuaMVVMForEach.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Extend/LuaMVVM/LuaMVVMBindingOption.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.textmeshpro@2.0.1/Scripts/Runtime/TMP_EditorResourceManager.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Extend/LuaUtil/ConfigUtil.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Extend/LuaUtil/TickService.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/DOTween/Editor/Imgs/Footer.png.meta" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Extend/LuaUtil/UnityExtension4XLua.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.editorcoroutines@0.1.0-preview.1/Editor/Unity.EditorCoroutines.Editor.asmdef.meta" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Extend/Network/SocketClient/NetworkService.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Extend/Network/SocketClient/AutoReconnectTcpClient.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Extend/AssetService/AssetContainer.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Extend/AssetService/AssetAsyncLoadHandle.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/XLua/Src/TemplateEngine/TemplateEngine.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Extend/Editor/EmmyLuaService.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Extend/LuaBinding.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/AE22A4E8-F83C-41D6-9684-AE7F557133D9/2d/c75a3417/TcpClient.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Extend/AssetService/SpriteAssetAssignment.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Extend/AssetService/SpriteAssetService.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.textmeshpro@2.0.1/Editor Resources/Textures/btn_AlignCenter_Light.psd.meta" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Extend/StaticServiceInitializer.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.assetbundlebrowser@1.7.0/Editor/MessageList.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Extend/LuaVM.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.textmeshpro@2.0.1/Scripts/Runtime/TMP_PackageResourceImporter.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/0A2A5EA3-C8AB-4E33-9457-6DD407A984F6/bc/dcdf378d/ScriptedImporter.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.textmeshpro@2.0.1/Tests/Runtime/TMP_RuntimeTests.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.textmeshpro@2.0.1/Scripts/Runtime/TMP_RichTextTagsCommon.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Extend/AssetService/Editor/StaticAssetBundleWindow.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Extend/AssetService/Attribute/AssetReferenceAssetTypeAttribute.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Extend/AssetService/AssetOperator/AsyncABAssetOperator.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/XLua/Src/LuaBase.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/XLua/Src/ObjectCasters.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/XLua/Src/LuaFunction.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Extend/LuaBindingData/LuaBindingAssetReferenceData.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/XLua/Src/LuaDLL.cs" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
@@ -122,15 +112,19 @@
         <option value="$PROJECT_DIR$/Assets/Extend/DebugUtil/Editor/LuaProfilerMenu.cs" />
         <option value="$PROJECT_DIR$/Assets/Resources/Lua/sproto/SprotoClient.lua" />
         <option value="$PROJECT_DIR$/Assets/XLua/Src/LuaMemoryLeakChecker.cs" />
-        <option value="$PROJECT_DIR$/Assets/Resources/Lua/UI/TestPanel.lua" />
         <option value="$PROJECT_DIR$/Assets/Extend/Network/SocketClient/AutoReconnectTcpClient.cs" />
         <option value="$PROJECT_DIR$/Assets/Extend/LuaMVVM/LuaMVVMBindingOption.cs" />
         <option value="$PROJECT_DIR$/Assets/Extend/LuaBinding.cs" />
         <option value="$PROJECT_DIR$/Assets/Extend/StaticServiceInitializer.cs" />
         <option value="$PROJECT_DIR$/Assets/Extend/Common/CSharpServiceManager.cs" />
-        <option value="$PROJECT_DIR$/Assets/Extend/LuaVM.cs" />
         <option value="$PROJECT_DIR$/Assets/Resources/Lua/ConfigService.lua" />
+        <option value="$PROJECT_DIR$/Assets/Extend/LuaUtil/UnityExtension4XLua.cs" />
         <option value="$PROJECT_DIR$/Assets/Resources/Lua/PreRequest.lua" />
+        <option value="$PROJECT_DIR$/Assets/Extend/LuaVM.cs" />
+        <option value="$PROJECT_DIR$/Assets/Resources/Lua/util.lua" />
+        <option value="$PROJECT_DIR$/Assets/Resources/Lua/hotfix/hotfix.lua" />
+        <option value="$PROJECT_DIR$/Assets/Resources/Lua/UI/TestPanel.lua" />
+        <option value="$PROJECT_DIR$/Assets/Extend/Editor/LuaScriptImporter.cs" />
       </list>
     </option>
   </component>
@@ -162,17 +156,17 @@
     <property name="node.js.selected.package.tslint" value="(autodetect)" />
     <property name="settings.editor.selected.configurable" value="project.propDebugger" />
   </component>
-  <component name="RunManager" selected="Attach to Unity Editor.Attach to Unity Editor">
+  <component name="RunManager" selected="Emmy Debugger(NEW).LuaDebug">
     <configuration name="Attach to Unity Editor &amp; Play" type="UNITY_DEBUG_RUN_CONFIGURATION" factoryName="UNITY_ATTACH_AND_PLAY" show_console_on_std_err="false" show_console_on_std_out="false" port="50000" address="localhost">
       <option name="allowRunningInParallel" value="false" />
       <option name="listenPortForConnections" value="false" />
       <option name="pid" />
       <method v="2" />
     </configuration>
-    <configuration name="Attach to Unity Editor" type="UNITY_DEBUG_RUN_CONFIGURATION" factoryName="Unity Debug" show_console_on_std_err="false" show_console_on_std_out="false" port="50000" address="localhost" ignored-value-for-modified-check="25144">
+    <configuration name="Attach to Unity Editor" type="UNITY_DEBUG_RUN_CONFIGURATION" factoryName="Unity Debug" show_console_on_std_err="false" show_console_on_std_out="false" port="50000" address="localhost" ignored-value-for-modified-check="11400">
       <option name="allowRunningInParallel" value="false" />
       <option name="listenPortForConnections" value="false" />
-      <option name="pid" value="25144" />
+      <option name="pid" value="11400" />
       <method v="2" />
     </configuration>
     <configuration name="LuaDebug" type="lua.emmy.debugger" factoryName="Emmy Debugger(NEW)">
@@ -212,6 +206,8 @@
       <workItem from="1579185822667" duration="25000" />
       <workItem from="1579185938235" duration="2134000" />
       <workItem from="1579227100828" duration="13385000" />
+      <workItem from="1579279142399" duration="341000" />
+      <workItem from="1579279573404" duration="4808000" />
     </task>
     <servers />
   </component>
@@ -226,86 +222,91 @@
     </state>
     <state x="137" y="9" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1366.707@0.0.1366.707" timestamp="1579187176985" />
     <state x="2113" y="13" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1920.999/1920.0.1920.999@1920.0.1920.999" timestamp="1579227468124" />
-    <state width="561" height="466" key="DebuggerActiveHint" timestamp="1579234054199">
-      <screen x="1920" y="0" width="1920" height="999" />
+    <state x="363" y="80" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog" timestamp="1579279364754">
+      <screen x="0" y="0" width="1366" height="707" />
     </state>
+    <state x="363" y="80" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog/0.0.1366.707@0.0.1366.707" timestamp="1579279364754" />
+    <state width="592" height="330" key="DebuggerActiveHint" timestamp="1579282590272">
+      <screen x="0" y="0" width="1366" height="707" />
+    </state>
+    <state width="592" height="330" key="DebuggerActiveHint/0.0.1366.707@0.0.1366.707" timestamp="1579282590272" />
     <state width="561" height="466" key="DebuggerActiveHint/0.0.1920.999/1920.0.1920.999@1920.0.1920.999" timestamp="1579234054199" />
-    <state width="1879" height="332" key="GridCell.Tab.0.bottom" timestamp="1579243493782">
-      <screen x="1920" y="0" width="1920" height="999" />
+    <state width="1323" height="213" key="GridCell.Tab.0.bottom" timestamp="1579284277206">
+      <screen x="0" y="0" width="1366" height="707" />
     </state>
-    <state width="1323" height="213" key="GridCell.Tab.0.bottom/0.0.1366.707@0.0.1366.707" timestamp="1579188092250" />
+    <state width="1323" height="213" key="GridCell.Tab.0.bottom/0.0.1366.707@0.0.1366.707" timestamp="1579284277206" />
     <state width="1879" height="332" key="GridCell.Tab.0.bottom/0.0.1920.999/1920.0.1920.999@1920.0.1920.999" timestamp="1579243493782" />
-    <state width="1879" height="332" key="GridCell.Tab.0.center" timestamp="1579243493782">
-      <screen x="1920" y="0" width="1920" height="999" />
+    <state width="1323" height="213" key="GridCell.Tab.0.center" timestamp="1579284277205">
+      <screen x="0" y="0" width="1366" height="707" />
     </state>
-    <state width="1323" height="213" key="GridCell.Tab.0.center/0.0.1366.707@0.0.1366.707" timestamp="1579188092250" />
+    <state width="1323" height="213" key="GridCell.Tab.0.center/0.0.1366.707@0.0.1366.707" timestamp="1579284277205" />
     <state width="1879" height="332" key="GridCell.Tab.0.center/0.0.1920.999/1920.0.1920.999@1920.0.1920.999" timestamp="1579243493782" />
-    <state width="1879" height="332" key="GridCell.Tab.0.left" timestamp="1579243493782">
-      <screen x="1920" y="0" width="1920" height="999" />
+    <state width="1323" height="213" key="GridCell.Tab.0.left" timestamp="1579284277205">
+      <screen x="0" y="0" width="1366" height="707" />
     </state>
-    <state width="1323" height="213" key="GridCell.Tab.0.left/0.0.1366.707@0.0.1366.707" timestamp="1579188092250" />
+    <state width="1323" height="213" key="GridCell.Tab.0.left/0.0.1366.707@0.0.1366.707" timestamp="1579284277205" />
     <state width="1879" height="332" key="GridCell.Tab.0.left/0.0.1920.999/1920.0.1920.999@1920.0.1920.999" timestamp="1579243493782" />
-    <state width="1879" height="332" key="GridCell.Tab.0.right" timestamp="1579243493782">
-      <screen x="1920" y="0" width="1920" height="999" />
+    <state width="1323" height="213" key="GridCell.Tab.0.right" timestamp="1579284277206">
+      <screen x="0" y="0" width="1366" height="707" />
     </state>
-    <state width="1323" height="213" key="GridCell.Tab.0.right/0.0.1366.707@0.0.1366.707" timestamp="1579188092250" />
+    <state width="1323" height="213" key="GridCell.Tab.0.right/0.0.1366.707@0.0.1366.707" timestamp="1579284277206" />
     <state width="1879" height="332" key="GridCell.Tab.0.right/0.0.1920.999/1920.0.1920.999@1920.0.1920.999" timestamp="1579243493782" />
-    <state width="1879" height="332" key="GridCell.Tab.1.bottom" timestamp="1579243627528">
-      <screen x="1920" y="0" width="1920" height="999" />
+    <state width="1323" height="213" key="GridCell.Tab.1.bottom" timestamp="1579284277207">
+      <screen x="0" y="0" width="1366" height="707" />
     </state>
-    <state width="1323" height="213" key="GridCell.Tab.1.bottom/0.0.1366.707@0.0.1366.707" timestamp="1579188092250" />
+    <state width="1323" height="213" key="GridCell.Tab.1.bottom/0.0.1366.707@0.0.1366.707" timestamp="1579284277207" />
     <state width="1879" height="332" key="GridCell.Tab.1.bottom/0.0.1920.999/1920.0.1920.999@1920.0.1920.999" timestamp="1579243627528" />
-    <state width="1879" height="332" key="GridCell.Tab.1.center" timestamp="1579243627528">
-      <screen x="1920" y="0" width="1920" height="999" />
+    <state width="1323" height="213" key="GridCell.Tab.1.center" timestamp="1579284277206">
+      <screen x="0" y="0" width="1366" height="707" />
     </state>
-    <state width="1323" height="213" key="GridCell.Tab.1.center/0.0.1366.707@0.0.1366.707" timestamp="1579188092250" />
+    <state width="1323" height="213" key="GridCell.Tab.1.center/0.0.1366.707@0.0.1366.707" timestamp="1579284277206" />
     <state width="1879" height="332" key="GridCell.Tab.1.center/0.0.1920.999/1920.0.1920.999@1920.0.1920.999" timestamp="1579243627528" />
-    <state width="1879" height="332" key="GridCell.Tab.1.left" timestamp="1579243627528">
-      <screen x="1920" y="0" width="1920" height="999" />
+    <state width="1323" height="213" key="GridCell.Tab.1.left" timestamp="1579284277206">
+      <screen x="0" y="0" width="1366" height="707" />
     </state>
-    <state width="1323" height="213" key="GridCell.Tab.1.left/0.0.1366.707@0.0.1366.707" timestamp="1579188092250" />
+    <state width="1323" height="213" key="GridCell.Tab.1.left/0.0.1366.707@0.0.1366.707" timestamp="1579284277206" />
     <state width="1879" height="332" key="GridCell.Tab.1.left/0.0.1920.999/1920.0.1920.999@1920.0.1920.999" timestamp="1579243627528" />
-    <state width="1879" height="332" key="GridCell.Tab.1.right" timestamp="1579243627528">
-      <screen x="1920" y="0" width="1920" height="999" />
+    <state width="1323" height="213" key="GridCell.Tab.1.right" timestamp="1579284277206">
+      <screen x="0" y="0" width="1366" height="707" />
     </state>
-    <state width="1323" height="213" key="GridCell.Tab.1.right/0.0.1366.707@0.0.1366.707" timestamp="1579188092250" />
+    <state width="1323" height="213" key="GridCell.Tab.1.right/0.0.1366.707@0.0.1366.707" timestamp="1579284277206" />
     <state width="1879" height="332" key="GridCell.Tab.1.right/0.0.1920.999/1920.0.1920.999@1920.0.1920.999" timestamp="1579243627528" />
-    <state width="1879" height="332" key="GridCell.Tab.2.bottom" timestamp="1579243493705">
-      <screen x="1920" y="0" width="1920" height="999" />
+    <state width="1323" height="213" key="GridCell.Tab.2.bottom" timestamp="1579284277208">
+      <screen x="0" y="0" width="1366" height="707" />
     </state>
-    <state width="1323" height="213" key="GridCell.Tab.2.bottom/0.0.1366.707@0.0.1366.707" timestamp="1579188092250" />
+    <state width="1323" height="213" key="GridCell.Tab.2.bottom/0.0.1366.707@0.0.1366.707" timestamp="1579284277208" />
     <state width="1879" height="332" key="GridCell.Tab.2.bottom/0.0.1920.999/1920.0.1920.999@1920.0.1920.999" timestamp="1579243493705" />
-    <state width="1879" height="332" key="GridCell.Tab.2.center" timestamp="1579243493704">
-      <screen x="1920" y="0" width="1920" height="999" />
+    <state width="1323" height="213" key="GridCell.Tab.2.center" timestamp="1579284277207">
+      <screen x="0" y="0" width="1366" height="707" />
     </state>
-    <state width="1323" height="213" key="GridCell.Tab.2.center/0.0.1366.707@0.0.1366.707" timestamp="1579188092250" />
+    <state width="1323" height="213" key="GridCell.Tab.2.center/0.0.1366.707@0.0.1366.707" timestamp="1579284277207" />
     <state width="1879" height="332" key="GridCell.Tab.2.center/0.0.1920.999/1920.0.1920.999@1920.0.1920.999" timestamp="1579243493704" />
-    <state width="1879" height="332" key="GridCell.Tab.2.left" timestamp="1579243493704">
-      <screen x="1920" y="0" width="1920" height="999" />
+    <state width="1323" height="213" key="GridCell.Tab.2.left" timestamp="1579284277207">
+      <screen x="0" y="0" width="1366" height="707" />
     </state>
-    <state width="1323" height="213" key="GridCell.Tab.2.left/0.0.1366.707@0.0.1366.707" timestamp="1579188092250" />
+    <state width="1323" height="213" key="GridCell.Tab.2.left/0.0.1366.707@0.0.1366.707" timestamp="1579284277207" />
     <state width="1879" height="332" key="GridCell.Tab.2.left/0.0.1920.999/1920.0.1920.999@1920.0.1920.999" timestamp="1579243493704" />
-    <state width="1879" height="332" key="GridCell.Tab.2.right" timestamp="1579243493704">
-      <screen x="1920" y="0" width="1920" height="999" />
+    <state width="1323" height="213" key="GridCell.Tab.2.right" timestamp="1579284277208">
+      <screen x="0" y="0" width="1366" height="707" />
     </state>
-    <state width="1323" height="213" key="GridCell.Tab.2.right/0.0.1366.707@0.0.1366.707" timestamp="1579188092250" />
+    <state width="1323" height="213" key="GridCell.Tab.2.right/0.0.1366.707@0.0.1366.707" timestamp="1579284277208" />
     <state width="1879" height="332" key="GridCell.Tab.2.right/0.0.1920.999/1920.0.1920.999@1920.0.1920.999" timestamp="1579243493704" />
-    <state width="1323" height="213" key="GridCell.Tab.3.bottom" timestamp="1579188092250">
+    <state width="1323" height="213" key="GridCell.Tab.3.bottom" timestamp="1579284277209">
       <screen x="0" y="0" width="1366" height="707" />
     </state>
-    <state width="1323" height="213" key="GridCell.Tab.3.bottom/0.0.1366.707@0.0.1366.707" timestamp="1579188092250" />
-    <state width="1323" height="213" key="GridCell.Tab.3.center" timestamp="1579188092250">
+    <state width="1323" height="213" key="GridCell.Tab.3.bottom/0.0.1366.707@0.0.1366.707" timestamp="1579284277209" />
+    <state width="1323" height="213" key="GridCell.Tab.3.center" timestamp="1579284277209">
       <screen x="0" y="0" width="1366" height="707" />
     </state>
-    <state width="1323" height="213" key="GridCell.Tab.3.center/0.0.1366.707@0.0.1366.707" timestamp="1579188092250" />
-    <state width="1323" height="213" key="GridCell.Tab.3.left" timestamp="1579188092250">
+    <state width="1323" height="213" key="GridCell.Tab.3.center/0.0.1366.707@0.0.1366.707" timestamp="1579284277209" />
+    <state width="1323" height="213" key="GridCell.Tab.3.left" timestamp="1579284277208">
       <screen x="0" y="0" width="1366" height="707" />
     </state>
-    <state width="1323" height="213" key="GridCell.Tab.3.left/0.0.1366.707@0.0.1366.707" timestamp="1579188092250" />
-    <state width="1323" height="213" key="GridCell.Tab.3.right" timestamp="1579188092250">
+    <state width="1323" height="213" key="GridCell.Tab.3.left/0.0.1366.707@0.0.1366.707" timestamp="1579284277208" />
+    <state width="1323" height="213" key="GridCell.Tab.3.right" timestamp="1579284277209">
       <screen x="0" y="0" width="1366" height="707" />
     </state>
-    <state width="1323" height="213" key="GridCell.Tab.3.right/0.0.1366.707@0.0.1366.707" timestamp="1579188092250" />
+    <state width="1323" height="213" key="GridCell.Tab.3.right/0.0.1366.707@0.0.1366.707" timestamp="1579284277209" />
     <state x="2674" y="178" key="RiderGenerateDialog" timestamp="1579230956596">
       <screen x="1920" y="0" width="1920" height="999" />
     </state>
@@ -318,15 +319,15 @@
       <screen x="1920" y="0" width="1920" height="999" />
     </state>
     <state width="254" height="510" key="ShowFilterAction_Filter_Popup/0.0.1920.999/1920.0.1920.999@1920.0.1920.999" timestamp="1579227291250" />
-    <state x="2387" y="122" width="1117" height="755" key="find.popup" timestamp="1579243935409">
-      <screen x="1920" y="0" width="1920" height="999" />
+    <state x="332" y="86" width="794" height="534" key="find.popup" timestamp="1579284411837">
+      <screen x="0" y="0" width="1366" height="707" />
     </state>
-    <state x="332" y="86" width="794" height="534" key="find.popup/0.0.1366.707@0.0.1366.707" timestamp="1579187832734" />
+    <state x="332" y="86" width="794" height="534" key="find.popup/0.0.1366.707@0.0.1366.707" timestamp="1579284411837" />
     <state x="2387" y="122" width="1117" height="755" key="find.popup/0.0.1920.999/1920.0.1920.999@1920.0.1920.999" timestamp="1579243935409" />
-    <state x="2476" y="268" width="945" height="646" key="search.everywhere.popup" timestamp="1579243519078">
-      <screen x="1920" y="0" width="1920" height="999" />
+    <state x="346" y="28" width="672" height="678" key="search.everywhere.popup" timestamp="1579284128630">
+      <screen x="0" y="0" width="1366" height="707" />
     </state>
-    <state x="346" y="28" width="672" height="678" key="search.everywhere.popup/0.0.1366.707@0.0.1366.707" timestamp="1579186496258" />
+    <state x="346" y="28" width="672" height="678" key="search.everywhere.popup/0.0.1366.707@0.0.1366.707" timestamp="1579284128630" />
     <state x="2476" y="268" width="945" height="646" key="search.everywhere.popup/0.0.1920.999/1920.0.1920.999@1920.0.1920.999" timestamp="1579243519078" />
   </component>
   <component name="XDebuggerManager">
@@ -335,14 +336,7 @@
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
           <url>file://$PROJECT_DIR$/Assets/XLua/Gen/DelegatesGensBridge.cs</url>
           <line>499</line>
-          <properties documentPath="$PROJECT_DIR$/Assets/XLua/Gen/DelegatesGensBridge.cs" initialLine="499">
-            <startOffsets>
-              <option value="14130" />
-            </startOffsets>
-            <endOffsets>
-              <option value="14223" />
-            </endOffsets>
-          </properties>
+          <properties documentPath="$PROJECT_DIR$/Assets/XLua/Gen/DelegatesGensBridge.cs" initialLine="499" />
           <option name="timeStamp" value="43" />
         </line-breakpoint>
       </breakpoints>

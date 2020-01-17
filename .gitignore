@@ -41,3 +41,4 @@ sysinfo.txt
 Assets/Plugins/Editor/JetBrains.meta
 Assembly-CSharp.csproj.DotSettings
 .idea/.idea.Unity-Extend/.idea/contentModel.xml
+Logs/*

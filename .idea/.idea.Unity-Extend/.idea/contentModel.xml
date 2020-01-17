@@ -196,6 +196,7 @@
             <e p="LuaEnv.cs" t="Include" />
             <e p="LuaException.cs" t="Include" />
             <e p="LuaFunction.cs" t="Include" />
+            <e p="LuaMemoryLeakChecker.cs" t="Include" />
             <e p="LuaTable.cs" t="Include" />
             <e p="MethodWarpsCache.cs" t="Include" />
             <e p="ObjectCasters.cs" t="Include" />
@@ -210,7 +211,6 @@
             </e>
             <e p="TypeExtensions.cs" t="Include" />
             <e p="Utils.cs" t="Include" />
-            <e p="xLuaCS.asmdef" t="Include" />
           </e>
         </e>
       </e>
@@ -218,7 +218,6 @@
       <e p="Packages" t="ExcludeRecursive" />
       <e p="Temp\bin" t="ExcludeRecursive" />
       <e p="Unity-Extend.sln" t="IncludeFlat" />
-      <e p="xLuaCS.csproj" t="IncludeRecursive" />
     </e>
   </component>
 </project>
