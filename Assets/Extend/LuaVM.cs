@@ -37,7 +37,9 @@ namespace Extend {
 
         public void Destroy() {
             OnDestroy.Call();
+            #if UNITY_EDITOR
             // ReportLeak();
+            #endif
         }
 
         public void Update() {

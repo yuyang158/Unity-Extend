@@ -1,7 +1,8 @@
 using System.Collections.Generic;
 using Extend.Common;
+using Extend.Network.SocketClient;
 
-namespace Extend.Network.SocketClient {
+namespace Extend.Network {
 	public class NetworkService : IService, IServiceUpdate {
 		public CSharpServiceManager.ServiceType ServiceType => CSharpServiceManager.ServiceType.NETWORK_SERVICE;
 		private readonly List<AutoReconnectTcpClient> clients = new List<AutoReconnectTcpClient>();

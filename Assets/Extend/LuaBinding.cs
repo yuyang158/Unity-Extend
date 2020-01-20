@@ -9,7 +9,7 @@ using XLua;
 namespace Extend {
 	[CSharpCallLua, LuaCallCSharp]
 	public class LuaBinding : MonoBehaviour, ISerializationCallbackReceiver {
-		[AssetPath(AssetType = typeof(TextAsset), order = 1, RootDir = "Assets/Resources/Lua", Extension = ".lua")]
+		[AssetPath(AssetType = typeof(TextAsset), RootDir = "Assets/Resources/Lua", Extension = ".lua")]
 		public string LuaFile;
 		public LuaTable LuaInstance { get; private set; }
 
@@ -29,17 +29,17 @@ namespace Extend {
 			Bind(luaTable);
 
 			var awake = luaTable.Get<LuaUnityEventFunction>("awake");
-			awake(luaTable);
+			awake?.Invoke(luaTable);
 		}
 
 		private void Start() {
 			var start = LuaInstance.Get<LuaUnityEventFunction>("start");
-			start(LuaInstance);
+			start?.Invoke(LuaInstance);
 		}
 
 		private void OnDestroy() {
 			var destroy = LuaInstance.Get<LuaUnityEventFunction>("destroy");
-			destroy(LuaInstance);
+			destroy?.Invoke(LuaInstance);
 			LuaInstance?.Dispose();
 			LuaInstance = null;
 		}

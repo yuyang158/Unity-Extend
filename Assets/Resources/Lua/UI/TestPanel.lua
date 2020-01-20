@@ -58,9 +58,17 @@ function M:start()
     local tick = LuaSM.GetService(LuaSM.SERVICE_TYPE.TICK)
     tick.Register(M.Tick, self)
 end
-
+local time = 0
 function M:Tick(deltaTime)
     self.vm.c.d = self.vm.c.d + deltaTime
+
+    time = time + deltaTime
+    if time > 0.01 then
+        time = 0
+        self.sprotoClient:Send("get", {what="abc"}, function(args)
+            table.print_r(args)
+        end)
+    end
 end
 
 function M:OnClick()
@@ -68,14 +76,16 @@ function M:OnClick()
     self.vm.toggle = not self.vm.toggle
     self.vm.items[2].count = math.random(1, 10)
     self.vm.a = self.vm.a + 1
-    -- self.vm.c.d = math.random(100, 1000) / 73
+    self.vm.c.d = math.random(100, 1000) / 73
 
+    local full = ""
+    for _ = 1, 30000 do
+        full = full .. math.random(0, 9)
+    end
+    
     self.sprotoClient:Send("set", {
         what = "abc",
-        value = tostring(self.vm.c.d)
+        value = full
     })
-    self.sprotoClient:Send("get", {what="abc"}, function(args)
-        table.print_r(args)
-    end)
 end
 return M

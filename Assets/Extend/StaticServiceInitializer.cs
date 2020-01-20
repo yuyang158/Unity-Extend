@@ -1,9 +1,8 @@
 using DG.Tweening;
 using Extend.Common;
 using Extend.LuaUtil;
-using Extend.Network.SocketClient;
+using Extend.Network;
 using UnityEngine;
-using XLua;
 
 namespace Extend {
 	internal static class StaticServiceInitializer {

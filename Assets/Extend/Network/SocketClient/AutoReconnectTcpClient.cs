@@ -88,9 +88,11 @@ namespace Extend.Network.SocketClient {
 		}
 
 		public async void Send(byte[] buffer) {
-			var task = client.GetStream().WriteAsync(buffer, 0, buffer.Length);
-			await task;
-			if( task.IsCanceled || task.IsFaulted ) {
+			try {
+				await client.GetStream().WriteAsync(buffer, 0, buffer.Length);
+				await client.GetStream().FlushAsync();
+			}
+			catch( Exception ) {
 				TcpStatus = Status.DISCONNECTED;
 			}
 		}
