@@ -63,10 +63,10 @@ function M:Tick(deltaTime)
     self.vm.c.d = self.vm.c.d + deltaTime
 
     time = time + deltaTime
-    if time > 0.01 then
+    if time > 1 then
         time = 0
         self.sprotoClient:Send("get", {what="abc"}, function(args)
-            table.print_r(args)
+            print(args.result)
         end)
     end
 end
@@ -79,7 +79,7 @@ function M:OnClick()
     self.vm.c.d = math.random(100, 1000) / 73
 
     local full = ""
-    for _ = 1, 30000 do
+    for _ = 1, 10 do
         full = full .. math.random(0, 9)
     end
     

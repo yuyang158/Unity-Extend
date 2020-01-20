@@ -3,7 +3,8 @@ local services = {}
 
 M.SERVICE_TYPE = {
     CONFIG = 1,
-    TICK = 2
+    TICK = 2,
+    CONSOLE_COMMAND = 3
 }
 
 function M.GetService(typ)

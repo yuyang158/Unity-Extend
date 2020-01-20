@@ -23,12 +23,12 @@ namespace Extend.Network.HttpClient {
 				var stream = await request.GetRequestStreamAsync();
 				var buffer = Encoding.UTF8.GetBytes(json);
 				await stream.WriteAsync(buffer, 0, buffer.Length);
-				await stream.FlushAsync();				
+				await stream.FlushAsync();
 			}
 
 			var response = await request.GetResponseAsync();
 			var length = response.ContentLength;
-			Extend(length);
+			ExtendBuffer(length);
 			var responseStream = response.GetResponseStream();
 			var readCount = await responseStream.ReadAsync(responseBuffer, 0, responseBuffer.Length);
 			json = Encoding.UTF8.GetString(responseBuffer, 0, readCount);
@@ -45,7 +45,7 @@ namespace Extend.Network.HttpClient {
 			return pow;
 		}
 
-		private void Extend(long length) {
+		private void ExtendBuffer(long length) {
 			if( responseBuffer.Length < length ) {
 				length = MinPo2(length);
 				responseBuffer = new byte[length];

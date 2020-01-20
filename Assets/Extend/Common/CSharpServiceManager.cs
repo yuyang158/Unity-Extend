@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Extend.DebugUtil;
 using UnityEngine;
 using UnityEngine.Assertions;
 
@@ -22,20 +23,22 @@ namespace Extend.Common {
 			TICK_SERVICE,
 			COROUTINE_SERVICE,
 			NETWORK_SERVICE,
-			LUA_SERVICE
+			LUA_SERVICE,
+			IN_GAME_CONSOLE
 		}
 
 		public static bool Initialized { get; private set; }
 
 		public static void Initialize() {
 			if( Initialized ) {
-				throw new Exception( "CSharpServiceManager already exist" );
+				throw new Exception("CSharpServiceManager already exist");
 			}
 
 			Initialized = true;
-			var go = new GameObject( "CSharpServiceManager" );
+			var go = new GameObject("CSharpServiceManager");
 			DontDestroyOnLoad(go);
 			go.AddComponent<CSharpServiceManager>();
+			Register(go.AddComponent<InGameConsole>());
 		}
 
 		private static readonly Dictionary<ServiceType, IService> services = new Dictionary<ServiceType, IService>();
@@ -43,30 +46,30 @@ namespace Extend.Common {
 
 		public static void Register(IService service) {
 			Assert.IsTrue(Initialized);
-			if( services.ContainsKey( service.ServiceType ) ) {
-				throw new Exception( $"Service {service.ServiceType} exist." );
+			if( services.ContainsKey(service.ServiceType) ) {
+				throw new Exception($"Service {service.ServiceType} exist.");
 			}
 
-			services.Add( service.ServiceType, service );
+			services.Add(service.ServiceType, service);
 			service.Initialize();
 			if( service is IServiceUpdate update ) {
-				updatableServices.Add( update );
+				updatableServices.Add(update);
 			}
 		}
 
 		public static void Unregister(ServiceType type) {
 			Assert.IsTrue(Initialized);
-			if( services.ContainsKey( type ) ) {
+			if( services.ContainsKey(type) ) {
 				var service = services[type];
 				service.Destroy();
-				services.Remove( type );
+				services.Remove(type);
 			}
 			else {
-				throw  new Exception($"Service {type} not exist");
+				throw new Exception($"Service {type} not exist");
 			}
 		}
 
-		public static T Get<T>( ServiceType typ ) where T : IService {
+		public static T Get<T>(ServiceType typ) where T : IService {
 			Assert.IsTrue(Initialized);
 			return (T)services[typ];
 		}

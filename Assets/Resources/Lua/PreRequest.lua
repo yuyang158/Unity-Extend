@@ -8,9 +8,11 @@ require('util')
 local SM = require "ServiceManager"
 local CS = require "ConfigService"
 local TS = require "TickService"
+local CMDService = require("CommandService")
 
 SM.RegisterService(SM.SERVICE_TYPE.CONFIG, CS)
 SM.RegisterService(SM.SERVICE_TYPE.TICK, TS)
+SM.RegisterService(SM.SERVICE_TYPE.CONSOLE_COMMAND, CMDService)
 
 return function()
     CS.clear()
