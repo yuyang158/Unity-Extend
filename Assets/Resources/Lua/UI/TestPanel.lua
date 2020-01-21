@@ -87,5 +87,7 @@ function M:OnClick()
         what = "abc",
         value = full
     })
+    
+    print_w("WARNING LOG TEST", self.vm.text)
 end
 return M

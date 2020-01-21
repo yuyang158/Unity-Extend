@@ -92,8 +92,20 @@ namespace XLua
                 LuaAPI.lua_atpanic(rawL, StaticLuaCallbacks.Panic);
 
 #if !XLUA_GENERAL
-                LuaAPI.lua_pushstdcallcfunction(rawL, StaticLuaCallbacks.Print);
+                LuaAPI.lua_pushstdcallcfunction(rawL, StaticLuaCallbacks.PrintI);
                 if (0 != LuaAPI.xlua_setglobal(rawL, "print"))
+                {
+                    throw new Exception("call xlua_setglobal fail!");
+                }
+                
+                LuaAPI.lua_pushstdcallcfunction(rawL, StaticLuaCallbacks.PrintW);
+                if (0 != LuaAPI.xlua_setglobal(rawL, "print_w"))
+                {
+                    throw new Exception("call xlua_setglobal fail!");
+                }
+                
+                LuaAPI.lua_pushstdcallcfunction(rawL, StaticLuaCallbacks.PrintE);
+                if (0 != LuaAPI.xlua_setglobal(rawL, "print_e"))
                 {
                     throw new Exception("call xlua_setglobal fail!");
                 }

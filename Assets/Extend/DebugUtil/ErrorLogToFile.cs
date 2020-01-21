@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using Extend.Common;
 using UnityEngine;
 
@@ -14,7 +15,9 @@ namespace Extend.DebugUtil {
 
 		private void HandleLogThreaded(string message, string stackTrace, LogType type) {
 			if( type == LogType.Assert || type == LogType.Error || type == LogType.Exception || type == LogType.Warning ) {
-				writer.WriteLineAsync(message);
+				var now = DateTime.Now;
+				var log = $"[{now.ToLongTimeString()}]: {message}";
+				writer.WriteLineAsync(log);
 			}
 		}
 
