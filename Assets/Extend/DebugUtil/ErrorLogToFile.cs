@@ -16,7 +16,7 @@ namespace Extend.DebugUtil {
 		private void HandleLogThreaded(string message, string stackTrace, LogType type) {
 			if( type == LogType.Assert || type == LogType.Error || type == LogType.Exception || type == LogType.Warning ) {
 				var now = DateTime.Now;
-				var log = $"[{now.ToLongTimeString()}]: {message}";
+				var log = $"[{now.ToShortDateString()} {now.ToLongTimeString()}]: {message}";
 				writer.WriteLineAsync(log);
 			}
 		}

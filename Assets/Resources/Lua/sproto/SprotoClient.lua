@@ -57,6 +57,7 @@ function M:Send(name, args, callback, ...)
     if callback then
         local params = tpack(...)
         self.wait4Responses[self.session] = {
+            name = name,
             callback = callback,
             params = params,
             time = 0
@@ -84,6 +85,7 @@ function M:OnRecvPackage(buffer)
     if t == "REQUEST" then
         local serverReq = self.serverRequest[name]
         if not serverReq then
+            print_w("UNHANDLED SERVER REQUEST", name)
             return
         end
         if serverReq.params.n == 0 then
@@ -113,6 +115,7 @@ function M:OnUpdate()
     for _, wait4Response in pairs(self.wait4Responses) do
         wait4Response.time = wait4Response.time + 0.1
         if wait4Response.time > self.callbackTimeout then
+            print_w("WAIT FOR RESPONSE TIMEOUT:", wait4Response.name)
             -- self.client.TcpStatus = AutoReconnectTcpClient.Status.DISCONNECT
         end
     end

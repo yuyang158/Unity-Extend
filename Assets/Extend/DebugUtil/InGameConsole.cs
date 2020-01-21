@@ -284,7 +284,7 @@ namespace Extend.DebugUtil {
 			var now = DateTime.Now;
 			var log = new Log {
 				count = 1,
-				message = $"[{now.ToLongTimeString()}]: {message}",
+				message = $"[{now.ToShortDateString()} {now.ToLongTimeString()}]: {message}",
 				type = type,
 			};
 

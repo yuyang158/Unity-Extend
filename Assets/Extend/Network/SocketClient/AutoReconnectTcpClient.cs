@@ -92,7 +92,8 @@ namespace Extend.Network.SocketClient {
 				await client.GetStream().WriteAsync(buffer, 0, buffer.Length);
 				await client.GetStream().FlushAsync();
 			}
-			catch( Exception ) {
+			catch( Exception e ) {
+				Debug.LogWarning($"Socket write exception : {e}");
 				TcpStatus = Status.DISCONNECTED;
 			}
 		}
@@ -106,10 +107,11 @@ namespace Extend.Network.SocketClient {
 		private async void DoConnect() {
 			TcpStatus = Status.RECONNECT;
 			try {
+				Debug.LogWarning($"Start async connect to server : {connectionContext.Host}:{connectionContext.Port}");
 				await client.ConnectAsync(connectionContext.Host, connectionContext.Port);
 			}
-			catch( Exception ) {
-				Debug.Log($"Connection fail with exception");
+			catch( Exception e ) {
+				Debug.Log($"Connection fail with exception : {e}");
 			}
 			finally {
 				TcpStatus = client.Connected ? Status.CONNECTED : Status.DISCONNECTED;
@@ -118,13 +120,14 @@ namespace Extend.Network.SocketClient {
 
 		private async void DoReceive() {
 			var stream = client.GetStream();
-			while( client.Connected ) {
+			while( client.Connected && Application.isPlaying ) {
 				if( stream.CanRead ) {
 					int readCount;
 					try {
 						readCount = await stream.ReadAsync(receiveBuffer, receiveOffset, receiveBuffer.Length - receiveOffset);
 					}
-					catch( Exception ) {
+					catch( Exception e ) {
+						Debug.LogWarning($"Socket receive exception : {e}");
 						TcpStatus = Status.DISCONNECTED;
 						return;
 					}
