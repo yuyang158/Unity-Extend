@@ -81,6 +81,10 @@ namespace Extend.LuaMVVM {
 			}
 			dataSource?.Dispose();
 			dataSource = null;
+
+			if( BindTarget is LuaMVVMForEach forEach ) {
+				forEach.LuaArrayData = null;
+			}
 		}
 
 		public override string ToString() {

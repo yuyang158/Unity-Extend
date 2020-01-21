@@ -13,7 +13,7 @@ namespace Extend.DebugUtil {
 		}
 
 		private void HandleLogThreaded(string message, string stackTrace, LogType type) {
-			if( type == LogType.Assert || type == LogType.Error || type == LogType.Exception ) {
+			if( type == LogType.Assert || type == LogType.Error || type == LogType.Exception || type == LogType.Warning ) {
 				writer.WriteLineAsync(message);
 			}
 		}

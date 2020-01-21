@@ -16,12 +16,14 @@ namespace Extend.LuaMVVM {
 		private readonly List<GameObject> generatedAsset = new List<GameObject>();
 
 		private void OnDestroy() {
+			arrayData?.Dispose();
 			arrayData = null;
 		}
 
 		public LuaTable LuaArrayData {
 			get => arrayData;
 			set {
+				arrayData?.Dispose();
 				arrayData = value;
 				if( !Asset.IsFinished && !syncLoad ) {
 					var handle = Asset.LoadAsync(typeof(GameObject));
@@ -36,6 +38,14 @@ namespace Extend.LuaMVVM {
 		}
 
 		private void DoGenerate() {
+			if( arrayData == null ) {
+				foreach( var go in generatedAsset ) {
+					Destroy(go);
+				}
+				generatedAsset.Clear();
+				return;
+			}
+			
 			var prefab = Asset.GetGameObject();
 			int finalIndex;
 			for( var i = 1; ; i++ ) {
@@ -59,6 +69,8 @@ namespace Extend.LuaMVVM {
 			}
 
 			for( var i = finalIndex - 1; i < generatedAsset.Count; ) {
+				var go = generatedAsset[generatedAsset.Count - 1];
+				Destroy(go);
 				generatedAsset.RemoveAt(generatedAsset.Count - 1);
 			}
 		}
