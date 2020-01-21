@@ -7,7 +7,7 @@ namespace Extend.DebugUtil {
 		[Conditional("UNITY_EDITOR")]
 		public static void BeginSample(int id) {
 			_showNames.TryGetValue(id, out var name);
-			name ??= string.Empty;
+			name = name ?? string.Empty;
 
 			Profiler.BeginSample(name);
 			++_sampleDepth;
@@ -15,7 +15,7 @@ namespace Extend.DebugUtil {
 
 		[Conditional("UNITY_EDITOR")]
 		public static void BeginSample(int id, string name) {
-			name ??= string.Empty;
+			name = name ?? string.Empty;
 			_showNames[id] = name;
 
 			Profiler.BeginSample(name);
@@ -24,7 +24,7 @@ namespace Extend.DebugUtil {
 
 		[Conditional("UNITY_EDITOR")]
 		internal static void BeginSample(string name) {
-			name ??= string.Empty;
+			name = name ?? string.Empty;
 			Profiler.BeginSample(name);
 			++_sampleDepth;
 		}
