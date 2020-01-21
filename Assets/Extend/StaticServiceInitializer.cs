@@ -1,5 +1,6 @@
 using DG.Tweening;
 using Extend.Common;
+using Extend.DebugUtil;
 using Extend.LuaUtil;
 using Extend.Network;
 using UnityEngine;
@@ -11,6 +12,7 @@ namespace Extend {
 			DOTween.Init(true, true, LogBehaviour.Default);
 
 			CSharpServiceManager.Initialize();
+			CSharpServiceManager.Register(new ErrorLogToFile());
 			CSharpServiceManager.Register(new AssetService.AssetService());
 			CSharpServiceManager.Register(new AssetService.SpriteAssetService());
 			CSharpServiceManager.Register(new LuaVM());

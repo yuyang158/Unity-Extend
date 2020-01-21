@@ -24,7 +24,8 @@ namespace Extend.Common {
 			COROUTINE_SERVICE,
 			NETWORK_SERVICE,
 			LUA_SERVICE,
-			IN_GAME_CONSOLE
+			IN_GAME_CONSOLE,
+			ERROR_LOG_TO_FILE
 		}
 
 		public static bool Initialized { get; private set; }
@@ -42,7 +43,7 @@ namespace Extend.Common {
 		}
 
 		private static readonly Dictionary<ServiceType, IService> services = new Dictionary<ServiceType, IService>();
-		private static readonly List<IServiceUpdate> updatableServices = new List<IServiceUpdate>();
+		private static readonly List<IServiceUpdate> updateableServices = new List<IServiceUpdate>();
 
 		public static void Register(IService service) {
 			Assert.IsTrue(Initialized);
@@ -53,7 +54,7 @@ namespace Extend.Common {
 			services.Add(service.ServiceType, service);
 			service.Initialize();
 			if( service is IServiceUpdate update ) {
-				updatableServices.Add(update);
+				updateableServices.Add(update);
 			}
 		}
 
@@ -75,7 +76,7 @@ namespace Extend.Common {
 		}
 
 		private void Update() {
-			foreach( var service in updatableServices ) {
+			foreach( var service in updateableServices ) {
 				service.Update();
 			}
 		}

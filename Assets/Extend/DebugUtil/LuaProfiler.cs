@@ -6,19 +6,16 @@ namespace Extend.DebugUtil {
 	public static class LuaProfiler {
 		[Conditional("UNITY_EDITOR")]
 		public static void BeginSample(int id) {
-			{
-				string name;
-				_showNames.TryGetValue(id, out name);
-				name = name ?? string.Empty;
+			_showNames.TryGetValue(id, out var name);
+			name ??= string.Empty;
 
-				Profiler.BeginSample(name);
-				++_sampleDepth;
-			}
+			Profiler.BeginSample(name);
+			++_sampleDepth;
 		}
 
 		[Conditional("UNITY_EDITOR")]
 		public static void BeginSample(int id, string name) {
-			name = name ?? string.Empty;
+			name ??= string.Empty;
 			_showNames[id] = name;
 
 			Profiler.BeginSample(name);
@@ -27,7 +24,7 @@ namespace Extend.DebugUtil {
 
 		[Conditional("UNITY_EDITOR")]
 		internal static void BeginSample(string name) {
-			name = name ?? string.Empty;
+			name ??= string.Empty;
 			Profiler.BeginSample(name);
 			++_sampleDepth;
 		}
