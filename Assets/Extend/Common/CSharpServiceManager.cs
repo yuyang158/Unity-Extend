@@ -25,7 +25,8 @@ namespace Extend.Common {
 			NETWORK_SERVICE,
 			LUA_SERVICE,
 			IN_GAME_CONSOLE,
-			ERROR_LOG_TO_FILE
+			ERROR_LOG_TO_FILE,
+			STAT
 		}
 
 		public static bool Initialized { get; private set; }

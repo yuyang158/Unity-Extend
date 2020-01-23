@@ -20,6 +20,7 @@ function M:ctor(c2sPath, s2cPath)
     self.session = 1
     self.callbackTimeout = 2
     self.wait4Responses = {}
+    self.responseCommonCallback = {}
     self.serverRequest = {}
 end
 
@@ -35,6 +36,22 @@ function M:RegisterServerRequestCallback(name, callback, ...)
         callback = callback,
         params = params
     }
+end
+
+function M:UnregisterServerRequestCallback(name)
+    self.serverRequest[name] = nil
+end
+
+function M:RegisterResponseCommonCallback(name, callback, ...)
+    local params = tpack(...)
+    self.responseCommonCallback[name] = {
+        callback = callback,
+        params = params
+    }
+end
+
+function M:UnregisterResponseCommonCallback(name)
+    self.responseCommonCallback[name] = nil
 end
 
 function M:Destroy()
@@ -54,12 +71,14 @@ function M:Send(name, args, callback, ...)
     local req = self.request(name, args, self.session)
     local package = spack(">s2", req)
     self.client:Send(package)
-    if callback then
+
+    local commonContext = self.responseCommonCallback[name]
+    if callback or commonContext then
         local params = tpack(...)
         self.wait4Responses[self.session] = {
             name = name,
-            callback = callback,
-            params = params,
+            callback = callback or commonContext.callback,
+            params = params or commonContext.params,
             time = 0
         }
     end
@@ -97,6 +116,15 @@ function M:OnRecvPackage(buffer)
         local response =  self.wait4Responses[name]
         if not response then
             return
+        end
+        
+        local commonContext = self.responseCommonCallback[response.name]
+        if response.callback ~= commonContext.callback then
+            if commonContext.params.n == 0 then
+                commonContext.callback(args)
+            else
+                commonContext.callback(tunpack(commonContext.params), args)
+            end
         end
         self.wait4Responses[name] = nil
         if response.params.n == 0 then

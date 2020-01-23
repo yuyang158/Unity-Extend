@@ -1,6 +1,7 @@
 using System;
 using System.Net.Sockets;
 using Extend.Common;
+using Extend.DebugUtil;
 using UnityEngine;
 using XLua;
 
@@ -89,6 +90,7 @@ namespace Extend.Network.SocketClient {
 
 		public async void Send(byte[] buffer) {
 			try {
+				StatService.Get().Increase(StatService.StatName.TCP_SENT, buffer.Length);
 				await client.GetStream().WriteAsync(buffer, 0, buffer.Length);
 				await client.GetStream().FlushAsync();
 			}
@@ -122,16 +124,17 @@ namespace Extend.Network.SocketClient {
 			var stream = client.GetStream();
 			while( client.Connected && Application.isPlaying ) {
 				if( stream.CanRead ) {
-					int readCount;
+					int recvCount;
 					try {
-						readCount = await stream.ReadAsync(receiveBuffer, receiveOffset, receiveBuffer.Length - receiveOffset);
+						recvCount = await stream.ReadAsync(receiveBuffer, receiveOffset, receiveBuffer.Length - receiveOffset);
 					}
 					catch( Exception e ) {
 						Debug.LogWarning($"Socket receive exception : {e}");
 						TcpStatus = Status.DISCONNECTED;
 						return;
 					}
-					receiveOffset += readCount;
+					receiveOffset += recvCount;
+					StatService.Get().Increase(StatService.StatName.TCP_RECEIVED, recvCount);
 
 					var readOffset = 0;
 					while( true ) {

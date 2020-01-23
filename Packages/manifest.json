@@ -1,6 +1,5 @@
 {
   "dependencies": {
-    "com.harryrose.assetdependencygraph": "https://github.com/Unity-Harry/Unity-AssetDependencyGraph.git",
     "com.unity.2d.sprite": "1.0.0",
     "com.unity.assetbundlebrowser": "1.7.0",
     "com.unity.editorcoroutines": "0.1.0-preview.1",
@@ -39,11 +38,5 @@
     "com.unity.modules.vr": "1.0.0",
     "com.unity.modules.wind": "1.0.0",
     "com.unity.modules.xr": "1.0.0"
-  },
-  "lock": {
-    "com.harryrose.assetdependencygraph": {
-      "revision": "HEAD",
-      "hash": "5efdd15932ddd69cec8134eeee53cd9b4f706d64"
-    }
   }
 }

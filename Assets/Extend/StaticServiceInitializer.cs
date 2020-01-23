@@ -12,6 +12,7 @@ namespace Extend {
 			DOTween.Init(true, true, LogBehaviour.Default);
 
 			CSharpServiceManager.Initialize();
+			CSharpServiceManager.Register(new StatService());
 			CSharpServiceManager.Register(new ErrorLogToFile());
 			CSharpServiceManager.Register(new AssetService.AssetService());
 			CSharpServiceManager.Register(new AssetService.SpriteAssetService());
