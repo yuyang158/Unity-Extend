@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Extend.LuaBindingData;
-using Extend.LuaMVVM;
 using UnityEngine;
-using UnityEngine.UI;
 using XLua;
 
 namespace Extend {

@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using Extend.Common;
 using UnityEngine;
 using UnityEngine.Assertions;
 using XLua;

@@ -6,6 +6,7 @@
 Assets/AssetStoreTools*
 Assets/UnityLuaAPI*
 node_modules/
+Logs/
 
 # Visual Studio cache directory
 .vs/

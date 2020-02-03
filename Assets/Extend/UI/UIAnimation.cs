@@ -4,7 +4,7 @@ using Extend.Common;
 using Extend.UI.Animation;
 using UnityEngine;
 
-namespace UI.Animation {
+namespace Extend.UI {
 	[Serializable]
 	public class UIAnimation {
 		public enum AnimationMode {

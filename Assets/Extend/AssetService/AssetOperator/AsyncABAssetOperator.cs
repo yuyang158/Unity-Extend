@@ -1,5 +1,4 @@
 ﻿using System;
-using Object = UnityEngine.Object;
 
 namespace Extend.AssetService.AssetOperator {
 	public class AsyncABAssetOperator : AssetOperatorBase {

@@ -1,6 +1,5 @@
 using System;
 using Extend.Common;
-using UnityEngine;
 
 namespace Extend.Switcher {
 	[Serializable]

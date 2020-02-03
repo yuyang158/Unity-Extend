@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using Extend.Common;
 using UnityEngine;
 using UnityEngine.UI;
-using XLua;
 
 namespace Extend.AssetService {
 	public class SpriteAssetService : IService, IServiceUpdate {
@@ -28,7 +27,7 @@ namespace Extend.AssetService {
 			private void OnAssetStatusChanged(AssetRefObject _) {
 				mAsset.OnStatusChanged -= OnAssetStatusChanged;
 				if( mAsset.IsFinished ) {
-					TryApplySprite(mImg, mSpriteRenderer, mAsset, mPath);
+					TryApplySprite(mImg, mSpriteRenderer, mAsset);
 				}
 			}
 
@@ -53,7 +52,7 @@ namespace Extend.AssetService {
 				}
 				else {
 					if( spriteAsset.IsFinished ) {
-						TryApplySprite(img, spriteRenderer, spriteAsset, path);
+						TryApplySprite(img, spriteRenderer, spriteAsset);
 					}
 					else {
 						ret = SpriteLoadingHandle.Create(img, spriteRenderer, spriteAsset, path);
@@ -65,7 +64,7 @@ namespace Extend.AssetService {
 			if( sync ) {
 				var reference = AssetService.Get().Load(path, typeof(Sprite));
 				spriteAsset = reference.Asset;
-				TryApplySprite(img, spriteRenderer, spriteAsset, path);
+				TryApplySprite(img, spriteRenderer, spriteAsset);
 			}
 			else {
 				var loadHandle = AssetService.Get().LoadAsync(path, typeof(Sprite));
@@ -85,7 +84,7 @@ namespace Extend.AssetService {
 			spriteAsset.Release();
 		}
 
-		private static void TryApplySprite(Image img, SpriteRenderer spriteRenderer, AssetInstance spriteAsset, string spriteKey) {
+		private static void TryApplySprite(Image img, SpriteRenderer spriteRenderer, AssetInstance spriteAsset) {
 			if(!img && !spriteRenderer)
 				return;
 			

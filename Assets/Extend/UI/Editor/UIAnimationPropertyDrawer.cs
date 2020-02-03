@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using DG.DOTweenEditor;
-using UI.Animation;
 using UnityEditor;
 using UnityEngine;
 
@@ -138,7 +136,7 @@ namespace Extend.UI.Editor {
 			EditorGUI.PropertyField(stateRect, durationProp);
 			stateRect.x = stateRect.xMax;
 			var delayProp = typProp.FindPropertyRelative("delay");
-			EditorGUI.PropertyField(stateRect, delayProp);;
+			EditorGUI.PropertyField(stateRect, delayProp);
 			position.y += lineHeight;
 			stateRect = position;
 			stateRect.xMax -= 5;

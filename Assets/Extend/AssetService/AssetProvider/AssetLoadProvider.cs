@@ -1,5 +1,4 @@
 using System;
-using UnityEngine;
 
 namespace Extend.AssetService.AssetProvider {
 	public abstract class AssetLoadProvider {
