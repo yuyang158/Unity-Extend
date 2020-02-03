@@ -163,6 +163,18 @@ function M.build(source)
             end
             data:watch(path, cb)
         end,
+        detach = function(_, path, cb)
+            if computed and computedmeta.__getters[path] then
+                local cbs = computed_cbs[path] or {}
+                for i, v in ipairs(cbs) do
+                    if v == cb then
+                        tremove(cbs, i)
+                    end
+                end
+                return
+            end
+            data:detach(path, cb)
+        end,
         computed_trigger = function(_, key)
             local val = computed[key]
             local cbs = computed_cbs[key]
@@ -195,7 +207,5 @@ function M.build(source)
         end
     })
 end
-
-
 
 return M

@@ -98,4 +98,8 @@ function M.GetConfigRow(name, id)
     return config[id]
 end
 
+function M.clear()
+    configs = nil
+end
+
 return M

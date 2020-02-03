@@ -8,7 +8,8 @@ namespace Extend.LuaBindingData {
 		public UnityEngine.Object[] Data;
 
 		public override void ApplyToLuaInstance(LuaTable instance) {
-			var arrayLuaTable = LuaVM.Default.NewTable();
+			var luaVM = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
+			var arrayLuaTable = luaVM.Default.NewTable();
 			for( var i = 0; i < Data.Length; i++ ) {
 				arrayLuaTable.Set(i + 1, Data[i]);
 			}

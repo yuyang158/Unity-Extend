@@ -1,3 +1,4 @@
+local pairs, next = pairs, next
 ---@class TickService
 local M = {}
 local table = table
@@ -18,7 +19,7 @@ function M.Tick(deltaTime)
             func(table.unpack(packed), deltaTime)
         else
             func(deltaTime)
-        end        
+        end
     end
 end
 

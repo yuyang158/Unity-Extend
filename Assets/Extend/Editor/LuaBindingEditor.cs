@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Extend.Common;
 using Extend.LuaBindingData;
 using UnityEditor;
@@ -75,10 +76,7 @@ namespace Extend.Editor {
 			}
 
 			isUsedBinding.Clear();
-			foreach( var field in descriptor.Fields ) {
-				if( field.FieldName.StartsWith("_") )
-					continue;
-
+			foreach( var field in descriptor.Fields.Where(field => !field.FieldName.StartsWith("_")) ) {
 				if( field.FieldType.Contains("[]") ) {
 					CheckBinding<LuaBindingUOArrayData>(field);
 				}
@@ -136,7 +134,6 @@ namespace Extend.Editor {
 			}
 
 			serializedObject.ApplyModifiedProperties();
-
 			if( GUILayout.Button("重新加载Lua文件") ) {
 				if( descriptor == null ) return;
 				descriptor = LuaClassEditorFactory.ReloadDescriptor(descriptor.ClassName);

@@ -11,7 +11,8 @@ namespace Extend.LuaUtil {
 		private const string CONFIG_PATH_PREFIX = "Config/";
 
 		private static LuaTable ConvertStringArrayToLua(IReadOnlyList<string> values) {
-			var luaArr = LuaVM.Default.NewTable();
+			var luaVM = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
+			var luaArr = luaVM.Default.NewTable();
 			for( var i = 0; i < values.Count; i++ ) {
 				luaArr.Set( i + 1, values[i] );
 			}
@@ -28,7 +29,8 @@ namespace Extend.LuaUtil {
 				var types = reader.ReadLine();
 				reader.ReadLine();
 
-				var luaTable = LuaVM.Default.NewTable();
+				var luaVM = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
+				var luaTable = luaVM.Default.NewTable();
 				var keyArr = keys.Split( '\t' );
 				var typeArr = types.Split( '\t' );
 				Assert.IsTrue( keyArr.Length == typeArr.Length, $"Table {filename} key count {keyArr.Length} != type count {typeArr.Length}" );
@@ -36,7 +38,7 @@ namespace Extend.LuaUtil {
 				luaTable.Set( "keys", ConvertStringArrayToLua(keyArr) );
 				luaTable.Set( "types", ConvertStringArrayToLua(typeArr) );
 
-				var dataTable = LuaVM.Default.NewTable();
+				var dataTable = luaVM.Default.NewTable();
 				luaTable.Set( "rows", dataTable );
 
 				var dataIndex = 1;

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Extend.DebugUtil;
 using UnityEngine;
 using UnityEngine.Assertions;
 
@@ -19,60 +20,71 @@ namespace Extend.Common {
 		public enum ServiceType {
 			ASSET_SERVICE,
 			SPRITE_ASSET_SERVICE,
-			MVVM_SERVICE,
 			TICK_SERVICE,
-			COROUTINE_SERVICE
+			COROUTINE_SERVICE,
+			NETWORK_SERVICE,
+			LUA_SERVICE,
+			IN_GAME_CONSOLE,
+			ERROR_LOG_TO_FILE,
+			STAT
 		}
 
 		public static bool Initialized { get; private set; }
 
 		public static void Initialize() {
 			if( Initialized ) {
-				throw new Exception( "CSharpServiceManager already exist" );
+				throw new Exception("CSharpServiceManager already exist");
 			}
 
 			Initialized = true;
-			var go = new GameObject( "CSharpServiceManager" );
+			var go = new GameObject("CSharpServiceManager");
 			DontDestroyOnLoad(go);
 			go.AddComponent<CSharpServiceManager>();
+			Register(go.AddComponent<InGameConsole>());
 		}
 
 		private static readonly Dictionary<ServiceType, IService> services = new Dictionary<ServiceType, IService>();
-		private static readonly List<IServiceUpdate> updatableServices = new List<IServiceUpdate>();
+		private static readonly List<IServiceUpdate> updateableServices = new List<IServiceUpdate>();
 
 		public static void Register(IService service) {
 			Assert.IsTrue(Initialized);
-			if( services.ContainsKey( service.ServiceType ) ) {
-				throw new Exception( $"Service {service.ServiceType} exist." );
+			if( services.ContainsKey(service.ServiceType) ) {
+				throw new Exception($"Service {service.ServiceType} exist.");
 			}
 
-			services.Add( service.ServiceType, service );
+			services.Add(service.ServiceType, service);
 			service.Initialize();
 			if( service is IServiceUpdate update ) {
-				updatableServices.Add( update );
+				updateableServices.Add(update);
 			}
 		}
 
 		public static void Unregister(ServiceType type) {
 			Assert.IsTrue(Initialized);
-			if( services.ContainsKey( type ) ) {
+			if( services.ContainsKey(type) ) {
 				var service = services[type];
 				service.Destroy();
-				services.Remove( type );
+				services.Remove(type);
 			}
 			else {
-				throw  new Exception($"Service {type} not exist");
+				throw new Exception($"Service {type} not exist");
 			}
 		}
 
-		public static T Get<T>( ServiceType typ ) where T : IService {
+		public static T Get<T>(ServiceType typ) where T : IService {
 			Assert.IsTrue(Initialized);
 			return (T)services[typ];
 		}
 
 		private void Update() {
-			foreach( var service in updatableServices ) {
+			foreach( var service in updateableServices ) {
 				service.Update();
+			}
+		}
+
+		private void OnDestroy() {
+			foreach( var service in services ) {
+				service.Value.Destroy();
 			}
 		}
 	}

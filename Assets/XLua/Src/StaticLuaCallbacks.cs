@@ -15,6 +15,7 @@ using LuaAPI = XLua.LuaDLL.Lua;
 using RealStatePtr = System.IntPtr;
 using LuaCSFunction = XLua.LuaDLL.lua_CSFunction;
 #endif
+using UnityEngine;
 
 namespace XLua
 {
@@ -599,13 +600,11 @@ namespace XLua
         }
 
 #if !XLUA_GENERAL
-        [MonoPInvokeCallback(typeof(LuaCSFunction))]
-        internal static int Print(RealStatePtr L)
-        {
+        internal static int CollectLog(RealStatePtr L, out string s) {
+            s = String.Empty;
             try
             {
                 int n = LuaAPI.lua_gettop(L);
-                string s = String.Empty;
 
                 if (0 != LuaAPI.xlua_getglobal(L, "tostring"))
                 {
@@ -626,13 +625,33 @@ namespace XLua
 
                     LuaAPI.lua_pop(L, 1);  /* pop result */
                 }
-                UnityEngine.Debug.Log("LUA: " + s);
                 return 0;
             }
             catch (System.Exception e)
             {
                 return LuaAPI.luaL_error(L, "c# exception in print:" + e);
             }
+        }
+        
+        [MonoPInvokeCallback(typeof(LuaCSFunction))]
+        internal static int PrintI(RealStatePtr L) {
+            var ret = CollectLog(L, out var s);
+            Debug.Log(s);
+            return ret;
+        }
+        
+        [MonoPInvokeCallback(typeof(LuaCSFunction))]
+        internal static int PrintW(RealStatePtr L) {
+            var ret = CollectLog(L, out var s);
+            Debug.LogWarning(s);
+            return ret;
+        }
+        
+        [MonoPInvokeCallback(typeof(LuaCSFunction))]
+        internal static int PrintE(RealStatePtr L) {
+            var ret = CollectLog(L, out var s);
+            Debug.LogError(s);
+            return ret;
         }
 #endif
 
@@ -643,6 +662,18 @@ namespace XLua
             return LuaAPI.luaopen_socket_core(L);
         }
 #endif
+        
+        [MonoPInvokeCallback(typeof(LuaCSFunction))]
+        internal static int LoadSprotoCore(RealStatePtr L)
+        {
+            return LuaAPI.luaopen_sproto_core(L);
+        }
+        
+        [MonoPInvokeCallback(typeof(LuaCSFunction))]
+        internal static int LoadLpeg(RealStatePtr L)
+        {
+            return LuaAPI.luaopen_lpeg(L);
+        }
 
         [MonoPInvokeCallback(typeof(LuaCSFunction))]
         internal static int LoadCS(RealStatePtr L)
