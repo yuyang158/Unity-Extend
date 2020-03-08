@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using Extend.AssetService;
 using Extend.Common;
 using UnityEngine;
@@ -32,13 +31,15 @@ namespace Extend {
 
             LoadFileAtPath( "class" );
             OnDestroy = LoadFileAtPath( "PreRequest" )[0] as LuaFunction;
-            // leakData = Default.StartMemoryLeakCheck();
+#if UNITY_EDITOR
+            leakData = Default.StartMemoryLeakCheck();
+#endif
         }
 
         public void Destroy() {
             OnDestroy.Call();
             #if UNITY_EDITOR
-            // ReportLeak();
+            ReportLeak();
             #endif
         }
 

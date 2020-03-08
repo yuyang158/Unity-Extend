@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Extend.UI {
 	[Serializable]
-	public class UIAnimation {
+	public class UIAnimation : IUIAnimationPreview {
 		public enum AnimationMode {
 			PUNCH,
 			STATE,
@@ -14,6 +14,11 @@ namespace Extend.UI {
 		}
 
 		public AnimationMode Mode;
+
+		[SerializeField, HideInInspector]
+		private bool enabled;
+
+		public bool Enabled => enabled;
 
 		[SerializeField, HideInInspector]
 		private PunchCombined punch;
@@ -40,6 +45,10 @@ namespace Extend.UI {
 			}
 
 			return null;
+		}
+
+		public Tween[] CollectPreviewTween(Transform transform) {
+			return Active(transform);
 		}
 	}
 }

@@ -43,7 +43,7 @@ namespace Extend.UI.Animation {
 
 		public void Stop() {
 			foreach( var tween in AllTween ) {
-				tween.Complete();
+				tween?.Complete();
 			}
 		}
 	}

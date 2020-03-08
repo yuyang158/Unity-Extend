@@ -10,20 +10,19 @@ namespace Extend.UI.Editor {
 		private static readonly float lineHeight = EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
 
 		public override float GetPropertyHeight(SerializedProperty property, GUIContent label) {
+			var enabledProp = property.FindPropertyRelative("enabled");
+			if( !enabledProp.boolValue )
+				return lineHeight;
+
 			var modeProp = property.FindPropertyRelative("Mode");
 			var mode = (UIAnimation.AnimationMode)modeProp.intValue;
 			switch( mode ) {
 				case UIAnimation.AnimationMode.PUNCH:
 				case UIAnimation.AnimationMode.STATE:
-					float previewHeight = 0;
-					if( animationModeActiveCount > 0 ) {
-						previewHeight = lineHeight;
-					}
-
 					var singleAnimHeight = mode == UIAnimation.AnimationMode.PUNCH ? lineHeight * 2 : lineHeight * 3;
-					return lineHeight * 2 + ( singleAnimHeight + EditorGUIUtility.standardVerticalSpacing ) * animationModeActiveCount + previewHeight;
+					return lineHeight * 3 + ( singleAnimHeight + EditorGUIUtility.standardVerticalSpacing ) * animationModeActiveCount + lineHeight;
 				case UIAnimation.AnimationMode.ANIMATOR:
-					return lineHeight * 4;
+					return lineHeight * 5;
 				default:
 					throw new ArgumentOutOfRangeException();
 			}
@@ -36,7 +35,7 @@ namespace Extend.UI.Editor {
 			new Color(0, 0.5f, 0, 0.4f),
 			new Color(0.45f, 0.4f, 0, 0.4f),
 			new Color(0.4f, 0, 0, 0.4f),
-			new Color(0.4f, 0, 0.4f, 0.4f) 
+			new Color(0.4f, 0, 0.4f, 0.4f)
 		};
 
 		private static readonly GUIContent[] punchFields = {
@@ -48,6 +47,16 @@ namespace Extend.UI.Editor {
 
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label) {
 			position.height = EditorGUIUtility.singleLineHeight;
+			var enabledProp = property.FindPropertyRelative("enabled");
+			var foldRect = position;
+			foldRect.xMax = foldRect.xMin + 10;
+			EditorGUI.Foldout(foldRect, enabledProp.boolValue, GUIContent.none);
+			var enabledRect = position;
+			enabledRect.xMin += 5;
+			enabledProp.boolValue = EditorGUI.Toggle(enabledRect, property.name, enabledProp.boolValue);
+			if( !enabledProp.boolValue )
+				return;
+			position.y += lineHeight;
 			position.y += EditorGUIUtility.standardVerticalSpacing;
 			var modeProp = property.FindPropertyRelative("Mode");
 			EditorGUI.PropertyField(position, modeProp);
@@ -57,12 +66,10 @@ namespace Extend.UI.Editor {
 			switch( mode ) {
 				case UIAnimation.AnimationMode.PUNCH:
 				case UIAnimation.AnimationMode.STATE:
-					if( animationModeActiveCount > 0 ) {
-						var previewRect = position;
-						previewRect.xMax = previewRect.x + 120;
-						DrawPreview(property, previewRect);
-						position.y += lineHeight;
-					}
+					var previewRect = position;
+					previewRect.xMax = previewRect.x + 120;
+					DrawPreview(property, previewRect);
+					position.y += lineHeight;
 
 					var animationProp = property.FindPropertyRelative(mode == UIAnimation.AnimationMode.PUNCH ? "punch" : "state");
 					var types = mode == UIAnimation.AnimationMode.PUNCH ? punchTransformModeTypes : stateTransformModeTypes;
@@ -76,11 +83,13 @@ namespace Extend.UI.Editor {
 						if( !activeProp.boolValue )
 							continue;
 						position.y += lineHeight;
+						var bgColor = GUI.backgroundColor;
 						if( mode == UIAnimation.AnimationMode.PUNCH )
 							DrawPunchGui(ref position, typProp, i);
 						else
 							DrawStateGui(ref position, typProp, i);
-						
+						GUI.backgroundColor = bgColor;
+
 						position.y += EditorGUIUtility.standardVerticalSpacing;
 						EditorGUIUtility.labelWidth = originLabelWidth;
 					}
@@ -121,7 +130,7 @@ namespace Extend.UI.Editor {
 			var delayProp = typProp.FindPropertyRelative("delay");
 			EditorGUI.PropertyField(punchRect, delayProp);
 		}
-		
+
 		private static void DrawStateGui(ref Rect position, SerializedProperty typProp, int index) {
 			var backgroundRect = position;
 			backgroundRect.height = ( EditorGUIUtility.standardVerticalSpacing + EditorGUIUtility.singleLineHeight ) * 3;
@@ -165,13 +174,15 @@ namespace Extend.UI.Editor {
 			}
 		}
 
-		private void DrawPreview(SerializedProperty property, Rect previewRect) {
+		private static void DrawPreview(SerializedProperty property, Rect previewRect) {
 			if( GUI.Button(previewRect, "Preview") ) {
 				DOTweenEditorPreview.Stop(true);
 				var previewGO = GameObject.Find("-[ DOTween Preview ► ]-");
 				UnityEngine.Object.DestroyImmediate(previewGO);
-				var previewComponent = property.serializedObject.targetObject as IUIAnimationPreview;
-				var allTween = previewComponent.CollectPreviewTween();
+				var previewComponent = property.serializedObject.targetObject as Behaviour;
+				var field = previewComponent.GetType().GetField(property.name);
+				var animation = field.GetValue(previewComponent) as IUIAnimationPreview;
+				var allTween = animation.CollectPreviewTween(previewComponent.transform);
 				if( allTween == null )
 					return;
 

@@ -128,6 +128,62 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 729771278, guid: f27608ab5a414db4f9ff9d5c7c70e5e5, type: 3}
+      propertyPath: Animation.Mode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 729771278, guid: f27608ab5a414db4f9ff9d5c7c70e5e5, type: 3}
+      propertyPath: Animation.punch.Move.punch.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 729771278, guid: f27608ab5a414db4f9ff9d5c7c70e5e5, type: 3}
+      propertyPath: Animation.punch.Scale.active
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 729771278, guid: f27608ab5a414db4f9ff9d5c7c70e5e5, type: 3}
+      propertyPath: Animation.punch.Move.active
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 729771278, guid: f27608ab5a414db4f9ff9d5c7c70e5e5, type: 3}
+      propertyPath: Animation.punch.Scale.punch.y
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 729771278, guid: f27608ab5a414db4f9ff9d5c7c70e5e5, type: 3}
+      propertyPath: Animation.punch.Scale.punch.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 729771278, guid: f27608ab5a414db4f9ff9d5c7c70e5e5, type: 3}
+      propertyPath: Animation.punch.Scale.punch.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 729771278, guid: f27608ab5a414db4f9ff9d5c7c70e5e5, type: 3}
+      propertyPath: Animation.enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 729771278, guid: f27608ab5a414db4f9ff9d5c7c70e5e5, type: 3}
+      propertyPath: PointerDown.enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 729771278, guid: f27608ab5a414db4f9ff9d5c7c70e5e5, type: 3}
+      propertyPath: PointerClick.enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 729771278, guid: f27608ab5a414db4f9ff9d5c7c70e5e5, type: 3}
+      propertyPath: PointerDown.Mode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 729771278, guid: f27608ab5a414db4f9ff9d5c7c70e5e5, type: 3}
+      propertyPath: PointerDown.punch.Move.active
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 729771278, guid: f27608ab5a414db4f9ff9d5c7c70e5e5, type: 3}
+      propertyPath: PointerDown.punch.Rotation.active
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 729771278, guid: f27608ab5a414db4f9ff9d5c7c70e5e5, type: 3}
+      propertyPath: PointerDown.punch.Scale.active
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3122048484682131679, guid: f27608ab5a414db4f9ff9d5c7c70e5e5,
         type: 3}
       propertyPath: m_Name
@@ -257,6 +313,26 @@ PrefabInstance:
         type: 3}
       propertyPath: m_PlaneDistance
       value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 3122048484848823679, guid: f27608ab5a414db4f9ff9d5c7c70e5e5,
+        type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3122048484848823679, guid: f27608ab5a414db4f9ff9d5c7c70e5e5,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3122048484848823679, guid: f27608ab5a414db4f9ff9d5c7c70e5e5,
+        type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3122048484848823679, guid: f27608ab5a414db4f9ff9d5c7c70e5e5,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -100
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f27608ab5a414db4f9ff9d5c7c70e5e5, type: 3}
@@ -712,12 +788,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 172515602e62fb746b5d573b38a5fe58, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isGlobal: 1
-  priority: 0
-  blendDistance: 0
-  weight: 1
-  sharedProfile: {fileID: 11400000, guid: 51e0787c9011d59438350e7bd3db3c82, type: 2}
-  m_PreviousLayer: 0
-  m_PreviousPriority: 0
-  m_InternalProfile: {fileID: 0}
-  m_TempColliders: []
