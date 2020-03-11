@@ -8,9 +8,24 @@ namespace Extend.DebugUtil {
 		public CSharpServiceManager.ServiceType ServiceType => CSharpServiceManager.ServiceType.ERROR_LOG_TO_FILE;
 
 		private TextWriter writer;
+
 		public void Initialize() {
-			Application.logMessageReceivedThreaded += HandleLogThreaded;
-			writer = new StreamWriter(new FileStream(Application.persistentDataPath + "/error.log", FileMode.Append));
+			var errorLogPath = Application.persistentDataPath + "/error.log";
+			try {
+				if( File.Exists(errorLogPath) ) {
+					var lastLogPath = Application.persistentDataPath + "/last-error.log";
+					if( File.Exists(lastLogPath) ) {
+						File.Delete(lastLogPath);
+					}
+
+					File.Move(errorLogPath, lastLogPath);
+					File.Delete(errorLogPath);
+				}
+			}
+			finally {
+				writer = new StreamWriter(new FileStream(errorLogPath, FileMode.CreateNew));
+				Application.logMessageReceivedThreaded += HandleLogThreaded;
+			}
 		}
 
 		private void HandleLogThreaded(string message, string stackTrace, LogType type) {
@@ -22,8 +37,8 @@ namespace Extend.DebugUtil {
 		}
 
 		public void Destroy() {
-			writer.Close();
 			Application.logMessageReceivedThreaded -= HandleLogThreaded;
+			writer.Close();
 		}
 	}
 }
