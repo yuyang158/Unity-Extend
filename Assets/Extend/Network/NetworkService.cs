@@ -19,7 +19,10 @@ namespace Extend.Network {
 		}
 
 		public void Destroy() {
-			
+			while( clients.Count > 0 ) {
+				var client = clients[0];
+				client.Destroy();
+			}
 		}
 
 		public void Update() {

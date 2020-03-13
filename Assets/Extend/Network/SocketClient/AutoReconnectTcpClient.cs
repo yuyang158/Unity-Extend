@@ -61,7 +61,7 @@ namespace Extend.Network.SocketClient {
 				if( tcpStatus == Status.CONNECTED ) {
 					DoReceive();
 				}
-				else if( tcpStatus == Status.DISCONNECTED && client.Connected ) {
+				else if( tcpStatus == Status.DISCONNECTED && client.Client != null && client.Connected ) {
 					client.Close();
 				}
 			}
@@ -116,7 +116,7 @@ namespace Extend.Network.SocketClient {
 				Debug.Log($"Connection fail with exception : {e}");
 			}
 			finally {
-				TcpStatus = client.Connected ? Status.CONNECTED : Status.DISCONNECTED;
+				TcpStatus = client.Client != null && client.Connected ? Status.CONNECTED : Status.DISCONNECTED;
 			}
 		}
 

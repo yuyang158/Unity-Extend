@@ -16,6 +16,7 @@ namespace Extend.LuaUtil {
 		}
  
 		public void Destroy() {
+			tick.Dispose();
 		}
 
 		public void Update() {

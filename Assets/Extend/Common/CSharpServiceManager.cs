@@ -18,22 +18,22 @@ namespace Extend.Common {
 
 	public class CSharpServiceManager : MonoBehaviour {
 		public enum ServiceType {
+			ERROR_LOG_TO_FILE,
+			STAT,
 			ASSET_SERVICE,
 			SPRITE_ASSET_SERVICE,
 			TICK_SERVICE,
 			COROUTINE_SERVICE,
 			NETWORK_SERVICE,
-			LUA_SERVICE,
 			IN_GAME_CONSOLE,
-			ERROR_LOG_TO_FILE,
-			STAT
+			LUA_SERVICE
 		}
 
-		public static bool Initialized { get; private set; }
+		private static bool Initialized { get; set; }
 
 		public static void Initialize() {
 			if( Initialized ) {
-				throw new Exception("CSharpServiceManager already exist");
+				throw new Exception("CSharpServiceManager already initialized");
 			}
 
 			Initialized = true;
@@ -41,6 +41,18 @@ namespace Extend.Common {
 			DontDestroyOnLoad(go);
 			go.AddComponent<CSharpServiceManager>();
 			Register(go.AddComponent<InGameConsole>());
+
+			Application.quitting += () => {
+				var serviceList = new List<IService>(services.Values);
+				serviceList.Sort((a, b) => -a.ServiceType.CompareTo(b.ServiceType));
+				
+				foreach( var service in serviceList ) {
+					service.Destroy();
+				}
+
+				var luaService = services[ServiceType.LUA_SERVICE] as IDisposable;
+				luaService.Dispose();
+			};
 		}
 
 		private static readonly Dictionary<ServiceType, IService> services = new Dictionary<ServiceType, IService>();
@@ -79,12 +91,6 @@ namespace Extend.Common {
 		private void Update() {
 			foreach( var service in updateableServices ) {
 				service.Update();
-			}
-		}
-
-		private void OnDestroy() {
-			foreach( var service in services ) {
-				service.Value.Destroy();
 			}
 		}
 	}

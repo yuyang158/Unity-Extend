@@ -110,15 +110,15 @@ namespace XLua
             switch(type)
             {
                 case LuaDLL.RelationshipType.TableValue:
-                    return key== null ? ((LuaTypes)(int)d).ToString() : key;
+                    return key ?? ((LuaTypes)(int)d).ToString();
                 case LuaDLL.RelationshipType.NumberKeyTableValue:
-                    return string.Format("[{0}]", d);
+                    return $"[{d}]";
                 case LuaDLL.RelationshipType.KeyOfTable:
                     return KEY_OF_TABLE;
                 case LuaDLL.RelationshipType.Metatable:
                     return METATABLE_KEY;
                 case LuaDLL.RelationshipType.Upvalue:
-                    return string.Format("{0}:local {1}", key, key2);
+                    return $"{key}:local {key2}";
             }
             return UNKNOW_KEY;
         }

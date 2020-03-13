@@ -26,13 +26,18 @@ namespace Extend.DebugUtil {
 				writer = new StreamWriter(new FileStream(errorLogPath, FileMode.CreateNew));
 				Application.logMessageReceivedThreaded += HandleLogThreaded;
 			}
+			Debug.Log($"Log file location --> {errorLogPath}");
 		}
 
 		private void HandleLogThreaded(string message, string stackTrace, LogType type) {
 			if( type == LogType.Assert || type == LogType.Error || type == LogType.Exception || type == LogType.Warning ) {
 				var now = DateTime.Now;
-				var log = $"[{now.ToShortDateString()} {now.ToLongTimeString()}]: {message}";
+				var typeStr = type.ToString().ToUpper();
+				var log = $"[{now.ToShortDateString()} {now.ToLongTimeString()}] [{typeStr}]: {message}";
 				writer.WriteLineAsync(log);
+				if( type == LogType.Assert || type == LogType.Exception || type == LogType.Error ) {
+					writer.WriteAsync(stackTrace);
+				}
 			}
 		}
 
