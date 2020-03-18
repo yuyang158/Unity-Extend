@@ -1,8 +1,7 @@
-local pairs, next = pairs, next
+local pairs, next, table = pairs, next, table
 ---@class TickService
 local M = {}
-local table = table
-local ticker = {}
+local tickers = {}
 
 function M.Init()
 end
@@ -10,11 +9,11 @@ end
 function M.Register(func, ...)
     local packed = table.pack(...)
     packed.n = nil
-    ticker[func] = packed
+    tickers[func] = packed
 end
 
 function M.Tick(deltaTime)
-    for func, packed in pairs(ticker) do
+    for func, packed in pairs(tickers) do
         if next(packed) then
             func(table.unpack(packed), deltaTime)
         else
@@ -24,7 +23,7 @@ function M.Tick(deltaTime)
 end
 
 function M.Unregister(func)
-    ticker[func] = nil
+    tickers[func] = nil
 end
 
 return M

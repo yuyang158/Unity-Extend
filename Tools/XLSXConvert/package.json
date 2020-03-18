@@ -9,6 +9,9 @@
   "author": "yuyang",
   "license": "ISC",
   "dependencies": {
-    "xlsx": "0.15.1"
+    "xlsx": "0.15.1",
+    "express": "4.17.1",
+    "mysql": "2.18.1",
+    "request": "2.88.2"
   }
 }
