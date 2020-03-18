@@ -10,46 +10,45 @@ for(var i = 65; i < 91; i++) {
 let prefixLetters = [''].concat(letters)
 const collectTranslateText = []
 const MAX_ROW_COUNT = 100000
+let currentProcessKey
 
 const specialTypeProcess = {
     'int': function(sheet, colPrefix) {
         for (let index = 4; index < MAX_ROW_COUNT; index++) {
-            const key = `${colPrefix}${index}`
-            if(!sheet[key])
+            currentProcessKey = `${colPrefix}${index}`
+            if(!sheet[currentProcessKey])
                 break
-            parseInt(sheet[key].v)
+            parseInt(sheet[currentProcessKey].v)
         }
     },
     'number': function(sheet, colPrefix) {
         for (let index = 4; index < MAX_ROW_COUNT; index++) {
-            const key = `${colPrefix}${index}`
-            if(!sheet[key])
+            const currentProcessKey = `${colPrefix}${index}`
+            if(!sheet[currentProcessKey])
                 break
-            parseFloat(sheet[key].v)
+            parseFloat(sheet[currentProcessKey].v)
         }
     },
     'json': function(sheet, colPrefix) {
         for (let index = 4; index < MAX_ROW_COUNT; index++) {
-            const key = `${colPrefix}${index}`
-            if(!sheet[key])
+            const currentProcessKey = `${colPrefix}${index}`
+            if(!sheet[currentProcessKey])
                 break
-            JSON.parse(sheet[key].v)
+            JSON.parse(sheet[currentProcessKey].v)
         }
     },
     'translate': function(sheet, colPrefix, sheetName) {
         const colName = sheet[`${colPrefix}1`].v
-        for (let index = 1; index < MAX_ROW_COUNT; index++) {
-            const delKey = `${colPrefix}${index}`
-            if(!sheet[delKey])
+        for (let index = 4; index < MAX_ROW_COUNT; index++) {
+            currentProcessKey = `${colPrefix}${index}`
+            if(!sheet[currentProcessKey])
                 break
 
-            if(index > 3) {
-                const id = sheet[`A${index}`].v
-                const translateKey = `${sheetName}:${id}:${colName}`
-                collectTranslateText.push([translateKey, sheet[delKey] ? sheet[delKey].v : ''])
-            }
+            const id = sheet[`A${index}`].v
+            const translateKey = `${sheetName}:${id}:${colName}`
+            collectTranslateText.push([translateKey, sheet[currentProcessKey] ? sheet[currentProcessKey].v : ''])
             
-            delete sheet[delKey]
+            delete sheet[currentProcessKey]
         }
     }
 }
@@ -66,7 +65,12 @@ wb.SheetNames.forEach(sheetName => {
             const proc = specialTypeProcess[typValue]
             if(!proc)
                 continue
-            proc(sheet, `${prefix}${letter}`, sheetName)
+            try {
+                proc(sheet, `${prefix}${letter}`, sheetName)
+            }
+            catch(err) {
+                console.log(`error occurred when procee key : ${currentProcessKey}, error : ${err}`)
+            }
         }
     }
 

@@ -21,7 +21,7 @@ app.use(bodyParser.json({limit: '10mb'}))
 app.use(express.static('public'))
 app.post('/', (req, res) => {
     try {
-        connection.query(`INSERT INTO data VALUES (?) ON DUPLICATE KEY UPDATE \`${DEFAULT_LANG}\` = VALUES(\`${DEFAULT_LANG}\`);`, req.body, (err, response) => {
+        connection.query(`INSERT INTO data (\`key\`, \`zh-s\`) VALUES ? ON DUPLICATE KEY UPDATE \`${DEFAULT_LANG}\` = VALUES(\`${DEFAULT_LANG}\`);`, [req.body], (err, response) => {
             if(err) {
                 res.json({code: 1, err: err})
             }
