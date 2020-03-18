@@ -4,6 +4,7 @@ using Extend.Common;
 using Extend.DebugUtil;
 using Extend.LuaUtil;
 using Extend.Network;
+using UI.i18n;
 using UnityEngine;
 
 namespace Extend {
@@ -17,6 +18,7 @@ namespace Extend {
 			CSharpServiceManager.Register(new ErrorLogToFile());
 			CSharpServiceManager.Register(new AssetService.AssetService());
 			CSharpServiceManager.Register(new AssetService.SpriteAssetService());
+			CSharpServiceManager.Register(new I18nService());
 			CSharpServiceManager.Register(new LuaVM());
 			CSharpServiceManager.Register(new TickService());
 			CSharpServiceManager.Register(new GlobalCoroutineRunnerService());

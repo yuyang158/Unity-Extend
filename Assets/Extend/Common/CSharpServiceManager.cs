@@ -26,7 +26,8 @@ namespace Extend.Common {
 			COROUTINE_SERVICE,
 			NETWORK_SERVICE,
 			IN_GAME_CONSOLE,
-			LUA_SERVICE
+			LUA_SERVICE,
+			I18N,
 		}
 
 		private static bool Initialized { get; set; }

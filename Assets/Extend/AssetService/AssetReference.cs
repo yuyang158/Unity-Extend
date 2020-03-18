@@ -6,7 +6,7 @@ using Object = UnityEngine.Object;
 
 namespace Extend.AssetService {
 	[Serializable, LuaCallCSharp]
-	public class AssetReference {
+	public class AssetReference : IDisposable {
 		private AssetInstance asset;
 
 		[SerializeField, HideInInspector]
@@ -26,7 +26,7 @@ namespace Extend.AssetService {
 		}
 
 		~AssetReference() {
-			asset?.Release();
+			Dispose();
 		}
 
 		private T GetAsset<T>() where T : Object {
@@ -89,6 +89,11 @@ namespace Extend.AssetService {
 
 		public override string ToString() {
 			return (asset == null || !asset.UnityObject) ? "Not loaded" : asset.UnityObject.name;
+		}
+
+		public void Dispose() {
+			asset?.Release();
+			asset = null;
 		}
 	}
 }

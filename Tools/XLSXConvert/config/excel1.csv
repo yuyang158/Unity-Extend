@@ -1,13 +1,13 @@
-id	test1	test2	excel2	test3	test4
-string	int	number	link	json	string
-id全局唯一	测试整型	测试浮点型	测试外部链接，第一行Key为表名	json类型测试	中文测试
-E1_1	1	1.1	E2_1	{"id": "s1", "count": 10}	中文测试
-E1_2	2	1.2	E2_2	{"id": "s1", "count": 10}	中文测试
-E1_3	3	1.3	E2_3	{"id": "s1", "count": 10}	中文测试
-E1_4	4	1.4	E2_4	{"id": "s1", "count": 10}	中文测试
-E1_5	5	1.5	E2_5	{"id": "s1", "count": 10}	中文测试
-E1_6	6	1.6	E2_6	{"id": "s1", "count": 10}	中文测试
-E1_7	7	1.7	E2_7	{"id": "s1", "count": 10}	中文测试
-E1_8	8	1.8	E2_8	{"id": "s1", "count": 10}	中文测试
-E1_9	9	1.9	E2_9	{"id": "s1", "count": 10}	中文测试
-E1_10	10	2	E2_10	{"id": "s1", "count": 10}	中文测试
+id	test1	test2	excel2	test3	test4	test5
+string	int	number	link	json	string	translate
+id全局唯一	测试整型	测试浮点型	测试外部链接，第一行Key为表名	json类型测试	中文测试	翻译文本
+E1_1	1	1.1	E2_1	{"id": "s1", "count": 10}	中文测试	物品1
+E1_2	2	1.2	E2_2	{"id": "s1", "count": 10}	中文测试	物品2
+E1_3	3	1.3	E2_3	{"id": "s1", "count": 10}	中文测试	物品3
+E1_4	4	1.4	E2_4	{"id": "s1", "count": 10}	中文测试	物品4
+E1_5	5	1.5	E2_5	{"id": "s1", "count": 10}	中文测试	物品5
+E1_6	6	1.6	E2_6	{"id": "s1", "count": 10}	中文测试	物品6
+E1_7	7	1.7	E2_7	{"id": "s1", "count": 10}	中文测试	物品7
+E1_8	8	1.8	E2_8	{"id": "s1", "count": 10}	中文测试	物品8
+E1_9	9	1.9	E2_9	{"id": "s1", "count": 10}	中文测试	物品9
+E1_10	10	2	E2_10	{"id": "s1", "count": 10}	中文测试	物品10
