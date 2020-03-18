@@ -70,7 +70,10 @@ namespace UI.i18n {
 		}
 
 		public string GetText(string key) {
-			var ret = languageText.TryGetValue(key, out var val) ? val : string.Empty;
+			if( !languageText.TryGetValue(key, out var ret) ) {
+				Debug.LogWarning($"key {key} not present in static-i18n config");
+				ret = string.Empty;
+			}
 			return string.Intern(ret);
 		}
 	}
