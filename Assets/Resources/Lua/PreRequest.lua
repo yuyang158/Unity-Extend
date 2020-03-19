@@ -14,16 +14,7 @@ SM.RegisterService(SM.SERVICE_TYPE.CONFIG, CS)
 SM.RegisterService(SM.SERVICE_TYPE.TICK, TS)
 SM.RegisterService(SM.SERVICE_TYPE.CONSOLE_COMMAND, CmdService)
 
-
 return function()
 	CS.clear()
 	dbg.stop()
-
-	local registry = debug.getregistry()
-	for k, v in pairs(registry) do
-		if type(k) == 'number' and type(v) == 'function' and registry[v] == k then
-			local info = debug.getinfo(v)
-			print(string.format('%s:%d', info.short_src, info.linedefined))
-		end
-	end
 end

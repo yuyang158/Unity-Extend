@@ -22,16 +22,20 @@ string.replace = function(s, pattern, repl)
     return s
 end
 
-function string.split(self, delimiter)
-    local result = { }
+string.replace_with_table = function(s, t)
+    return gsub(s, "%$(%w+)", t)
+end
+
+string.split = function(s, delimiter)
+    local result = {}
     local from = 1
-    local f, t = find(self, delimiter, from, true)
+    local f, t = find(s, delimiter, from, true)
     while f do
-        insert(result, sub(self, from, f - 1))
+        insert(result, sub(s, from, f - 1))
         from = t + 1
-        f, t = find(self, delimiter, from, true)
+        f, t = find(s, delimiter, from, true)
     end
-    insert(result, sub(self, from))
+    insert(result, sub(s, from))
     return result
 end
 
