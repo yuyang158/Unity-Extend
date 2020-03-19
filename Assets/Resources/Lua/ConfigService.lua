@@ -2,13 +2,13 @@
 local M = {}
 local ConfigUtil = CS.Extend.LuaUtil.ConfigUtil
 local configs = {}
-local math = math
-local tonumber = tonumber
+local math, tonumber, table, ipairs, setmetatable, assert = math, tonumber, table, ipairs, setmetatable, assert
 local json = require "json"
+local i18n
 
 local configRowMetaTable = {
     __index = function(t, k)
-        local index = t.source.keymap[k]
+        local index = assert(t.source.keymap[k], k)
         return t.values[index]
     end
 }
@@ -43,16 +43,19 @@ local columnDataConverter = {
     end,
     ["boolean"] = function(data)
         return data == "1"
+    end,
+    ["translate"] = function()
+        
     end
 }
 
----@ param columnType string
----@ param columnData table
-local function convert_column_data(columnData, columnType, key)
-    if not columnData or #columnData == 0 then
-        return
+---@param columnType string
+---@param data table
+local function convert_column_data(data, columnType, colName)
+    if not data or #data == 0 then
+        assert(columnType == "translate")
     end
-    return columnDataConverter[columnType](columnData, key)
+    return assert(columnDataConverter[columnType], columnType)(data, colName)
 end
 
 local function load_config_data(filename)
@@ -71,7 +74,13 @@ local function load_config_data(filename)
         for i = 2, #row do
             local typ = textData.types[i]
             local key = textData.keys[i]
-            table.insert(convertedRow, convert_column_data(row[i], typ, key))
+
+            if typ == "translate" then
+                local i18nConf = M.GetConfigRow("i18n", string.format("%s:%s:%s", filename, id, key))
+                table.insert(convertedRow, assert(i18nConf[M.currentLanguage]))
+            else
+                table.insert(convertedRow, convert_column_data(row[i], typ, key))
+            end
         end
 
         local parsedData = { source = config, values = convertedRow }
@@ -82,8 +91,11 @@ local function load_config_data(filename)
 end
 
 function M.Init()
+    load_config_data("i18n")
     load_config_data("excel1")
     load_config_data("excel2")
+
+    i18n = configs.i18n
 end
 
 ---@param name string
@@ -96,6 +108,11 @@ end
 function M.GetConfigRow(name, id)
     local config = assert(configs[name], name)
     return config[id]
+end
+
+M.currentLanguage = "zh-s"
+function M.ChangeLanguage(lang)
+    M.currentLanguage = lang
 end
 
 function M.clear()
