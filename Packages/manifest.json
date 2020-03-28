@@ -1,12 +1,12 @@
 {
   "dependencies": {
     "com.unity.2d.sprite": "1.0.0",
-
     "com.unity.assetbundlebrowser": "1.7.0",
-    "com.unity.editorcoroutines": "0.1.0-preview.1",
-    "com.unity.ide.rider": "1.1.4",
+    "com.unity.editorcoroutines": "0.1.0-preview.2",
+    "com.unity.ide.rider": "2.0.2",
+    "com.unity.render-pipelines.universal": "7.3.1",
     "com.unity.textmeshpro": "2.0.1",
-    "com.unity.timeline": "1.2.10",
+    "com.unity.timeline": "1.2.14",
     "com.unity.ugui": "1.0.0",
     "com.unity.modules.ai": "1.0.0",
     "com.unity.modules.androidjni": "1.0.0",
@@ -20,7 +20,6 @@
     "com.unity.modules.jsonserialize": "1.0.0",
     "com.unity.modules.particlesystem": "1.0.0",
     "com.unity.modules.physics": "1.0.0",
-    "com.unity.modules.physics2d": "1.0.0",
     "com.unity.modules.screencapture": "1.0.0",
     "com.unity.modules.terrain": "1.0.0",
     "com.unity.modules.terrainphysics": "1.0.0",
@@ -37,7 +36,6 @@
     "com.unity.modules.vehicles": "1.0.0",
     "com.unity.modules.video": "1.0.0",
     "com.unity.modules.vr": "1.0.0",
-    "com.unity.modules.wind": "1.0.0",
     "com.unity.modules.xr": "1.0.0"
   }
 }
