@@ -90,4 +90,8 @@ function M:OnClick()
     
     print_w("WARNING LOG TEST", self.vm.text)
 end
+
+function M:DEBUG_printVM()
+    print(self.vm.text)
+end
 return M

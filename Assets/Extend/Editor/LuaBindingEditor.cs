@@ -6,6 +6,7 @@ using Extend.Common;
 using Extend.LuaBindingData;
 using UnityEditor;
 using UnityEngine;
+using XLua;
 
 namespace Extend.Editor {
 	[CustomEditor(typeof(LuaBinding))]
@@ -118,7 +119,8 @@ namespace Extend.Editor {
 			serializedObject.UpdateIfRequiredOrScript();
 			var fields = target.GetType().GetFields();
 			foreach( var fieldInfo in fields ) {
-				if( !fieldInfo.IsPublic || !fieldInfo.FieldType.IsArray || !fieldInfo.FieldType.GetElementType().IsSubclassOf(typeof(LuaBindingDataBase)) )
+				if( !fieldInfo.IsPublic || !fieldInfo.FieldType.IsArray || 
+				    !fieldInfo.FieldType.GetElementType().IsSubclassOf(typeof(LuaBindingDataBase)) )
 					continue;
 				var prop = serializedObject.FindProperty(fieldInfo.Name);
 				if( prop == null || prop.isArray == false )
@@ -130,6 +132,15 @@ namespace Extend.Editor {
 					var elementProp = prop.GetArrayElementAtIndex(i);
 					var dataProp = elementProp.FindPropertyRelative("Data");
 					arrElem.OnPropertyDrawer(dataProp);
+				}
+			}
+
+			if( Application.isPlaying ) {
+				foreach( var methodName in descriptor.DebugMethods ) {
+					if( GUILayout.Button(methodName) && binding.LuaInstance != null ) {
+						var func = binding.LuaInstance.Get<LuaFunction>(methodName);
+						func.Call(binding.LuaInstance);
+					}
 				}
 			}
 

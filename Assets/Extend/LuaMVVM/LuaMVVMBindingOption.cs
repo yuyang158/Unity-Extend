@@ -32,11 +32,12 @@ namespace Extend.LuaMVVM {
 		private object value;
 
 		private delegate void WatchCallback(LuaTable self, object val);
+
 		private delegate void Detach(LuaTable self, string path, WatchCallback callback);
 
 		[CSharpCallLua]
 		private WatchCallback watchCallback;
-		
+
 		[CSharpCallLua]
 		private Detach detach;
 
@@ -58,10 +59,12 @@ namespace Extend.LuaMVVM {
 				return;
 
 			var fieldVal = propertyInfo.GetValue(BindTarget);
-			if( !Equals(value, fieldVal) ) {
-				dataSource.SetInPath(Path, value);
-				value = fieldVal;
+			if( Equals(value, fieldVal) ) {
+				return;
 			}
+
+			dataSource.SetInPath(Path, value);
+			value = fieldVal;
 		}
 
 		private void SetPropertyValue(LuaTable _, object val) {
@@ -71,14 +74,19 @@ namespace Extend.LuaMVVM {
 			else {
 				value = val;
 			}
+
 			propertyInfo.SetValue(BindTarget, value);
 		}
 
 		private void TryDetach() {
+			if( detach == null )
+				return;
+
 			if( Mode == BindMode.ONE_WAY || Mode == BindMode.TWO_WAY ) {
 				detach(dataSource, Path, watchCallback);
 				detach = null;
 			}
+
 			dataSource?.Dispose();
 			dataSource = null;
 
@@ -95,6 +103,7 @@ namespace Extend.LuaMVVM {
 			if( dataSource != null ) {
 				TryDetach();
 			}
+
 			dataSource = dataContext;
 			if( dataSource == null ) {
 				return;
@@ -120,6 +129,7 @@ namespace Extend.LuaMVVM {
 							value = val;
 						}
 					}
+
 					break;
 				}
 				case BindMode.ONE_WAY_TO_SOURCE:

@@ -43,3 +43,5 @@ sysinfo.txt
 Assets/Plugins/Editor/JetBrains.meta
 Assembly-CSharp.csproj.DotSettings
 Logs/*
+
+Assets/XLua/Gen/

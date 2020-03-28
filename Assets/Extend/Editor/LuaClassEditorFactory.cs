@@ -16,6 +16,8 @@ namespace Extend.Editor {
 		public string ClassName;
 		public readonly List<LuaClassField> Fields = new List<LuaClassField>();
 		public readonly List<string> Methods = new List<string>();
+		public readonly List<string> DebugMethods = new List<string>();
+		
 		private LuaClassDescriptor baseClass;
 
 		public LuaClassDescriptor(TextReader reader) {
@@ -79,7 +81,12 @@ namespace Extend.Editor {
 
 					var methodName = match.Value.Substring(2);
 					if( !methodName.StartsWith("_") && methodName[0] == char.ToUpper(methodName[0]) ) {
-						Methods.Add(methodName);
+						if( methodName.StartsWith("DEBUG") ) {
+							DebugMethods.Add(methodName);
+						}
+						else {
+							Methods.Add(methodName);
+						}
 					}
 				}
 			}
