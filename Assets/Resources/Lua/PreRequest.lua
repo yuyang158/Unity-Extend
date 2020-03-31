@@ -5,6 +5,14 @@ dbg.tcpConnect('localhost', 9988)
 
 require('util')
 
+function Global_DebugFunction(lua)
+	local _, ret = xpcall(function()
+		local func = load(lua)
+		return func()
+	end, debug.traceback)
+	return tostring(ret)
+end
+
 local SM = require "ServiceManager"
 local CS = require "ConfigService"
 local TS = require "TickService"

@@ -9,7 +9,7 @@ using XLua;
 namespace Extend {
 	[CSharpCallLua, LuaCallCSharp]
 	public class LuaBinding : MonoBehaviour, ISerializationCallbackReceiver {
-		[AssetPath(AssetType = typeof(TextAsset), RootDir = "Assets/Resources/Lua", Extension = ".lua")]
+		[AssetPath(AssetType = typeof(TextAsset), RootDir = "Assets/Resources/Lua", Extension = ".lua"), BlackList]
 		public string LuaFile;
 		public LuaTable LuaInstance { get; private set; }
 
@@ -56,21 +56,22 @@ namespace Extend {
 			}
 		}
 
-		[HideInInspector]
+		[HideInInspector, BlackList]
 		public LuaBindingIntegerData[] IntData;
-		[HideInInspector]
+		[HideInInspector, BlackList]
 		public LuaBindingBooleanData[] BoolData;
-		[HideInInspector]
+		[HideInInspector, BlackList]
 		public LuaBindingNumberData[] NumData;
-		[HideInInspector]
+		[HideInInspector, BlackList]
 		public LuaBindingStringData[] StrData;
-		[HideInInspector]
+		[HideInInspector, BlackList]
 		public LuaBindingUOData[] UOData;
-		[HideInInspector]
+		[HideInInspector, BlackList]
 		public LuaBindingAssetReferenceData[] AssetReferenceData;
-		[HideInInspector]
+		[HideInInspector, BlackList]
 		public LuaBindingUOArrayData[] UOArrayData;
 
+		[BlackList]
 		public void OnBeforeSerialize() {
 			var fieldInfos = GetType().GetFields();
 			if( BindingContainer == null || BindingContainer.Count == 0 ) {
@@ -101,6 +102,7 @@ namespace Extend {
 			}
 		}
 
+		[BlackList]
 		public void OnAfterDeserialize() {
 			var fieldInfos = GetType().GetFields();
 
