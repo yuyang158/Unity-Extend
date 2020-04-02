@@ -5,6 +5,14 @@ dbg.tcpConnect('localhost', 9988)
 
 require('util')
 
+function Global_ShowLogFile()
+	local path = CS.UnityEngine.Application.persistentDataPath .. "/error.log"
+	local f = io.open(path, "rb")
+	local file = f:read("a")
+	f:close()
+	return file
+end
+
 function Global_DebugFunction(lua)
 	local _, ret = xpcall(function()
 		local func = load(lua)

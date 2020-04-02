@@ -15,6 +15,7 @@ namespace Server {
 		private static int UID = 1;
 		public DeviceTcpClient(TcpClient client) {
 			tcpClient = client;
+			tcpClient.NoDelay = true;
 #pragma warning disable 4014
 			StartRecv();
 #pragma warning restore 4014
@@ -52,6 +53,7 @@ namespace Server {
 				Console.WriteLine($"REQUEST LUA : {lua}");
 				tcpClient.GetStream().Write(BitConverter.GetBytes((short)lua.Length));
 				tcpClient.GetStream().Write(Encoding.UTF8.GetBytes(lua));
+				tcpClient.GetStream().Flush();
 				return Task.Run(() => {
 					var counter = 0;
 					while( string.IsNullOrEmpty(luaRet) && counter < 50 ) {
@@ -106,6 +108,7 @@ namespace Server {
 						break;
 					case 2:
 						luaRet = Encoding.UTF8.GetString(buffer, 0, size);
+						Console.WriteLine($"Remote lua response : {luaRet}");
 						break;
 				}
 			}

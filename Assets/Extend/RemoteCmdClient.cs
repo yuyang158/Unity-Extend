@@ -9,11 +9,11 @@ using XLua;
 public static class RemoteCmdClient {
 	[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
 	private static async void Start() {
-		var tcpClient = new TcpClient();
+		var tcpClient = new TcpClient {NoDelay = true};
 		try {
-			if(!Debug.isDebugBuild)
+			if(!Debug.isDebugBuild || Application.isEditor)
 				return;
-			await tcpClient.ConnectAsync("127.0.0.1", 4101);
+			await tcpClient.ConnectAsync("192.144.187.92", 4101);
 
 			var id = $"{SystemInfo.deviceName} - {SystemInfo.deviceModel}";
 			var protocol = new byte[] {1};
@@ -30,10 +30,14 @@ public static class RemoteCmdClient {
 				var recvCount = 0;
 				buffer = new byte[luaSize];
 				while( recvCount < luaSize ) {
-					recvCount += await tcpClient.GetStream().ReadAsync(buffer, recvCount, buffer.Length - recvCount);
+					var count = await tcpClient.GetStream().ReadAsync(buffer, recvCount, buffer.Length - recvCount);
+					if(count == 0)
+						return;
+					recvCount += count;
 				}
 
 				var lua = Encoding.UTF8.GetString(buffer);
+				Debug.LogWarning($"REMOTE DEBUG REQUEST : {lua}");
 				var luaService = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
 				var func = luaService.Default.Global.Get<LuaFunction>("Global_DebugFunction");
 				var ret = func.Call(lua)[0].ToString();
@@ -44,6 +48,8 @@ public static class RemoteCmdClient {
 				await tcpClient.GetStream().WriteAsync(size, 0, size.Length);
 				buffer = Encoding.UTF8.GetBytes(ret);
 				await tcpClient.GetStream().WriteAsync(buffer, 0, buffer.Length);
+				await tcpClient.GetStream().FlushAsync();
+				Debug.LogWarning($"REMOTE DEBUG RESPONSE : {ret}");
 			}
 		}
 		catch( Exception ex ) {

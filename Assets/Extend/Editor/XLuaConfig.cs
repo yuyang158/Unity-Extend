@@ -48,10 +48,10 @@ public static class XLuaGenConfig
         "MeshSubsetCombineUtility", "AOT", "Social", "Enumerator",
         "SendMouseEvents", "Cursor", "Flash", "ActionScript",
         "OnRequestRebuild", "Ping",
-        "ShaderVariantCollection", "SimpleJson.Reflection",
+        "ShaderVariantCollection", "Json",
         "CoroutineTween", "GraphicRebuildTracker",
-        "Advertisements", "UnityEditor", "WSA",
-        "EventProvider", "Apple", "Motion", 
+        "Advertisements", "UnityEditor", "WSA", "StateMachineBehaviour",
+        "EventProvider", "Apple", "Motion", "WindZone", "Subsystem",
         "UnityEngine.UI.ReflectionMethodsCache", "NativeLeakDetection",
         "NativeLeakDetectionMode", "WWWAudioExtensions", "UnityEngine.Experimental",
         "CanvasRenderer", "AnimatorControllerParameter", "AudioSetting", "Caching",
@@ -59,14 +59,10 @@ public static class XLuaGenConfig
         "UnityEngine.Light", "WebCam", "Human", "QualitySettings", "LOD", "ParticleSystem", "UIVertex"
     };
 
-    static bool isExcluded( Type type ) {
+    private static bool isExcluded( Type type ) {
+        var valid = type.GetMembers(BindingFlags.Public).Length > 0;
         var fullName = type.FullName;
-        for( int i = 0; i < exclude.Count; i++ ) {
-            if( fullName.Contains( exclude[i] ) ) {
-                return true;
-            }
-        }
-        return false;
+        return valid && exclude.Any(t => fullName.Contains(t));
     }
 
     [LuaCallCSharp]
@@ -83,7 +79,7 @@ public static class XLuaGenConfig
                                where type.Namespace != null && namespaces.Contains( type.Namespace ) && !isExcluded( type )
                                        && type.BaseType != typeof( MulticastDelegate ) && !type.IsInterface && !type.IsEnum && !type.IsValueType
                                select type );
-            var basicMathValueType = new Type[] {
+            var basicMathValueType = new[] {
                 typeof(Vector2),
                 typeof(Vector3),
                 typeof(Vector4),
@@ -96,8 +92,8 @@ public static class XLuaGenConfig
             };
             var customTypes = ( from assembly in customAssemblys.Select( s => Assembly.Load( s ) )
                                 from type in assembly.GetExportedTypes()
-                                where type.BaseType != typeof( MulticastDelegate ) && !type.IsInterface && !type.IsEnum && 
-                                      type.GetCustomAttributes(typeof(CSharpCallLuaAttribute), true).Length > 0
+                                where type.BaseType != typeof( MulticastDelegate ) && !type.IsInterface && !type.IsEnum && !isExcluded( type ) && 
+                                      type.GetCustomAttributes(typeof(CSharpCallLuaAttribute), true).Length > 0 
                                 select type );
 
             var arr = customTypes.ToArray();

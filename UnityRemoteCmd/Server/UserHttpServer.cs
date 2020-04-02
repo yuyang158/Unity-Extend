@@ -38,21 +38,28 @@ namespace Server {
 
 		private async Task Start() {
 			while( true ) {
-				var context = await listener.GetContextAsync();
-				var req = context.Request;
-				var res = context.Response;
-				var body = await LoadContent(req.InputStream, req.ContentLength64);
-				var cmd = req.QueryString["cmd"];
-				if( !routers.TryGetValue(cmd, out var func) ) {
-					res.StatusCode = 404;
-					res.Close();
-					return;
-				}
+				try {
+					var context = await listener.GetContextAsync();
+					var req = context.Request;
+					var res = context.Response;
+					var body = await LoadContent(req.InputStream, req.ContentLength64);
+					var cmd = req.QueryString["cmd"];
+					if( !routers.TryGetValue(cmd, out var func) ) {
+						res.StatusCode = 404;
+						res.Close();
+						return;
+					}
+				
+					var response = func(context, body);
+					Console.WriteLine($"cmd {cmd} --> response {response}");
 
-				var response = func(context, body);
-				res.ContentEncoding = Encoding.UTF8;
-				await res.OutputStream.WriteAsync(Encoding.UTF8.GetBytes(response));
-				res.Close();
+					res.ContentEncoding = Encoding.UTF8;
+					await res.OutputStream.WriteAsync(Encoding.UTF8.GetBytes(response));
+					res.Close();
+				}
+				catch( Exception e ) {
+					Console.WriteLine(e);
+				}
 			}
 		}
 

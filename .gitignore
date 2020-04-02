@@ -45,3 +45,7 @@ Assembly-CSharp.csproj.DotSettings
 Logs/*
 
 Assets/XLua/Gen/
+
+UnityLuaAPI/
+UnityRemoteCmd/Server/bin
+UnityRemoteCmd/Server/obj

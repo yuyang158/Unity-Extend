@@ -24,6 +24,8 @@ namespace Extend.LuaMVVM {
 			set {
 				arrayData?.Dispose();
 				arrayData = value;
+				if(arrayData == null)
+					return;
 				if( !Asset.IsFinished && !syncLoad ) {
 					var handle = Asset.LoadAsync(typeof(GameObject));
 					handle.OnComplete += loadHandle => {
