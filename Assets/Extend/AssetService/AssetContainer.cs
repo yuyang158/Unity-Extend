@@ -44,9 +44,11 @@ namespace Extend.AssetService {
 		public void CollectAll() {
 			tickIndex = 0;
 			do {
-				Collect();
+				Collect(true);
 			} 
 			while( tickIndex != 0 );
+
+			Resources.UnloadUnusedAssets();
 		}
 	}
 }

@@ -135,8 +135,7 @@ namespace Extend.AssetService.AssetProvider {
 				var allDependencies = manifest.GetAllDependencies(abPathContext.ABName);
 				foreach( var dependency in allDependencies ) {
 					var depHash = AssetBundleInstance.GenerateHash(dependency);
-					var depAsset = container.TryGetAsset(depHash) as AssetBundleInstance;
-					if( depAsset == null ) {
+					if( !( container.TryGetAsset(depHash) is AssetBundleInstance depAsset ) ) {
 						depAsset = new AssetBundleInstance(dependency);
 						container.Put(depAsset);
 					}
@@ -163,8 +162,13 @@ namespace Extend.AssetService.AssetProvider {
 			return asset;
 		}
 
-		internal override AssetInstance ProvideAssetWithGUID<T>(string guid, AssetContainer container) {
-			return guid2AssetPath.TryGetValue(guid, out var path) ? ProvideAsset(path, container, typeof(T)) : null;
+		internal override AssetInstance ProvideAssetWithGUID<T>(string guid, AssetContainer container, out string path) {
+			if( guid2AssetPath.TryGetValue(guid, out path) ) {
+				return ProvideAsset(path, container, typeof(T));
+			}
+
+			Debug.LogWarning($"Missing asset for guid {guid}");
+			return null;
 		}
 
 		internal override string ConvertGUID2Path(string guid) {

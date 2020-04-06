@@ -4,6 +4,7 @@ local M = {}
 local tickers = {}
 
 function M.Init()
+    setmetatable(tickers, {__mode = "kv"})
 end
 
 function M.Register(func, ...)

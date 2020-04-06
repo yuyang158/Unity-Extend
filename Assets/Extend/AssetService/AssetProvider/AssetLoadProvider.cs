@@ -13,7 +13,7 @@ namespace Extend.AssetService.AssetProvider {
 
 		public abstract AssetReference Provide(string path, AssetContainer container, Type typ);
 
-		internal abstract AssetInstance ProvideAssetWithGUID<T>(string guid, AssetContainer container);
+		internal abstract AssetInstance ProvideAssetWithGUID<T>(string guid, AssetContainer container, out string path);
 		internal abstract string ConvertGUID2Path(string guid);
 	}
 }

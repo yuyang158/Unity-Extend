@@ -42,6 +42,11 @@ namespace Extend.LuaMVVM {
 		private Detach detach;
 
 		public void Start() {
+			if( !BindTarget ) {
+				Debug.LogError($"Binding target is null, Path : {Path} Property : {BindTargetProp}");
+				return;
+			}
+
 			propertyInfo = BindTarget.GetType().GetProperty(BindTargetProp);
 			Assert.IsNotNull(propertyInfo, BindTargetProp);
 			watchCallback = SetPropertyValue;

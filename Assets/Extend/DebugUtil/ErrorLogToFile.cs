@@ -26,7 +26,6 @@ namespace Extend.DebugUtil {
 				writer = new StreamWriter(new FileStream(errorLogPath, FileMode.CreateNew));
 				Application.logMessageReceivedThreaded += HandleLogThreaded;
 			}
-			Debug.Log($"Log file location --> {errorLogPath}");
 		}
 
 		private void HandleLogThreaded(string message, string stackTrace, LogType type) {

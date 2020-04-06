@@ -1,6 +1,5 @@
 {
   "dependencies": {
-    "com.unity.2d.sprite": "1.0.0",
     "com.unity.assetbundlebrowser": "1.7.0",
     "com.unity.editorcoroutines": "0.1.0-preview.2",
     "com.unity.ide.rider": "2.0.2",

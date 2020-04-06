@@ -36,7 +36,7 @@ namespace Extend.AssetService.AssetProvider {
 			return new AssetReference(asset);
 		}
 
-		private AssetInstance ProvideAsset(string path, AssetContainer container, Type typ) {
+		private static AssetInstance ProvideAsset(string path, AssetContainer container, Type typ) {
 			var hash = AssetInstance.GenerateHash(path);
 			if( container.TryGetAsset(hash) is AssetInstance asset && asset.IsFinished ) {
 				return asset;
@@ -60,11 +60,16 @@ namespace Extend.AssetService.AssetProvider {
 			return asset;
 		}
 
-		internal override AssetInstance ProvideAssetWithGUID<T>(string guid, AssetContainer container) {
+		internal override AssetInstance ProvideAssetWithGUID<T>(string guid, AssetContainer container, out string path) {
 #if UNITY_EDITOR
-			var path = UnityEditor.AssetDatabase.GUIDToAssetPath(guid);
+			path = UnityEditor.AssetDatabase.GUIDToAssetPath(guid);
+			if( string.IsNullOrEmpty(path) ) {
+				Debug.LogWarning($"Missing asset for guid {guid}");
+				return null;
+			}
 			return ProvideAsset(path, container, typeof(T));
 #else
+			path = string.Empty;
 			return null;
 #endif
 		}
