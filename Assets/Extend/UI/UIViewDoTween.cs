@@ -1,5 +1,4 @@
-﻿using System;
-using DG.Tweening;
+﻿using DG.Tweening;
 
 namespace Extend.UI {
 	public class UIViewDoTween : UIViewBase {

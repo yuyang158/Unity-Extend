@@ -1,6 +1,5 @@
 using Extend.Common;
 using UnityEditor;
-using UnityEditor.PackageManager;
 
 namespace Extend.DebugUtil.Editor {
 	internal static class LuaProfilerMenu {
