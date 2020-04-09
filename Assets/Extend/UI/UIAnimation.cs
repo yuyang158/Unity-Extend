@@ -15,18 +15,18 @@ namespace Extend.UI {
 
 		public AnimationMode Mode;
 
-		[SerializeField, HideInInspector]
+		[SerializeField]
 		private bool enabled;
 
 		public bool Enabled => enabled;
 
-		[SerializeField, HideInInspector]
+		[SerializeField]
 		private PunchCombined punch;
 
-		[SerializeField, HideInInspector]
+		[SerializeField]
 		private StateCombine state;
 
-		[SerializeField, HideInInspector]
+		[SerializeField]
 		private AnimatorParamProcessor processor;
 
 		public Tween[] Active(Transform t) {

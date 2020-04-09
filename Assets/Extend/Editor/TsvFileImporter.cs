@@ -1,10 +1,6 @@
-using System.Collections.Generic;
 using System.IO;
-using Extend.Common;
-using UnityEditor;
 using UnityEditor.Experimental.AssetImporters;
 using UnityEngine;
-using XLua;
 
 namespace Extend.Editor {
 	[ScriptedImporter(1, "tsv")]

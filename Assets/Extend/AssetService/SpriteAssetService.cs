@@ -34,6 +34,10 @@ namespace Extend.AssetService {
 			public void GiveUp() {
 				mAsset.OnStatusChanged -= OnAssetStatusChanged;
 			}
+
+			public override string ToString() {
+				return $"Loading Sprite --> {mPath}";
+			}
 		}
 
 		public CSharpServiceManager.ServiceType ServiceType => CSharpServiceManager.ServiceType.SPRITE_ASSET_SERVICE;
