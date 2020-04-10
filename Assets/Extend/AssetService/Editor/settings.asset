@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f0298e872d2c41c5859ce5579b59dc35, type: 3}
   m_Name: settings
   m_EditorClassIdentifier: 
-  SpriteAtlasFolder: {fileID: 102900000, guid: 2091600c3c3b9ca4abe2c8fc15aba77c, type: 3}
+  SpriteAtlasFolder: {fileID: 102900000, guid: 2f26b1c14ce71734f900a3a777780238, type: 3}
   Settings:
   - FolderPath: {fileID: 102900000, guid: b5943f7fc0a60214991b43924cb31649, type: 3}
     Op: 0

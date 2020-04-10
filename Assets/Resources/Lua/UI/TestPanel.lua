@@ -19,8 +19,8 @@ end
 
 function M:awake()
     self.mvvmBinding = self.__CSBinding:GetComponent(typeof(CS.Extend.LuaMVVM.LuaMVVMBinding))
-    self.sprotoClient = SprotoClient.new("Config/c2s", "Config/s2c")
-    self.sprotoClient:Connect("45.77.33.200", 4445)
+    --self.sprotoClient = SprotoClient.new("Config/c2s", "Config/s2c")
+    --self.sprotoClient:Connect("45.77.33.200", 4445)
 end
 
 function M:destroy()
@@ -65,9 +65,6 @@ function M:Tick(deltaTime)
     time = time + deltaTime
     if time > 1 then
         time = 0
-        self.sprotoClient:Send("get", {what="abc"}, function(args)
-            print(args.result)
-        end)
     end
 end
 
@@ -82,11 +79,6 @@ function M:OnClick()
     for _ = 1, 10 do
         full = full .. math.random(0, 9)
     end
-    
-    self.sprotoClient:Send("set", {
-        what = "abc",
-        value = full
-    })
     
     print_w("WARNING LOG TEST", self.vm.text)
 end

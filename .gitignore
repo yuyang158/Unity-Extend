@@ -5,6 +5,7 @@
 [Bb]uilds/
 Assets/AssetStoreTools*
 Assets/UnityLuaAPI*
+Assets/StreamingAssets/ABBuild*
 node_modules/
 Logs/
 
@@ -49,3 +50,5 @@ Assets/XLua/Gen/
 UnityLuaAPI/
 UnityRemoteCmd/Server/bin
 UnityRemoteCmd/Server/obj
+
+Assets/XLua/Gen.meta

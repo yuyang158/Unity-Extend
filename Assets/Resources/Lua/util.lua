@@ -43,6 +43,18 @@ function table.empty(t)
     return next(t) == nil
 end
 
+function table.array_each(t, callback)
+    for i = 1, #t do
+        callback(t[i], i)
+    end
+end
+
+function table.table_each(t, callback)
+    for k, v in pairs(t) do
+        callback(v, k)
+    end
+end
+
 local function print_r(t)
     local log = ""
     local print_r_cache={}

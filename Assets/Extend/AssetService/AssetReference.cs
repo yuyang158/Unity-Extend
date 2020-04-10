@@ -88,7 +88,7 @@ namespace Extend.AssetService {
 		}
 
 		public override string ToString() {
-			return (asset == null || !asset.UnityObject) ? "Not loaded" : asset.UnityObject.name;
+			return asset == null || !asset.UnityObject ? "Not loaded" : asset.UnityObject.name;
 		}
 
 		public void Dispose() {

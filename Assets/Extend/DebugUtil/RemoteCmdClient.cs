@@ -50,6 +50,7 @@ public static class RemoteCmdClient {
 				await tcpClient.GetStream().WriteAsync(buffer, 0, buffer.Length);
 				await tcpClient.GetStream().FlushAsync();
 				Debug.LogWarning($"REMOTE DEBUG RESPONSE : {ret}");
+
 			}
 		}
 		catch( Exception ex ) {

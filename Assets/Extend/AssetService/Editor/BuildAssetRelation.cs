@@ -14,7 +14,8 @@ namespace Extend.AssetService.Editor {
 
 		private static readonly string[] ignoreExtensions = {
 			".cs",
-			".meta"
+			".meta",
+			".dll"
 		};
 
 		public static AssetNode GetNode(string filePath) {
