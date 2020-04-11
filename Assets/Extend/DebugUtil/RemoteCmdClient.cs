@@ -18,9 +18,9 @@ public static class RemoteCmdClient {
 			var id = $"{SystemInfo.deviceName} - {SystemInfo.deviceModel}";
 			var protocol = new byte[] {1};
 			await tcpClient.GetStream().WriteAsync(protocol, 0, protocol.Length);
-			var size = BitConverter.GetBytes((short)id.Length);
-			await tcpClient.GetStream().WriteAsync(size, 0, size.Length);
 			var buffer = Encoding.UTF8.GetBytes(id);
+			var size = BitConverter.GetBytes((short)buffer.Length);
+			await tcpClient.GetStream().WriteAsync(size, 0, size.Length);
 			await tcpClient.GetStream().WriteAsync(buffer, 0, buffer.Length);
 
 			while( true ) {
