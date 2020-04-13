@@ -10,7 +10,7 @@ public class ParticleSystemPreview : ObjectPreview {
 		public GUIContent speedScale = IconContent("SpeedScale", "Changes particle preview speed");
 		public GUIContent pivot = IconContent("AvatarPivot", "Displays avatar's pivot and mass center");
 
-		public GUIContent[] play = new GUIContent[2] {
+		public GUIContent[] play = {
 			IconContent("preAudioPlayOff", "Play"),
 			IconContent("preAudioPlayOn", "Stop")
 		};
@@ -85,6 +85,7 @@ public class ParticleSystemPreview : ObjectPreview {
 	private const float kDuration = 99f;
 	private static int PreviewCullingLayer = 31;
 	private static Styles s_Styles;
+	private static readonly int alphas = Shader.PropertyToID("_Alphas");
 
 	public Vector3 bodyPosition {
 		get { return m_PreviewInstance.transform.position; }
@@ -298,11 +299,9 @@ public class ParticleSystemPreview : ObjectPreview {
 		}
 
 		if( m_FloorMaterial == null ) {
-			Shader shader = EditorGUIUtility.LoadRequired("Previews/PreviewPlaneWithShadow.shader") as Shader;
-			m_FloorMaterial = new Material(shader);
-			m_FloorMaterial.mainTexture = m_FloorTexture;
-			m_FloorMaterial.mainTextureScale = Vector2.one * 5f * 4f;
-			m_FloorMaterial.SetVector("_Alphas", new Vector4(0.5f, 0.3f, 0f, 0f));
+			var shader = EditorGUIUtility.LoadRequired("Previews/PreviewPlaneWithShadow.shader") as Shader;
+			m_FloorMaterial = new Material(shader) {mainTexture = m_FloorTexture, mainTextureScale = Vector2.one * ( 5f * 4f )};
+			m_FloorMaterial.SetVector(alphas, new Vector4(0.5f, 0.3f, 0f, 0f));
 			m_FloorMaterial.hideFlags = HideFlags.HideAndDontSave;
 		}
 
@@ -348,24 +347,24 @@ public class ParticleSystemPreview : ObjectPreview {
 	}
 
 	private void DoRenderPreview() {
-		Vector3 bodyPosition = this.bodyPosition;
-		Quaternion quaternion = Quaternion.identity;
-		Vector3 vector = Vector3.zero;
-		Quaternion quaternion2 = Quaternion.identity;
-		Vector3 pivotPos = Vector3.zero;
+		var position = this.bodyPosition;
+		var quaternion = Quaternion.identity;
+		var vector = Vector3.zero;
+		var quaternion2 = Quaternion.identity;
+		var pivotPos = Vector3.zero;
 
-		bool oldFog = SetupPreviewLightingAndFx();
-		Vector3 forward = quaternion2 * Vector3.forward;
+		var oldFog = SetupPreviewLightingAndFx();
+		var forward = quaternion2 * Vector3.forward;
 		forward[1] = 0f;
-		Quaternion directionRot = Quaternion.LookRotation(forward);
-		Vector3 directionPos = vector;
-		Quaternion pivotRot = quaternion;
-		PositionPreviewObjects(pivotRot, pivotPos, quaternion2, bodyPosition, directionRot, quaternion, vector, directionPos, m_AvatarScale);
+		var directionRot = Quaternion.LookRotation(forward);
+		var directionPos = vector;
+		var pivotRot = quaternion;
+		PositionPreviewObjects(pivotRot, pivotPos, quaternion2, position, directionRot, quaternion, vector, directionPos, m_AvatarScale);
 
 		GetPreviewCamera().nearClipPlane = 0.5f * m_ZoomFactor;
 		GetPreviewCamera().farClipPlane = 100f * m_AvatarScale;
-		Quaternion rotation = Quaternion.Euler(-m_PreviewDir.y, -m_PreviewDir.x, 0f);
-		Vector3 position2 = rotation * ( Vector3.forward * -5.5f * m_ZoomFactor ) + bodyPosition + m_PivotPositionOffset;
+		var rotation = Quaternion.Euler(-m_PreviewDir.y, -m_PreviewDir.x, 0f);
+		var position2 = rotation * Vector3.forward * (-5.5f * m_ZoomFactor) + position + m_PivotPositionOffset;
 		GetPreviewCamera().transform.position = position2;
 		GetPreviewCamera().transform.rotation = rotation;
 
@@ -463,16 +462,16 @@ public class ParticleSystemPreview : ObjectPreview {
 		Quaternion directionRot, Quaternion rootRot, Vector3 rootPos, Vector3 directionPos, float scale) {
 		m_ReferenceInstance.transform.position = rootPos;
 		m_ReferenceInstance.transform.rotation = rootRot;
-		m_ReferenceInstance.transform.localScale = Vector3.one * scale * 1.25f;
+		m_ReferenceInstance.transform.localScale = Vector3.one * (scale * 1.25f);
 		m_DirectionInstance.transform.position = directionPos;
 		m_DirectionInstance.transform.rotation = directionRot;
-		m_DirectionInstance.transform.localScale = Vector3.one * scale * 2f;
+		m_DirectionInstance.transform.localScale = Vector3.one * (scale * 2f);
 		m_PivotInstance.transform.position = pivotPos;
 		m_PivotInstance.transform.rotation = pivotRot;
-		m_PivotInstance.transform.localScale = Vector3.one * scale * 0.1f;
+		m_PivotInstance.transform.localScale = Vector3.one * (scale * 0.1f);
 		m_RootInstance.transform.position = bodyPos;
 		m_RootInstance.transform.rotation = bodyRot;
-		m_RootInstance.transform.localScale = Vector3.one * scale * 0.25f;
+		m_RootInstance.transform.localScale = Vector3.one * (scale * 0.25f);
 	}
 
 	/// <summary>
@@ -662,7 +661,7 @@ public class ParticleSystemPreview : ObjectPreview {
 	}
 
 	public void DoAvatarPreviewOrbit(Event evt, Rect previewRect) {
-		m_PreviewDir -= evt.delta * (float)( ( !evt.shift ) ? 1 : 3 ) / Mathf.Min(previewRect.width, previewRect.height) * 140f;
+		m_PreviewDir -= evt.delta * (!evt.shift ? 1 : 3) / Mathf.Min(previewRect.width, previewRect.height) * 140f;
 		m_PreviewDir.y = Mathf.Clamp(m_PreviewDir.y, -90f, 90f);
 		evt.Use();
 	}

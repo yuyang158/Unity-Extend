@@ -8,7 +8,9 @@ namespace Extend.DebugUtil {
 	public class ErrorLogToFile : IService {
 		public CSharpServiceManager.ServiceType ServiceType => CSharpServiceManager.ServiceType.ERROR_LOG_TO_FILE;
 		private TextWriter writer;
-		private AutoResetEvent autoEvent = new AutoResetEvent(false);
+		private readonly AutoResetEvent autoEvent = new AutoResetEvent(false);
+		private Thread writeThread;
+		private bool exit;
 
 		public void Initialize() {
 			var errorLogPath = Application.persistentDataPath + "/error.log";
@@ -28,7 +30,7 @@ namespace Extend.DebugUtil {
 				Application.logMessageReceivedThreaded += HandleLogThreaded;
 			}
 
-			var writeThread = new Thread(WriteThread);
+			writeThread = new Thread(WriteThread);
 			writeThread.Start();
 		}
 
@@ -39,6 +41,10 @@ namespace Extend.DebugUtil {
 			while( true ) {
 				autoEvent.WaitOne();
 				lock( writer ) {
+					if( exit ) {
+						writer.Close();
+						break;
+					}
 					writer.WriteLine(log);
 					writer.Write(_stackTrace);
 					writer.Flush();
@@ -65,7 +71,10 @@ namespace Extend.DebugUtil {
 
 		public void Destroy() {
 			Application.logMessageReceivedThreaded -= HandleLogThreaded;
-			writer.Close();
+			lock( writer ) {
+				exit = true;
+				autoEvent.Set();
+			}
 		}
 	}
 }

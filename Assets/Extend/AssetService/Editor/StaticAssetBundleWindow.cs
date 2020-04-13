@@ -15,7 +15,7 @@ namespace Extend.AssetService.Editor {
 
 		private ReorderableList reList;
 		private ReorderableList otherDependencyList;
-		private StaticABSettings settingRoot;
+		private static StaticABSettings settingRoot;
 		private SerializedObject serializedObject;
 		public const string SETTING_FILE_PATH = "Assets/Extend/AssetService/Editor/settings.asset";
 
@@ -85,12 +85,12 @@ namespace Extend.AssetService.Editor {
 			rect.x = 5;
 			rect.width = segmentWidth - 10;
 			if( GUI.Button(rect, "Rebuild All AB") ) {
-				RebuildAllAssetBundles();
+				RebuildAllAssetBundles(EditorUserBuildSettings.activeBuildTarget);
 			}
 
 			rect.x += segmentWidth;
 			if( GUI.Button(rect, "Build Update AB") ) {
-				BuildUpdateAssetBundles();
+				BuildUpdateAssetBundles(EditorUserBuildSettings.activeBuildTarget);
 			}
 
 			rect.x += segmentWidth;
@@ -104,8 +104,7 @@ namespace Extend.AssetService.Editor {
 		private static string buildRoot;
 		private static string outputPath;
 
-		private static string MakeOutputDirectory() {
-			var buildTarget = EditorUserBuildSettings.activeBuildTarget;
+		private static string MakeOutputDirectory(BuildTarget buildTarget) {
 			buildRoot = $"{Application.streamingAssetsPath}/ABBuild";
 			if( !Directory.Exists(buildRoot) ) {
 				Directory.CreateDirectory(buildRoot);
@@ -130,8 +129,8 @@ namespace Extend.AssetService.Editor {
 			}
 		}
 
-		public void BuildUpdateAssetBundles(string versionFilePath = null) {
-			var outputDir = MakeOutputDirectory();
+		public static void BuildUpdateAssetBundles(BuildTarget target, string versionFilePath = null) {
+			var outputDir = MakeOutputDirectory(target);
 			if( string.IsNullOrEmpty(versionFilePath) ) {
 				versionFilePath = EditorUtility.OpenFilePanel("Open version file", buildRoot, "bin");
 				if( string.IsNullOrEmpty(versionFilePath) )
@@ -166,9 +165,9 @@ namespace Extend.AssetService.Editor {
 			});
 		}
 
-		private readonly HashSet<string> spritesInAtlas = new HashSet<string>();
+		private static readonly HashSet<string> spritesInAtlas = new HashSet<string>();
 
-		private void BuildAtlasAB() {
+		private static void BuildAtlasAB() {
 			spritesInAtlas.Clear();
 			if(!settingRoot.SpriteAtlasFolder)
 				return;
@@ -188,8 +187,8 @@ namespace Extend.AssetService.Editor {
 			}
 		}
 
-		public void RebuildAllAssetBundles() {
-			MakeOutputDirectory();
+		public static void RebuildAllAssetBundles(BuildTarget target) {
+			MakeOutputDirectory(target);
 			BuildAssetRelation.Clear();
 			BuildAtlasAB();
 			
@@ -205,8 +204,7 @@ namespace Extend.AssetService.Editor {
 					}
 				}
 
-				BuildPipeline.BuildAssetBundles(outputPath, BuildAssetBundleOptions.DeterministicAssetBundle | BuildAssetBundleOptions.ChunkBasedCompression,
-					EditorUserBuildSettings.activeBuildTarget);
+				BuildPipeline.BuildAssetBundles(outputPath, BuildAssetBundleOptions.DeterministicAssetBundle | BuildAssetBundleOptions.ChunkBasedCompression, target);
 			});
 		}
 	}

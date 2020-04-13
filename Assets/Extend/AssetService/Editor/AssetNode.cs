@@ -12,7 +12,7 @@ namespace Extend.AssetService.Editor {
 
 		private string AssetName {
 			get {
-				var assetName = System.IO.Path.GetDirectoryName(importer.assetPath) + "/" + System.IO.Path.GetFileNameWithoutExtension(importer.assetPath);
+				var assetName = Path.Combine(importer.assetPath, importer.assetPath);
 				assetName = assetName.Replace('\\', '/');
 				return assetName;
 			}
@@ -99,7 +99,7 @@ namespace Extend.AssetService.Editor {
 
 		private bool OuterLink {
 			get {
-				if( System.IO.Path.GetExtension(AssetPath) == ".prefab" )
+				if( Path.GetExtension(AssetPath) == ".prefab" )
 					return false;
 
 				if( importer is TextureImporter textureImporter ) {
