@@ -25,10 +25,6 @@ namespace Extend.AssetService {
 		public AssetReference() {
 		}
 
-		~AssetReference() {
-			Dispose();
-		}
-
 		private T GetAsset<T>() where T : Object {
 			if( asset == null ) {
 				asset = AssetService.Get().LoadAssetWithGUID<T>(assetGUID);

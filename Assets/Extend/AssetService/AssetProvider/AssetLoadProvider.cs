@@ -2,8 +2,7 @@ using System;
 
 namespace Extend.AssetService.AssetProvider {
 	public abstract class AssetLoadProvider {
-		public virtual void Initialize() {
-		}
+		public abstract void Initialize();
 
 		public virtual string FormatAssetPath(string path) {
 			return path.Replace('\\', '/');

@@ -13,6 +13,10 @@ namespace Extend.LuaBindingData {
 			instance.SetInPath(FieldName, Data);
 		}
 
+		public override void Destroy() {
+			Data?.Dispose();
+		}
+
 #if UNITY_EDITOR
 		public override void OnPropertyDrawer(UnityEditor.SerializedProperty prop) {
 			if( editorContent == null || string.IsNullOrEmpty(editorContent.text) ) {

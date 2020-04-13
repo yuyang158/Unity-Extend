@@ -15,6 +15,7 @@ namespace Extend.LuaMVVM {
 		private readonly List<GameObject> generatedAsset = new List<GameObject>();
 
 		private void OnDestroy() {
+			Asset?.Dispose();
 			arrayData?.Dispose();
 			arrayData = null;
 		}

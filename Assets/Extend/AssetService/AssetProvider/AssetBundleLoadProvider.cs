@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using Extend.AssetService.AssetOperator;
 using UnityEngine;
 using UnityEngine.Assertions;
+using UnityEngine.Networking;
 
 namespace Extend.AssetService.AssetProvider {
 	public class AssetBundleLoadProvider : AssetLoadProvider {
@@ -22,7 +25,7 @@ namespace Extend.AssetService.AssetProvider {
 			if( path.StartsWith("assets") ) {
 				return path;
 			}
-			
+
 			return "assets/resources/" + base.FormatAssetPath(path).ToLower();
 		}
 
@@ -41,8 +44,27 @@ namespace Extend.AssetService.AssetProvider {
 			var manifestAB = AssetBundle.LoadFromFile(manifestPath);
 			manifest = manifestAB.LoadAsset<AssetBundleManifest>("AssetBundleManifest");
 
+#if UNITY_ANDROID
+			var mapPath = DetermineLocation("package.conf", out var persistent);
+			TextReader reader;
+			if( persistent ) {
+				reader = new StreamReader(mapPath);
+			}
+			else {
+				var uwr = UnityWebRequest.Get(mapPath);
+				uwr.SendWebRequest();
+				while( !uwr.isDone ) {
+					Thread.Sleep(1);
+				}
+				reader = new StringReader(uwr.downloadHandler.text);
+				uwr.Dispose();
+			}
+			
+			using( reader ) {
+#else
 			var mapPath = DetermineLocation("package.conf");
 			using( var reader = new StreamReader(mapPath) ) {
+#endif
 				var line = reader.ReadLine();
 				while( !string.IsNullOrEmpty(line) ) {
 					var segments = line.Split('|');
@@ -180,12 +202,23 @@ namespace Extend.AssetService.AssetProvider {
 		}
 
 		public static string DetermineLocation(string path) {
-			var streamingAsset = Path.Combine(streamingAssetsPath, path);
+			var streamingAsset = Path.Combine(persistentDataPath, path);
 			if( File.Exists(streamingAsset) ) {
 				return streamingAsset;
 			}
 
-			return persistentDataPath + path;
+			return Path.Combine(streamingAssetsPath, path);
+		}
+		
+		public static string DetermineLocation(string path, out bool persistent) {
+			var streamingAsset = Path.Combine(persistentDataPath, path);
+			if( File.Exists(streamingAsset) ) {
+				persistent = true;
+				return streamingAsset;
+			}
+
+			persistent = false;
+			return Path.Combine(streamingAssetsPath, path);
 		}
 	}
 }

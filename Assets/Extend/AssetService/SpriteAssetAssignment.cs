@@ -37,7 +37,6 @@ namespace Extend.AssetService {
 			spriteKey = key;
 			loadingHandle = SpriteAssetService.Get().SetUIImage(img, spriteRenderer, SpriteRendererKey, Sync);
 		}
-
 		private void OnDestroy() {
 			loadingHandle?.GiveUp();
 			if( string.IsNullOrEmpty(ImgSpriteKey) )

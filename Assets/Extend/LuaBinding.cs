@@ -42,6 +42,10 @@ namespace Extend {
 			destroy?.Invoke(LuaInstance);
 			LuaInstance?.Dispose();
 			LuaInstance = null;
+
+			foreach( var binding in BindingContainer ) {
+				binding.Destroy();
+			}
 		}
 
 		[BlackList, NonSerialized]

@@ -12,7 +12,7 @@ namespace Extend.AssetService.Editor {
 		private static StaticABSetting[] manualSettings;
 		private static readonly List<string> needUpdateBundles = new List<string>();
 
-		private static readonly string[] ignoreExtensions = {
+		public static readonly string[] IgnoreExtensions = {
 			".cs",
 			".meta",
 			".dll"
@@ -20,7 +20,7 @@ namespace Extend.AssetService.Editor {
 
 		public static AssetNode GetNode(string filePath) {
 			var extension = Path.GetExtension( filePath );
-			if( Array.IndexOf( ignoreExtensions, extension ) >= 0 )
+			if( Array.IndexOf( IgnoreExtensions, extension ) >= 0 )
 				return null;
 
 			var guid = AssetDatabase.AssetPathToGUID( filePath );
@@ -88,7 +88,7 @@ namespace Extend.AssetService.Editor {
 			foreach( var setting in manualSettings ) {
 				var settingFiles = Directory.GetFiles( setting.Path, "*.*", SearchOption.AllDirectories );
 				foreach( var filePath in settingFiles ) {
-					if( Array.IndexOf( ignoreExtensions, Path.GetExtension( filePath ) ) >= 0 )
+					if( Array.IndexOf( IgnoreExtensions, Path.GetExtension( filePath ) ) >= 0 )
 						continue;
 
 					var importer = AssetImporter.GetAtPath( filePath );
@@ -142,7 +142,7 @@ namespace Extend.AssetService.Editor {
 			foreach( var filePath in files ) {
 				var extension = Path.GetExtension( filePath );
 				progress++;
-				if( Array.IndexOf( ignoreExtensions, extension ) >= 0 || filePath.Contains( ".svn" ) )
+				if( Array.IndexOf( IgnoreExtensions, extension ) >= 0 || filePath.Contains( ".svn" ) )
 					continue;
 
 				var formatPath = FormatPath( filePath );

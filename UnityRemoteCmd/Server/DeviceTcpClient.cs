@@ -31,6 +31,7 @@ namespace Server {
 			while( true ) {
 				var c = await tcpClient.GetStream().ReadAsync(buffer, offset, count);
 				if( c <= 0 ) {
+					Console.WriteLine("Disconnect when recv 0");
 					Disconnect();
 					break;
 				}
@@ -65,6 +66,7 @@ namespace Server {
 			}
 			catch( Exception e ) {
 				Disconnect();
+				Console.WriteLine(e.Message + "\r\n" + e.StackTrace);
 				return Task.Run(() => e.Message);
 			}
 		}
@@ -81,7 +83,8 @@ namespace Server {
 			try {
 				await Process();
 			}
-			catch( Exception ) {
+			catch( Exception e ) {
+				Console.WriteLine(e.Message + "\r\n" + e.StackTrace);
 				Disconnect();
 			}
 		}
@@ -98,6 +101,7 @@ namespace Server {
 				var sizeBuff = new byte[2];
 				Array.Copy(buffer, 0, sizeBuff, 0, 2);
 				var size = BitConverter.ToInt16(sizeBuff);
+				Console.WriteLine($"REQUEST SIZE {size}");
 				await ReadWithSize(size);
 				if(!Connected)
 					break;

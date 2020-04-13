@@ -9,6 +9,10 @@ namespace Extend.LuaBindingData {
 		public string FieldType;
 		public abstract void ApplyToLuaInstance(LuaTable instance);
 
+		public virtual void Destroy() {
+			
+		}
+
 #if UNITY_EDITOR
 		protected UnityEngine.GUIContent editorContent;
 		public virtual void OnPropertyDrawer(UnityEditor.SerializedProperty prop) {

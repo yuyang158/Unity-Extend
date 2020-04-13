@@ -26,6 +26,10 @@ namespace Extend.AssetService.AssetProvider {
 			loadHandle.Asset.SetAsset(unityObject, null);
 		}
 
+		public override void Initialize() {
+			
+		}
+
 		public override void ProvideAsync(AssetAsyncLoadHandle loadHandle, Type typ) {
 			var service = CSharpServiceManager.Get<GlobalCoroutineRunnerService>(CSharpServiceManager.ServiceType.COROUTINE_SERVICE);
 			service.StartCoroutine(SimulateDelayLoad(loadHandle, typ));

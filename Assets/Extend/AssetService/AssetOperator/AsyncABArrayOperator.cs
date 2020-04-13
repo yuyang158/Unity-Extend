@@ -40,6 +40,7 @@ namespace Extend.AssetService.AssetOperator {
 						asset.OnStatusChanged += OnAssetStatusChanged;
 						if( asset.Status != AssetRefObject.AssetStatus.NONE ) return;
 						var assetBundleInstance = asset as AssetBundleInstance;
+						asset.Status = AssetRefObject.AssetStatus.ASYNC_LOADING;
 						var req = AssetBundle.LoadFromFileAsync(location);
 						req.completed += _ => {
 							var abProvider = handle.Provider as AssetBundleLoadProvider;

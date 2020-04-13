@@ -13,6 +13,7 @@ namespace Extend {
 			DOTween.Init(true, true, LogBehaviour.Default);
 
 			CSharpServiceManager.Initialize();
+			CSharpServiceManager.Register(new GlobalCoroutineRunnerService());
 			CSharpServiceManager.Register(new StatService());
 			CSharpServiceManager.Register(new ErrorLogToFile());
 			CSharpServiceManager.Register(new AssetService.AssetService());
@@ -20,7 +21,6 @@ namespace Extend {
 			CSharpServiceManager.Register(new I18nService());
 			CSharpServiceManager.Register(new LuaVM());
 			CSharpServiceManager.Register(new TickService());
-			CSharpServiceManager.Register(new GlobalCoroutineRunnerService());
 			CSharpServiceManager.Register(new NetworkService());
 		}
 	}

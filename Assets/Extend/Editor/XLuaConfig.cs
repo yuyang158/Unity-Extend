@@ -47,22 +47,25 @@ public static class XLuaGenConfig
         "DetailPrototype", "DetailRenderMode",
         "MeshSubsetCombineUtility", "AOT", "Social", "Enumerator",
         "SendMouseEvents", "Cursor", "Flash", "ActionScript",
-        "OnRequestRebuild", "Ping",
+        "OnRequestRebuild", "Ping", "DynamicGI", "AssetBundle",
         "ShaderVariantCollection", "Json",
-        "CoroutineTween", "GraphicRebuildTracker",
+        "CoroutineTween", "GraphicRebuildTracker", "InputManagerEntry", "InputRegistering",
         "Advertisements", "UnityEditor", "WSA", "StateMachineBehaviour",
         "EventProvider", "Apple", "Motion", "WindZone", "Subsystem",
         "UnityEngine.UI.ReflectionMethodsCache", "NativeLeakDetection",
         "NativeLeakDetectionMode", "WWWAudioExtensions", "UnityEngine.Experimental",
         "CanvasRenderer", "AnimatorControllerParameter", "AudioSetting", "Caching",
-        "DrivenRectTransformTracker", "LightProbeGroup", "Animation",
+        "DrivenRectTransformTracker", "LightProbeGroup", "Animation", "DefaultControls",
         "UnityEngine.Light", "WebCam", "Human", "QualitySettings", "LOD", "ParticleSystem", "UIVertex"
     };
 
     private static bool isExcluded( Type type ) {
-        var valid = type.GetMembers(BindingFlags.Public).Length > 0;
+        var invalid = type.GetMembers().Length == 0;
+        if( invalid ) {
+            return true;
+        }
         var fullName = type.FullName;
-        return valid && exclude.Any(t => fullName.Contains(t));
+        return exclude.Any(t => fullName.Contains(t));
     }
 
     [LuaCallCSharp]
@@ -265,6 +268,7 @@ public static class XLuaGenConfig
                 new List<string>(){"UnityEngine.Light", "lightmapBakeType"},
                 new List<string>(){"UnityEngine.WWW", "MovieTexture"},
                 new List<string>(){"UnityEngine.WWW", "GetMovieTexture"},
+                new List<string>(){"UnityEngine.MeshRenderer", "receiveGI"},
                 new List<string>(){"UnityEngine.AnimatorOverrideController", "PerformOverrideClipListCleanup"},
     #if !UNITY_WEBPLAYER
                 new List<string>(){"UnityEngine.Application", "ExternalEval"},

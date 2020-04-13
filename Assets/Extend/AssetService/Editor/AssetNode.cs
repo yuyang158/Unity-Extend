@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using UnityEditor;
@@ -10,10 +12,10 @@ namespace Extend.AssetService.Editor {
 
 		private string AssetName {
 			get {
-				var assetName = System.IO.Path.GetDirectoryName( importer.assetPath ) + "/" + System.IO.Path.GetFileNameWithoutExtension( importer.assetPath );
-				assetName = assetName.Replace( '\\', '/' );
+				var assetName = System.IO.Path.GetDirectoryName(importer.assetPath) + "/" + System.IO.Path.GetFileNameWithoutExtension(importer.assetPath);
+				assetName = assetName.Replace('\\', '/');
 				return assetName;
-			}	
+			}
 		}
 
 		public string AssetBundleName {
@@ -22,72 +24,74 @@ namespace Extend.AssetService.Editor {
 				Assert.IsFalse(Calculated);
 				Calculated = true;
 				var abName = value.ToLower();
-				if(importer.assetBundleName == abName)
+				if( importer.assetBundleName == abName )
 					return;
 				importer.assetBundleName = abName;
-			} 
+			}
 		}
 
-		public string GUID => AssetDatabase.AssetPathToGUID( AssetPath );
+		public string GUID => AssetDatabase.AssetPathToGUID(AssetPath);
 
 		public ulong AssetTimeStamp => importer.assetTimeStamp;
 
 		private readonly List<AssetNode> referenceNodes = new List<AssetNode>();
 		private readonly AssetImporter importer;
 
-		public bool Calculated {
-			private get;
-			set;
-		}
+		public bool Calculated { private get; set; }
 
 		public AssetNode(string path) {
-			importer = AssetImporter.GetAtPath( path );
+			importer = AssetImporter.GetAtPath(path);
 		}
 
 		public bool IsValid => importer != null;
 
 		private void AddReferenceNode(AssetNode node) {
-			if( referenceNodes.Contains( node ) || node == this ) {
+			if( referenceNodes.Contains(node) || node == this ) {
 				return;
 			}
 
-			referenceNodes.Add( node );
+			referenceNodes.Add(node);
 		}
 
 		public void BuildRelation() {
-			var dependencies = AssetDatabase.GetDependencies( AssetPath );
+			var dependencies = AssetDatabase.GetDependencies(AssetPath);
 			foreach( var filePath in dependencies ) {
-				var dependencyNode = BuildAssetRelation.GetNode( filePath );
-				dependencyNode?.AddReferenceNode( this );
+				var extension = Path.GetExtension(filePath);
+				if( Array.IndexOf(BuildAssetRelation.IgnoreExtensions, extension) >= 0 )
+					continue;
+				var dependencyNode = BuildAssetRelation.GetNode(filePath);
+				dependencyNode?.AddReferenceNode(this);
 			}
 		}
 
 		private static void DeepFirstSearch(AssetNode node, ICollection<AssetNode> collector) {
-			if( collector.Contains( node ) ) {
+			if( collector.Contains(node) ) {
 				return;
 			}
-			collector.Add( node );
+
+			collector.Add(node);
 			foreach( var referenceNode in node.referenceNodes ) {
-				DeepFirstSearch( referenceNode, collector );
+				DeepFirstSearch(referenceNode, collector);
 			}
 		}
 
 		private readonly List<AssetNode> collector = new List<AssetNode>();
+
 		public void RemoveShorterLink() {
 			collector.Clear();
-			foreach( var node in referenceNodes.SelectMany( referenceNode => referenceNode.referenceNodes ) ) {
-				DeepFirstSearch( node, collector );
+			foreach( var node in referenceNodes.SelectMany(referenceNode => referenceNode.referenceNodes) ) {
+				DeepFirstSearch(node, collector);
 			}
 
-			foreach( var index in collector.Select( node => referenceNodes.IndexOf( node ) ).Where( index => index >= 0 ) ) {
-				referenceNodes.RemoveAt( index );
+			foreach( var index in collector.Select(node => referenceNodes.IndexOf(node)).Where(index => index >= 0) ) {
+				referenceNodes.RemoveAt(index);
 			}
 		}
 
 		public string BuildGraphviz() {
 			var sb = new StringBuilder();
 			foreach( var node in referenceNodes ) {
-				sb.AppendLine( $"{AssetName} -> {node.AssetName}" );
+				sb.AppendLine($"{AssetName} -> {node.AssetName}");
 			}
 
 			return sb.ToString();
@@ -95,7 +99,7 @@ namespace Extend.AssetService.Editor {
 
 		private bool OuterLink {
 			get {
-				if( System.IO.Path.GetExtension( AssetPath ) == ".prefab" )
+				if( System.IO.Path.GetExtension(AssetPath) == ".prefab" )
 					return false;
 
 				if( importer is TextureImporter textureImporter ) {
@@ -117,7 +121,7 @@ namespace Extend.AssetService.Editor {
 					var abName = "";
 					foreach( var referenceNode in referenceNodes ) {
 						referenceNode.CalculateABName();
-						if( string.IsNullOrEmpty( abName ) ) {
+						if( string.IsNullOrEmpty(abName) ) {
 							abName = referenceNode.AssetBundleName;
 						}
 						else if( abName != referenceNode.AssetBundleName ) {
@@ -125,11 +129,12 @@ namespace Extend.AssetService.Editor {
 							break;
 						}
 					}
-					
+
 					AssetBundleName = abName;
 					return;
 				}
 			}
+
 			AssetBundleName = AssetName;
 		}
 
