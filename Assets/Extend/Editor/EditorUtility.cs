@@ -27,23 +27,22 @@ namespace Extend.Editor {
 			}
 		}
 
-		private static IEnumerator GenerateXLua() {
+		private static void GenerateXLua() {
 			Generator.ClearAll();
 			Generator.GenAll();
-			while( EditorApplication.isCompiling ) {
-				yield return null;
-			}
 		}
 
 		private static IEnumerator RebuildAll(BuildTarget target) {
-			yield return RebuildAllABForPlatform(BuildTarget.Android);
-			yield return GenerateXLua();
+			yield return RebuildAllABForPlatform(target);
+			GenerateXLua();
 
 			while( EditorApplication.isCompiling ) {
 				yield return null;
 			}
 
-			if( SystemInfo.graphicsDeviceName == null ) {
+			Debug.LogWarning("Compiling finished");
+			if( Environment.CurrentDirectory.Contains("Jenkins") ) {
+				Debug.LogWarning($"DEVICE NAME : {SystemInfo.graphicsDeviceName}");
 				EditorApplication.Exit(0);
 			}
 		}
