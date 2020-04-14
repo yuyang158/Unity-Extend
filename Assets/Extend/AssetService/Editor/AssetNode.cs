@@ -12,7 +12,7 @@ namespace Extend.AssetService.Editor {
 
 		private string AssetName {
 			get {
-				var assetName = Path.Combine(importer.assetPath, importer.assetPath);
+				var assetName = Path.GetDirectoryName(importer.assetPath) + "/" + Path.GetFileNameWithoutExtension(importer.assetPath);
 				assetName = assetName.Replace('\\', '/');
 				return assetName;
 			}

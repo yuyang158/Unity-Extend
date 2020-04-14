@@ -30,7 +30,7 @@ namespace Extend.AssetService.AssetProvider {
 		}
 
 		public override void Initialize() {
-#if UNITY_IPHONE
+#if UNITY_IOS
 			const string platform = "iOS";
 #elif UNITY_ANDROID
 			const string platform = "Android";
