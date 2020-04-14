@@ -6,10 +6,20 @@ using Extend.Common;
 using UnityEngine;
 using XLua;
 
+[LuaCallCSharp]
 public static class RemoteCmdClient {
+	private static readonly TcpClient tcpClient = new TcpClient {NoDelay = true};
+	public static void Restart() {
+		try {
+			tcpClient.Close();
+		}
+		finally {
+			Start();
+		}
+	}
+	
 	[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
 	private static async void Start() {
-		var tcpClient = new TcpClient {NoDelay = true};
 		try {
 			if(!Debug.isDebugBuild || Application.isEditor)
 				return;
