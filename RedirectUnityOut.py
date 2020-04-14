@@ -9,7 +9,7 @@ class OutputLogThread(threading.Thread):
         global g_bStop
         nPosRead = 0
         fp = None
-        print 'OutputLogThread Start'
+        print('OutputLogThread Start')
         while g_bStop == False:
             if os.path.isfile(self.m_logFilePath):
                 if fp == None:
@@ -22,7 +22,7 @@ class OutputLogThread(threading.Thread):
                 fp.close()
                 fp = None
                 for lines in allLines:
-                    print lines
+                    print(lines)
             time.sleep(0.5)
  
     def __init__(self, logPath):
@@ -31,7 +31,7 @@ class OutputLogThread(threading.Thread):
  
 if __name__ == '__main__':
 	if len(sys.argv) < 2:
-		print 'not find unity path'
+		print('not find unity path')
 		sys.exit(-1)
 	logFilePath = 'build.txt'
 	unityRunParm = ''
