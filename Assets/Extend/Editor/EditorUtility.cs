@@ -38,7 +38,9 @@ namespace Extend.Editor {
 			yield return RebuildAllABForPlatform(target);
 			GenerateXLua();
 
+			Debug.LogWarning("Generate xlua wrap success");
 			Directory.Delete(Application.dataPath + "/Resources", true);
+			Debug.LogWarning("Delete resources folder");
 
 			var buildPlayerOptions = new BuildPlayerOptions();
 			var scenes = new string[EditorBuildSettings.scenes.Length];
@@ -61,6 +63,7 @@ namespace Extend.Editor {
 			buildPlayerOptions.locationPathName = $"{platform}Build";
 			buildPlayerOptions.target = target;
 			buildPlayerOptions.options = BuildOptions.Development | BuildOptions.AcceptExternalModificationsToPlayer;
+			Debug.LogWarning($"Start build play {target}");
 
 			var report = BuildPipeline.BuildPlayer(buildPlayerOptions);
 			var summary = report.summary;
@@ -74,7 +77,7 @@ namespace Extend.Editor {
 
 			Debug.LogWarning("Compiling finished");
 			if( Environment.CurrentDirectory.Contains("Jenkins") ) {
-				Debug.LogWarning($"DEVICE NAME : {SystemInfo.graphicsDeviceName}");
+				Debug.LogWarning($"GRAPHICS DEVICE NAME : {SystemInfo.graphicsDeviceName}");
 				EditorApplication.Exit(summary.result == BuildResult.Succeeded ? 0 : 1);
 			}
 		}
