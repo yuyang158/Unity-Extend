@@ -42,7 +42,7 @@ if __name__ == '__main__':
     if len(sys.argv) < 2:
         print('not find unity path')
         sys.exit(-1)
-    logFilePath = 'build.txt'
+    logFilePath = 'build.log'
     unityRunParm = ''
     for i in range(len(sys.argv)):
         if i > 0:
