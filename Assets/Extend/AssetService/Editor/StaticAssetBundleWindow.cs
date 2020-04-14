@@ -192,7 +192,7 @@ namespace Extend.AssetService.Editor {
 			}
 		}
 
-		public static void RebuildAllAssetBundles(BuildTarget target) {
+		public static void RebuildAllAssetBundles(BuildTarget target, Action finishCallback = null) {
 			InitializeSetting();
 			MakeOutputDirectory(target);
 			BuildAssetRelation.Clear();
@@ -211,6 +211,7 @@ namespace Extend.AssetService.Editor {
 				}
 
 				BuildPipeline.BuildAssetBundles(outputPath, BuildAssetBundleOptions.DeterministicAssetBundle | BuildAssetBundleOptions.ChunkBasedCompression, target);
+				finishCallback?.Invoke();
 			});
 		}
 	}
