@@ -20,13 +20,7 @@ namespace Extend.AssetService.Editor {
 		public const string SETTING_FILE_PATH = "Assets/Extend/AssetService/Editor/settings.asset";
 
 		private void OnEnable() {
-			if( settingRoot == null ) {
-				settingRoot = AssetDatabase.LoadAssetAtPath<StaticABSettings>(SETTING_FILE_PATH);
-				if( settingRoot == null ) {
-					settingRoot = CreateInstance<StaticABSettings>();
-					AssetDatabase.CreateAsset(settingRoot, SETTING_FILE_PATH);
-				}
-			}
+			InitializeSetting();
 
 			serializedObject = new SerializedObject(settingRoot);
 			var settingsProp = serializedObject.FindProperty("Settings");
@@ -64,6 +58,16 @@ namespace Extend.AssetService.Editor {
 				}
 				serializedObject.ApplyModifiedProperties();
 			};
+		}
+
+		private static void InitializeSetting() {
+			if( settingRoot == null ) {
+				settingRoot = AssetDatabase.LoadAssetAtPath<StaticABSettings>(SETTING_FILE_PATH);
+				if( settingRoot == null ) {
+					settingRoot = CreateInstance<StaticABSettings>();
+					AssetDatabase.CreateAsset(settingRoot, SETTING_FILE_PATH);
+				}
+			}
 		}
 
 		private const int BOTTOM_BUTTON_COUNT = 3;
@@ -130,6 +134,7 @@ namespace Extend.AssetService.Editor {
 		}
 
 		public static void BuildUpdateAssetBundles(BuildTarget target, string versionFilePath = null) {
+			InitializeSetting();
 			var outputDir = MakeOutputDirectory(target);
 			if( string.IsNullOrEmpty(versionFilePath) ) {
 				versionFilePath = EditorUtility.OpenFilePanel("Open version file", buildRoot, "bin");
@@ -188,6 +193,7 @@ namespace Extend.AssetService.Editor {
 		}
 
 		public static void RebuildAllAssetBundles(BuildTarget target) {
+			InitializeSetting();
 			MakeOutputDirectory(target);
 			BuildAssetRelation.Clear();
 			BuildAtlasAB();
