@@ -17,6 +17,8 @@ namespace Extend.Editor {
 		}
 
 		private static IEnumerator RebuildAllABForPlatform(BuildTarget target) {
+			Directory.Delete($"{Application.streamingAssetsPath}/ABBuild", true);
+			
 			var finish = false;
 			Debug.LogWarning($"Rebuild all ab for platform {target}");
 			StaticAssetBundleWindow.RebuildAllAssetBundles(target, () => {
