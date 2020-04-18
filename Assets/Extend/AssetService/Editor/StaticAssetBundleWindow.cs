@@ -148,22 +148,27 @@ namespace Extend.AssetService.Editor {
 			BuildAssetRelation.BuildRelation(settingRoot.Settings, spritesInAtlas, () => {
 				ExportResourcesPackageConf();
 				var manifest = BuildPipeline.BuildAssetBundles(outputPath,
-					BuildAssetBundleOptions.DeterministicAssetBundle | BuildAssetBundleOptions.ChunkBasedCompression,
+					BuildAssetBundleOptions.DeterministicAssetBundle | BuildAssetBundleOptions.ChunkBasedCompression | BuildAssetBundleOptions.IgnoreTypeTreeChanges,
 					EditorUserBuildSettings.activeBuildTarget);
 
+				versionFilePath = $"{buildRoot}/content_version.bin";
+				BuildVersionFile(versionFilePath, manifest, outputPath);
+
+				var needUpdateAssetBundles = new List<string>();
 				foreach( var abName in manifest.GetAllAssetBundles() ) {
-					if( allABs.Contains(abName) ) continue;
-					BuildAssetRelation.NeedUpdateBundles.Add(abName);
-					allABs.Add(abName);
+					BuildPipeline.GetCRCForAssetBundle(Path.Combine(outputPath, abName), out var currentCrc32);
+					if( allABs.TryGetValue(abName, out var crc3d) && crc3d == currentCrc32)
+						continue;
+					needUpdateAssetBundles.Add(abName);
 				}
 
 				var date = DateTime.Now;
 				var localTime = date.ToLocalTime();
 				var dateString = $"{localTime.Year}-{localTime.Month}-{localTime.Day}_{localTime.Hour}-{localTime.Minute}-{localTime.Second}";
-				outputDir += $"update_{dateString}.txt";
+				outputDir += $"/update_{dateString}.txt";
 				using( var writer = new StreamWriter(outputDir) ) {
-					foreach( var needUpdateABName in BuildAssetRelation.NeedUpdateBundles ) {
-						var fileInfo = new FileInfo(needUpdateABName);
+					foreach( var needUpdateABName in needUpdateAssetBundles ) {
+						var fileInfo = new FileInfo(Path.Combine(outputPath, needUpdateABName));
 						writer.WriteLine($"{needUpdateABName}:{fileInfo.Length}");
 					}
 				}
@@ -200,19 +205,26 @@ namespace Extend.AssetService.Editor {
 			
 			BuildAssetRelation.BuildRelation(settingRoot.Settings, spritesInAtlas, () => {
 				ExportResourcesPackageConf();
-				using( var fileStream = new FileStream($"{buildRoot}/contentversion.bin", FileMode.OpenOrCreate, FileAccess.Write) ) {
-					using( var writer = new BinaryWriter(fileStream) ) {
-						foreach( var node in BuildAssetRelation.AllNodes ) {
-							writer.Write(node.GUID);
-							writer.Write(node.AssetBundleName);
-							writer.Write(node.AssetTimeStamp);
-						}
+
+				var manifest = BuildPipeline.BuildAssetBundles(outputPath, BuildAssetBundleOptions.DeterministicAssetBundle 
+				                                                           | BuildAssetBundleOptions.ChunkBasedCompression, target);
+				finishCallback?.Invoke();
+				BuildVersionFile($"{buildRoot}/content_version.bin", manifest, outputPath);
+			});
+		}
+
+		private static void BuildVersionFile(string versionFilePath, AssetBundleManifest manifest, string abOutputPath) {
+			using( var fileStream = new FileStream(versionFilePath, FileMode.OpenOrCreate, FileAccess.Write) ) {
+				using( var writer = new BinaryWriter(fileStream) ) {
+					var assetBundles = manifest.GetAllAssetBundles();
+					foreach( var abName in assetBundles ) {
+						writer.Write(abName);
+						var abPath = Path.Combine(abOutputPath, abName);
+						BuildPipeline.GetCRCForAssetBundle(abPath, out var crc32);
+						writer.Write(crc32);
 					}
 				}
-
-				BuildPipeline.BuildAssetBundles(outputPath, BuildAssetBundleOptions.DeterministicAssetBundle | BuildAssetBundleOptions.ChunkBasedCompression, target);
-				finishCallback?.Invoke();
-			});
+			}
 		}
 	}
 }

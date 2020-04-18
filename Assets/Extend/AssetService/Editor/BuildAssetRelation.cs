@@ -10,8 +10,6 @@ namespace Extend.AssetService.Editor {
 		private static readonly Dictionary<string, AssetNode> resourcesNodes = new Dictionary<string, AssetNode>();
 		private static readonly Dictionary<string, AssetNode> allAssetNodes = new Dictionary<string, AssetNode>( 40960 );
 		private static StaticABSetting[] manualSettings;
-		private static readonly List<string> needUpdateBundles = new List<string>();
-
 		public static readonly string[] IgnoreExtensions = {
 			".cs",
 			".meta",
@@ -40,40 +38,19 @@ namespace Extend.AssetService.Editor {
 		public static IEnumerable<AssetNode> ResourcesNodes => resourcesNodes.Values;
 		public static IEnumerable<AssetNode> AllNodes => allAssetNodes.Values;
 
-		public static IList<string> NeedUpdateBundles => needUpdateBundles;
-
 		public static void Clear() {
 			resourcesNodes.Clear();
 			allAssetNodes.Clear();
 		}
 
-		public static HashSet<string> BuildBaseVersionData(string versionConfPath) {
-			needUpdateBundles.Clear();
-			var allAssetBundles = new HashSet<string>();
+		public static Dictionary<string, uint> BuildBaseVersionData(string versionConfPath) {
+			var allAssetBundles = new Dictionary<string, uint>();
 			using( var fileStream = new FileStream( versionConfPath, FileMode.Open ) ) {
 				using( var reader = new BinaryReader( fileStream ) ) {
 					while( fileStream.Position < fileStream.Length ) {
-						var guid = reader.ReadString();
 						var abName = reader.ReadString();
-						var timestamp = reader.ReadUInt64();
-						
-						if( !allAssetBundles.Contains( abName ) ) {
-							allAssetBundles.Add( abName );
-						}
-						
-						var assetPath = AssetDatabase.GUIDToAssetPath( guid );
-						if( string.IsNullOrEmpty( assetPath ) ) {
-							continue;
-						}
-
-						var node = new AssetNode( assetPath ) {AssetBundleName = abName};
-						if( !node.IsValid )
-							continue;
-
-						if( node.AssetTimeStamp > timestamp && !needUpdateBundles.Contains( abName ) ) {
-							needUpdateBundles.Add( abName );
-						}
-						allAssetNodes.Add( guid, node );
+						var crc32 = reader.ReadUInt32();
+						allAssetBundles.Add(abName, crc32);
 					}
 				}
 			}

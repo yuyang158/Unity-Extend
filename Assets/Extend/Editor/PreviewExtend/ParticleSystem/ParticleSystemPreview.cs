@@ -227,7 +227,7 @@ public class ParticleSystemPreview : ObjectPreview {
 		//    SetSimulateMode();
 		//}
 
-		bool flag = CycleButton(!m_Playing ? 0 : 1, s_Styles.play, s_Styles.preButton) != 0;
+		var flag = CycleButton(!m_Playing ? 0 : 1, s_Styles.play, s_Styles.preButton) != 0;
 		if( flag != m_Playing ) {
 			if( flag ) {
 				SimulateEnable();
@@ -505,7 +505,6 @@ public class ParticleSystemPreview : ObjectPreview {
 
 		m_PreviousTime = EditorApplication.timeSinceStartup;
 
-		EditorApplication.update -= InspectorUpdate;
 		EditorApplication.update += InspectorUpdate;
 		m_RunningTime = 0f;
 		m_Playing = true;
@@ -536,8 +535,8 @@ public class ParticleSystemPreview : ObjectPreview {
 			return;
 		}
 
-		GameObject gameObject = m_PreviewInstance;
-		ParticleSystem particleSystem = gameObject.GetComponentInChildren<ParticleSystem>(true);
+		var gameObject = m_PreviewInstance;
+		var particleSystem = gameObject.GetComponentInChildren<ParticleSystem>(true);
 		if( particleSystem ) {
 			particleSystem.Simulate(m_RunningTime, true);
 			Repaint();
@@ -562,7 +561,7 @@ public class ParticleSystemPreview : ObjectPreview {
 	private void SetSimulateMode() {
 		SimulateDisable();
 		if( m_PreviewInstance ) {
-			ParticleSystem particleSystem = m_PreviewInstance.GetComponentInChildren<ParticleSystem>(true);
+			var particleSystem = m_PreviewInstance.GetComponentInChildren<ParticleSystem>(true);
 			if( particleSystem ) {
 				if( m_LockParticleSystem ) {
 					if( ParticleSystemEditorUtilsReflect.lockedParticleSystem != particleSystem ) {

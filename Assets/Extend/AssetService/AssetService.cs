@@ -32,8 +32,8 @@ namespace Extend.AssetService {
 		[BlackList]
 		public void Initialize() {
 			if( Application.isEditor && forceAssetBundleMode == false ) {
-				// provider = new ResourcesLoadProvider();
-				provider = new AssetBundleLoadProvider();
+				provider = new ResourcesLoadProvider();
+				// provider = new AssetBundleLoadProvider();
 			}
 			else {
 				provider = new AssetBundleLoadProvider();

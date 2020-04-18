@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.IO;
-using System.Threading;
 using CSObjectWrapEditor;
 using Extend.AssetService.Editor;
 using Unity.EditorCoroutines.Editor;
@@ -50,16 +49,7 @@ namespace Extend.Editor {
 				scenes[i] = EditorBuildSettings.scenes[i].path;
 			}
 			buildPlayerOptions.scenes = scenes;
-			string platform;
-			if( target == BuildTarget.Android ) {
-				platform = "Android";
-			}
-			else if( target == BuildTarget.iOS ) {
-				platform = "iOS";
-			}
-			else {
-				platform = "StandaloneWindows";
-			}
+			var platform = GetABDirectory(target);
 			
 			buildPlayerOptions.assetBundleManifestPath = $"{Application.persistentDataPath}/ABBuild/{platform}.manifest";
 			buildPlayerOptions.locationPathName = $"{platform}Build";
@@ -82,6 +72,21 @@ namespace Extend.Editor {
 				Debug.LogWarning($"GRAPHICS DEVICE NAME : {SystemInfo.graphicsDeviceName}");
 				EditorApplication.Exit(summary.result == BuildResult.Succeeded ? 0 : 1);
 			}
+		}
+
+		private static string GetABDirectory(BuildTarget target) {
+			string platform;
+			if( target == BuildTarget.Android ) {
+				platform = "Android";
+			}
+			else if( target == BuildTarget.iOS ) {
+				platform = "iOS";
+			}
+			else {
+				platform = "StandaloneWindows";
+			}
+
+			return platform;
 		}
 
 		[MenuItem("Tools/CI/Rebuild Android")]

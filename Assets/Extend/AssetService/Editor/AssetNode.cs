@@ -34,6 +34,13 @@ namespace Extend.AssetService.Editor {
 
 		public ulong AssetTimeStamp => importer.assetTimeStamp;
 
+		public uint Crc32 {
+			get {
+				BuildPipeline.GetCRCForAssetBundle(importer.assetBundleName, out var crc32);
+				return crc32;
+			}
+		} 
+
 		private readonly List<AssetNode> referenceNodes = new List<AssetNode>();
 		private readonly AssetImporter importer;
 

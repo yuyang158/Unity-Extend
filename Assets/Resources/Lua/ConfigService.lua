@@ -2,7 +2,7 @@
 local M = {}
 local ConfigUtil = CS.Extend.LuaUtil.ConfigUtil
 local configs = {}
-local math, tonumber, table, ipairs, setmetatable, assert = math, tonumber, table, ipairs, setmetatable, assert
+local math, tonumber, table, ipairs, setmetatable, assert, string = math, tonumber, table, ipairs, setmetatable, assert, string
 local json = require "json"
 local i18n
 
