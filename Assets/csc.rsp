@@ -1,2 +1,3 @@
 -nowarn:0649
 -define:UNITY_DEBUG
+-define:SINGLE_ENV
