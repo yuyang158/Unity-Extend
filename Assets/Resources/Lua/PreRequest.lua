@@ -1,8 +1,3 @@
-package.cpath = package.cpath .. string.format(';%s%s/.Rider2019.3/config/plugins/intellij-emmylua/classes/debugger/emmy/windows/x64/?.dll',
-		os.getenv("HOMEDRIVE"), os.getenv("HOMEPATH"))
-local dbg = require('emmy_core')
-dbg.tcpConnect('localhost', 9988)
-
 require('util')
 
 function Global_ShowLogFile()
@@ -22,15 +17,24 @@ function Global_DebugFunction(lua)
 end
 
 local SM = require "ServiceManager"
-local CS = require "ConfigService"
+local ConfigService = require "ConfigService"
 local TS = require "TickService"
-local CmdService = require("CommandService")
 
-SM.RegisterService(SM.SERVICE_TYPE.CONFIG, CS)
+local CmdService = require("CommandService")
+local UILayerService = require "UI.UILayerService"
+
+SM.RegisterService(SM.SERVICE_TYPE.CONFIG, ConfigService)
 SM.RegisterService(SM.SERVICE_TYPE.TICK, TS)
 SM.RegisterService(SM.SERVICE_TYPE.CONSOLE_COMMAND, CmdService)
+SM.RegisterService(SM.SERVICE_TYPE.UI_LAYER, UILayerService)
+
+local AssetService = CS.Extend.AssetService.AssetService.Get()
+local assetRef = AssetService:Load("Canvas", typeof(CS.UnityEngine.GameObject))
+assetRef:Instantiate()
+
+require("global_test")
 
 return function()
-	CS.clear()
-	dbg.stop()
+	ConfigService.clear()
+	-- dbg.stop()
 end

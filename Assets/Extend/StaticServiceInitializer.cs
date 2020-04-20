@@ -1,4 +1,5 @@
 using DG.Tweening;
+using Extend.Asset;
 using Extend.Common;
 using Extend.DebugUtil;
 using Extend.LuaUtil;
@@ -16,8 +17,8 @@ namespace Extend {
 			CSharpServiceManager.Register(new GlobalCoroutineRunnerService());
 			CSharpServiceManager.Register(new StatService());
 			CSharpServiceManager.Register(new ErrorLogToFile());
-			CSharpServiceManager.Register(new AssetService.AssetService());
-			CSharpServiceManager.Register(new AssetService.SpriteAssetService());
+			CSharpServiceManager.Register(new AssetService());
+			CSharpServiceManager.Register(new SpriteAssetService());
 			CSharpServiceManager.Register(new I18nService());
 			CSharpServiceManager.Register(new LuaVM());
 			CSharpServiceManager.Register(new TickService());

@@ -1,5 +1,5 @@
 using System;
-using Extend.AssetService;
+using Extend.Asset;
 using XLua;
 
 namespace Extend.LuaBindingData {

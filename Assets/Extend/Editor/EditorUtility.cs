@@ -2,7 +2,7 @@
 using System.Collections;
 using System.IO;
 using CSObjectWrapEditor;
-using Extend.AssetService.Editor;
+using Extend.Asset.Editor;
 using Unity.EditorCoroutines.Editor;
 using UnityEditor;
 using UnityEditor.Build.Reporting;

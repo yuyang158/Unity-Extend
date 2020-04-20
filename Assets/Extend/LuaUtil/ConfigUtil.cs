@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using Extend.Asset;
 using Extend.Common;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -21,7 +22,7 @@ namespace Extend.LuaUtil {
 		}
 
 		public static LuaTable LoadConfigFile(string filename) {
-			var service = CSharpServiceManager.Get<AssetService.AssetService>(CSharpServiceManager.ServiceType.ASSET_SERVICE);
+			var service = CSharpServiceManager.Get<AssetService>(CSharpServiceManager.ServiceType.ASSET_SERVICE);
 			var assetRef = service.Load( CONFIG_PATH_PREFIX + filename, typeof(TextAsset) );
 			var asset = assetRef.GetTextAsset();
 			using( var reader = new StringReader( asset.text ) ) {

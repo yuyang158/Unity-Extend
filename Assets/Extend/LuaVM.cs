@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using Extend.AssetService;
+using Extend.Asset;
 using Extend.Common;
 using UnityEngine;
 using XLua;
@@ -24,9 +24,9 @@ namespace Extend {
 			Default = new LuaEnv();
 			Default.AddLoader((ref string filename) => {
 				filename = filename.Replace('.', '/');
-				var service = CSharpServiceManager.Get<AssetService.AssetService>(CSharpServiceManager.ServiceType.ASSET_SERVICE);
+				var service = CSharpServiceManager.Get<AssetService>(CSharpServiceManager.ServiceType.ASSET_SERVICE);
 				var assetRef = service.Load($"Lua/{filename}", typeof(TextAsset));
-				if( assetRef == null || assetRef.AssetStatus != AssetRefObject.AssetStatus.DONE )
+				if( assetRef.AssetStatus != AssetRefObject.AssetStatus.DONE )
 					return null;
 				filename += ".lua";
 				return assetRef.GetTextAsset().bytes;

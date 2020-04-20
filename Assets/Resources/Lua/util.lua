@@ -1,23 +1,22 @@
 local setmetatable, getmetatable, rawset, rawget, pairs, type, ipairs = setmetatable, getmetatable, rawset, rawget, pairs, type, ipairs
-local insert = table.insert
+local insert, concat = table.insert, table.concat
 local find, format, sub, gsub = string.find, string.format, string.sub, string.gsub
 local tonumber, tostring = tonumber, tostring
-
-
 local next = next
+
 string.replace = function(s, pattern, repl)
-    local i,j = string.find(s, pattern, 1, true)
+    local i,j = find(s, pattern, 1, true)
     if i and j then
         local ret = {}
         local start = 1
         while i and j do
-            table.insert(ret, string.sub(s, start, i - 1))
-            table.insert(ret, repl)
+            insert(ret, sub(s, start, i - 1))
+            insert(ret, repl)
             start = j + 1
-            i,j = string.find(s, pattern, start, true)
+            i,j = find(s, pattern, start, true)
         end
-        table.insert(ret, string.sub(s, start))
-        return table.concat(ret)
+        insert(ret, sub(s, start))
+        return concat(ret)
     end
     return s
 end
@@ -92,15 +91,23 @@ end
 
 table.print_r = print_r
 
+local traceback = debug.traceback
+local xpcall_catch = function(f, ...)
+    local ok, err = xpcall(f, traceback, ...)
+    if not ok then
+        error(err)
+    end
+    
+    return ok, err
+end
+
 local function parse_path(path)
     if not path or path == '' then error('invalid path:' .. tostring(path)) end
-    --print('start to parse ' .. path)
     local result = {}
     local i, n = 1, #path
     while i <= n do
         local s, e, split1, key, split2 = find(path, "([%.%[])([^%.^%[^%]]+)(%]?)", i)
         if not s or s > i then
-            --print('"'.. sub(path, i, s and s - 1).. '"')
             insert(result, sub(path, i, s and s - 1))
         end
         if not s then break end
@@ -108,15 +115,12 @@ local function parse_path(path)
             if split2 ~= ']' then error('invalid path:' .. path) end
             key = tonumber(key)
             if not key then error('invalid path:' .. path) end
-            --print(key)
             insert(result, key)
         else
-            --print('"'.. key .. '"')
             insert(result, key)
         end
         i = e + 1
     end
-    --print('finish parse ' .. path)
     return result
 end
 
@@ -139,5 +143,6 @@ end
 
 return {
     parse_path = parse_path,
-    gen_callback_func = gen_callback_func
+    gen_callback_func = gen_callback_func,
+    xpcall_catch = xpcall_catch
 }

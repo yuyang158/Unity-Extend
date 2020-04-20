@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Xml;
-using Extend.AssetService;
+using Extend.Asset;
 using Extend.Common;
 using UnityEngine;
 

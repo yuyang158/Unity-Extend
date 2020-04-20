@@ -44,7 +44,7 @@ public static class XLuaGenConfig {
 		"TouchScreenKeyboardType", "TouchScreenKeyboard",
 		"MovieTexture", "UnityEngineInternal",
 		"Terrain", "Tree", "SplatPrototype",
-		"DetailPrototype", "DetailRenderMode",
+		"DetailPrototype", "DetailRenderMode", "Wheel",
 		"MeshSubsetCombineUtility", "AOT", "Social", "Enumerator",
 		"SendMouseEvents", "Cursor", "Flash", "ActionScript",
 		"OnRequestRebuild", "Ping", "DynamicGI", "AssetBundle",

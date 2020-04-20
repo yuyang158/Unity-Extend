@@ -60,6 +60,10 @@ MonoBehaviour:
       BindTargetProp: text
       Mode: 0
       Path: count
+    - BindTarget: {fileID: 6390549662719057511}
+      BindTargetProp: text
+      Mode: 0
+      Path: count
 --- !u!1 &6390549662719057509
 GameObject:
   m_ObjectHideFlags: 0
