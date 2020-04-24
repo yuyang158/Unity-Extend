@@ -3,24 +3,12 @@ using UnityEngine;
 using XLua;
 
 namespace Extend.UI {
-	[LuaCallCSharp]
+	[LuaCallCSharp, RequireComponent(typeof(CanvasGroup))]
 	public abstract class UIViewBase : MonoBehaviour {
 		public event Action Showing;
 		public event Action Shown;
 		public event Action Hiding;
 		public event Action Hidden;
-
-		public bool FullScreen;
-		
-		public enum LayerName {
-			Scene,
-			Dialog,
-			Popup,
-			Tip,
-			MostTop
-		}
-
-		public LayerName Layer;
 
 		public enum Status {
 			Showing,
@@ -29,20 +17,50 @@ namespace Extend.UI {
 			Hidden
 		}
 
+		private Canvas cachedCanvas;
+		private CanvasGroup cachedCanvasGroup;
+
+		private void Awake() {
+			cachedCanvasGroup = GetComponent<CanvasGroup>();
+			cachedCanvas = GetComponent<Canvas>();
+		}
+
+		private Status viewStatus;
+
 		public Status ViewStatus {
-			get;
-			protected set;
+			get => viewStatus;
+			protected set {
+				viewStatus = value;
+				switch( viewStatus ) {
+					case Status.Showing:
+					case Status.Hiding:
+						cachedCanvasGroup.interactable = false;
+						break;
+					case Status.Loop:
+						cachedCanvasGroup.interactable = true;
+						break;
+					case Status.Hidden:
+						if( cachedCanvas )
+							cachedCanvas.enabled = false;
+						break;
+					default:
+						throw new ArgumentOutOfRangeException();
+				}
+			}
 		}
 
 		protected abstract void OnShow();
 
 		public void Show() {
+			if( cachedCanvas )
+				cachedCanvas.enabled = true;
 			Showing?.Invoke();
 			ViewStatus = Status.Showing;
 			OnShow();
 		}
 
 		protected abstract void OnHide();
+
 		public void Hide() {
 			Hiding?.Invoke();
 			ViewStatus = Status.Hiding;
@@ -50,6 +68,7 @@ namespace Extend.UI {
 		}
 
 		protected abstract void OnLoop();
+
 		protected void Loop() {
 			Shown?.Invoke();
 			ViewStatus = Status.Loop;

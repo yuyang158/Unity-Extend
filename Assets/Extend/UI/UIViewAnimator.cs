@@ -12,13 +12,18 @@ namespace Extend.UI {
 			animator = GetComponent<Animator>();
 		}
 
+		private void PlayHashAndUpdate(int hash) {
+			animator.enabled = true;
+			animator.Play(hash);
+			animator.Update(0);
+		}
+
 		protected override void OnShow() {
 			if( !animator.HasState(0, SHOW_HASH) ) {
 				Loop();
 				return;
 			}
-			
-			animator.Play(SHOW_HASH);
+			PlayHashAndUpdate(SHOW_HASH);
 		}
 
 		protected override void OnHide() {
@@ -26,19 +31,19 @@ namespace Extend.UI {
 				OnClosed();
 				return;
 			}
-			
-			animator.Play(HIDE_HASH);
+			PlayHashAndUpdate(HIDE_HASH);
 		}
 
 		protected override void OnLoop() {
 			if( !animator.HasState(0, LOOP_HASH) ) {
 				return;
 			}
-			animator.SetTrigger(LOOP_HASH);
+			PlayHashAndUpdate(LOOP_HASH);
 		}
 
 		public void OnEvent(string evt) {
 			if( evt == "Finish" ) {
+				animator.enabled = false;
 				if( ViewStatus == Status.Showing ) {
 					Loop();
 				}

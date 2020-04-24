@@ -6,7 +6,7 @@ namespace Extend.UI.Animation {
 	[Serializable]
 	public abstract class StateAnimation {
 		[SerializeField]
-		public float delay;
+		private float delay;
 		public float Delay {
 			get => delay;
 			set {
@@ -16,7 +16,7 @@ namespace Extend.UI.Animation {
 		}
 
 		[SerializeField]
-		public float duration = 1;
+		private float duration = 1;
 		public float Duration {
 			get => duration;
 			set {

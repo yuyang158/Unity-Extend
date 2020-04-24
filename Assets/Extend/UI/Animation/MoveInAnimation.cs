@@ -1,0 +1,53 @@
+﻿using System;
+using DG.Tweening;
+using UnityEngine;
+
+namespace Extend.UI.Animation {
+	[Serializable]
+	public class MoveInAnimation : StateAnimation {
+		public enum Direction {
+			Left,
+			Top,
+			Right,
+			Bottom
+		}
+
+		[SerializeField]
+		private Direction moveInDirection = Direction.Left;
+
+		public Direction MoveInDirection {
+			get => moveInDirection;
+			set {
+				moveInDirection = value;
+				dirty = true;
+			}
+		}
+
+		protected override Tween DoGenerateTween(RectTransform t, Vector3 start) {
+			Vector2 startPosition =  start;
+			var size = t.sizeDelta;
+			Vector2 position = start;
+			switch( MoveInDirection ) {
+				case Direction.Left:
+					startPosition.x -= size.x;
+					break;
+				case Direction.Top:
+					startPosition.y += size.y;
+					break;
+				case Direction.Right:
+					startPosition.x += size.x;
+					break;
+				case Direction.Bottom:
+					startPosition.y -= size.y;
+					break;
+				default:
+					throw new ArgumentOutOfRangeException();
+			}
+
+			t.anchoredPosition = startPosition;
+			t.DOAnchorPos(position, Duration).SetDelay(Delay).SetEase(Ease);
+			
+			return null;
+		}
+	}
+}

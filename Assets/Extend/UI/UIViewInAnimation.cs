@@ -6,9 +6,8 @@ using UnityEngine;
 
 namespace Extend.UI {
 	[Serializable]
-	public class UIAnimation : IUIAnimationPreview {
+	public class UIViewInAnimation : IUIAnimationPreview {
 		public enum AnimationMode {
-			PUNCH,
 			STATE,
 			ANIMATOR
 		}
@@ -21,19 +20,13 @@ namespace Extend.UI {
 		public bool Enabled => enabled;
 
 		[SerializeField]
-		private PunchCombined punch;
-
-		[SerializeField]
-		private StateCombine state;
+		private ViewInStateCombine state;
 
 		[SerializeField]
 		private AnimatorParamProcessor processor;
 
 		public Tween[] Active(Transform t) {
 			switch( Mode ) {
-				case AnimationMode.PUNCH:
-					punch.Active(t);
-					return punch.AllTween;
 				case AnimationMode.STATE:
 					state.Active(t);
 					return state.AllTween;

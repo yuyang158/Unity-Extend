@@ -12,6 +12,15 @@ namespace Extend.UI {
 		private Button button;
 		private void Awake() {
 			button = GetComponent<Button>();
+			if( PointerDown.Enabled ) {
+				PointerDown.Cache(transform);
+			}
+			if( PointerClick.Enabled ) {
+				PointerClick.Cache(transform);
+			}
+			if( PointerUp.Enabled ) {
+				PointerUp.Cache(transform);
+			}
 		}
 
 		public void OnPointerDown(PointerEventData eventData) {

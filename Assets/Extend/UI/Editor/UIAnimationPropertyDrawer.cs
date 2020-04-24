@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using DG.DOTweenEditor;
+using DG.Tweening;
 using UnityEditor;
 using UnityEngine;
 
@@ -191,6 +193,15 @@ namespace Extend.UI.Editor {
 						continue;
 
 					DOTweenEditorPreview.PrepareTweenForPreview(tween);
+					tween.onComplete += () => {
+						if( allTween.Any(t => t != null && !t.IsComplete()) ) {
+							return;
+						}
+						
+						DOTweenEditorPreview.Stop(true);
+						previewGO = GameObject.Find("-[ DOTween Preview ► ]-");
+						UnityEngine.Object.DestroyImmediate(previewGO);
+					};
 				}
 
 				DOTweenEditorPreview.Start();

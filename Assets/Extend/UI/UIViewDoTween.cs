@@ -1,10 +1,11 @@
-﻿using DG.Tweening;
+﻿using System.Linq;
+using DG.Tweening;
 
 namespace Extend.UI {
 	public class UIViewDoTween : UIViewBase {
-		public UIAnimation ShowAnimation;
+		public UIViewInAnimation ShowAnimation;
 		public UIAnimation HideAnimation;
-		public UIAnimation LoopAnimation;
+		public UIViewLoopAnimation LoopAnimation;
 
 		private Tween[] currentTweens;
 
@@ -41,10 +42,8 @@ namespace Extend.UI {
 				return;
 			}
 
-			foreach( var tween in currentTweens ) {
-				if( tween != null && !tween.IsComplete() ) {
-					return;
-				}
+			if( currentTweens.Any(tween => tween != null && !tween.IsComplete()) ) {
+				return;
 			}
 
 			currentTweens = null;
