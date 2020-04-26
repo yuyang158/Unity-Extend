@@ -10,7 +10,7 @@ namespace Extend.UI.Animation {
 		where ScaleT : StateAnimation 
 		where FadeT : StateAnimation {
 		public MoveT Move;
-		public RotateT Rotation;
+		public RotateT Rotate;
 		public ScaleT Scale;
 		public FadeT Fade;
 
@@ -25,17 +25,26 @@ namespace Extend.UI.Animation {
 			}
 		}
 
-		public void Cache(Transform t) {
+		public void CacheStartValue(Transform t) {
 			if( !cached || !Application.isPlaying ) {
 				rectTransform = t as RectTransform;
 				startMove = rectTransform.anchoredPosition3D;
 				startRotate = rectTransform.localRotation.eulerAngles;
 				startScale = rectTransform.localScale;
 				var group = rectTransform.GetComponent<CanvasGroup>();
-				if( group ) {
-					startAlpha = group.alpha;
-				}
+				startAlpha = group ? group.alpha : 1;
 				cached = true;
+			}
+		}
+
+		public void Editor_Recovery(Transform t) {
+			rectTransform = t as RectTransform;
+			rectTransform.anchoredPosition3D = startMove;
+			rectTransform.localRotation = Quaternion.Euler(startRotate);
+			rectTransform.localScale = startScale;
+			var group = rectTransform.GetComponent<CanvasGroup>();
+			if( group ) {
+				group.alpha = startAlpha;
 			}
 		}
 
@@ -49,7 +58,7 @@ namespace Extend.UI.Animation {
 		private void BuildAllTween(Transform t) {
 			rectTransform = t as RectTransform;
 			AllTween[0] = Move.Active(rectTransform, startMove);
-			AllTween[1] = Rotation.Active(rectTransform, startRotate);
+			AllTween[1] = Rotate.Active(rectTransform, startRotate);
 			AllTween[2] = Scale.Active(rectTransform, startScale);
 			AllTween[3] = Fade.Active(rectTransform, Vector3.one * startAlpha);
 		}

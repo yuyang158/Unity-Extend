@@ -9,8 +9,7 @@ namespace Extend.UI.Animation {
 		private Vector3 moveBy;
 
 		protected override Tween DoGenerateTween(RectTransform t, Vector3 start) {
-			t.anchoredPosition = start;
-			return t.DOAnchorPos(start + moveBy, Duration).SetDelay(Delay).SetEase(Ease).SetLoops(Loops, LoopType);
+			return t.DOAnchorPos(start + moveBy, Duration).SetDelay(Delay).SetEase(Ease).SetLoops(Loops, LoopType).ChangeStartValue(start);
 		}
 	}
 }

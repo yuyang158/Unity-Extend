@@ -28,8 +28,7 @@ namespace Extend.UI.Animation {
 		}
 
 		protected override Tween DoGenerateTween(RectTransform t, Vector3 start) {
-			t.rotation = Quaternion.Euler(RotateFrom);
-			return t.DOLocalRotate(start, Duration, RotateMode).SetDelay(Delay).SetEase(Ease);
+			return t.DOLocalRotate(start, Duration, RotateMode).SetDelay(Delay).SetEase(Ease).ChangeStartValue(RotateFrom);
 		}
 	}
 }

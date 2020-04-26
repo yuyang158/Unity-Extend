@@ -1,17 +1,18 @@
 ﻿using System;
 using DG.Tweening;
+using Extend.Common;
 using UnityEngine;
 
 namespace Extend.UI.Animation {
 	[Serializable]
 	public class FadeInAnimation : StateAnimation {
-		[SerializeField]
-		private float fade;
-		public float Fade {
-			get => fade;
+		[SerializeField, LabelText("Fade From Alpha Value(0-1)")]
+		private float fadeFrom;
+		public float FadeFrom {
+			get => fadeFrom;
 			set {
 				dirty = true;
-				fade = value;
+				fadeFrom = value;
 			}
 		}
 
@@ -23,7 +24,7 @@ namespace Extend.UI.Animation {
 				if( !canvasGroup )
 					return null;
 			}
-			return canvasGroup.DOFade(Fade, Duration).SetDelay(Delay).SetEase(Ease);
+			return canvasGroup.DOFade(start.x, Duration).SetDelay(Delay).SetEase(Ease).ChangeStartValue(FadeFrom);
 		}
 	}
 }

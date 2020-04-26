@@ -4,7 +4,9 @@ local table = table
 ---@type CS.Extend.AssetService.AssetService
 local AssetService
 
-function M.Init(transform)
+function M.Init()
+	local go = CS.UnityEngine.GameObject.FindWithTag("UIRoot")
+	local transform = go.transform
 	for i = 0, transform.childCount - 1 do
 		local childLayer = transform:GetChild(i)
 		local layer = {

@@ -6,7 +6,7 @@ namespace Extend.UI.Animation {
 	[Serializable]
 	public class PunchCombined {
 		public MovePunchAnimation Move;
-		public RotationPunchAnimation Rotation;
+		public RotatePunchAnimation rotate;
 		public ScalePunchAnimation Scale;
 
 		public Tween[] AllTween { get; private set; } = new Tween[3];
@@ -22,7 +22,7 @@ namespace Extend.UI.Animation {
 
 		private void BuildAllTween(Transform t) {
 			AllTween[0] = Move.Active(t);
-			AllTween[1] = Rotation.Active(t);
+			AllTween[1] = rotate.Active(t);
 			AllTween[2] = Scale.Active(t);
 		}
 

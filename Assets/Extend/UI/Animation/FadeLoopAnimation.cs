@@ -32,10 +32,7 @@ namespace Extend.UI.Animation {
 				canvasGroup = t.GetComponent<CanvasGroup>();
 			}
 
-			if( !canvasGroup )
-				return null;
-			canvasGroup.alpha = From;
-			return canvasGroup.DOFade(To, Duration).SetDelay(Delay).SetEase(Ease).SetLoops(Loops, LoopType);
+			return canvasGroup ? canvasGroup.DOFade(To, Duration).SetDelay(Delay).SetEase(Ease).SetLoops(Loops, LoopType).ChangeStartValue(From) : null;
 		}
 	}
 }

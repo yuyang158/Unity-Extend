@@ -4,19 +4,19 @@ using UnityEngine;
 
 namespace Extend.UI.Animation {
 	[Serializable]
-	public class RotationStateAnimation : StateAnimation {
+	public class RotateStateAnimation : StateAnimation {
 		[SerializeField]
-		private Vector3 rotation;
-		public Vector3 Rotation {
-			get => rotation;
+		private Vector3 rotate;
+		public Vector3 Rotate {
+			get => rotate;
 			set {
 				dirty = true;
-				rotation = value;
+				rotate = value;
 			}
 		}
 
 		protected override Tween DoGenerateTween(RectTransform t, Vector3 start) {
-			return t.DOLocalRotate(start + Rotation, Duration).SetDelay(Delay).SetEase(Ease);
+			return t.DOLocalRotate(start + Rotate, Duration).SetDelay(Delay).SetEase(Ease);
 		}
 	}
 }

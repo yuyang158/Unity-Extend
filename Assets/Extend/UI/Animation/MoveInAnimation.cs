@@ -1,5 +1,6 @@
 ﻿using System;
 using DG.Tweening;
+using Extend.Common;
 using UnityEngine;
 
 namespace Extend.UI.Animation {
@@ -12,7 +13,7 @@ namespace Extend.UI.Animation {
 			Bottom
 		}
 
-		[SerializeField]
+		[SerializeField, LabelText("Move From")]
 		private Direction moveInDirection = Direction.Left;
 
 		public Direction MoveInDirection {
@@ -25,7 +26,7 @@ namespace Extend.UI.Animation {
 
 		protected override Tween DoGenerateTween(RectTransform t, Vector3 start) {
 			Vector2 startPosition =  start;
-			var size = t.sizeDelta;
+			var size = t.rect.size;
 			Vector2 position = start;
 			switch( MoveInDirection ) {
 				case Direction.Left:
@@ -44,10 +45,7 @@ namespace Extend.UI.Animation {
 					throw new ArgumentOutOfRangeException();
 			}
 
-			t.anchoredPosition = startPosition;
-			t.DOAnchorPos(position, Duration).SetDelay(Delay).SetEase(Ease);
-			
-			return null;
+			return t.DOAnchorPos(position, Duration).SetDelay(Delay).SetEase(Ease).ChangeStartValue(startPosition);
 		}
 	}
 }

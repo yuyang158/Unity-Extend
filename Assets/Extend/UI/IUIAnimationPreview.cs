@@ -3,8 +3,10 @@ using UnityEngine;
 
 namespace Extend.UI {
 	public interface IUIAnimationPreview {
-		void Cache(Transform transform);
+		void CacheStartValue(Transform transform);
 
 		Tween[] CollectPreviewTween(Transform transform);
+
+		void Editor_Recovery(Transform transform);
 	}
 }

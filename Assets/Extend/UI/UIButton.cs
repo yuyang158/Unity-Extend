@@ -13,13 +13,13 @@ namespace Extend.UI {
 		private void Awake() {
 			button = GetComponent<Button>();
 			if( PointerDown.Enabled ) {
-				PointerDown.Cache(transform);
+				PointerDown.CacheStartValue(transform);
 			}
 			if( PointerClick.Enabled ) {
-				PointerClick.Cache(transform);
+				PointerClick.CacheStartValue(transform);
 			}
 			if( PointerUp.Enabled ) {
-				PointerUp.Cache(transform);
+				PointerUp.CacheStartValue(transform);
 			}
 		}
 

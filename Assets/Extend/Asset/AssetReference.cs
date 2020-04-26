@@ -4,7 +4,7 @@ using UnityEngine.Assertions;
 using XLua;
 using Object = UnityEngine.Object;
 
-namespace Extend.AssetService {
+namespace Extend.Asset {
 	[Serializable, LuaCallCSharp]
 	public class AssetReference : IDisposable {
 		private AssetInstance asset;
@@ -64,6 +64,10 @@ namespace Extend.AssetService {
 		
 		public AnimationClip GetAnimationClip() {
 			return GetAsset<AnimationClip>();
+		}
+		
+		public T GetScriptableObject<T>() where T : ScriptableObject {
+			return GetAsset<T>();
 		}
 		
 		public AssetAsyncLoadHandle LoadAsync(Type typ) {

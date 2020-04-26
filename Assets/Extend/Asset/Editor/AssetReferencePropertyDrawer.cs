@@ -7,10 +7,12 @@ namespace Extend.Asset.Editor {
 	[CustomPropertyDrawer(typeof(AssetReference), true)]
 	public class AssetReferencePropertyDrawer : PropertyDrawer {
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label) {
+			if( !string.IsNullOrEmpty(label.text) ) {
+				if( !label.text.Contains("(Asset)") )
+					label.text += " (Asset)";
+			}
+			
 			var guidProp = property.FindPropertyRelative("assetGUID");
-			if( !label.text.Contains("(Asset)") )
-				label.text += " (Asset)";
-
 			var attributes = fieldInfo.GetCustomAttributes(typeof(AssetReferenceAssetTypeAttribute), false);
 			var type = typeof(Object);
 			if( !string.IsNullOrEmpty(label.tooltip) ) {
@@ -22,7 +24,6 @@ namespace Extend.Asset.Editor {
 					type = attr.AssetType;
 				}
 			}
-
 			var assetPath = AssetDatabase.GUIDToAssetPath(guidProp.stringValue);
 			var resObj = AssetDatabase.LoadAssetAtPath(assetPath, type);
 			var newResObj = EditorGUI.ObjectField(position, label, resObj, type, false);

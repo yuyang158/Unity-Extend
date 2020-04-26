@@ -11,10 +11,10 @@ namespace Extend.LuaUtil {
 	public static class ConfigUtil {
 		private const string CONFIG_PATH_PREFIX = "Config/";
 
-		private static LuaTable ConvertStringArrayToLua(IReadOnlyList<string> values) {
+		private static LuaTable ConvertStringArrayToLua(string[] values) {
 			var luaVM = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
 			var luaArr = luaVM.Default.NewTable();
-			for( var i = 0; i < values.Count; i++ ) {
+			for( var i = 0; i < values.Length; i++ ) {
 				luaArr.Set( i + 1, values[i] );
 			}
 			

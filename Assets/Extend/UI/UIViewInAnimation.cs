@@ -40,14 +40,20 @@ namespace Extend.UI {
 			return null;
 		}
 
-		public void Cache(Transform t) {
+		public void CacheStartValue(Transform t) {
 			if( Mode == AnimationMode.STATE ) {
-				state.Cache(t);
+				state.CacheStartValue(t);
 			}
 		}
 
 		public Tween[] CollectPreviewTween(Transform transform) {
 			return Active(transform);
+		}
+
+		public void Editor_Recovery(Transform transform) {
+			if( Mode == AnimationMode.STATE ) {
+				state.Editor_Recovery(transform);
+			}
 		}
 	}
 }

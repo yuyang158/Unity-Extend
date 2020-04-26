@@ -9,6 +9,20 @@ namespace Extend.UI {
 
 		private Tween[] currentTweens;
 
+		private void Awake() {
+			if( ShowAnimation != null && ShowAnimation.Enabled ) {
+				ShowAnimation.CacheStartValue(transform);
+			}
+
+			if( HideAnimation != null && HideAnimation.Enabled ) {
+				HideAnimation.CacheStartValue(transform);
+			}
+
+			if( LoopAnimation != null && LoopAnimation.Enabled ) {
+				LoopAnimation.CacheStartValue(transform);
+			}
+		}
+
 		protected override void OnShow() {
 			if( ShowAnimation.Enabled ) {
 				enabled = true;

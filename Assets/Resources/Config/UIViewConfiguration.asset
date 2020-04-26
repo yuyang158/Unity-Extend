@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 18a4a2d768f448419406df9fcdfd2045, type: 3}
+  m_Name: UIViewConfiguration
+  m_EditorClassIdentifier: 
+  configurations:
+  - Name: Login
+    UIView:
+      assetGUID: 2f8fb33ed7d19c546bb204e461c234d7
+    BackgroundFx:
+      assetGUID: 
+    FullScreen: 1
+    Transition:
+      assetGUID: 
+    AttachLayer: 1
+  - Name: SingleMessageBox
+    UIView:
+      assetGUID: c626bc8e0e4e70e458956c6afe808f9e
+    BackgroundFx:
+      assetGUID: 
+    FullScreen: 0
+    Transition:
+      assetGUID: 
+    AttachLayer: 2

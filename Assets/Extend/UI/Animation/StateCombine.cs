@@ -2,7 +2,7 @@ using System;
 
 namespace Extend.UI.Animation {
 	[Serializable]
-	public class StateCombine : StateAnimationTemplate<MoveStateAnimation, RotationStateAnimation, ScaleStateAnimation, FadeStateAnimation> {
+	public class StateCombine : StateAnimationTemplate<MoveStateAnimation, RotateStateAnimation, ScaleStateAnimation, FadeStateAnimation> {
 	}
 	
 	[Serializable]

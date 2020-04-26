@@ -7,6 +7,7 @@ namespace Extend.UI.Animation {
 	public class RotateLoopAnimation : StateLoopAnimation {
 		[SerializeField]
 		private Vector3 rotateBy;
+
 		public Vector3 RotateBy {
 			get => rotateBy;
 			set {
@@ -17,6 +18,7 @@ namespace Extend.UI.Animation {
 
 		[SerializeField]
 		private RotateMode rotateMode = RotateMode.Fast;
+
 		public RotateMode RotateMode {
 			get => rotateMode;
 			set {
@@ -24,9 +26,9 @@ namespace Extend.UI.Animation {
 				dirty = true;
 			}
 		}
+
 		protected override Tween DoGenerateTween(RectTransform t, Vector3 start) {
-			t.localRotation = Quaternion.Euler(start);
-			return t.DOLocalRotate(RotateBy, Duration, RotateMode).SetDelay(Delay).SetEase(Ease).SetLoops(Loops, LoopType);
+			return t.DOLocalRotate(RotateBy, Duration, RotateMode).SetDelay(Delay).SetEase(Ease).SetLoops(Loops, LoopType).ChangeStartValue(start);
 		}
 	}
 }

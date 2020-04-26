@@ -8,6 +8,7 @@
 
 using System.Collections.Generic;
 using System;
+using System.Diagnostics;
 using XLua;
 using System.Reflection;
 using System.Linq;
@@ -31,7 +32,7 @@ public static class XLuaGenConfig {
 		"ConnectionTesterStatus", "GUI", "EventType",
 		"EventModifiers", "FontStyle", "TextAlignment",
 		"TextEditor", "TextEditorDblClickSnapping",
-		"TextGenerator", "TextClipping", "Gizmos",
+		"TextGenerator", "TextClipping", "Gizmos", "Occlusion",
 		"ADBannerView", "ADInterstitialAd",
 		"Android", "Tizen", "jvalue",
 		"iPhone", "iOS", "Windows", "CalendarIdentifier",
@@ -42,7 +43,7 @@ public static class XLuaGenConfig {
 		"RemoteNotificationType", "RemoteNotification",
 		"SamsungTV", "TextureCompressionQuality",
 		"TouchScreenKeyboardType", "TouchScreenKeyboard",
-		"MovieTexture", "UnityEngineInternal",
+		"MovieTexture", "UnityEngineInternal", "2D", "WWW",
 		"Terrain", "Tree", "SplatPrototype",
 		"DetailPrototype", "DetailRenderMode", "Wheel",
 		"MeshSubsetCombineUtility", "AOT", "Social", "Enumerator",
@@ -123,6 +124,10 @@ public static class XLuaGenConfig {
 		return exclude.Any(t => fullName.Contains(t));
 	}
 
+	private static readonly Type[] exportToLua = {
+		typeof(Stopwatch)
+	};
+
 	[LuaCallCSharp]
 	public static IEnumerable<Type> LuaCallCSharp {
 		get {
@@ -155,7 +160,7 @@ public static class XLuaGenConfig {
 				select type );
 
 			var arr = customTypes.ToArray();
-			return unityTypes.Concat(arr);
+			return unityTypes.Concat(arr).Concat(exportToLua);
 		}
 	}
 

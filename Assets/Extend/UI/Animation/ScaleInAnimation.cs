@@ -17,8 +17,7 @@ namespace Extend.UI.Animation {
 		}
 
 		protected override Tween DoGenerateTween(RectTransform t, Vector3 start) {
-			t.localScale = ScaleFrom;
-			return t.DOScale(start, Duration).SetDelay(Delay).SetEase(Ease);
+			return t.DOScale(start, Duration).SetDelay(Delay).SetEase(Ease).ChangeStartValue(ScaleFrom);
 		}
 	}
 }

@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using XLua;
 
@@ -13,6 +14,10 @@ namespace Extend.LuaUtil {
 		public static LuaTable GetLuaBinding(this Component component, string type) {
 			var bindings = component.GetComponents<LuaBinding>();
 			return FindInLuaBinding(type, bindings);
+		}
+		
+		public static T AddComponent<T>(this Component component) where T : Component {
+			return component.gameObject.AddComponent<T>();
 		}
 
 		private static LuaTable FindInLuaBinding(string type, LuaBinding[] bindings) {
