@@ -1,5 +1,6 @@
 using System;
 using DG.Tweening;
+using Extend.Common;
 using UnityEngine;
 
 namespace Extend.UI.Animation {

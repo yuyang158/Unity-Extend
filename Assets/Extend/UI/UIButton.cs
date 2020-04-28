@@ -1,3 +1,5 @@
+using System;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -9,15 +11,33 @@ namespace Extend.UI {
 		public UIAnimation PointerClick;
 		public UIAnimation PointerUp;
 
+		private Tween[] currentTweens;
+
+		private Tween[] CurrentTweens {
+			get => currentTweens;
+			set {
+				if( CurrentTweens != null ) {
+					foreach( var tween in CurrentTweens ) {
+						tween.Complete();
+					}
+				}
+
+				currentTweens = value;
+			}
+		}
+
 		private Button button;
+
 		private void Awake() {
 			button = GetComponent<Button>();
 			if( PointerDown.Enabled ) {
 				PointerDown.CacheStartValue(transform);
 			}
+
 			if( PointerClick.Enabled ) {
 				PointerClick.CacheStartValue(transform);
 			}
+
 			if( PointerUp.Enabled ) {
 				PointerUp.CacheStartValue(transform);
 			}
@@ -25,20 +45,33 @@ namespace Extend.UI {
 
 		public void OnPointerDown(PointerEventData eventData) {
 			if( PointerDown.Enabled && button.interactable ) {
-				PointerDown.Active(transform);
+				CurrentTweens = PointerDown.Active(transform);
+			}
+			else {
+				CurrentTweens = null;
 			}
 		}
 
 		public void OnPointerClick(PointerEventData eventData) {
 			if( PointerClick.Enabled && button.interactable ) {
-				PointerClick.Active(transform);
+				CurrentTweens = PointerClick.Active(transform);
+			}
+			else {
+				CurrentTweens = null;
 			}
 		}
 
 		public void OnPointerUp(PointerEventData eventData) {
 			if( PointerUp.Enabled && button.interactable ) {
-				PointerUp.Active(transform);
+				CurrentTweens = PointerUp.Active(transform);
 			}
+			else {
+				CurrentTweens = null;
+			}
+		}
+
+		private void OnDisable() {
+			CurrentTweens = null;
 		}
 	}
 }

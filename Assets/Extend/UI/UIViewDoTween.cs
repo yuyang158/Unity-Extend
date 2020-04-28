@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using DG.Tweening;
 
 namespace Extend.UI {
@@ -9,6 +10,18 @@ namespace Extend.UI {
 
 		private Tween[] currentTweens;
 
+		private Tween[] CurrentTweens {
+			get => currentTweens;
+			set {
+				if( CurrentTweens != null ) {
+					foreach( var tween in CurrentTweens ) {
+						tween.Complete();
+					}
+				}
+
+				currentTweens = value;
+			}
+		}
 		private void Awake() {
 			if( ShowAnimation != null && ShowAnimation.Enabled ) {
 				ShowAnimation.CacheStartValue(transform);
@@ -26,7 +39,7 @@ namespace Extend.UI {
 		protected override void OnShow() {
 			if( ShowAnimation.Enabled ) {
 				enabled = true;
-				currentTweens = ShowAnimation.Active(transform);
+				CurrentTweens = ShowAnimation.Active(transform);
 			}
 			else {
 				Loop();
@@ -36,7 +49,7 @@ namespace Extend.UI {
 		protected override void OnHide() {
 			if( HideAnimation.Enabled ) {
 				enabled = true;
-				HideAnimation.Active(transform);
+				CurrentTweens = HideAnimation.Active(transform);
 			}
 			else {
 				OnClosed();
@@ -44,19 +57,19 @@ namespace Extend.UI {
 		}
 
 		protected override void OnLoop() {
-			enabled = false;
 			if( LoopAnimation.Enabled ) {
-				LoopAnimation.Active(transform);
+				enabled = true;
+				CurrentTweens = LoopAnimation.Active(transform);
 			}
 		}
 
 		private void Update() {
-			if( currentTweens == null ) {
+			if( CurrentTweens == null ) {
 				enabled = false;
 				return;
 			}
 
-			if( currentTweens.Any(tween => tween != null && !tween.IsComplete()) ) {
+			if( CurrentTweens.Any(tween => tween != null && !tween.IsComplete()) ) {
 				return;
 			}
 
@@ -67,6 +80,10 @@ namespace Extend.UI {
 			else if( ViewStatus == Status.Hiding ) {
 				OnClosed();
 			}
+		}
+
+		private void OnDisable() {
+			CurrentTweens = null;
 		}
 	}
 }

@@ -23,6 +23,9 @@ namespace Extend.UI {
 		private void Awake() {
 			cachedCanvasGroup = GetComponent<CanvasGroup>();
 			cachedCanvas = GetComponent<Canvas>();
+			if( cachedCanvas ) {
+				cachedCanvas.additionalShaderChannels = AdditionalCanvasShaderChannels.None;
+			}
 		}
 
 		private Status viewStatus;

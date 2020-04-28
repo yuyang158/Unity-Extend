@@ -28,7 +28,11 @@ namespace Extend.UI.Animation {
 		}
 
 		protected override Tween DoGenerateTween(RectTransform t, Vector3 start) {
-			return t.DOLocalRotate(RotateBy, Duration, RotateMode).SetDelay(Delay).SetEase(Ease).SetLoops(Loops, LoopType).ChangeStartValue(start);
+			return t.DOLocalRotate(start + RotateBy, Duration, RotateMode)
+				.SetDelay(Delay)
+				.SetEase(Ease)
+				.SetLoops(Loops, LoopType)
+				.ChangeStartValue(start - RotateBy);
 		}
 	}
 }

@@ -8,11 +8,11 @@ namespace Extend.UI {
 	[Serializable]
 	public class UIViewInAnimation : IUIAnimationPreview {
 		public enum AnimationMode {
-			STATE,
-			ANIMATOR
+			ANIMATOR,
+			STATE
 		}
 
-		public AnimationMode Mode;
+		public AnimationMode Mode = AnimationMode.STATE;
 
 		[SerializeField]
 		private bool enabled;

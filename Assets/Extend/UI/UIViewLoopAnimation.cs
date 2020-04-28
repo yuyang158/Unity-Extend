@@ -8,11 +8,11 @@ namespace Extend.UI {
 	[Serializable]
 	public class UIViewLoopAnimation : IUIAnimationPreview {
 		public enum AnimationMode {
-			STATE,
-			ANIMATOR
+			ANIMATOR,
+			STATE
 		}
 
-		public AnimationMode Mode;
+		public AnimationMode Mode = AnimationMode.STATE;
 
 		[SerializeField]
 		private bool enabled;
@@ -20,7 +20,7 @@ namespace Extend.UI {
 		public bool Enabled => enabled;
 
 		[SerializeField]
-		private ViewInStateCombine state;
+		private ViewLoopStateCombine state;
 
 		[SerializeField]
 		private AnimatorParamProcessor processor;
