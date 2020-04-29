@@ -22,6 +22,7 @@ namespace Extend.LuaUtil {
 
 		private static LuaTable FindInLuaBinding(string type, LuaBinding[] bindings) {
 			// ReSharper disable once LoopCanBeConvertedToQuery
+			type = type.Replace('.', '/');
 			foreach( var binding in bindings ) {
 				if( Path.GetFileName(binding.LuaFile) == type ) {
 					return binding.LuaInstance;

@@ -28,11 +28,7 @@ SM.RegisterService(SM.SERVICE_TYPE.TICK, TS)
 SM.RegisterService(SM.SERVICE_TYPE.CONSOLE_COMMAND, CmdService)
 SM.RegisterService(SM.SERVICE_TYPE.UI_LAYER, UILayerService)
 
-local AssetService = CS.Extend.AssetService.AssetService.Get()
-local assetRef = AssetService:Load("Canvas", typeof(CS.UnityEngine.GameObject))
-assetRef:Instantiate()
-
-require("global_test")
+UILayerService.Show("Login")
 
 return function()
 	ConfigService.clear()

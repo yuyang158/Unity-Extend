@@ -58,7 +58,7 @@ Canvas:
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
-  m_AdditionalShaderChannelsFlag: 0
+  m_AdditionalShaderChannelsFlag: 25
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
@@ -70,7 +70,7 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5218543376388635082}
   m_Enabled: 1
-  m_Alpha: 0
+  m_Alpha: 1
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
@@ -89,53 +89,32 @@ MonoBehaviour:
   ShowAnimation:
     Mode: 1
     enabled: 1
-    punch:
-      Move:
-        punch: {x: 0, y: 0, z: 0}
-        duration: 1
-        vibrato: 10
-        elasticity: 1
-        delay: 0
-        active: 0
-      Rotation:
-        punch: {x: 0, y: 0, z: 0}
-        duration: 1
-        vibrato: 10
-        elasticity: 1
-        delay: 0
-        active: 0
-      Scale:
-        punch: {x: 0, y: 0, z: 0}
-        duration: 1
-        vibrato: 10
-        elasticity: 1
-        delay: 0
-        active: 0
     state:
       Move:
         delay: 0
         duration: 0.5
         ease: 2
         active: 1
-        move: {x: 0, y: 150, z: 0}
-      Rotation:
+        moveInDirection: 0
+      Rotate:
         delay: 0
         duration: 1
         ease: 1
         active: 0
-        rotation: {x: 0, y: 0, z: 0}
+        rotateFrom: {x: 0, y: 0, z: 0}
+        rotateMode: 0
       Scale:
         delay: 0
         duration: 1
         ease: 1
         active: 0
-        scale: {x: 1, y: 1, z: 1}
+        scaleFrom: {x: 0, y: 0, z: 0}
       Fade:
         delay: 0
         duration: 0.2
         ease: 8
         active: 1
-        fade: 1
+        fadeFrom: 0
     processor:
       ani: {fileID: 0}
       paramValue:
@@ -154,7 +133,7 @@ MonoBehaviour:
         elasticity: 1
         delay: 0
         active: 0
-      Rotation:
+      Rotate:
         punch: {x: 0, y: 0, z: 0}
         duration: 1
         vibrato: 10
@@ -175,12 +154,12 @@ MonoBehaviour:
         ease: 1
         active: 0
         move: {x: 0, y: 0, z: 0}
-      Rotation:
+      Rotate:
         delay: 0
         duration: 1
         ease: 1
         active: 0
-        rotation: {x: 0, y: 0, z: 0}
+        rotate: {x: 0, y: 0, z: 0}
       Scale:
         delay: 0
         duration: 1
@@ -201,55 +180,44 @@ MonoBehaviour:
         iV: 0
         bV: 0
   LoopAnimation:
-    Mode: 0
-    enabled: 0
-    punch:
-      Move:
-        punch: {x: 0, y: 0, z: 0}
-        duration: 1
-        vibrato: 10
-        elasticity: 1
-        delay: 0
-        active: 0
-      Rotation:
-        punch: {x: 0, y: 0, z: 0}
-        duration: 1
-        vibrato: 10
-        elasticity: 1
-        delay: 0
-        active: 0
-      Scale:
-        punch: {x: 0, y: 0, z: 0}
-        duration: 1
-        vibrato: 10
-        elasticity: 1
-        delay: 0
-        active: 0
+    Mode: 1
+    enabled: 1
     state:
       Move:
         delay: 0
         duration: 1
-        ease: 1
-        active: 0
-        move: {x: 0, y: 0, z: 0}
-      Rotation:
+        ease: 5
+        active: 1
+        loops: -1
+        loopType: 1
+        moveBy: {x: 0, y: 20, z: 0}
+      Rotate:
         delay: 0
         duration: 1
         ease: 1
         active: 0
-        rotation: {x: 0, y: 0, z: 0}
+        loops: -1
+        loopType: 0
+        rotateBy: {x: 0, y: 0, z: 0}
+        rotateMode: 0
       Scale:
         delay: 0
         duration: 1
         ease: 1
         active: 0
-        scale: {x: 1, y: 1, z: 1}
+        loops: -1
+        loopType: 0
+        scaleFrom: {x: 0, y: 0, z: 0}
+        scaleTo: {x: 0, y: 0, z: 0}
       Fade:
         delay: 0
         duration: 1
         ease: 1
         active: 0
-        fade: 0
+        loops: -1
+        loopType: 0
+        from: 0
+        to: 0
     processor:
       ani: {fileID: 0}
       paramValue:

@@ -13,7 +13,7 @@ namespace Extend.UI {
 			STATE
 		}
 
-		public AnimationMode Mode = AnimationMode.ANIMATOR;
+		public AnimationMode Mode = AnimationMode.PUNCH;
 
 		[SerializeField]
 		private bool enabled;

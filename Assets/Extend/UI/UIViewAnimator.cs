@@ -8,7 +8,9 @@ namespace Extend.UI {
 		private static readonly int LOOP_HASH = Animator.StringToHash("Loop");
 
 		private Animator animator;
-		private void Awake() {
+
+		protected override void Awake() {
+			base.Awake();
 			animator = GetComponent<Animator>();
 		}
 

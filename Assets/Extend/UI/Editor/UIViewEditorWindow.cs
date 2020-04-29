@@ -115,7 +115,7 @@ namespace Extend.UI.Editor {
 		}
 
 		private void OnEnable() {
-			const string path = "Assets/Resources/" + UIViewConfiguration.FILE_PATH;
+			const string path = "Assets/Resources/" + UIViewConfiguration.FILE_PATH + ".asset";
 			var uiViewConfiguration = AssetDatabase.LoadAssetAtPath<UIViewConfiguration>(path);
 			if( !uiViewConfiguration ) {
 				uiViewConfiguration = CreateInstance<UIViewConfiguration>();

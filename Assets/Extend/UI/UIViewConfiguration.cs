@@ -7,19 +7,18 @@ using UnityEngine.Assertions;
 using XLua;
 
 namespace Extend.UI {
+	[Serializable, LuaCallCSharp]
+	public enum UILayer {
+		Scene,
+		Dialog,
+		Popup,
+		Tip,
+		MostTop
+	}
 	[LuaCallCSharp]
 	public class UIViewConfiguration : ScriptableObject {
 		[Serializable, LuaCallCSharp]
 		public class Configuration {
-			[Serializable]
-			public enum Layer {
-				Scene,
-				Dialog,
-				Popup,
-				Tip,
-				MostTop
-			}
-			
 			public string Name = "Default";
 
 			[AssetReferenceAssetType(AssetType = typeof(UIViewBase))]
@@ -33,7 +32,7 @@ namespace Extend.UI {
 			[AssetReferenceAssetType(AssetType = typeof(UIViewBase))]
 			public AssetReference Transition;
 
-			public Layer AttachLayer;
+			public UILayer AttachLayer;
 		}
 
 		[SerializeField]
@@ -42,19 +41,21 @@ namespace Extend.UI {
 		public Configuration[] Configurations => configurations;
 
 		private Dictionary<string, Configuration> hashedConfigurations;
-		public const string FILE_PATH = "Config/UIViewConfiguration.asset";
+		public const string FILE_PATH = "Config/UIViewConfiguration";
 
 		private void OnEnable() {
 			if( configurations == null ) {
 				configurations = new[] { new Configuration() };
 			}
-			
-			if(!Application.isPlaying)
-				return;
+		}
+
+		public UIViewConfiguration ConvertData() {
 			hashedConfigurations = new Dictionary<string, Configuration>(configurations.Length);
 			foreach( var configuration in configurations ) {
 				hashedConfigurations.Add(configuration.Name, configuration);
 			}
+
+			return this;
 		}
 
 		public Configuration GetOne(string configName) {
@@ -68,9 +69,9 @@ namespace Extend.UI {
 
 		public static UIViewConfiguration Load() {
 			var assetRef = AssetService.Get().Load(FILE_PATH, typeof(UIViewConfiguration));
-			Assert.IsFalse(assetRef != null && assetRef.IsFinished);
+			Assert.IsTrue(assetRef.AssetStatus == AssetRefObject.AssetStatus.DONE);
 
-			return assetRef.GetScriptableObject<UIViewConfiguration>();
+			return assetRef.GetScriptableObject<UIViewConfiguration>().ConvertData();
 		}
 	}
 }

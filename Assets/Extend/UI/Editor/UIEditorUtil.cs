@@ -53,9 +53,9 @@ namespace Extend.UI.Editor {
 		public static void StopPreview(SerializedProperty property) {
 			var transform = PreviewComponent(property, out var animation);
 			DOTweenEditorPreview.Stop();
-			animation.Editor_Recovery(transform);
 			var previewGO = GameObject.Find("-[ DOTween Preview ► ]-");
 			Object.DestroyImmediate(previewGO);
+			animation.Editor_Recovery(transform);
 		}
 
 		public static int DrawAnimationMode(Rect transformModeSelectionRect, SerializedProperty animationProp, IReadOnlyCollection<string> types) {

@@ -54,6 +54,16 @@ function table.table_each(t, callback)
     end
 end
 
+function table.index_of(t, val)
+    for i = 1, #t do
+        if val == t[i] then
+            return i
+        end
+    end
+    
+    return -1
+end
+
 local function print_r(t)
     local log = ""
     local print_r_cache={}

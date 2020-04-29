@@ -85,5 +85,14 @@ namespace Extend.UI.Editor {
 				}
 			}
 		}
+
+		protected override string GetAnimationFieldName(int mode) {
+			if( mode == 1 ) {
+				return "punch";
+			}
+			else {
+				return "state";
+			}
+		}
 	}
 }

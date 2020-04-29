@@ -20,6 +20,10 @@ namespace Extend {
 			CSharpServiceManager.Register(new AssetService());
 			CSharpServiceManager.Register(new SpriteAssetService());
 			CSharpServiceManager.Register(new I18nService());
+		}
+
+		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+		private static void OnSceneLoaded() {
 			CSharpServiceManager.Register(new LuaVM());
 			CSharpServiceManager.Register(new TickService());
 			CSharpServiceManager.Register(new NetworkService());

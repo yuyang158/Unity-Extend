@@ -29,6 +29,10 @@ namespace Extend.UI.Editor {
 		protected abstract float SingleDoTweenHeight { get; }
 		protected abstract string[] Mode { get; }
 
+		protected virtual string GetAnimationFieldName(int mode) {
+			return "state";
+		}
+
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label) {
 			animationProperty = property;
 			position.height = EditorGUIUtility.singleLineHeight;
@@ -46,36 +50,30 @@ namespace Extend.UI.Editor {
 			var modeProp = property.FindPropertyRelative("Mode");
 			EditorGUI.PropertyField(position, modeProp);
 
-			var mode = (UIViewLoopAnimation.AnimationMode)modeProp.intValue;
+			var mode = modeProp.intValue;
 			position.y += lineHeight;
-			switch( mode ) {
-				case UIViewLoopAnimation.AnimationMode.STATE:
-					var previewRect = position;
-					previewRect.xMax = previewRect.x + 120;
-					DrawPreview(property, previewRect);
-					position.y += lineHeight;
-
-					var animationProp = property.FindPropertyRelative("state");
-					animationModeActiveCount = UIEditorUtil.DrawAnimationMode(position, animationProp, Mode);
-					position.y += lineHeight;
-					var originLabelWidth = EditorGUIUtility.labelWidth;
-					for( var i = 0; i < Mode.Length; i++ ) {
-						var type = Mode[i];
-						var typProp = animationProp.FindPropertyRelative(type);
-						var activeProp = typProp.FindPropertyRelative("active");
-						if( !activeProp.boolValue )
-							continue;
-						position = CurrentAnimation[i].OnGUI(position, typProp);
-						EditorGUIUtility.labelWidth = originLabelWidth;
-					}
-
-					break;
-				case UIViewLoopAnimation.AnimationMode.ANIMATOR:
-					var animatorProcessorProp = property.FindPropertyRelative("processor");
-					EditorGUI.PropertyField(position, animatorProcessorProp);
-					break;
-				default:
-					throw new ArgumentOutOfRangeException();
+			if( mode == 0 ) {
+				var animatorProcessorProp = property.FindPropertyRelative("processor");
+				EditorGUI.PropertyField(position, animatorProcessorProp);
+			}
+			else {
+				var previewRect = position;
+				previewRect.xMax = previewRect.x + 120;
+				DrawPreview(property, previewRect);
+				position.y += lineHeight;
+				var animationProp = property.FindPropertyRelative(GetAnimationFieldName(mode));
+				animationModeActiveCount = UIEditorUtil.DrawAnimationMode(position, animationProp, Mode);
+				position.y += lineHeight;
+				var originLabelWidth = EditorGUIUtility.labelWidth;
+				for( var i = 0; i < Mode.Length; i++ ) {
+					var type = Mode[i];
+					var typProp = animationProp.FindPropertyRelative(type);
+					var activeProp = typProp.FindPropertyRelative("active");
+					if( !activeProp.boolValue )
+						continue;
+					position = CurrentAnimation[i].OnGUI(position, typProp);
+					EditorGUIUtility.labelWidth = originLabelWidth;
+				}
 			}
 		}
 

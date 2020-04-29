@@ -22,7 +22,9 @@ namespace Extend.UI {
 				currentTweens = value;
 			}
 		}
-		private void Awake() {
+
+		protected override void Awake() {
+			base.Awake();
 			if( ShowAnimation != null && ShowAnimation.Enabled ) {
 				ShowAnimation.CacheStartValue(transform);
 			}
@@ -69,7 +71,7 @@ namespace Extend.UI {
 				return;
 			}
 
-			if( CurrentTweens.Any(tween => tween != null && !tween.IsComplete()) ) {
+			if( CurrentTweens.Any(tween => tween != null && tween.active) ) {
 				return;
 			}
 

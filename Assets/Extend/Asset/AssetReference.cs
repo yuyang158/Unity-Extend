@@ -78,11 +78,13 @@ namespace Extend.Asset {
 		}
 
 		public GameObject Instantiate(Transform parent = null, bool stayWorldPosition = false) {
+			GetGameObject();
 			Assert.AreEqual(asset.Status, AssetRefObject.AssetStatus.DONE);
 			return Object.Instantiate(asset.UnityObject, parent, stayWorldPosition) as GameObject;
 		}
 
 		public GameObject Instantiate(Vector3 position, Quaternion quaternion, Transform parent = null) {
+			GetGameObject();
 			Assert.AreEqual(asset.Status, AssetRefObject.AssetStatus.DONE);
 			return Object.Instantiate(asset.UnityObject, position, quaternion, parent) as GameObject;
 		}

@@ -8,7 +8,8 @@ namespace Extend.UI {
 	public class UIViewCompound : UIViewBase {
 		public UIViewBase[] Views;
 
-		private void Awake() {
+		protected override void Awake() {
+			base.Awake();
 			foreach( var view in Views ) {
 				view.Shown += ShownCheck;
 				view.Hidden += HiddenCheck;

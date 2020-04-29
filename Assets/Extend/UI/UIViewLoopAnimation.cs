@@ -52,7 +52,7 @@ namespace Extend.UI {
 
 		public void Editor_Recovery(Transform transform) {
 			if( Mode == AnimationMode.STATE ) {
-				state.CacheStartValue(transform);
+				state.Editor_Recovery(transform);
 			}
 		}
 	}

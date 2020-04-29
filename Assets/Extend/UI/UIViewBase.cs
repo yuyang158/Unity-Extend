@@ -20,7 +20,7 @@ namespace Extend.UI {
 		private Canvas cachedCanvas;
 		private CanvasGroup cachedCanvasGroup;
 
-		private void Awake() {
+		protected virtual void Awake() {
 			cachedCanvasGroup = GetComponent<CanvasGroup>();
 			cachedCanvas = GetComponent<Canvas>();
 			if( cachedCanvas ) {
