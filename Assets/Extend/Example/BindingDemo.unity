@@ -772,6 +772,9 @@ GameObject:
   - component: {fileID: 1249937209}
   - component: {fileID: 1249937208}
   - component: {fileID: 1249937207}
+  - component: {fileID: 1249937212}
+  - component: {fileID: 1249937211}
+  - component: {fileID: 1249937213}
   m_Layer: 0
   m_Name: Cube
   m_TagString: Untagged
@@ -853,6 +856,73 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: -18.383001, y: 23.339, z: -7.7490005}
+--- !u!114 &1249937211
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249937206}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f14305e0e45e4a9bb3b7ece95d30d442, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Callbacks:
+  - Event: {fileID: 11400000, guid: 3350caf6afd64a644bb826f65c750291, type: 2}
+    Function:
+      Binding: {fileID: 1249937213}
+      LuaMethodName: OnClick
+--- !u!111 &1249937212
+Animation:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249937206}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Animation: {fileID: 0}
+  m_Animations:
+  - {fileID: 7400000, guid: 6421ceb03d012fa4997e511c2713a5f4, type: 2}
+  m_WrapMode: 0
+  m_PlayAutomatically: 1
+  m_AnimatePhysics: 0
+  m_CullingType: 0
+--- !u!114 &1249937213
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249937206}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b707bd6caa68448419b0d3a7ed790234, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  LuaFile: Test/TestPanel
+  IntData: []
+  BoolData: []
+  NumData:
+  - FieldName: num
+    Data: 0
+  StrData:
+  - FieldName: str
+    Data: 
+  UOData:
+  - FieldName: slot
+    Data: {fileID: 0}
+  - FieldName: txt
+    Data: {fileID: 0}
+  - FieldName: btn
+    Data: {fileID: 0}
+  - FieldName: stateSwitcher
+    Data: {fileID: 0}
+  AssetReferenceData: []
+  UOArrayData:
+  - FieldName: slots
+    Data: []
 --- !u!1 &1345132761
 GameObject:
   m_ObjectHideFlags: 0

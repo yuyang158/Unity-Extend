@@ -393,14 +393,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ClickEvent:
-    Events:
-    - Binding: {fileID: 7189537287185346221}
-      Param:
-        Int: 0
-        Float: 0
-        Str: 
-        Type: 3
+  - Function:
+      Binding: {fileID: 7189537287185346221}
       LuaMethodName: OnMessageButtonClicked
+    Param:
+      Int: 12
+      Float: 0
+      Str: 
+      AssetRef:
+        assetGUID: 
+      Type: 1
 --- !u!1 &8694791660466165694
 GameObject:
   m_ObjectHideFlags: 0

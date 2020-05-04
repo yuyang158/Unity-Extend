@@ -6,21 +6,25 @@ using XLua;
 
 namespace Extend.LuaBindingEvent {
 	public abstract class LuaBindingEventBase : MonoBehaviour {
-		protected static void TriggerPointerEvent(IEnumerable<LuaBindingEventData> events, PointerEventData data) {
+		protected static void TriggerPointerEvent(IEnumerable<BindingEvent> events, PointerEventData data) {
 			foreach( var evt in events ) {
-				var func = evt.Binding.LuaInstance.GetInPath<LuaFunction>(evt.LuaMethodName);
+				var emmyFunction = evt.Function;
+				var func = emmyFunction.Binding.LuaInstance.GetInPath<LuaFunction>(emmyFunction.LuaMethodName);
 				switch( evt.Param.Type ) {
-					case LuaBindingEventData.EventParam.ParamType.Int:
-						func.Call(evt.Binding.LuaInstance, data, evt.Param.Int);
+					case EventParam.ParamType.None:
+						func.Call(emmyFunction.Binding.LuaInstance, data);
 						break;
-					case LuaBindingEventData.EventParam.ParamType.Float:
-						func.Call(evt.Binding.LuaInstance, data, evt.Param.Float);
+					case EventParam.ParamType.Int:
+						func.Call(emmyFunction.Binding.LuaInstance, data, evt.Param.Int);
 						break;
-					case LuaBindingEventData.EventParam.ParamType.String:
-						func.Call(evt.Binding.LuaInstance, data, evt.Param.Str);
+					case EventParam.ParamType.Float:
+						func.Call(emmyFunction.Binding.LuaInstance, data, evt.Param.Float);
 						break;
-					case LuaBindingEventData.EventParam.ParamType.None:
-						func.Call(evt.Binding.LuaInstance, data);
+					case EventParam.ParamType.String:
+						func.Call(emmyFunction.Binding.LuaInstance, data, evt.Param.Str);
+						break;
+					case EventParam.ParamType.AssetRef:
+						func.Call(emmyFunction.Binding.LuaInstance, data, evt.Param.AssetRef);
 						break;
 					default:
 						throw new ArgumentOutOfRangeException();

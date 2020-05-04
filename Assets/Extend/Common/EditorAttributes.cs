@@ -1,11 +1,19 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace Extend.Common {
-	public class LabelText : PropertyAttribute {
+	public class LabelTextAttribute : PropertyAttribute, IExtendAttribute {
 		public string Text { get; }
 
-		public LabelText(string text) {
+		public LabelTextAttribute(string text) {
 			Text = text;
 		}
+	}
+
+	[AttributeUsage(AttributeTargets.Field)]
+	public class ReorderListAttribute : SpecialCaseAttribute {
+	}
+
+	public class SpecialCaseAttribute : PropertyAttribute, IExtendAttribute {
 	}
 }

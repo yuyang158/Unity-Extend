@@ -1,5 +1,5 @@
----@class UI.TestPanel
----@field slot CS.Extend.AssetService.AssetReference @CS.UnityEngine.Sprite
+---@class Test.TestPanel
+---@field slot CS.Extend.Asset.AssetReference @CS.UnityEngine.Sprite
 ---@field slots UI.ItemSlot[]
 ---@field txt CS.UnityEngine.UI.Text
 ---@field btn CS.UnityEngine.UI.Button

@@ -10,11 +10,15 @@ namespace Extend.Common {
 			if( str2Types.TryGetValue(fullTypeName, out var type) ) {
 				return type;
 			}
-			type = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes()).First(x => x.FullName == fullTypeName);
-			if( type == null )
-				return null;
-			str2Types.Add(fullTypeName, type);
-			return type;
+
+			var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes());
+			foreach( var t in types ) {
+				if( t.FullName == fullTypeName ) {
+					str2Types.Add(fullTypeName, t);
+					return t;
+				}
+			}
+			return null;
 		}
 	}
 }

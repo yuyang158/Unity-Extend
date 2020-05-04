@@ -16,6 +16,7 @@ namespace Extend.UI.Editor {
 		
 		public static readonly string[] PUNCH_ANIMATION_MODE = {"Move", "Rotate", "Scale"};
 		public static readonly string[] STATE_ANIMATION_MODE = {"Move", "Rotate", "Scale", "Fade"};
+		public const float ROW_CONTROL_MARGIN = 5;
 
 		public static void StartPreview(SerializedProperty property) {
 			var transform = PreviewComponent(property, out var animation);

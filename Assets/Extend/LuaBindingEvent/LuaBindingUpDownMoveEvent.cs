@@ -1,26 +1,28 @@
+using Extend.Common;
+using UnityEngine;
 using UnityEngine.EventSystems;
 
 namespace Extend.LuaBindingEvent {
 	public class LuaBindingUpDownMoveEvent : LuaBindingEventBase, IPointerDownHandler, IPointerUpHandler, IDragHandler {
-		[LuaEvents("On Down ()")]
-		public LuaBindingEvents DownEvent;
+		[ReorderList, LabelText("On Down ()"), SerializeField]
+		private BindingEvent[] downEvent;
 		
-		[LuaEvents("On Up ()")]
-		public LuaBindingEvents UpEvent;
+		[ReorderList, LabelText("On Up ()"), SerializeField]
+		private BindingEvent[] upEvent;
 		
-		[LuaEvents("On Move ()")]
-		public LuaBindingEvents MoveEvent;
+		[ReorderList, LabelText("On Move ()"), SerializeField]
+		private BindingEvent[] moveEvent;
 		
 		public void OnPointerDown(PointerEventData eventData) {
-			TriggerPointerEvent(DownEvent.Events, eventData);
+			TriggerPointerEvent(downEvent, eventData);
 		}
 
 		public void OnPointerUp(PointerEventData eventData) {
-			TriggerPointerEvent(UpEvent.Events, eventData);
+			TriggerPointerEvent(upEvent, eventData);
 		}
 
 		public void OnDrag(PointerEventData eventData) {
-			TriggerPointerEvent(MoveEvent.Events, eventData);
+			TriggerPointerEvent(moveEvent, eventData);
 		}
 	}
 }

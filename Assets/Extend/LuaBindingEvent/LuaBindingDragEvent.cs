@@ -1,26 +1,28 @@
+using Extend.Common;
+using UnityEngine;
 using UnityEngine.EventSystems;
 
 namespace Extend.LuaBindingEvent {
 	public class LuaBindingDragEvent : LuaBindingEventBase, IBeginDragHandler, IDragHandler, IEndDragHandler {
-		[LuaEvents("On Drag Start ()")]
-		public LuaBindingEvents DragStartEvent;
+		[ReorderList, LabelText("On Drag Start ()"), SerializeField]
+		private BindingEvent[] dragStartEvent;
 		
-		[LuaEvents("On Drag End ()")]
-		public LuaBindingEvents DragEndEvent;
+		[ReorderList, LabelText("On Drag End ()"), SerializeField]
+		private BindingEvent[] dragEndEvent;
 		
-		[LuaEvents("On Drag ()")]
-		public LuaBindingEvents DragEvent;
+		[ReorderList, LabelText("On Drag ()"), SerializeField]
+		private BindingEvent[] dragEvent;
 		
 		public void OnBeginDrag(PointerEventData eventData) {
-			TriggerPointerEvent(DragStartEvent.Events, eventData);
+			TriggerPointerEvent(dragStartEvent, eventData);
 		}
 
 		public void OnDrag(PointerEventData eventData) {
-			TriggerPointerEvent(DragEvent.Events, eventData);
+			TriggerPointerEvent(dragEvent, eventData);
 		}
 
 		public void OnEndDrag(PointerEventData eventData) {
-			TriggerPointerEvent(DragEndEvent.Events, eventData);
+			TriggerPointerEvent(dragEndEvent, eventData);
 		}
 	}
 }

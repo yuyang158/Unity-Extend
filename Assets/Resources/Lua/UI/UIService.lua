@@ -4,6 +4,7 @@ local bgFx = {}
 local table, assert, typeof = table, assert, typeof
 ---@type CS.Extend.Asset.AssetService
 local AssetService
+local Object = CS.UnityEngine.Object
 
 ---@type CS.Extend.UI.UIViewConfiguration
 local UIViewConfiguration
@@ -13,7 +14,7 @@ function M.Init()
 	UIViewConfiguration = CS.Extend.UI.UIViewConfiguration.Load()
 
 	local go = CS.UnityEngine.GameObject.Find("UI")
-	CS.UnityEngine.Object.DontDestroyOnLoad(go)
+	Object.DontDestroyOnLoad(go)
 	local transform = go.transform
 	for i = 0, transform.childCount - 1 do
 		local childLayer = transform:GetChild(i)
@@ -71,7 +72,7 @@ local function loadView(configuration, callback)
 		if index > 0 then
 			table.remove(layer.elements, index)
 		end
-		CS.UnityEngine.Object.Destroy(go)
+		Object.Destroy(go)
 	end
 	view:Hidden("+", hiddenCb)
 	table.insert(layer.elements, {go = go, view = view})
