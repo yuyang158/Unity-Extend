@@ -90,6 +90,7 @@ GameObject:
   - component: {fileID: 8959071688430133179}
   - component: {fileID: 6578825464652708395}
   - component: {fileID: 928103825}
+  - component: {fileID: 7896472692131091341}
   m_Layer: 5
   m_Name: Button
   m_TagString: Untagged
@@ -379,6 +380,27 @@ MonoBehaviour:
         fV: 0
         iV: 0
         bV: 0
+--- !u!114 &7896472692131091341
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7289884634257194796}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a016cfed1e747c40ab602074289ab0c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ClickEvent:
+    Events:
+    - Binding: {fileID: 7189537287185346221}
+      Param:
+        Int: 0
+        Float: 0
+        Str: 
+        Type: 3
+      LuaMethodName: OnMessageButtonClicked
 --- !u!1 &8694791660466165694
 GameObject:
   m_ObjectHideFlags: 0
@@ -390,9 +412,9 @@ GameObject:
   - component: {fileID: 8694791660466165681}
   - component: {fileID: 8694791660466165682}
   - component: {fileID: 8694791660466165683}
+  - component: {fileID: 7964972842930380667}
   - component: {fileID: 8694791660466165680}
   - component: {fileID: 7189537287185346221}
-  - component: {fileID: 8294329200690288055}
   m_Layer: 5
   m_Name: Login
   m_TagString: Untagged
@@ -453,6 +475,23 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!114 &7964972842930380667
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8694791660466165694}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreReversedGraphics: 1
+  m_BlockingObjects: 0
+  m_BlockingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
 --- !u!114 &8694791660466165680
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -624,27 +663,6 @@ MonoBehaviour:
   UOData: []
   AssetReferenceData: []
   UOArrayData: []
---- !u!114 &8294329200690288055
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8694791660466165694}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1a016cfed1e747c40ab602074289ab0c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ClickEvent:
-    Events:
-    - Binding: {fileID: 7189537287185346221}
-      Param:
-        Int: 0
-        Float: 0
-        Str: 
-        Type: 3
-      LuaMethodName: OnMessageButtonClicked
 --- !u!1 &8694791660483093027
 GameObject:
   m_ObjectHideFlags: 0

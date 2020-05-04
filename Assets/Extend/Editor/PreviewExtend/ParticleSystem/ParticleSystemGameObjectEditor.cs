@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEditor;
 
-[CustomEditor(typeof(GameObject)), CanEditMultipleObjects]
+// [CustomEditor(typeof(GameObject)), CanEditMultipleObjects]
 public class ParticleSystemGameObjectEditor : OverrideEditor {
 	private class Styles {
 		public readonly GUIContent ps = new GUIContent("PS", "Show particle system preview");

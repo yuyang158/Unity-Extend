@@ -60,7 +60,15 @@ function table.index_of(t, val)
             return i
         end
     end
-    
+    return -1
+end
+
+function table.index_of_predict(t, func)
+    for i = 1, #t do
+        if func(t[i]) then
+            return i
+        end
+    end
     return -1
 end
 

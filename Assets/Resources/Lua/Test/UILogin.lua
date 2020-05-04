@@ -1,12 +1,15 @@
 ﻿---@class Test.UILogin
 local M = class()
-local UILayerService = require "UI.UILayerService"
+local SM = require "ServiceManager"
 
 function M:awake()
 	
 end
 
 function M:OnMessageButtonClicked()
-	UILayerService.Show("SingleMessageBox")
+	local uiService = SM.GetService(SM.SERVICE_TYPE.UI)
+	uiService.Show("SingleMessageBox", function()
+		
+	end)
 end
 return M

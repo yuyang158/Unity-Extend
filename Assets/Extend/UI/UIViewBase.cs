@@ -23,10 +23,11 @@ namespace Extend.UI {
 		protected virtual void Awake() {
 			cachedCanvasGroup = GetComponent<CanvasGroup>();
 			cachedCanvas = GetComponent<Canvas>();
-			if( cachedCanvas ) {
-				cachedCanvas.additionalShaderChannels = AdditionalCanvasShaderChannels.None;
-			}
+			cachedCanvas.additionalShaderChannels = AdditionalCanvasShaderChannels.None;
 		}
+
+		public Canvas canvas => cachedCanvas;
+		public CanvasGroup canvasGroup => cachedCanvasGroup;
 
 		private Status viewStatus;
 
@@ -50,6 +51,11 @@ namespace Extend.UI {
 						throw new ArgumentOutOfRangeException();
 				}
 			}
+		}
+
+		public void SetVisible(bool visible) {
+			cachedCanvas.enabled = visible;
+			canvasGroup.blocksRaycasts = visible;
 		}
 
 		protected abstract void OnShow();

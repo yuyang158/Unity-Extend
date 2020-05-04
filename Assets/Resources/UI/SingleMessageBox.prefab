@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 5218543376388635085}
   - component: {fileID: 5218543376388635086}
   - component: {fileID: 5218543376388635087}
+  - component: {fileID: 1338881199355945001}
   - component: {fileID: 5218543376388635084}
   m_Layer: 5
   m_Name: SingleMessageBox
@@ -74,6 +75,23 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!114 &1338881199355945001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5218543376388635082}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreReversedGraphics: 1
+  m_BlockingObjects: 0
+  m_BlockingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
 --- !u!114 &5218543376388635084
 MonoBehaviour:
   m_ObjectHideFlags: 0

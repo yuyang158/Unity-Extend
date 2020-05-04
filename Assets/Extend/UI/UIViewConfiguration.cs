@@ -13,7 +13,9 @@ namespace Extend.UI {
 		Dialog,
 		Popup,
 		Tip,
-		MostTop
+		Transition,
+		MostTop,
+		Count
 	}
 	[LuaCallCSharp]
 	public class UIViewConfiguration : ScriptableObject {

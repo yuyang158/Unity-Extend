@@ -1,3 +1,7 @@
+package.cpath = package.cpath .. ';C:/Users/YuYang/AppData/Roaming/JetBrains/Rider2020.1/plugins/intellij-emmylua/classes/debugger/emmy/windows/x64/?.dll'
+local dbg = require('emmy_core')
+dbg.tcpConnect('localhost', 9988)
+
 require('util')
 
 function Global_ShowLogFile()
@@ -21,14 +25,16 @@ local ConfigService = require "ConfigService"
 local TS = require "TickService"
 
 local CmdService = require("CommandService")
-local UILayerService = require "UI.UILayerService"
+local UIService = require "UI.UIService"
 
 SM.RegisterService(SM.SERVICE_TYPE.CONFIG, ConfigService)
 SM.RegisterService(SM.SERVICE_TYPE.TICK, TS)
 SM.RegisterService(SM.SERVICE_TYPE.CONSOLE_COMMAND, CmdService)
-SM.RegisterService(SM.SERVICE_TYPE.UI_LAYER, UILayerService)
+SM.RegisterService(SM.SERVICE_TYPE.UI, UIService)
 
-UILayerService.Show("Login")
+UIService.Show("Login", function()
+	
+end)
 
 return function()
 	ConfigService.clear()
