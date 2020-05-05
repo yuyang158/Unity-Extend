@@ -1,3 +1,4 @@
+using System.Reflection;
 using Extend.Asset.Attribute;
 using Extend.Common;
 using UnityEditor;
@@ -11,7 +12,7 @@ namespace Extend.Asset.Editor {
 				if( !label.text.Contains("(Asset)") )
 					label.text += " (Asset)";
 			}
-			
+
 			var guidProp = property.FindPropertyRelative("assetGUID");
 			var attributes = fieldInfo.GetCustomAttributes(typeof(AssetReferenceAssetTypeAttribute), false);
 			var type = typeof(Object);
@@ -24,6 +25,8 @@ namespace Extend.Asset.Editor {
 					type = attr.AssetType;
 				}
 			}
+
+			position.xMax -= EditorGUIUtility.singleLineHeight;
 			var assetPath = AssetDatabase.GUIDToAssetPath(guidProp.stringValue);
 			var resObj = AssetDatabase.LoadAssetAtPath(assetPath, type);
 			var newResObj = EditorGUI.ObjectField(position, label, resObj, type, false);
@@ -47,6 +50,32 @@ namespace Extend.Asset.Editor {
 						EditorUtility.DisplayDialog("ERROR", $"无法在配置中找到资源:{newResObj}", "OK");
 					}
 				}
+			}
+
+			position.xMax += EditorGUIUtility.singleLineHeight;
+			position.xMin = position.xMax - EditorGUIUtility.singleLineHeight;
+			if( GUI.Button(position, GUIContent.none) && newResObj != null ) {
+				var originObj = Selection.objects;
+				// Retrieve the existing Inspector tab, or create a new one if none is open
+				var inspectorWindow = EditorWindow.GetWindow(typeof(UnityEditor.Editor).Assembly.GetType("UnityEditor.InspectorWindow"));
+				// Get the size of the currently window
+				var size = new Vector2(inspectorWindow.position.width, inspectorWindow.position.height);
+				// Clone the inspector tab (optionnal step)
+				inspectorWindow = Object.Instantiate(inspectorWindow);
+				// Set min size, and focus the window
+				inspectorWindow.minSize = size;
+				inspectorWindow.Show();
+				inspectorWindow.Focus();
+				Selection.activeObject = newResObj;
+
+				inspectorWindow.GetType()
+					.GetProperty("isLocked",
+						BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy)
+					.GetSetMethod().Invoke(inspectorWindow, new[] {
+						(object)true
+					});
+
+				Selection.objects = originObj;
 			}
 		}
 	}

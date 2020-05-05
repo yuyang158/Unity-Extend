@@ -14,6 +14,11 @@ namespace Extend.Common {
 	public class ReorderListAttribute : SpecialCaseAttribute {
 	}
 
-	public class SpecialCaseAttribute : PropertyAttribute, IExtendAttribute {
+	public abstract class SpecialCaseAttribute : PropertyAttribute, IExtendAttribute {
+	}
+
+	[AttributeUsage(AttributeTargets.Field)]
+	public class AssetOnlyAttribute : PropertyAttribute {
+		
 	}
 }

@@ -88,7 +88,7 @@ namespace Extend.Editor {
 						EditorGUILayout.HelpBox($"Can not find type : {typeName}", MessageType.Error);
 					}
 					else {
-						if( field.FieldType == "CS.Extend.AssetService.AssetReference" ) {
+						if( field.FieldType == "CS.Extend.Asset.AssetReference" ) {
 							var match = CheckBinding<LuaBindingAssetReferenceData>(field);
 							if( !string.IsNullOrEmpty(field.Comment) && field.Comment.StartsWith("CS.") ) {
 								match.AssetType = String2TypeCache.GetType(field.Comment.Substring(3));
