@@ -109,7 +109,6 @@ namespace Extend {
 		[BlackList]
 		public void OnAfterDeserialize() {
 			var fieldInfos = GetType().GetFields();
-
 			BindingContainer = new List<LuaBindingDataBase>();
 			foreach( var fieldInfo in fieldInfos ) {
 				if( !fieldInfo.FieldType.IsArray ) continue;

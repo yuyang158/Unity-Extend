@@ -774,7 +774,6 @@ GameObject:
   - component: {fileID: 1249937207}
   - component: {fileID: 1249937212}
   - component: {fileID: 1249937211}
-  - component: {fileID: 1249937213}
   m_Layer: 0
   m_Name: Cube
   m_TagString: Untagged
@@ -871,7 +870,7 @@ MonoBehaviour:
   Callbacks:
   - Event: {fileID: 11400000, guid: 3350caf6afd64a644bb826f65c750291, type: 2}
     Function:
-      Binding: {fileID: 1249937213}
+      Binding: {fileID: 0}
       LuaMethodName: OnClick
 --- !u!111 &1249937212
 Animation:
@@ -889,40 +888,6 @@ Animation:
   m_PlayAutomatically: 1
   m_AnimatePhysics: 0
   m_CullingType: 0
---- !u!114 &1249937213
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1249937206}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b707bd6caa68448419b0d3a7ed790234, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  LuaFile: Test/TestPanel
-  IntData: []
-  BoolData: []
-  NumData:
-  - FieldName: num
-    Data: 0
-  StrData:
-  - FieldName: str
-    Data: 
-  UOData:
-  - FieldName: slot
-    Data: {fileID: 0}
-  - FieldName: txt
-    Data: {fileID: 0}
-  - FieldName: btn
-    Data: {fileID: 0}
-  - FieldName: stateSwitcher
-    Data: {fileID: 0}
-  AssetReferenceData: []
-  UOArrayData:
-  - FieldName: slots
-    Data: []
 --- !u!1 &1345132761
 GameObject:
   m_ObjectHideFlags: 0

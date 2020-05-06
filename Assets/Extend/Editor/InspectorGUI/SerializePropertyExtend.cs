@@ -49,7 +49,7 @@ namespace Extend.Editor.InspectorGUI {
 			object obj = property.serializedObject.targetObject;
 			var elements = path.Split('.');
 
-			for( var i = 0; i < elements.Length - 1; i++ ) {
+			for( var i = 0; i < elements.Length; i++ ) {
 				var element = elements[i];
 				if( element.Contains("[") ) {
 					var elementName = element.Substring(0, element.IndexOf("["));

@@ -17,7 +17,7 @@ namespace Extend.Editor.InspectorGUI {
 		private static readonly Dictionary<Type, SpecialCasePropertyDrawerBase> drawers = new Dictionary<Type, SpecialCasePropertyDrawerBase>();
 
 		static SpecialCaseAttributeExtensions() {
-			drawers.Add(typeof(ReorderListAttribute), new ReorderListPropertyDrawer());
+			drawers.Add(typeof(ReorderListAttribute), ReorderListPropertyDrawer.Instance);
 		}
 
 		public static SpecialCasePropertyDrawerBase GetDrawer(this SpecialCaseAttribute attr) {
