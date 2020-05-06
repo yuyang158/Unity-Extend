@@ -14,6 +14,8 @@ namespace Extend.UI.Editor {
 		public UIViewTreeItem(UIViewConfiguration.Configuration configuration) : base(configuration.GetHashCode()) {
 			Configuration = configuration;
 		}
+
+		public override string displayName { get => Configuration?.Name; set {} }
 	}
 
 	public class UIViewDelegate : IListViewDelegate<UIViewTreeItem> {
@@ -27,13 +29,12 @@ namespace Extend.UI.Editor {
 		}
 
 		public MultiColumnHeader Header => new MultiColumnHeader(new MultiColumnHeaderState(new[] {
-			new MultiColumnHeaderState.Column {headerContent = new GUIContent("Index"), width = 5},
 			new MultiColumnHeaderState.Column {headerContent = new GUIContent("Name"), width = 10},
-			new MultiColumnHeaderState.Column {headerContent = new GUIContent("UI View"), width = 20},
-			new MultiColumnHeaderState.Column {headerContent = new GUIContent("Background Fx"), width = 10},
-			new MultiColumnHeaderState.Column {headerContent = new GUIContent("Full Screen"), width = 5},
-			new MultiColumnHeaderState.Column {headerContent = new GUIContent("Attach Layer"), width = 10},
-			new MultiColumnHeaderState.Column {headerContent = new GUIContent("Transition"), width = 10}
+			new MultiColumnHeaderState.Column {headerContent = new GUIContent("UI View"), width = 20, canSort = false},
+			new MultiColumnHeaderState.Column {headerContent = new GUIContent("Background Fx"), width = 10, canSort = false},
+			new MultiColumnHeaderState.Column {headerContent = new GUIContent("Full Screen"), width = 5, canSort = false},
+			new MultiColumnHeaderState.Column {headerContent = new GUIContent("Attach Layer"), width = 10, canSort = false},
+			new MultiColumnHeaderState.Column {headerContent = new GUIContent("Transition"), width = 10, canSort = false}
 		}));
 
 		public List<TreeViewItem> GetData() {
@@ -41,7 +42,9 @@ namespace Extend.UI.Editor {
 		}
 
 		public List<TreeViewItem> GetSortedData(int columnIndex, bool isAscending) {
-			throw new NotImplementedException();
+			var items = GetData();
+			items.Sort((a, b) => (isAscending ? -1 : 1) * string.Compare(a.displayName, b.displayName, StringComparison.Ordinal));
+			return items;
 		}
 
 		private static readonly string[] columnIndexToFieldName = {"Name", "UIView", "BackgroundFx", "FullScreen", "AttachLayer", "Transition"};
@@ -52,11 +55,6 @@ namespace Extend.UI.Editor {
 				selectedIndex = index;
 			}
 			
-			if( columnIndex == 0 ) {
-				EditorGUI.LabelField(rect, index.ToString());
-				return;
-			}
-			columnIndex--;
 			var configurations = serializedObject.FindProperty("configurations");
 			var element = configurations.GetArrayElementAtIndex(index);
 			var prop = element.FindPropertyRelative(columnIndexToFieldName[columnIndex]);
@@ -84,6 +82,7 @@ namespace Extend.UI.Editor {
 			var configurations = serializedObject.FindProperty("configurations");
 			if( selectedIndex >= 0 && selectedIndex < configurations.arraySize ) {
 				configurations.DeleteArrayElementAtIndex(selectedIndex);
+				serializedObject.ApplyModifiedProperties();
 			}
 			selectedIndex = -1;
 		}

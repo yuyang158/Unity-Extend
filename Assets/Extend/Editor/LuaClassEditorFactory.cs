@@ -74,12 +74,12 @@ namespace Extend.Editor {
 					});
 				}
 				else {
-					var match = Regex.Match(line, @"M.\w+");
-					if( !match.Success ) {
+					const string methodStart = @"function M:";
+					var match = line.StartsWith(methodStart);
+					if( !match ) {
 						continue;
 					}
-
-					var methodName = match.Value.Substring(2);
+					var methodName = line.Substring(methodStart.Length);
 					if( !methodName.StartsWith("_") && methodName[0] == char.ToUpper(methodName[0]) ) {
 						if( methodName.StartsWith("DEBUG") ) {
 							DebugMethods.Add(methodName);
