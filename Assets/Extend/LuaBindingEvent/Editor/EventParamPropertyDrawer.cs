@@ -38,19 +38,4 @@ namespace Extend.LuaBindingEvent.Editor {
 			}
 		}
 	}
-
-	[CustomPropertyDrawer(typeof(BindingEvent))]
-	public class BindingEventPropertyDrawer : PropertyDrawer {
-		public override float GetPropertyHeight(SerializedProperty property, GUIContent label) {
-			return ( EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing ) * 2;
-		}
-		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label) {
-			position.height = EditorGUIUtility.singleLineHeight;
-			var funcProp = property.FindPropertyRelative("Function");
-			EditorGUI.PropertyField(position, funcProp);
-			position.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
-			var paramProp = property.FindPropertyRelative("Param");
-			EditorGUI.PropertyField(position, paramProp);
-		}
-	}
 }

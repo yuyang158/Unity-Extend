@@ -5,7 +5,7 @@ using Extend.Common;
 using UnityEditor;
 
 namespace Extend.Editor.InspectorGUI {
-	public static class SerializePropertyExtend {
+	public static class ExtendSerializeProperty {
 		private static object GetValue_Imp(object source, string name) {
 			if( source == null ) {
 				return null;
@@ -49,8 +49,7 @@ namespace Extend.Editor.InspectorGUI {
 			object obj = property.serializedObject.targetObject;
 			var elements = path.Split('.');
 
-			for( var i = 0; i < elements.Length; i++ ) {
-				var element = elements[i];
+			foreach( var element in elements ) {
 				if( element.Contains("[") ) {
 					var elementName = element.Substring(0, element.IndexOf("[", StringComparison.CurrentCulture));
 					var index = Convert.ToInt32(element.Substring(element.IndexOf("[", StringComparison.CurrentCulture)).Replace("[", "").Replace("]", ""));

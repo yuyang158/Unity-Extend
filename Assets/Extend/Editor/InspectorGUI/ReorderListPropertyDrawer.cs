@@ -26,7 +26,6 @@ namespace Extend.Editor.InspectorGUI {
 			}
 
 			var key = GetPropertyKeyName(property);
-			var heightCollector = new List<float>();
 			if( !reListsByPropertyName.TryGetValue(key, out var reList) ) {
 				reList = new ReorderableList(property.serializedObject, property) {
 					drawHeaderCallback = rect => { EditorGUI.LabelField(rect, label.text); },
@@ -35,7 +34,6 @@ namespace Extend.Editor.InspectorGUI {
 						if( element.propertyType == SerializedPropertyType.Generic ) {
 							var target = element.GetPropertyObject();
 							var fields = target.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-							var rowCount = 0;
 							foreach( var field in fields ) {
 								var prop = element.FindPropertyRelative(field.Name);
 								if( prop == null )
@@ -47,12 +45,26 @@ namespace Extend.Editor.InspectorGUI {
 						else
 							EditorGUI.PropertyField(rect, element, true);
 					},
-					elementHeightCallback = index => EditorGUI.GetPropertyHeight(property.GetArrayElementAtIndex(index))
+					elementHeightCallback = index => {
+						var element = property.GetArrayElementAtIndex(index);
+						if( element.propertyType == SerializedPropertyType.Generic ) {
+							var depth = element.depth;
+							var count = 0;
+							foreach( SerializedProperty child in element ) {
+								if( child.depth == depth + 1 ) {
+									count++;
+								}
+							}
+
+							return count * ( EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing );
+						}
+
+						return EditorGUI.GetPropertyHeight(property.GetArrayElementAtIndex(index));
+					}
 				};
 				reListsByPropertyName[key] = reList;
 			}
 
-			heightCollector.Clear();
 			reList.DoLayoutList();
 		}
 
