@@ -6,7 +6,7 @@ using System.Reflection;
 namespace Extend.Editor.InspectorGUI {
 	public static class ReflectionUtility {
 		public static IEnumerable<FieldInfo> GetAllFields(object target, Func<FieldInfo, bool> predicate) {
-			List<Type> types = new List<Type>() {
+			var types = new List<Type>() {
 				target.GetType()
 			};
 
@@ -14,8 +14,8 @@ namespace Extend.Editor.InspectorGUI {
 				types.Add(types.Last().BaseType);
 			}
 
-			for( int i = types.Count - 1; i >= 0; i-- ) {
-				IEnumerable<FieldInfo> fieldInfos = types[i]
+			for( var i = types.Count - 1; i >= 0; i-- ) {
+				var fieldInfos = types[i]
 					.GetFields(BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.DeclaredOnly)
 					.Where(predicate);
 
@@ -26,7 +26,7 @@ namespace Extend.Editor.InspectorGUI {
 		}
 
 		public static IEnumerable<PropertyInfo> GetAllProperties(object target, Func<PropertyInfo, bool> predicate) {
-			List<Type> types = new List<Type>() {
+			var types = new List<Type>() {
 				target.GetType()
 			};
 
@@ -34,8 +34,8 @@ namespace Extend.Editor.InspectorGUI {
 				types.Add(types.Last().BaseType);
 			}
 
-			for( int i = types.Count - 1; i >= 0; i-- ) {
-				IEnumerable<PropertyInfo> propertyInfos = types[i]
+			for( var i = types.Count - 1; i >= 0; i-- ) {
+				var propertyInfos = types[i]
 					.GetProperties(BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.DeclaredOnly)
 					.Where(predicate);
 
@@ -46,7 +46,7 @@ namespace Extend.Editor.InspectorGUI {
 		}
 
 		public static IEnumerable<MethodInfo> GetAllMethods(object target, Func<MethodInfo, bool> predicate) {
-			IEnumerable<MethodInfo> methodInfos = target.GetType()
+			var methodInfos = target.GetType()
 				.GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public)
 				.Where(predicate);
 

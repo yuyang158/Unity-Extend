@@ -44,7 +44,7 @@ namespace Extend.Editor.InspectorGUI {
 			return enumerator.Current;
 		}
 
-		public static object GetTargetObjectWithProperty(this SerializedProperty property) {
+		public static object GetPropertyObject(this SerializedProperty property) {
 			var path = property.propertyPath.Replace(".Array.data[", "[");
 			object obj = property.serializedObject.targetObject;
 			var elements = path.Split('.');
@@ -52,7 +52,27 @@ namespace Extend.Editor.InspectorGUI {
 			for( var i = 0; i < elements.Length; i++ ) {
 				var element = elements[i];
 				if( element.Contains("[") ) {
-					var elementName = element.Substring(0, element.IndexOf("["));
+					var elementName = element.Substring(0, element.IndexOf("[", StringComparison.CurrentCulture));
+					var index = Convert.ToInt32(element.Substring(element.IndexOf("[", StringComparison.CurrentCulture)).Replace("[", "").Replace("]", ""));
+					obj = GetValue_Imp(obj, elementName, index);
+				}
+				else {
+					obj = GetValue_Imp(obj, element);
+				}
+			}
+
+			return obj;
+		}
+
+		public static object GetPropertyParentObject(this SerializedProperty property) {
+			var path = property.propertyPath.Replace(".Array.data[", "[");
+			object obj = property.serializedObject.targetObject;
+			var elements = path.Split('.');
+
+			for( var i = 0; i < elements.Length - 1; i++ ) {
+				var element = elements[i];
+				if( element.Contains("[") ) {
+					var elementName = element.Substring(0, element.IndexOf("[", StringComparison.CurrentCulture));
 					var index = Convert.ToInt32(element.Substring(element.IndexOf("[", StringComparison.CurrentCulture)).Replace("[", "").Replace("]", ""));
 					obj = GetValue_Imp(obj, elementName, index);
 				}
@@ -65,7 +85,7 @@ namespace Extend.Editor.InspectorGUI {
 		}
 
 		public static T[] GetAttributes<T>(this SerializedProperty p) where T : class {
-			var fieldInfo = ReflectionUtility.GetField(p.GetTargetObjectWithProperty(), p.name);
+			var fieldInfo = ReflectionUtility.GetField(p.GetPropertyParentObject(), p.name);
 			if( fieldInfo == null ) {
 				return new T[] {};
 			}

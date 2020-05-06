@@ -26,19 +26,22 @@ namespace Extend.Editor.InspectorGUI {
 			}
 
 			var key = GetPropertyKeyName(property);
+			var heightCollector = new List<float>();
 			if( !reListsByPropertyName.TryGetValue(key, out var reList) ) {
 				reList = new ReorderableList(property.serializedObject, property) {
 					drawHeaderCallback = rect => { EditorGUI.LabelField(rect, label.text); },
 					drawElementCallback = (rect, index, active, focused) => {
 						var element = property.GetArrayElementAtIndex(index);
 						if( element.propertyType == SerializedPropertyType.Generic ) {
-							var target = element.GetTargetObjectWithProperty();
+							var target = element.GetPropertyObject();
 							var fields = target.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+							var rowCount = 0;
 							foreach( var field in fields ) {
 								var prop = element.FindPropertyRelative(field.Name);
 								if( prop == null )
 									continue;
 								EditorGUI.PropertyField(rect, prop, true);
+								rect.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
 							}
 						}
 						else
@@ -49,6 +52,7 @@ namespace Extend.Editor.InspectorGUI {
 				reListsByPropertyName[key] = reList;
 			}
 
+			heightCollector.Clear();
 			reList.DoLayoutList();
 		}
 
