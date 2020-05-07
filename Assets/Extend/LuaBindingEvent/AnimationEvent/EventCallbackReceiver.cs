@@ -14,7 +14,12 @@ namespace Extend.LuaBindingEvent.AnimationEvent {
 		private EventInstanceEmmyFunction[] Callbacks; 
 		
 		public void OnEvent(EventInstance instance) {
-			
+			foreach( var callback in Callbacks ) {
+				if(callback.Event != instance)
+					continue;
+				
+				callback.Function.Invoke(callback.Event);
+			}
 		}
 	}
 }

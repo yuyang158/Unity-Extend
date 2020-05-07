@@ -1,15 +1,15 @@
 using System;
 using System.Linq;
+using Extend.Editor.InspectorGUI;
 using UnityEditor;
 using UnityEngine;
 
 namespace Extend.Switcher.Editor {
 	[CustomEditor(typeof(StateSwitcher))]
-	public class StateSwitcherEditor : UnityEditor.Editor {
+	public class StateSwitcherEditor : ExtendInspector {
 		private string stateName;
 		public override void OnInspectorGUI() {
 			base.OnInspectorGUI();
-
 			if(!Application.isPlaying)
 				return;
 			

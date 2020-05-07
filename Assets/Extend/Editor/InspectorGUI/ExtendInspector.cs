@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Extend.Common;
 using UnityEditor;
@@ -12,11 +11,11 @@ namespace Extend.Editor.InspectorGUI {
 		private readonly List<SerializedProperty> serializedProperties = new List<SerializedProperty>();
 		private void GetSerializedProperties() {
 			serializedProperties.Clear();
-			using( var iter = serializedObject.GetIterator() ) {
-				if( iter.NextVisible(true) ) {
+			using( var it = serializedObject.GetIterator() ) {
+				if( it.NextVisible(true) ) {
 					do {
-						serializedProperties.Add(serializedObject.FindProperty(iter.name));
-					} while( iter.NextVisible(false) );
+						serializedProperties.Add(serializedObject.FindProperty(it.name));
+					} while( it.NextVisible(false) );
 				}
 			}
 		}

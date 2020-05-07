@@ -54,7 +54,8 @@ namespace Extend.Asset.Editor {
 
 			position.xMax += EditorGUIUtility.singleLineHeight;
 			position.xMin = position.xMax - EditorGUIUtility.singleLineHeight;
-			if( GUI.Button(position, GUIContent.none) && newResObj != null ) {
+			GUI.enabled = newResObj != null;
+			if( GUI.Button(position, LazyTextureLoader.QuickEditPen, GUI.skin.box) && newResObj != null ) {
 				var originObj = Selection.objects;
 				// Retrieve the existing Inspector tab, or create a new one if none is open
 				var inspectorWindow = EditorWindow.GetWindow(typeof(UnityEditor.Editor).Assembly.GetType("UnityEditor.InspectorWindow"));
@@ -77,6 +78,7 @@ namespace Extend.Asset.Editor {
 
 				Selection.objects = originObj;
 			}
+			GUI.enabled = true;
 		}
 	}
 }

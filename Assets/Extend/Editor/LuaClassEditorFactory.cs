@@ -79,7 +79,7 @@ namespace Extend.Editor {
 					if( !match ) {
 						continue;
 					}
-					var methodName = line.Substring(methodStart.Length);
+					var methodName = line.Substring(methodStart.Length, line.IndexOf('(') - methodStart.Length);
 					if( !methodName.StartsWith("_") && methodName[0] == char.ToUpper(methodName[0]) ) {
 						if( methodName.StartsWith("DEBUG") ) {
 							DebugMethods.Add(methodName);

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Extend.Common;
+using Extend.Editor.InspectorGUI;
 using Extend.LuaBindingData;
 using UnityEditor;
 using UnityEngine;
@@ -10,7 +11,7 @@ using XLua;
 
 namespace Extend.Editor {
 	[CustomEditor(typeof(LuaBinding))]
-	public class LuaBindingEditor : UnityEditor.Editor {
+	public class LuaBindingEditor : ExtendInspector {
 		private LuaBinding binding;
 		private static readonly string[] basicTypes = {"string", "number", "boolean", "integer"};
 
