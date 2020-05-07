@@ -771,9 +771,9 @@ GameObject:
   - component: {fileID: 1249937210}
   - component: {fileID: 1249937209}
   - component: {fileID: 1249937208}
-  - component: {fileID: 1249937207}
   - component: {fileID: 1249937212}
   - component: {fileID: 1249937211}
+  - component: {fileID: 1249937207}
   m_Layer: 0
   m_Name: Cube
   m_TagString: Untagged
@@ -781,19 +781,41 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!65 &1249937207
-BoxCollider:
+--- !u!114 &1249937207
+MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1249937206}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
   m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b707bd6caa68448419b0d3a7ed790234, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  LuaFile: Test/TestPanel
+  IntData: []
+  BoolData: []
+  NumData:
+  - FieldName: num
+    Data: 0
+  StrData:
+  - FieldName: str
+    Data: 
+  UOData:
+  - FieldName: txt
+    Data: {fileID: 0}
+  - FieldName: btn
+    Data: {fileID: 0}
+  - FieldName: stateSwitcher
+    Data: {fileID: 0}
+  AssetReferenceData:
+  - FieldName: slot
+    Data:
+      assetGUID: 
+  UOArrayData:
+  - FieldName: slots
+    Data: []
 --- !u!23 &1249937208
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -870,7 +892,7 @@ MonoBehaviour:
   Callbacks:
   - Event: {fileID: 11400000, guid: 3350caf6afd64a644bb826f65c750291, type: 2}
     Function:
-      Binding: {fileID: 0}
+      Binding: {fileID: 1249937207}
       LuaMethodName: OnClick
 --- !u!111 &1249937212
 Animation:
@@ -881,7 +903,7 @@ Animation:
   m_GameObject: {fileID: 1249937206}
   m_Enabled: 1
   serializedVersion: 3
-  m_Animation: {fileID: 0}
+  m_Animation: {fileID: 7400000, guid: 6421ceb03d012fa4997e511c2713a5f4, type: 2}
   m_Animations:
   - {fileID: 7400000, guid: 6421ceb03d012fa4997e511c2713a5f4, type: 2}
   m_WrapMode: 0
