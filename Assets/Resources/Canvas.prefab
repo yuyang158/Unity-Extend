@@ -742,7 +742,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b707bd6caa68448419b0d3a7ed790234, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  LuaFile: UI/TestPanel
+  LuaFile: 
   IntData: []
   BoolData: []
   NumData:
@@ -938,15 +938,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a016cfed1e747c40ab602074289ab0c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ClickEvent:
-    Events:
-    - Binding: {fileID: 3122048484682131678}
-      Param:
-        Int: 0
-        Float: 0
-        Str: 
-        Type: 3
-      LuaMethodName: OnClick
+  ClickEvent: []
 --- !u!114 &729771278
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -959,8 +951,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec1e9b3e1725ce34e8c58b1b3d1f8282, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Animation:
+  PointerDown:
     Mode: 1
+    enabled: 0
     punch:
       Move:
         punch: {x: 0, y: 0, z: 0}
@@ -968,8 +961,8 @@ MonoBehaviour:
         vibrato: 10
         elasticity: 1
         delay: 0
-        active: 1
-      Rotation:
+        active: 0
+      Rotate:
         punch: {x: 0, y: 0, z: 0}
         duration: 1
         vibrato: 10
@@ -977,7 +970,7 @@ MonoBehaviour:
         delay: 0
         active: 0
       Scale:
-        punch: {x: 1, y: 1, z: 1}
+        punch: {x: 0, y: 0, z: 0}
         duration: 1
         vibrato: 10
         elasticity: 1
@@ -986,22 +979,136 @@ MonoBehaviour:
     state:
       Move:
         delay: 0
-        duration: 0.5
-        ease: 9
+        duration: 1
+        ease: 1
         active: 0
-        move: {x: 0, y: 50, z: 0}
-      Rotation:
+        move: {x: 0, y: 0, z: 0}
+      Rotate:
         delay: 0
         duration: 1
         ease: 1
         active: 0
-        rotation: {x: 0, y: 0, z: 0}
+        rotate: {x: 0, y: 0, z: 0}
       Scale:
         delay: 0
-        duration: 0.2
-        ease: 12
-        active: 1
-        scale: {x: 0.2, y: 0.2, z: 0.2}
+        duration: 1
+        ease: 1
+        active: 0
+        scale: {x: 1, y: 1, z: 1}
+      Fade:
+        delay: 0
+        duration: 1
+        ease: 1
+        active: 0
+        fade: 0
+    processor:
+      ani: {fileID: 0}
+      paramValue:
+        NameHash: 0
+        fV: 0
+        iV: 0
+        bV: 0
+  PointerClick:
+    Mode: 1
+    enabled: 0
+    punch:
+      Move:
+        punch: {x: 0, y: 0, z: 0}
+        duration: 1
+        vibrato: 10
+        elasticity: 1
+        delay: 0
+        active: 0
+      Rotate:
+        punch: {x: 0, y: 0, z: 0}
+        duration: 1
+        vibrato: 10
+        elasticity: 1
+        delay: 0
+        active: 0
+      Scale:
+        punch: {x: 0, y: 0, z: 0}
+        duration: 1
+        vibrato: 10
+        elasticity: 1
+        delay: 0
+        active: 0
+    state:
+      Move:
+        delay: 0
+        duration: 1
+        ease: 1
+        active: 0
+        move: {x: 0, y: 0, z: 0}
+      Rotate:
+        delay: 0
+        duration: 1
+        ease: 1
+        active: 0
+        rotate: {x: 0, y: 0, z: 0}
+      Scale:
+        delay: 0
+        duration: 1
+        ease: 1
+        active: 0
+        scale: {x: 1, y: 1, z: 1}
+      Fade:
+        delay: 0
+        duration: 1
+        ease: 1
+        active: 0
+        fade: 0
+    processor:
+      ani: {fileID: 0}
+      paramValue:
+        NameHash: 0
+        fV: 0
+        iV: 0
+        bV: 0
+  PointerUp:
+    Mode: 1
+    enabled: 0
+    punch:
+      Move:
+        punch: {x: 0, y: 0, z: 0}
+        duration: 1
+        vibrato: 10
+        elasticity: 1
+        delay: 0
+        active: 0
+      Rotate:
+        punch: {x: 0, y: 0, z: 0}
+        duration: 1
+        vibrato: 10
+        elasticity: 1
+        delay: 0
+        active: 0
+      Scale:
+        punch: {x: 0, y: 0, z: 0}
+        duration: 1
+        vibrato: 10
+        elasticity: 1
+        delay: 0
+        active: 0
+    state:
+      Move:
+        delay: 0
+        duration: 1
+        ease: 1
+        active: 0
+        move: {x: 0, y: 0, z: 0}
+      Rotate:
+        delay: 0
+        duration: 1
+        ease: 1
+        active: 0
+        rotate: {x: 0, y: 0, z: 0}
+      Scale:
+        delay: 0
+        duration: 1
+        ease: 1
+        active: 0
+        scale: {x: 1, y: 1, z: 1}
       Fade:
         delay: 0
         duration: 1

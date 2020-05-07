@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using Extend.Asset;
 using Extend.Common;
 using UnityEngine;

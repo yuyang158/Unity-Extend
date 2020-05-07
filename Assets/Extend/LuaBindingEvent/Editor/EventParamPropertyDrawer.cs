@@ -7,6 +7,7 @@ namespace Extend.LuaBindingEvent.Editor {
 	[CustomPropertyDrawer(typeof(EventParam))]
 	public class EventParamPropertyDrawer : PropertyDrawer {
 		public override void OnGUI(Rect position, SerializedProperty paramProp, GUIContent label) {
+			position.height = EditorGUIUtility.singleLineHeight;
 			var totalWidth = position.width;
 			position.width = totalWidth * .3f;
 			var paramTypeProp = paramProp.FindPropertyRelative("Type");

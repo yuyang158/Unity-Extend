@@ -1,7 +1,6 @@
 ﻿using System;
 using Extend.Asset;
 using Extend.LuaBindingEvent.AnimationEvent;
-using UnityEngine;
 using XLua;
 
 namespace Extend.LuaBindingEvent {

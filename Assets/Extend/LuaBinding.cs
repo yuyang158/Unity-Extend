@@ -12,7 +12,6 @@ namespace Extend {
 		[AssetPath(AssetType = typeof(TextAsset), RootDir = "Assets/Resources/Lua", Extension = ".lua"), BlackList]
 		public string LuaFile;
 		public LuaTable LuaInstance { get; private set; }
-
 		private delegate void LuaUnityEventFunction(LuaTable self);
 
 		private void Awake() {

@@ -79,26 +79,17 @@ namespace Extend.Asset {
 		public GameObject Instantiate(Transform parent = null, bool stayWorldPosition = false) {
 			GetGameObject();
 			Assert.AreEqual(asset.Status, AssetRefObject.AssetStatus.DONE);
-			asset.IncRef();
 			return Object.Instantiate(asset.UnityObject, parent, stayWorldPosition) as GameObject;
 		}
 
 		public GameObject Instantiate(Vector3 position, Quaternion quaternion, Transform parent = null) {
 			GetGameObject();
 			Assert.AreEqual(asset.Status, AssetRefObject.AssetStatus.DONE);
-			asset.IncRef();
 			return Object.Instantiate(asset.UnityObject, position, quaternion, parent) as GameObject;
 		}
 
 		public override string ToString() {
 			return asset == null || !asset.UnityObject ? "Not loaded" : asset.UnityObject.name;
-		}
-
-		public void Release() {
-			Assert.IsTrue(asset != null && asset.Status == AssetRefObject.AssetStatus.DONE);
-			if( asset.Release() == 0 ) {
-				asset = null;
-			}
 		}
 
 		public void Dispose() {

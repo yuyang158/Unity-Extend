@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading;
 using Extend.Asset.AssetOperator;
 using UnityEngine;
 using UnityEngine.Assertions;
-using UnityEngine.Networking;
 
 namespace Extend.Asset.AssetProvider {
 	public class AssetBundleLoadProvider : AssetLoadProvider {

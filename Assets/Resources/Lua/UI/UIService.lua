@@ -3,7 +3,7 @@ local layers = {}
 local bgFx = {}
 local table, assert, typeof = table, assert, typeof
 ---@type CS.Extend.Asset.AssetService
-local AssetService
+local AssetService = CS.Extend.Asset.AssetService.Get()
 local Object = CS.UnityEngine.Object
 
 ---@type CS.Extend.UI.UIViewConfiguration
@@ -12,13 +12,18 @@ local UIViewBaseType = typeof(CS.Extend.UI.UIViewBase)
 
 function M.Init()
 	UIViewConfiguration = CS.Extend.UI.UIViewConfiguration.Load()
-
-	local go = CS.UnityEngine.GameObject.Find("UI")
+	local GameObject = CS.UnityEngine.GameObject
+	local uiCam = GameObject.Find("UICamera"):GetComponent(typeof(CS.UnityEngine.Camera))
+	local ref = AssetService:Load("UI", typeof(CS.UnityEngine.GameObject))
+	local go = ref:Instantiate()
+	go.name = "UI"
+	ref:Dispose()
 	Object.DontDestroyOnLoad(go)
 	local transform = go.transform
 	for i = 0, transform.childCount - 1 do
 		local childLayer = transform:GetChild(i)
 		local canvas = childLayer:GetComponent(typeof(CS.UnityEngine.Canvas))
+		canvas.worldCamera = uiCam
 		local name = childLayer.name
 		local layer = {
 			layerTransform = childLayer,
@@ -33,7 +38,6 @@ function M.Init()
 		local layerEnum = assert(CS.Extend.UI.UILayer.__CastFrom(name), name)
 		layers[layerEnum] = layer
 	end
-	AssetService = CS.Extend.Asset.AssetService.Get()
 end
 
 local function hideFullScreen(layer, shownView)
@@ -65,7 +69,7 @@ local function loadView(configuration, callback)
 	local hiddenCb
 	hiddenCb = function()
 		view:Hidden("-", hiddenCb)
-		configuration.UIView:Release()
+		configuration.UIView:Dispose()
 		local index = table.index_of_predict(layer.elements, function(element)
 			return element.go == go
 		end)
@@ -84,7 +88,7 @@ local function loadView(configuration, callback)
 		local shownCb
 		shownCb = function()
 			view:Shown("-", shownCb)
-			hideFullScreen()
+			hideFullScreen(layer, view)
 		end
 		view:Shown("+", shownCb)
 	end

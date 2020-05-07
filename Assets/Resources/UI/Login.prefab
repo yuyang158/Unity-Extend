@@ -395,14 +395,14 @@ MonoBehaviour:
   ClickEvent:
   - Function:
       Binding: {fileID: 7189537287185346221}
-      LuaMethodName: OnMessageButtonClicked()
+      LuaMethodName: OnMessageButtonClicked
     Param:
       Int: 12
       Float: 0
       Str: 
       AssetRef:
         assetGUID: 
-      Type: 0
+      Type: 1
 --- !u!1 &8694791660466165694
 GameObject:
   m_ObjectHideFlags: 0
@@ -417,7 +417,6 @@ GameObject:
   - component: {fileID: 7964972842930380667}
   - component: {fileID: 8694791660466165680}
   - component: {fileID: 7189537287185346221}
-  - component: {fileID: 6609188691700673266}
   m_Layer: 5
   m_Name: Login
   m_TagString: Untagged
@@ -666,41 +665,6 @@ MonoBehaviour:
   UOData: []
   AssetReferenceData: []
   UOArrayData: []
---- !u!114 &6609188691700673266
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8694791660466165694}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b707bd6caa68448419b0d3a7ed790234, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  LuaFile: Test/TestPanel
-  IntData: []
-  BoolData: []
-  NumData:
-  - FieldName: num
-    Data: 0
-  StrData:
-  - FieldName: str
-    Data: 
-  UOData:
-  - FieldName: txt
-    Data: {fileID: 0}
-  - FieldName: btn
-    Data: {fileID: 0}
-  - FieldName: stateSwitcher
-    Data: {fileID: 0}
-  AssetReferenceData:
-  - FieldName: slot
-    Data:
-      assetGUID: 0766a9b2b93d23949918c9ce995faf18
-  UOArrayData:
-  - FieldName: slots
-    Data: []
 --- !u!1 &8694791660483093027
 GameObject:
   m_ObjectHideFlags: 0

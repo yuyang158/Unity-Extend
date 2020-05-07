@@ -1,6 +1,5 @@
 using System;
 using UnityEditor;
-using UnityEngine;
 
 namespace Extend.UI.Editor {
 	[CustomPropertyDrawer(typeof(UIAnimation))]

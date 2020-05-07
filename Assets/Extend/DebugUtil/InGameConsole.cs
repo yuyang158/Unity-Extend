@@ -148,7 +148,7 @@ namespace Extend.DebugUtil {
 
 		#endregion
 
-		private static void DrawCollapsedLog(Log log, GUIStyle logStyle, GUIStyle badgeStyle) {
+		private static void DrawCollapsedLog(Log log, GUIStyle logStyle) {
 			GUILayout.BeginHorizontal();
 
 			GUILayout.Label(log.GetTruncatedMessage(), logStyle);
@@ -164,11 +164,11 @@ namespace Extend.DebugUtil {
 			}
 		}
 
-		private void DrawLog(Log log, GUIStyle logStyle, GUIStyle badgeStyle) {
+		private void DrawLog(Log log, GUIStyle logStyle) {
 			GUI.contentColor = logTypeColors[log.type];
 
 			if( isCollapsed ) {
-				DrawCollapsedLog(log, logStyle, badgeStyle);
+				DrawCollapsedLog(log, logStyle);
 			}
 			else {
 				DrawExpandedLog(log, logStyle);
@@ -190,7 +190,7 @@ namespace Extend.DebugUtil {
 			var visibleLogs = logs.Where(IsLogVisible);
 
 			foreach( var log in visibleLogs ) {
-				DrawLog(log, logStyle, badgeStyle);
+				DrawLog(log, logStyle);
 			}
 
 			GUILayout.EndVertical();

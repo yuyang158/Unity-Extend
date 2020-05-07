@@ -86,7 +86,10 @@ namespace Extend.Common {
 
 		public static T Get<T>(ServiceType typ) where T : IService {
 			Assert.IsTrue(Initialized);
-			return (T)services[typ];
+			if( !services.TryGetValue(typ, out var service) ) {
+				Debug.LogError($"Service {typ} not exist!");
+			}
+			return (T)service;
 		}
 
 		private void Update() {
