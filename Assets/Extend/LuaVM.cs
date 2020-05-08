@@ -9,6 +9,7 @@ using Debug = UnityEngine.Debug;
 namespace Extend {
 	public class LuaVM : IService, IServiceUpdate, IDisposable {
 		private LuaMemoryLeakChecker.Data leakData;
+		private static readonly string LUA_DEBUG_DIRECTORY = Application.persistentDataPath + "/Lua/";
 		private LuaFunction OnDestroy;
 		public LuaEnv Default { get; private set; }
 
@@ -24,6 +25,12 @@ namespace Extend {
 			Default = new LuaEnv();
 			Default.AddLoader((ref string filename) => {
 				filename = filename.Replace('.', '/');
+				var hotfix = $"{LUA_DEBUG_DIRECTORY}{filename}.lua";
+				if( File.Exists(hotfix) ) {
+					filename += ".lua";
+					return File.ReadAllBytes(hotfix);
+				}
+				
 				var service = CSharpServiceManager.Get<AssetService>(CSharpServiceManager.ServiceType.ASSET_SERVICE);
 				var assetRef = service.Load($"Lua/{filename}", typeof(TextAsset));
 				if( assetRef.AssetStatus != AssetRefObject.AssetStatus.DONE )

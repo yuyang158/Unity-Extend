@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using Extend.Asset.AssetOperator;
 using UnityEngine;
 using UnityEngine.Assertions;
+using UnityEngine.Networking;
 
 namespace Extend.Asset.AssetProvider {
 	public class AssetBundleLoadProvider : AssetLoadProvider {
@@ -200,11 +202,7 @@ namespace Extend.Asset.AssetProvider {
 
 		public static string DetermineLocation(string path) {
 			var streamingAsset = Path.Combine(persistentDataPath, path);
-			if( File.Exists(streamingAsset) ) {
-				return streamingAsset;
-			}
-
-			return Path.Combine(streamingAssetsPath, path);
+			return File.Exists(streamingAsset) ? streamingAsset : Path.Combine(streamingAssetsPath, path);
 		}
 		
 		public static string DetermineLocation(string path, out bool persistent) {
