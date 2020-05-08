@@ -52,10 +52,11 @@ namespace Extend.DebugUtil {
 					var backgroundTexture = new Texture2D(1, 1);
 					backgroundTexture.SetPixel(0, 0, BackgroundColor);
 					backgroundTexture.Apply();
-					
-					_windowStyle = new GUIStyle();
-					_windowStyle.normal.background = backgroundTexture;
-					_windowStyle.padding = new RectOffset(4, 4, 4, 4);
+
+					_windowStyle = new GUIStyle {
+						normal = {background = backgroundTexture}, 
+						padding = new RectOffset(5, 5, 5, 5)
+					};
 				}
 
 				return _windowStyle;
@@ -107,6 +108,8 @@ namespace Extend.DebugUtil {
 			if( logFontSize > 25 ) {
 				logFontSize = 25;
 			}
+
+			Application.targetFrameRate = 30;
 		}
 
 		private void OnDisable() {
@@ -119,20 +122,34 @@ namespace Extend.DebugUtil {
 
 		private readonly StringBuilder builder = new StringBuilder(128);
 
-		private GUIStyle style;
-		private GUIStyle Style {
+		private GUIStyle boxStyle;
+		private GUIStyle BoxStyle {
 			get {
-				if( style == null ) {
-					style = new GUIStyle(GUI.skin.box) {
+				if( boxStyle == null ) {
+					boxStyle = new GUIStyle(GUI.skin.box) {
 						alignment = TextAnchor.MiddleLeft,
 						fontSize = logFontSize
 					};
 				}
 
-				return style;
+				return boxStyle;
+			}
+		}
+
+		private GUIStyle toggleStyle;
+		private GUIStyle ToggleStyle {
+			get {
+				if( toggleStyle == null ) {
+					toggleStyle = new GUIStyle(GUI.skin.toggle) {
+						fontSize = logFontSize
+					};
+				}
+
+				return toggleStyle;
 			}
 		}
 		private void OnGUI() {
+			IsVisible = GUILayout.Toggle(IsVisible, "开启Console", ToggleStyle);
 			builder.Clear();
 			builder.AppendFormat("FPS : {0} / {1}\n", Mathf.RoundToInt(1 / Time.smoothDeltaTime), 
 				Application.targetFrameRate <= 0 ? "No Limit" : Application.targetFrameRate.ToString());
@@ -142,8 +159,10 @@ namespace Extend.DebugUtil {
 			builder.AppendFormat("Lua : {0} KB\n", luvVM.Default.Memroy);
 			builder.AppendFormat("Unity : {0} MB\n", unityTotalMemory);
 			if(Debug.isDebugBuild)
-				builder.AppendFormat("Graphics : {0} MB", graphicsDriver);
-			GUILayout.Box(builder.ToString(), Style);
+				builder.AppendFormat("Graphics : {0} MB\n", graphicsDriver);
+			var statService = CSharpServiceManager.Get<StatService>(CSharpServiceManager.ServiceType.STAT);
+			builder.AppendFormat("Loaded AB Count : {0}", statService.Get(StatService.StatName.ASSET_BUNDLE_COUNT));
+			GUILayout.Box(builder.ToString(), BoxStyle);
 
 			if( !IsVisible ) {
 				return;

@@ -13,6 +13,7 @@ namespace Extend.DebugUtil {
 		public enum StatName {
 			TCP_RECEIVED,
 			TCP_SENT,
+			ASSET_BUNDLE_COUNT,
 			COUNT
 		}
 		
@@ -25,6 +26,10 @@ namespace Extend.DebugUtil {
 
 		public void Set(StatName name, long value) {
 			stats[(int)name] += value;
+		}
+
+		public long Get(StatName name) {
+			return stats[(int)name];
 		}
 
 		public void LogStat(string type, string key, object value) {
