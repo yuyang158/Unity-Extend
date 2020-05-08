@@ -25,10 +25,10 @@ MonoBehaviour:
     fallbackErrorPS: {fileID: 4800000, guid: e6e9a19c3678ded42a3bc431ebef7dbd, type: 3}
   m_OpaqueLayerMask:
     serializedVersion: 2
-    m_Bits: 279
+    m_Bits: 23
   m_TransparentLayerMask:
     serializedVersion: 2
-    m_Bits: 279
+    m_Bits: 23
   m_DefaultStencilState:
     overrideStencilState: 0
     stencilReference: 0
@@ -36,7 +36,7 @@ MonoBehaviour:
     passOperation: 0
     failOperation: 0
     zFailOperation: 0
-  m_ShadowTransparentReceive: 1
+  m_ShadowTransparentReceive: 0
 --- !u!114 &784093591874149394
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -47,17 +47,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6b3d386ba5cd94485973aee1479b272e, type: 3}
-  m_Name: NewRenderObjects
+  m_Name: RenderSceneUI
   m_EditorClassIdentifier: 
   m_Active: 1
   settings:
-    passTag: NewRenderObjects
+    passTag: RenderSceneUI
     Event: 600
     filterSettings:
       RenderQueueType: 1
       LayerMask:
         serializedVersion: 2
-        m_Bits: 32
+        m_Bits: 256
       PassNames: []
     overrideMaterial: {fileID: 0}
     overrideMaterialPassIndex: 0

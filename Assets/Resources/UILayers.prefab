@@ -208,7 +208,7 @@ GameObject:
   - component: {fileID: 2220670878957519719}
   - component: {fileID: 2220670878957519720}
   - component: {fileID: 2220670878957519721}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: Scene
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -243,7 +243,7 @@ Canvas:
   m_GameObject: {fileID: 2220670878957519723}
   m_Enabled: 1
   serializedVersion: 3
-  m_RenderMode: 1
+  m_RenderMode: 2
   m_Camera: {fileID: 0}
   m_PlaneDistance: 100
   m_PixelPerfect: 0
@@ -580,7 +580,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2220670880267207379}
   m_Layer: 5
-  m_Name: UI
+  m_Name: UILayers
   m_TagString: UIRoot
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
