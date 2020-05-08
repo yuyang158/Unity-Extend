@@ -31,6 +31,7 @@ namespace Extend.Common {
 		}
 
 		private static bool Initialized { get; set; }
+		public static CSharpServiceManager Instance { get; private set; }
 
 		public static void Initialize() {
 			if( Initialized ) {
@@ -40,8 +41,7 @@ namespace Extend.Common {
 			Initialized = true;
 			var go = new GameObject("CSharpServiceManager");
 			DontDestroyOnLoad(go);
-			go.AddComponent<CSharpServiceManager>();
-			Register(go.AddComponent<InGameConsole>());
+			Instance = go.AddComponent<CSharpServiceManager>();
 
 			Application.quitting += () => {
 				var serviceList = new List<IService>(services.Values);
@@ -82,6 +82,10 @@ namespace Extend.Common {
 			else {
 				throw new Exception($"Service {type} not exist");
 			}
+		}
+
+		public void SceneLoaded() {
+			Register(gameObject.AddComponent<InGameConsole>());
 		}
 
 		public static T Get<T>(ServiceType typ) where T : IService {

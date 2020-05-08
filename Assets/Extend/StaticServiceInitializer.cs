@@ -27,6 +27,8 @@ namespace Extend {
 			CSharpServiceManager.Register(new LuaVM());
 			CSharpServiceManager.Register(new TickService());
 			CSharpServiceManager.Register(new NetworkService());
+			
+			CSharpServiceManager.Instance.SceneLoaded();
 		}
 	}
 }

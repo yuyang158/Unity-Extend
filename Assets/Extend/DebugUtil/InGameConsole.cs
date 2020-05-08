@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Extend.Common;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Profiling;
 using XLua;
 
 namespace Extend.DebugUtil {
@@ -98,6 +100,13 @@ namespace Extend.DebugUtil {
 
 		#region MonoBehaviour Messages
 
+		private LuaVM luvVM;
+		private void Awake() {
+			Application.targetFrameRate = 60;
+			luvVM = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
+			
+		}
+
 		private void OnDisable() {
 			Application.logMessageReceivedThreaded -= HandleLogThreaded;
 		}
@@ -106,7 +115,33 @@ namespace Extend.DebugUtil {
 			Application.logMessageReceivedThreaded += HandleLogThreaded;
 		}
 
+		private readonly StringBuilder builder = new StringBuilder(128);
+
+		private GUIStyle style;
+		private GUIStyle Style {
+			get {
+				if( style == null ) {
+					style = new GUIStyle(GUI.skin.box) {
+						alignment = TextAnchor.MiddleLeft,
+					};
+				}
+
+				return style;
+			}
+		}
 		private void OnGUI() {
+			builder.Clear();
+			builder.AppendFormat("FPS : {0} / {1}\n", Mathf.RoundToInt(1 / Time.smoothDeltaTime), 
+				Application.targetFrameRate <= 0 ? "No Limit" : Application.targetFrameRate.ToString());
+			var graphicsDriver = Profiler.GetAllocatedMemoryForGraphicsDriver() / 1024 / 1024;
+			var unityTotalMemory = Profiler.GetTotalAllocatedMemoryLong() / 1024 / 1024;
+			builder.AppendFormat("Mono : {0} KB\n", GC.GetTotalMemory(false) / 1024);
+			builder.AppendFormat("Lua : {0} KB\n", luvVM.Default.Memroy);
+			builder.AppendFormat("Unity : {0} MB\n", unityTotalMemory);
+			if(Debug.isDebugBuild)
+				builder.AppendFormat("Graphics : {0} MB", graphicsDriver);
+			GUILayout.Box(builder.ToString(), Style);
+
 			if( !IsVisible ) {
 				return;
 			}
