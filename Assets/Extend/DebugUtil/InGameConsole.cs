@@ -102,9 +102,11 @@ namespace Extend.DebugUtil {
 
 		private LuaVM luvVM;
 		private void Awake() {
-			Application.targetFrameRate = 60;
 			luvVM = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
-			
+			logFontSize = (int)(16 * Screen.dpi / 96.0f);
+			if( logFontSize > 25 ) {
+				logFontSize = 25;
+			}
 		}
 
 		private void OnDisable() {
@@ -123,6 +125,7 @@ namespace Extend.DebugUtil {
 				if( style == null ) {
 					style = new GUIStyle(GUI.skin.box) {
 						alignment = TextAnchor.MiddleLeft,
+						fontSize = logFontSize
 					};
 				}
 
@@ -134,7 +137,7 @@ namespace Extend.DebugUtil {
 			builder.AppendFormat("FPS : {0} / {1}\n", Mathf.RoundToInt(1 / Time.smoothDeltaTime), 
 				Application.targetFrameRate <= 0 ? "No Limit" : Application.targetFrameRate.ToString());
 			var graphicsDriver = Profiler.GetAllocatedMemoryForGraphicsDriver() / 1024 / 1024;
-			var unityTotalMemory = Profiler.GetTotalAllocatedMemoryLong() / 1024 / 1024;
+			var unityTotalMemory = Profiler.GetTotalReservedMemoryLong() / 1024 / 1024;
 			builder.AppendFormat("Mono : {0} KB\n", GC.GetTotalMemory(false) / 1024);
 			builder.AppendFormat("Lua : {0} KB\n", luvVM.Default.Memroy);
 			builder.AppendFormat("Unity : {0} MB\n", unityTotalMemory);

@@ -46,6 +46,7 @@ namespace Extend.Asset {
 				dependency.Release();
 			}
 			AB.Unload( false );
+			UnityEngine.Object.Destroy(AB);
 		}
 
 		public static int GenerateHash(string path) {

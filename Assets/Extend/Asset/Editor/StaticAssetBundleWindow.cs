@@ -17,7 +17,7 @@ namespace Extend.Asset.Editor {
 		private ReorderableList otherDependencyList;
 		private static StaticABSettings settingRoot;
 		private SerializedObject serializedObject;
-		public const string SETTING_FILE_PATH = "Assets/Extend/AssetService/Editor/settings.asset";
+		public const string SETTING_FILE_PATH = "Assets/Extend/Asset/Editor/settings.asset";
 
 		private void OnEnable() {
 			InitializeSetting();

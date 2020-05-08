@@ -14,7 +14,7 @@ function M.Init()
 	UIViewConfiguration = CS.Extend.UI.UIViewConfiguration.Load()
 	local GameObject = CS.UnityEngine.GameObject
 	local uiCam = GameObject.Find("UICamera"):GetComponent(typeof(CS.UnityEngine.Camera))
-	local ref = AssetService:Load("UI", typeof(CS.UnityEngine.GameObject))
+	local ref = AssetService:Load("UILayers", typeof(CS.UnityEngine.GameObject))
 	local go = ref:Instantiate()
 	go.name = "UI"
 	ref:Dispose()
