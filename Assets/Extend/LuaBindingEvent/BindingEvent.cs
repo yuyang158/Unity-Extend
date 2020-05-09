@@ -26,10 +26,10 @@ namespace Extend.LuaBindingEvent {
 		public LuaBinding Binding;
 		public string LuaMethodName;
 
-		private LuaFunction cachedLuaFunction;
+		private LuaFunction m_cachedLuaFunction;
 
 		public void Invoke(EventInstance instance) {
-			if( cachedLuaFunction == null ) {
+			if( m_cachedLuaFunction == null ) {
 				if( !Binding ) {
 					throw new Exception("Event lua binding is null");
 				}
@@ -42,13 +42,13 @@ namespace Extend.LuaBindingEvent {
 					throw new Exception($"Binding {Binding.name} method is null");
 				}
 
-				cachedLuaFunction = Binding.LuaInstance.Get<LuaFunction>(LuaMethodName);
-				if( cachedLuaFunction == null ) {
+				m_cachedLuaFunction = Binding.LuaInstance.Get<LuaFunction>(LuaMethodName);
+				if( m_cachedLuaFunction == null ) {
 					throw new Exception($"Can not find method {LuaMethodName}, Binding : {Binding.name}");
 				}
 			}
 
-			cachedLuaFunction.Call(Binding.LuaInstance);
+			m_cachedLuaFunction.Call(Binding.LuaInstance);
 		}
 	}
 

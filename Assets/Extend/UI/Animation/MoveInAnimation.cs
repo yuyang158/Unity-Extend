@@ -2,6 +2,7 @@
 using DG.Tweening;
 using Extend.Common;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Extend.UI.Animation {
 	[Serializable]
@@ -14,12 +15,12 @@ namespace Extend.UI.Animation {
 		}
 
 		[SerializeField, LabelText("Move From")]
-		private Direction moveInDirection = Direction.Left;
+		private Direction m_moveInDirection = Direction.Left;
 
 		public Direction MoveInDirection {
-			get => moveInDirection;
+			get => m_moveInDirection;
 			set {
-				moveInDirection = value;
+				m_moveInDirection = value;
 				dirty = true;
 			}
 		}

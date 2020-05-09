@@ -1,26 +1,27 @@
 ﻿using System;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Extend.UI.Animation {
 	[Serializable]
 	public class ScaleLoopAnimation : StateLoopAnimation {
 		[SerializeField]
-		private Vector3 scaleFrom;
+		private Vector3 m_scaleFrom;
 		public Vector3 ScaleFrom {
-			get => scaleFrom;
+			get => m_scaleFrom;
 			set {
 				dirty = true;
-				scaleFrom = value;
+				m_scaleFrom = value;
 			}
 		}
 
 		[SerializeField]
-		private Vector3 scaleTo;
+		private Vector3 m_scaleTo;
 		public Vector3 ScaleTo {
-			get => scaleTo;
+			get => m_scaleTo;
 			set {
-				scaleFrom = value;
+				m_scaleFrom = value;
 				dirty = true;
 			}
 		}

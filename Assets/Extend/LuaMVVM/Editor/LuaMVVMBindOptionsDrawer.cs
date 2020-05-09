@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Extend.UI.Editor;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
@@ -24,13 +25,13 @@ namespace Extend.LuaMVVM.Editor {
 			enabledRect.width *= 0.3f;
 
 			var goRect = enabledRect;
-			goRect.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+			goRect.y += UIEditorUtil.LINE_HEIGHT;
 
 			var functionRect = rect;
 			functionRect.xMin = goRect.xMax + 5;
 
 			var argRect = functionRect;
-			argRect.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+			argRect.y += UIEditorUtil.LINE_HEIGHT;
 
 			rects[0] = enabledRect;
 			rects[1] = goRect;
@@ -49,7 +50,7 @@ namespace Extend.LuaMVVM.Editor {
 
 			mvvmBindList = new ReorderableList(property.serializedObject, property);
 			mvvmBindList.drawHeaderCallback += rect => { EditorGUI.LabelField(rect, "MVVM Binding"); };
-			mvvmBindList.elementHeight = ( EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing ) * 2;
+			mvvmBindList.elementHeight = UIEditorUtil.LINE_HEIGHT * 2;
 			mvvmBindList.drawElementCallback += (rect, index, active, focused) => {
 				rect.y++;
 				var subRects = GetRowRects(rect);

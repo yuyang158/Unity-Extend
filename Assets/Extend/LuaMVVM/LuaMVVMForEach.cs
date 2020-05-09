@@ -7,27 +7,27 @@ using XLua;
 namespace Extend.LuaMVVM {
 	public class LuaMVVMForEach : MonoBehaviour {
 		[SerializeField]
-		private bool syncLoad;
+		private bool m_syncLoad;
 		[AssetReferenceAssetType(AssetType = typeof(GameObject))]
 		public AssetReference Asset;
 
-		private LuaTable arrayData;
-		private readonly List<GameObject> generatedAsset = new List<GameObject>();
+		private LuaTable m_arrayData;
+		private readonly List<GameObject> m_generatedAsset = new List<GameObject>();
 
 		private void OnDestroy() {
 			Asset?.Dispose();
-			arrayData?.Dispose();
-			arrayData = null;
+			m_arrayData?.Dispose();
+			m_arrayData = null;
 		}
 
 		public LuaTable LuaArrayData {
-			get => arrayData;
+			get => m_arrayData;
 			set {
-				arrayData?.Dispose();
-				arrayData = value;
-				if(arrayData == null)
+				m_arrayData?.Dispose();
+				m_arrayData = value;
+				if(m_arrayData == null)
 					return;
-				if( !Asset.IsFinished && !syncLoad ) {
+				if( !Asset.IsFinished && !m_syncLoad ) {
 					var handle = Asset.LoadAsync(typeof(GameObject));
 					handle.OnComplete += loadHandle => {
 						DoGenerate();
@@ -40,40 +40,40 @@ namespace Extend.LuaMVVM {
 		}
 
 		private void DoGenerate() {
-			if( arrayData == null ) {
-				foreach( var go in generatedAsset ) {
+			if( m_arrayData == null ) {
+				foreach( var go in m_generatedAsset ) {
 					Destroy(go);
 				}
-				generatedAsset.Clear();
+				m_generatedAsset.Clear();
 				return;
 			}
 			
 			var prefab = Asset.GetGameObject();
 			int finalIndex;
 			for( var i = 1; ; i++ ) {
-				var dataContext = arrayData.Get<int, LuaTable>(i);
+				var dataContext = m_arrayData.Get<int, LuaTable>(i);
 				if( dataContext == null ) {
 					finalIndex = i;
 					break;
 				}
 				GameObject go;
-				if( generatedAsset.Count >= i ) {
-					go = generatedAsset[i - 1];
+				if( m_generatedAsset.Count >= i ) {
+					go = m_generatedAsset[i - 1];
 				}
 				else {
 					go = Instantiate(prefab, transform, false);
 					go.name = $"{prefab.name}_{i}";
-					generatedAsset.Add(go);
+					m_generatedAsset.Add(go);
 				}
 				
 				var mvvmBinding = go.GetComponent<LuaMVVMBinding>();
 				mvvmBinding.SetDataContext(dataContext);
 			}
 
-			for( var i = finalIndex - 1; i < generatedAsset.Count; ) {
-				var go = generatedAsset[generatedAsset.Count - 1];
+			for( var i = finalIndex - 1; i < m_generatedAsset.Count; ) {
+				var go = m_generatedAsset[m_generatedAsset.Count - 1];
 				Destroy(go);
-				generatedAsset.RemoveAt(generatedAsset.Count - 1);
+				m_generatedAsset.RemoveAt(m_generatedAsset.Count - 1);
 			}
 		}
 	}

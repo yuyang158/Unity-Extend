@@ -12,16 +12,16 @@ namespace Extend.Switcher {
 			public GOActiveSwitcher[] GOActiveSwitchers;
 			public AnimatorSwitcher[] AnimatorSwitchers;
 
-			private List<ISwitcher> switchers;
+			private List<ISwitcher> m_switchers;
 
 			public void Init() {
-				switchers = new List<ISwitcher>(GOActiveSwitchers.Length);
-				switchers.AddRange(GOActiveSwitchers);
-				switchers.AddRange(AnimatorSwitchers);
+				m_switchers = new List<ISwitcher>(GOActiveSwitchers.Length);
+				m_switchers.AddRange(GOActiveSwitchers);
+				m_switchers.AddRange(AnimatorSwitchers);
 			}
 
 			public void Switch() {
-				foreach( var s in switchers ) {
+				foreach( var s in m_switchers ) {
 					s.ActiveSwitcher();
 				}
 			}

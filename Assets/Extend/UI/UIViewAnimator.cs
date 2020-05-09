@@ -7,21 +7,21 @@ namespace Extend.UI {
 		private static readonly int HIDE_HASH = Animator.StringToHash("Hide");
 		private static readonly int LOOP_HASH = Animator.StringToHash("Loop");
 
-		private Animator animator;
+		private Animator m_animator;
 
 		protected override void Awake() {
 			base.Awake();
-			animator = GetComponent<Animator>();
+			m_animator = GetComponent<Animator>();
 		}
 
 		private void PlayHashAndUpdate(int hash) {
-			animator.enabled = true;
-			animator.Play(hash);
-			animator.Update(0);
+			m_animator.enabled = true;
+			m_animator.Play(hash);
+			m_animator.Update(0);
 		}
 
 		protected override void OnShow() {
-			if( !animator.HasState(0, SHOW_HASH) ) {
+			if( !m_animator.HasState(0, SHOW_HASH) ) {
 				Loop();
 				return;
 			}
@@ -29,7 +29,7 @@ namespace Extend.UI {
 		}
 
 		protected override void OnHide() {
-			if( !animator.HasState(0, HIDE_HASH) ) {
+			if( !m_animator.HasState(0, HIDE_HASH) ) {
 				OnClosed();
 				return;
 			}
@@ -37,7 +37,7 @@ namespace Extend.UI {
 		}
 
 		protected override void OnLoop() {
-			if( !animator.HasState(0, LOOP_HASH) ) {
+			if( !m_animator.HasState(0, LOOP_HASH) ) {
 				return;
 			}
 			PlayHashAndUpdate(LOOP_HASH);
@@ -45,7 +45,7 @@ namespace Extend.UI {
 
 		public void OnEvent(string evt) {
 			if( evt == "Finish" ) {
-				animator.enabled = false;
+				m_animator.enabled = false;
 				if( ViewStatus == Status.Showing ) {
 					Loop();
 				}

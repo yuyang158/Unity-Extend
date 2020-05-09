@@ -12,22 +12,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 18a4a2d768f448419406df9fcdfd2045, type: 3}
   m_Name: UIViewConfiguration
   m_EditorClassIdentifier: 
-  configurations:
+  m_configurations:
   - Name: Login
     UIView:
-      assetGUID: 2f8fb33ed7d19c546bb204e461c234d7
+      m_assetGUID: 2f8fb33ed7d19c546bb204e461c234d7
     BackgroundFx:
-      assetGUID: 
+      m_assetGUID: 
     FullScreen: 1
     Transition:
-      assetGUID: 
+      m_assetGUID: 97ee0a42a6af00e499568c5adc34e04d
     AttachLayer: 1
   - Name: SingleMessageBox
     UIView:
-      assetGUID: c626bc8e0e4e70e458956c6afe808f9e
+      m_assetGUID: 
     BackgroundFx:
-      assetGUID: 
+      m_assetGUID: 
     FullScreen: 0
     Transition:
-      assetGUID: 
+      m_assetGUID: 
     AttachLayer: 2

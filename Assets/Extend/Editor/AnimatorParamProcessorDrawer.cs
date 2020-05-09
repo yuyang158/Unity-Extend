@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using Extend.Common;
+using Extend.UI.Editor;
 using UnityEditor;
 using UnityEngine;
 
@@ -10,11 +11,10 @@ namespace Extend.Editor {
 		private static readonly GUIContent AnimatorName = new GUIContent("Animator");
 		
 		public override float GetPropertyHeight(SerializedProperty property, GUIContent label) {
-			var singleLineHeight = EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
 			var animatorProp = property.FindPropertyRelative("ani");
 			var animator = animatorProp.objectReferenceValue as Animator;
 			if( !animator ) {
-				return singleLineHeight;
+				return UIEditorUtil.LINE_HEIGHT;
 			}
 			var valueProp = property.FindPropertyRelative("paramValue");
 			var nameHashProp = valueProp.FindPropertyRelative("NameHash");
@@ -24,23 +24,23 @@ namespace Extend.Editor {
 						case AnimatorControllerParameterType.Float:
 						case AnimatorControllerParameterType.Int:
 						case AnimatorControllerParameterType.Bool:
-							return singleLineHeight * 3;
+							return UIEditorUtil.LINE_HEIGHT * 3;
 						case AnimatorControllerParameterType.Trigger:
-							return singleLineHeight * 2;
+							return UIEditorUtil.LINE_HEIGHT * 2;
 						default:
 							throw new ArgumentOutOfRangeException();
 					}
 				}
 			}
 
-			return singleLineHeight * 2;
+			return UIEditorUtil.LINE_HEIGHT * 2;
 		}
 
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label) {
 			position.height = EditorGUIUtility.singleLineHeight;
 			var animatorProp = property.FindPropertyRelative("ani");
 			EditorGUI.ObjectField(position, animatorProp, AnimatorName);
-			position.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+			position.y += UIEditorUtil.LINE_HEIGHT;
 
 			var animator = animatorProp.objectReferenceValue as Animator;
 			if( animator ) {
@@ -51,7 +51,7 @@ namespace Extend.Editor {
 				index = EditorGUI.Popup(position, "Parameter", index, paramNames);
 				if(index >= 0 && index < paramNames.Length)
 					nameHashProp.intValue = Animator.StringToHash(paramNames[index]);
-				position.y += EditorGUIUtility.singleLineHeight;
+				position.y += UIEditorUtil.LINE_HEIGHT;
 
 				foreach( var param in animator.parameters ) {
 					if( param.nameHash != nameHashProp.intValue ) continue;

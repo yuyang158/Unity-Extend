@@ -1,26 +1,27 @@
 using System;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Extend.UI.Animation {
 	[Serializable]
 	public abstract class StateLoopAnimation : StateAnimation {
 		[SerializeField]
-		private int loops = -1;
+		private int m_loops = -1;
 		public int Loops {
-			get => loops;
+			get => m_loops;
 			set {
-				loops = value;
+				m_loops = value;
 				dirty = true;
 			}
 		}
 
 		[SerializeField]
-		private LoopType loopType;
+		private LoopType m_loopType;
 		public LoopType LoopType {
-			get => loopType;
+			get => m_loopType;
 			set {
-				loopType = value;
+				m_loopType = value;
 				dirty = true;
 			} 
 		}

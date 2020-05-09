@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
 using Extend.Common;
+using Extend.UI.Editor;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
@@ -39,7 +40,7 @@ namespace Extend.Editor.InspectorGUI {
 								if( prop == null )
 									continue;
 								EditorGUI.PropertyField(rect, prop, true);
-								rect.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+								rect.y += UIEditorUtil.LINE_HEIGHT;
 							}
 						}
 						else
@@ -56,7 +57,7 @@ namespace Extend.Editor.InspectorGUI {
 								}
 							}
 
-							return count * ( EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing );
+							return count * UIEditorUtil.LINE_HEIGHT;
 						}
 
 						return EditorGUI.GetPropertyHeight(property.GetArrayElementAtIndex(index));

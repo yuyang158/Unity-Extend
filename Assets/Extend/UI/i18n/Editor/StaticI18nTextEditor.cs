@@ -21,7 +21,7 @@ namespace UI.i18n.Editor {
 		private TextMeshProUGUI txt;
 
 		private readonly List<StaticText> existTexts = new List<StaticText>();
-		private static readonly string xmlConfigPath = $"Assets/Resources/Config/static-i18n.xml";
+		private const string xmlConfigPath = "Assets/Resources/Config/static-i18n.xml";
 		private SerializedObject textMeshSlObject;
 		private SerializedProperty textMeshTextProp;
 
@@ -66,7 +66,7 @@ namespace UI.i18n.Editor {
 		}
 
 		public override void OnInspectorGUI() {
-			var keyProp = serializedObject.FindProperty("key");
+			var keyProp = serializedObject.FindProperty("m_key");
 			EditorGUILayout.LabelField("Key: ", keyProp.stringValue);
 			EditorGUILayout.PropertyField(textMeshTextProp);
 			textMeshSlObject.ApplyModifiedProperties();

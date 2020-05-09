@@ -1,17 +1,18 @@
 using System;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Extend.UI.Animation {
 	[Serializable]
 	public class MoveStateAnimation : StateAnimation {
 		[SerializeField]
-		private Vector3 move;
+		private Vector3 m_move;
 		public Vector3 Move {
-			get => move;
+			get => m_move;
 			set {
 				dirty = true;
-				move = value;
+				m_move = value;
 			}
 		}
 

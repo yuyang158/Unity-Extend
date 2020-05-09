@@ -7,10 +7,10 @@ namespace Extend.UI {
 		public UIAnimation HideAnimation;
 		public UIViewLoopAnimation LoopAnimation;
 
-		private Tween[] currentTweens;
+		private Tween[] m_currentTweens;
 
 		private Tween[] CurrentTweens {
-			get => currentTweens;
+			get => m_currentTweens;
 			set {
 				if( CurrentTweens != null ) {
 					foreach( var tween in CurrentTweens ) {
@@ -18,7 +18,7 @@ namespace Extend.UI {
 					}
 				}
 
-				currentTweens = value;
+				m_currentTweens = value;
 			}
 		}
 
@@ -74,7 +74,7 @@ namespace Extend.UI {
 				return;
 			}
 
-			currentTweens = null;
+			m_currentTweens = null;
 			if( ViewStatus == Status.Showing ) {
 				Loop();
 			}

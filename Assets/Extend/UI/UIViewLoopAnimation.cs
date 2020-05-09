@@ -15,23 +15,23 @@ namespace Extend.UI {
 		public AnimationMode Mode = AnimationMode.STATE;
 
 		[SerializeField]
-		private bool enabled;
+		private bool m_enabled;
 
-		public bool Enabled => enabled;
-
-		[SerializeField]
-		private ViewLoopStateCombine state;
+		public bool Enabled => m_enabled;
 
 		[SerializeField]
-		private AnimatorParamProcessor processor;
+		private ViewLoopStateCombine m_state;
+
+		[SerializeField]
+		private AnimatorParamProcessor m_processor;
 
 		public Tween[] Active(Transform t) {
 			switch( Mode ) {
 				case AnimationMode.STATE:
-					state.Active(t);
-					return state.AllTween;
+					m_state.Active(t);
+					return m_state.AllTween;
 				case AnimationMode.ANIMATOR:
-					processor.Apply();
+					m_processor.Apply();
 					break;
 				default:
 					throw new ArgumentOutOfRangeException();
@@ -42,7 +42,7 @@ namespace Extend.UI {
 
 		public void CacheStartValue(Transform t) {
 			if( Mode == AnimationMode.STATE ) {
-				state.CacheStartValue(t);
+				m_state.CacheStartValue(t);
 			}
 		}
 
@@ -52,7 +52,7 @@ namespace Extend.UI {
 
 		public void Editor_Recovery(Transform transform) {
 			if( Mode == AnimationMode.STATE ) {
-				state.Editor_Recovery(transform);
+				m_state.Editor_Recovery(transform);
 			}
 		}
 	}

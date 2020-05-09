@@ -17,37 +17,37 @@ namespace Extend.DebugUtil {
 			COUNT
 		}
 		
-		private readonly long[] stats = new long[(int)StatName.COUNT];
-		private TextWriter writer;
+		private readonly long[] m_stats = new long[(int)StatName.COUNT];
+		private TextWriter m_writer;
 
 		public void Increase(StatName name, long value) {
-			stats[(int)name] += value;
+			m_stats[(int)name] += value;
 		}
 
 		public void Set(StatName name, long value) {
-			stats[(int)name] += value;
+			m_stats[(int)name] += value;
 		}
 
 		public long Get(StatName name) {
-			return stats[(int)name];
+			return m_stats[(int)name];
 		}
 
 		public void LogStat(string type, string key, object value) {
 			var line = string.Join("\t", type, key, value);
-			writer.WriteLineAsync(line);
+			m_writer.WriteLineAsync(line);
 		}
 		
 		public void Initialize() {
 			var statFilePath = Application.persistentDataPath + "/stat.log";
-			writer = new StreamWriter(statFilePath, false); 
+			m_writer = new StreamWriter(statFilePath, false); 
 		}
 
 		public void Destroy() {
 			for( var i = 0; i < (int)StatName.COUNT; i++ ) {
 				var type = (StatName)i;
-				LogStat("Stat", type.ToString(), stats[i]);
+				LogStat("Stat", type.ToString(), m_stats[i]);
 			}
-			writer.Close();
+			m_writer.Close();
 		}
 	}
 }

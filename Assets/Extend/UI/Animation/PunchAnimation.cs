@@ -1,76 +1,76 @@
 using System;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Extend.UI.Animation {
 	[Serializable]
 	public abstract class PunchAnimation {
 		[SerializeField]
-		private Vector3 punch;
+		private Vector3 m_punch;
 		[SerializeField]
-		public float duration = 1;
+		public float m_duration = 1;
 		[SerializeField]
-		public int vibrato = 10;
+		public int m_vibrato = 10;
 		[SerializeField]
-		public float elasticity = 1;
+		public float m_elasticity = 1;
 		[SerializeField]
-		public float delay;
+		public float m_delay;
 
 		public Vector3 Punch {
-			get => punch;
+			get => m_punch;
 			set {
-				dirty = true;
-				punch = value;
+				m_dirty = true;
+				m_punch = value;
 			}
 		}
 		
 		public float Duration {
-			get => duration;
+			get => m_duration;
 			set {
-				dirty = true;
-				duration = value;
+				m_dirty = true;
+				m_duration = value;
 			}
 		}
 		
 		public int Vibrato {
-			get => vibrato;
+			get => m_vibrato;
 			set {
-				dirty = true;
-				vibrato = value;
+				m_dirty = true;
+				m_vibrato = value;
 			}
 		}
 		
 		public float Elasticity {
-			get => elasticity;
+			get => m_elasticity;
 			set {
-				dirty = true;
-				elasticity = value;
+				m_dirty = true;
+				m_elasticity = value;
 			}
 		}
 		
 		public float Delay {
-			get => delay;
+			get => m_delay;
 			set {
-				dirty = true;
-				delay = value;
+				m_dirty = true;
+				m_delay = value;
 			}
 		}
 
 		[SerializeField]
-		private bool active;
-		public bool IsActive => active;
-		protected bool dirty = true;
-		protected Tween cachedTween;
+		private bool m_active;
+		protected bool m_dirty = true;
+		protected Tween m_cachedTween;
 
 		public Tween Active(Transform t) {
-			if( !active )
+			if( !m_active )
 				return null;
-			if( cachedTween == null || dirty || !Application.isPlaying ) {
-				cachedTween = DoGenerateTween(t);
-				dirty = false;
+			if( m_cachedTween == null || m_dirty || !Application.isPlaying ) {
+				m_cachedTween = DoGenerateTween(t);
+				m_dirty = false;
 			}
 
-			return cachedTween;
+			return m_cachedTween;
 		}
 		
 		protected abstract Tween DoGenerateTween(Transform t);

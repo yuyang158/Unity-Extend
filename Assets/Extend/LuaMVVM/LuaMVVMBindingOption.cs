@@ -27,9 +27,9 @@ namespace Extend.LuaMVVM {
 		public BindMode Mode = BindMode.ONE_TIME;
 		public string Path;
 
-		private LuaTable dataSource;
-		private PropertyInfo propertyInfo;
-		private object value;
+		private LuaTable m_dataSource;
+		private PropertyInfo m_propertyInfo;
+		private object m_value;
 
 		private delegate void WatchCallback(LuaTable self, object val);
 
@@ -47,8 +47,8 @@ namespace Extend.LuaMVVM {
 				return;
 			}
 
-			propertyInfo = BindTarget.GetType().GetProperty(BindTargetProp);
-			Assert.IsNotNull(propertyInfo, BindTargetProp);
+			m_propertyInfo = BindTarget.GetType().GetProperty(BindTargetProp);
+			Assert.IsNotNull(m_propertyInfo, BindTargetProp);
 			watchCallback = SetPropertyValue;
 		}
 
@@ -57,30 +57,30 @@ namespace Extend.LuaMVVM {
 		}
 
 		public void UpdateToSource() {
-			if( dataSource == null )
+			if( m_dataSource == null )
 				return;
 
 			if( Mode != BindMode.TWO_WAY && Mode != BindMode.ONE_WAY_TO_SOURCE )
 				return;
 
-			var fieldVal = propertyInfo.GetValue(BindTarget);
-			if( Equals(value, fieldVal) ) {
+			var fieldVal = m_propertyInfo.GetValue(BindTarget);
+			if( Equals(m_value, fieldVal) ) {
 				return;
 			}
 
-			dataSource.SetInPath(Path, value);
-			value = fieldVal;
+			m_dataSource.SetInPath(Path, m_value);
+			m_value = fieldVal;
 		}
 
 		private void SetPropertyValue(LuaTable _, object val) {
-			if( propertyInfo.PropertyType == typeof(string) ) {
-				value = val == null ? "" : val.ToString();
+			if( m_propertyInfo.PropertyType == typeof(string) ) {
+				m_value = val == null ? "" : val.ToString();
 			}
 			else {
-				value = val;
+				m_value = val;
 			}
 
-			propertyInfo.SetValue(BindTarget, value);
+			m_propertyInfo.SetValue(BindTarget, m_value);
 		}
 
 		private void TryDetach() {
@@ -88,12 +88,12 @@ namespace Extend.LuaMVVM {
 				return;
 
 			if( Mode == BindMode.ONE_WAY || Mode == BindMode.TWO_WAY ) {
-				detach(dataSource, Path, watchCallback);
+				detach(m_dataSource, Path, watchCallback);
 				detach = null;
 			}
 
-			dataSource?.Dispose();
-			dataSource = null;
+			m_dataSource?.Dispose();
+			m_dataSource = null;
 
 			if( BindTarget is LuaMVVMForEach forEach ) {
 				forEach.LuaArrayData = null;
@@ -105,12 +105,12 @@ namespace Extend.LuaMVVM {
 		}
 
 		public void Bind(LuaTable dataContext) {
-			if( dataSource != null ) {
+			if( m_dataSource != null ) {
 				TryDetach();
 			}
 
-			dataSource = dataContext;
-			if( dataSource == null ) {
+			m_dataSource = dataContext;
+			if( m_dataSource == null ) {
 				return;
 			}
 
@@ -131,15 +131,15 @@ namespace Extend.LuaMVVM {
 						detach = dataContext.Get<Detach>("detach");
 						Assert.IsNotNull(detach);
 						if( Mode == BindMode.TWO_WAY ) {
-							value = val;
+							m_value = val;
 						}
 					}
 
 					break;
 				}
 				case BindMode.ONE_WAY_TO_SOURCE:
-					value = propertyInfo.GetValue(BindTarget);
-					dataContext.SetInPath(Path, value);
+					m_value = m_propertyInfo.GetValue(BindTarget);
+					dataContext.SetInPath(Path, m_value);
 					break;
 				default:
 					throw new ArgumentOutOfRangeException();

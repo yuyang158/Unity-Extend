@@ -16,6 +16,13 @@ namespace Extend.UI.Animation {
 
 		public Tween[] AllTween { get; private set; } = new Tween[4];
 
+		private bool m_cached;
+		private Vector3 m_startMove;
+		private Vector3 m_startRotate;
+		private Vector3 m_startScale;
+		private float m_startAlpha;
+		private RectTransform m_rectTransform;
+
 		public void Active(Transform t) {
 			BuildAllTween(t);
 			if( Application.isPlaying ) {
@@ -26,41 +33,34 @@ namespace Extend.UI.Animation {
 		}
 
 		public void CacheStartValue(Transform t) {
-			if( !cached || !Application.isPlaying ) {
-				rectTransform = t as RectTransform;
-				startMove = rectTransform.anchoredPosition3D;
-				startRotate = rectTransform.localRotation.eulerAngles;
-				startScale = rectTransform.localScale;
-				var group = rectTransform.GetComponent<CanvasGroup>();
-				startAlpha = group ? group.alpha : 1;
-				cached = true;
+			if( !m_cached || !Application.isPlaying ) {
+				m_rectTransform = t as RectTransform;
+				m_startMove = m_rectTransform.anchoredPosition3D;
+				m_startRotate = m_rectTransform.localRotation.eulerAngles;
+				m_startScale = m_rectTransform.localScale;
+				var group = m_rectTransform.GetComponent<CanvasGroup>();
+				m_startAlpha = group ? group.alpha : 1;
+				m_cached = true;
 			}
 		}
 
 		public void Editor_Recovery(Transform t) {
-			rectTransform = t as RectTransform;
-			rectTransform.anchoredPosition3D = startMove;
-			rectTransform.localRotation = Quaternion.Euler(startRotate);
-			rectTransform.localScale = startScale;
-			var group = rectTransform.GetComponent<CanvasGroup>();
+			m_rectTransform = t as RectTransform;
+			m_rectTransform.anchoredPosition3D = m_startMove;
+			m_rectTransform.localRotation = Quaternion.Euler(m_startRotate);
+			m_rectTransform.localScale = m_startScale;
+			var group = m_rectTransform.GetComponent<CanvasGroup>();
 			if( group ) {
-				group.alpha = startAlpha;
+				group.alpha = m_startAlpha;
 			}
 		}
 
-		private bool cached;
-		private Vector3 startMove;
-		private Vector3 startRotate;
-		private Vector3 startScale;
-		private float startAlpha;
-		private RectTransform rectTransform;
-
 		private void BuildAllTween(Transform t) {
-			rectTransform = t as RectTransform;
-			AllTween[0] = Move.Active(rectTransform, startMove);
-			AllTween[1] = Rotate.Active(rectTransform, startRotate);
-			AllTween[2] = Scale.Active(rectTransform, startScale);
-			AllTween[3] = Fade.Active(rectTransform, Vector3.one * startAlpha);
+			m_rectTransform = t as RectTransform;
+			AllTween[0] = Move.Active(m_rectTransform, m_startMove);
+			AllTween[1] = Rotate.Active(m_rectTransform, m_startRotate);
+			AllTween[2] = Scale.Active(m_rectTransform, m_startScale);
+			AllTween[3] = Fade.Active(m_rectTransform, Vector3.one * m_startAlpha);
 		}
 
 		public void Stop() {

@@ -1,17 +1,18 @@
 using System;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Extend.UI.Animation {
 	[Serializable]
 	public class RotateStateAnimation : StateAnimation {
 		[SerializeField]
-		private Vector3 rotate;
+		private Vector3 m_rotate;
 		public Vector3 Rotate {
-			get => rotate;
+			get => m_rotate;
 			set {
 				dirty = true;
-				rotate = value;
+				m_rotate = value;
 			}
 		}
 

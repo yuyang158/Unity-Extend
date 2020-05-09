@@ -1,29 +1,30 @@
 using System;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Extend.UI.Animation {
 	[Serializable]
 	public class FadeStateAnimation : StateAnimation {
 		[SerializeField]
-		private float fade;
+		private float m_fade;
 		public float Fade {
-			get => fade;
+			get => m_fade;
 			set {
 				dirty = true;
-				fade = value;
+				m_fade = value;
 			}
 		}
 
-		private CanvasGroup canvasGroup;
+		private CanvasGroup m_canvasGroup;
 
 		protected override Tween DoGenerateTween(RectTransform t, Vector3 start) {
-			if( !canvasGroup ) {
-				canvasGroup = t.GetComponent<CanvasGroup>();
-				if( !canvasGroup )
+			if( !m_canvasGroup ) {
+				m_canvasGroup = t.GetComponent<CanvasGroup>();
+				if( !m_canvasGroup )
 					return null;
 			}
-			return canvasGroup.DOFade(Fade, Duration).SetDelay(Delay).SetEase(Ease);
+			return m_canvasGroup.DOFade(Fade, Duration).SetDelay(Delay).SetEase(Ease);
 		}
 	}
 }

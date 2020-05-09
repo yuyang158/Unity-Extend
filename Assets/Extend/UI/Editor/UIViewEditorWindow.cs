@@ -54,7 +54,7 @@ namespace Extend.UI.Editor {
 				selectedIndex = index;
 			}
 			
-			var configurations = serializedObject.FindProperty("configurations");
+			var configurations = serializedObject.FindProperty("m_configurations");
 			var element = configurations.GetArrayElementAtIndex(index);
 			var prop = element.FindPropertyRelative(columnIndexToFieldName[columnIndex]);
 			
@@ -72,13 +72,13 @@ namespace Extend.UI.Editor {
 		}
 
 		public void Add() {
-			var configurations = serializedObject.FindProperty("configurations");
+			var configurations = serializedObject.FindProperty("m_configurations");
 			configurations.InsertArrayElementAtIndex(configurations.arraySize);
 			serializedObject.ApplyModifiedProperties();
 		}
 
 		public void Remove() {
-			var configurations = serializedObject.FindProperty("configurations");
+			var configurations = serializedObject.FindProperty("m_configurations");
 			if( selectedIndex >= 0 && selectedIndex < configurations.arraySize ) {
 				configurations.DeleteArrayElementAtIndex(selectedIndex);
 				serializedObject.ApplyModifiedProperties();

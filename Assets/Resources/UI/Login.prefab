@@ -211,171 +211,171 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PointerDown:
     Mode: 0
-    enabled: 0
-    punch:
+    m_enabled: 0
+    m_punch:
       Move:
-        punch: {x: 0, y: 0, z: 0}
-        duration: 1
-        vibrato: 10
-        elasticity: 1
-        delay: 0
-        active: 0
+        m_punch: {x: 0, y: 0, z: 0}
+        m_duration: 1
+        m_vibrato: 10
+        m_elasticity: 1
+        m_delay: 0
+        m_active: 0
       Rotate:
-        punch: {x: 0, y: 0, z: 0}
-        duration: 1
-        vibrato: 10
-        elasticity: 1
-        delay: 0
-        active: 0
+        m_punch: {x: 0, y: 0, z: 0}
+        m_duration: 1
+        m_vibrato: 10
+        m_elasticity: 1
+        m_delay: 0
+        m_active: 0
       Scale:
-        punch: {x: 0, y: 0, z: 0}
-        duration: 1
-        vibrato: 10
-        elasticity: 1
-        delay: 0
-        active: 0
-    state:
+        m_punch: {x: 0, y: 0, z: 0}
+        m_duration: 1
+        m_vibrato: 10
+        m_elasticity: 1
+        m_delay: 0
+        m_active: 0
+    m_state:
       Move:
-        delay: 0
-        duration: 1
-        ease: 1
-        active: 0
-        move: {x: 0, y: 0, z: 0}
+        m_delay: 0
+        m_duration: 1
+        m_ease: 1
+        m_active: 0
+        m_move: {x: 0, y: 0, z: 0}
       Rotate:
-        delay: 0
-        duration: 1
-        ease: 1
-        active: 0
-        rotate: {x: 0, y: 0, z: 0}
+        m_delay: 0
+        m_duration: 1
+        m_ease: 1
+        m_active: 0
+        m_rotate: {x: 0, y: 0, z: 0}
       Scale:
-        delay: 0
-        duration: 1
-        ease: 1
-        active: 0
-        scale: {x: 1, y: 1, z: 1}
+        m_delay: 0
+        m_duration: 1
+        m_ease: 1
+        m_active: 0
+        m_scale: {x: 1, y: 1, z: 1}
       Fade:
-        delay: 0
-        duration: 1
-        ease: 1
-        active: 0
-        fade: 0
-    processor:
+        m_delay: 0
+        m_duration: 1
+        m_ease: 1
+        m_active: 0
+        m_fade: 0
+    m_processor:
       ani: {fileID: 0}
-      paramValue:
+      m_paramValue:
         NameHash: 0
         fV: 0
         iV: 0
         bV: 0
   PointerClick:
     Mode: 1
-    enabled: 1
-    punch:
+    m_enabled: 0
+    m_punch:
       Move:
-        punch: {x: 10, y: 0, z: 0}
-        duration: 0.18
-        vibrato: 2
-        elasticity: 1
-        delay: 0
-        active: 0
+        m_punch: {x: 0, y: 0, z: 0}
+        m_duration: 1
+        m_vibrato: 10
+        m_elasticity: 1
+        m_delay: 0
+        m_active: 0
       Rotate:
-        punch: {x: 0, y: 0, z: 90}
-        duration: 1
-        vibrato: 10
-        elasticity: 1
-        delay: 0
-        active: 0
+        m_punch: {x: 0, y: 0, z: 0}
+        m_duration: 1
+        m_vibrato: 10
+        m_elasticity: 1
+        m_delay: 0
+        m_active: 0
       Scale:
-        punch: {x: 0.3, y: 0.3, z: 0.3}
-        duration: 0.15
-        vibrato: 2
-        elasticity: 1
-        delay: 0
-        active: 1
-    state:
+        m_punch: {x: 0, y: 0, z: 0}
+        m_duration: 1
+        m_vibrato: 10
+        m_elasticity: 1
+        m_delay: 0
+        m_active: 0
+    m_state:
       Move:
-        delay: 0
-        duration: 1
-        ease: 1
-        active: 1
-        move: {x: 0, y: 0, z: 0}
+        m_delay: 0
+        m_duration: 1
+        m_ease: 1
+        m_active: 0
+        m_move: {x: 0, y: 0, z: 0}
       Rotate:
-        delay: 0
-        duration: 1
-        ease: 1
-        active: 1
-        rotate: {x: 0, y: 0, z: 0}
+        m_delay: 0
+        m_duration: 1
+        m_ease: 1
+        m_active: 0
+        m_rotate: {x: 0, y: 0, z: 0}
       Scale:
-        delay: 0
-        duration: 1
-        ease: 1
-        active: 0
-        scale: {x: 1, y: 1, z: 1}
+        m_delay: 0
+        m_duration: 1
+        m_ease: 1
+        m_active: 0
+        m_scale: {x: 1, y: 1, z: 1}
       Fade:
-        delay: 0
-        duration: 1
-        ease: 1
-        active: 0
-        fade: 0
-    processor:
+        m_delay: 0
+        m_duration: 1
+        m_ease: 1
+        m_active: 0
+        m_fade: 0
+    m_processor:
       ani: {fileID: 0}
-      paramValue:
+      m_paramValue:
         NameHash: 0
         fV: 0
         iV: 0
         bV: 0
   PointerUp:
     Mode: 0
-    enabled: 0
-    punch:
+    m_enabled: 0
+    m_punch:
       Move:
-        punch: {x: 0, y: 0, z: 0}
-        duration: 1
-        vibrato: 10
-        elasticity: 1
-        delay: 0
-        active: 0
+        m_punch: {x: 0, y: 0, z: 0}
+        m_duration: 1
+        m_vibrato: 10
+        m_elasticity: 1
+        m_delay: 0
+        m_active: 0
       Rotate:
-        punch: {x: 0, y: 0, z: 0}
-        duration: 1
-        vibrato: 10
-        elasticity: 1
-        delay: 0
-        active: 0
+        m_punch: {x: 0, y: 0, z: 0}
+        m_duration: 1
+        m_vibrato: 10
+        m_elasticity: 1
+        m_delay: 0
+        m_active: 0
       Scale:
-        punch: {x: 0, y: 0, z: 0}
-        duration: 1
-        vibrato: 10
-        elasticity: 1
-        delay: 0
-        active: 0
-    state:
+        m_punch: {x: 0, y: 0, z: 0}
+        m_duration: 1
+        m_vibrato: 10
+        m_elasticity: 1
+        m_delay: 0
+        m_active: 0
+    m_state:
       Move:
-        delay: 0
-        duration: 1
-        ease: 1
-        active: 0
-        move: {x: 0, y: 0, z: 0}
+        m_delay: 0
+        m_duration: 1
+        m_ease: 1
+        m_active: 0
+        m_move: {x: 0, y: 0, z: 0}
       Rotate:
-        delay: 0
-        duration: 1
-        ease: 1
-        active: 0
-        rotate: {x: 0, y: 0, z: 0}
+        m_delay: 0
+        m_duration: 1
+        m_ease: 1
+        m_active: 0
+        m_rotate: {x: 0, y: 0, z: 0}
       Scale:
-        delay: 0
-        duration: 1
-        ease: 1
-        active: 0
-        scale: {x: 1, y: 1, z: 1}
+        m_delay: 0
+        m_duration: 1
+        m_ease: 1
+        m_active: 0
+        m_scale: {x: 1, y: 1, z: 1}
       Fade:
-        delay: 0
-        duration: 1
-        ease: 1
-        active: 0
-        fade: 0
-    processor:
+        m_delay: 0
+        m_duration: 1
+        m_ease: 1
+        m_active: 0
+        m_fade: 0
+    m_processor:
       ani: {fileID: 0}
-      paramValue:
+      m_paramValue:
         NameHash: 0
         fV: 0
         iV: 0
@@ -392,17 +392,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a016cfed1e747c40ab602074289ab0c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ClickEvent:
-  - Function:
-      Binding: {fileID: 7189537287185346221}
-      LuaMethodName: OnMessageButtonClicked
-    Param:
-      Int: 12
-      Float: 0
-      Str: 
-      AssetRef:
-        assetGUID: 
-      Type: 1
+  m_clickEvent: []
 --- !u!1 &8694791660466165694
 GameObject:
   m_ObjectHideFlags: 0
@@ -461,7 +451,7 @@ Canvas:
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
-  m_AdditionalShaderChannelsFlag: 25
+  m_AdditionalShaderChannelsFlag: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
@@ -508,139 +498,139 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowAnimation:
     Mode: 1
-    enabled: 1
-    state:
+    m_enabled: 1
+    m_state:
       Move:
-        delay: 0
-        duration: 0.4
-        ease: 8
-        active: 0
-        moveInDirection: 0
+        m_delay: 0
+        m_duration: 1
+        m_ease: 1
+        m_active: 1
+        m_moveInDirection: 0
       Rotate:
-        delay: 0
-        duration: 0.5
-        ease: 2
-        active: 0
-        rotateFrom: {x: 0, y: 0, z: 720}
-        rotateMode: 1
+        m_delay: 0
+        m_duration: 1
+        m_ease: 1
+        m_active: 0
+        m_rotateFrom: {x: 0, y: 0, z: 0}
+        m_rotateMode: 0
       Scale:
-        delay: 0
-        duration: 1
-        ease: 1
-        active: 0
-        scaleFrom: {x: 0, y: 0, z: 0}
+        m_delay: 0
+        m_duration: 1
+        m_ease: 1
+        m_active: 0
+        m_scaleFrom: {x: 0, y: 0, z: 0}
       Fade:
-        delay: 0
-        duration: 0.5
-        ease: 8
-        active: 1
-        fadeFrom: 0
-    processor:
+        m_delay: 0
+        m_duration: 1
+        m_ease: 1
+        m_active: 0
+        m_fadeFrom: 0
+    m_processor:
       ani: {fileID: 0}
-      paramValue:
+      m_paramValue:
         NameHash: 0
         fV: 0
         iV: 0
         bV: 0
   HideAnimation:
-    Mode: 1
-    enabled: 1
-    punch:
+    Mode: 2
+    m_enabled: 0
+    m_punch:
       Move:
-        punch: {x: 0, y: 0, z: 0}
-        duration: 1
-        vibrato: 10
-        elasticity: 1
-        delay: 0
-        active: 0
+        m_punch: {x: 0, y: 0, z: 0}
+        m_duration: 1
+        m_vibrato: 10
+        m_elasticity: 1
+        m_delay: 0
+        m_active: 1
       Rotate:
-        punch: {x: 0, y: 0, z: 0}
-        duration: 1
-        vibrato: 10
-        elasticity: 1
-        delay: 0
-        active: 0
+        m_punch: {x: 0, y: 0, z: 0}
+        m_duration: 1
+        m_vibrato: 10
+        m_elasticity: 1
+        m_delay: 0
+        m_active: 1
       Scale:
-        punch: {x: 0, y: 0, z: 0}
-        duration: 1
-        vibrato: 10
-        elasticity: 1
-        delay: 0
-        active: 0
-    state:
+        m_punch: {x: 0, y: 0, z: 0}
+        m_duration: 1
+        m_vibrato: 10
+        m_elasticity: 1
+        m_delay: 0
+        m_active: 1
+    m_state:
       Move:
-        delay: 0
-        duration: 1
-        ease: 1
-        active: 0
-        move: {x: 0, y: 0, z: 0}
+        m_delay: 0
+        m_duration: 1
+        m_ease: 1
+        m_active: 0
+        m_move: {x: 0, y: 0, z: 0}
       Rotate:
-        delay: 0
-        duration: 1
-        ease: 1
-        active: 0
-        rotate: {x: 0, y: 0, z: 0}
+        m_delay: 0
+        m_duration: 1
+        m_ease: 1
+        m_active: 0
+        m_rotate: {x: 0, y: 0, z: 0}
       Scale:
-        delay: 0
-        duration: 1
-        ease: 1
-        active: 0
-        scale: {x: 1, y: 1, z: 1}
+        m_delay: 0
+        m_duration: 1
+        m_ease: 1
+        m_active: 0
+        m_scale: {x: 1, y: 1, z: 1}
       Fade:
-        delay: 0
-        duration: 0.5
-        ease: 6
-        active: 1
-        fade: 0
-    processor:
+        m_delay: 0
+        m_duration: 1
+        m_ease: 1
+        m_active: 0
+        m_fade: 0
+    m_processor:
       ani: {fileID: 0}
-      paramValue:
+      m_paramValue:
         NameHash: 0
         fV: 0
         iV: 0
         bV: 0
   LoopAnimation:
     Mode: 1
-    enabled: 1
-    state:
+    m_enabled: 0
+    m_state:
       Move:
-        delay: 0
-        duration: 1
-        ease: 1
-        active: 1
-        loops: -1
-        loopType: 0
-        moveBy: {x: 0, y: 0, z: 0}
+        m_delay: 0
+        m_duration: 1
+        m_ease: 1
+        m_active: 0
+        m_loops: -1
+        m_loopType: 0
+        m_moveBy: {x: 0, y: 0, z: 0}
       Rotate:
-        delay: 0
-        duration: 1
-        ease: 1
-        active: 0
-        loops: -1
-        loopType: 0
-        rotateBy: {x: 0, y: 0, z: 0}
-        rotateMode: 0
+        m_delay: 0
+        m_duration: 1
+        m_ease: 1
+        m_active: 0
+        m_loops: -1
+        m_loopType: 0
+        m_rotateBy: {x: 0, y: 0, z: 0}
+        m_rotateMode: 0
       Scale:
-        delay: 0
-        duration: 1
-        ease: 1
-        active: 0
-        loops: -1
-        loopType: 0
-        scaleFrom: {x: 0, y: 0, z: 0}
-        scaleTo: {x: 0, y: 0, z: 0}
+        m_delay: 0
+        m_duration: 1
+        m_ease: 1
+        m_active: 0
+        m_loops: -1
+        m_loopType: 0
+        m_scaleFrom: {x: 0, y: 0, z: 0}
+        m_scaleTo: {x: 0, y: 0, z: 0}
       Fade:
-        delay: 0
-        duration: 1
-        ease: 1
-        active: 0
-        loops: -1
-        loopType: 0
-        from: 0
-        to: 0
-    processor:
+        m_delay: 0
+        m_duration: 1
+        m_ease: 1
+        m_active: 0
+        m_loops: -1
+        m_loopType: 0
+        m_from: 0
+        m_to: 0
+    m_processor:
       ani: {fileID: 0}
-      paramValue:
+      m_paramValue:
         NameHash: 0
         fV: 0
         iV: 0

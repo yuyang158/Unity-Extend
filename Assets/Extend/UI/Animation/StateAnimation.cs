@@ -1,49 +1,50 @@
 using System;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Extend.UI.Animation {
 	[Serializable]
 	public abstract class StateAnimation {
 		[SerializeField]
-		private float delay;
+		private float m_delay;
 		public float Delay {
-			get => delay;
+			get => m_delay;
 			set {
 				dirty = true;
-				delay = value;
+				m_delay = value;
 			}
 		}
 
 		[SerializeField]
-		private float duration = 1;
+		private float m_duration = 1;
 		public float Duration {
-			get => duration;
+			get => m_duration;
 			set {
 				dirty = true;
-				duration = value;
+				m_duration = value;
 			}
 		}
 		
 		[SerializeField]
-		private Ease ease = Ease.Linear;
+		private Ease m_ease = Ease.Linear;
 		public Ease Ease {
-			get => ease;
+			get => m_ease;
 			set {
 				dirty = true;
-				ease = value;
+				m_ease = value;
 			}
 		}
 
 
 		[SerializeField]
-		private bool active;
+		private bool m_active;
 
 		public bool IsActive {
-			get => active;
+			get => m_active;
 			set {
 				dirty = true;
-				active = value;
+				m_active = value;
 			}
 		}
 		protected bool dirty = true;

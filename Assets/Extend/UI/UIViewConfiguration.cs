@@ -4,6 +4,7 @@ using Extend.Asset;
 using Extend.Asset.Attribute;
 using UnityEngine;
 using UnityEngine.Assertions;
+using UnityEngine.Serialization;
 using XLua;
 
 namespace Extend.UI {
@@ -37,23 +38,23 @@ namespace Extend.UI {
 			public UILayer AttachLayer;
 		}
 
-		[SerializeField]
-		private Configuration[] configurations;
+		[SerializeField, FormerlySerializedAs("configurations")]
+		private Configuration[] m_configurations;
 
-		public Configuration[] Configurations => configurations;
+		public Configuration[] Configurations => m_configurations;
 
 		private Dictionary<string, Configuration> hashedConfigurations;
 		public const string FILE_PATH = "Config/UIViewConfiguration";
 
 		private void OnEnable() {
-			if( configurations == null ) {
-				configurations = new[] { new Configuration() };
+			if( m_configurations == null ) {
+				m_configurations = new[] { new Configuration() };
 			}
 		}
 
 		public UIViewConfiguration ConvertData() {
-			hashedConfigurations = new Dictionary<string, Configuration>(configurations.Length);
-			foreach( var configuration in configurations ) {
+			hashedConfigurations = new Dictionary<string, Configuration>(m_configurations.Length);
+			foreach( var configuration in m_configurations ) {
 				hashedConfigurations.Add(configuration.Name, configuration);
 			}
 

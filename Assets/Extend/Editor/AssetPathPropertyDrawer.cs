@@ -1,5 +1,6 @@
 using System.IO;
 using Extend.LuaBindingData;
+using Extend.UI.Editor;
 using UnityEditor;
 using UnityEngine;
 
@@ -7,7 +8,7 @@ namespace Extend.Editor {
 	[CustomPropertyDrawer(typeof(AssetPathAttribute))]
 	public class AssetPathPropertyDrawer : PropertyDrawer {
 		public override float GetPropertyHeight(SerializedProperty property, GUIContent label) {
-			return EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+			return UIEditorUtil.LINE_HEIGHT;
 		}
 
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label) {

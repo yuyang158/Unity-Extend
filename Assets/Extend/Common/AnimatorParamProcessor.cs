@@ -18,7 +18,6 @@ namespace Extend.Common {
 
 		public Animator Ani => ani;
 
-		[FormerlySerializedAs("paramValue")]
 		[SerializeField, HideInInspector]
 		private AnimatorParameterValue m_paramValue;
 

@@ -17,17 +17,17 @@ namespace Extend.UI {
 			Hidden
 		}
 
-		private Canvas cachedCanvas;
-		private CanvasGroup cachedCanvasGroup;
+		private Canvas m_cachedCanvas;
+		private CanvasGroup m_cachedCanvasGroup;
 
 		protected virtual void Awake() {
-			cachedCanvasGroup = GetComponent<CanvasGroup>();
-			cachedCanvas = GetComponent<Canvas>();
-			cachedCanvas.additionalShaderChannels = AdditionalCanvasShaderChannels.None;
+			m_cachedCanvasGroup = GetComponent<CanvasGroup>();
+			m_cachedCanvas = GetComponent<Canvas>();
+			m_cachedCanvas.additionalShaderChannels = AdditionalCanvasShaderChannels.None;
 		}
 
-		public Canvas canvas => cachedCanvas;
-		public CanvasGroup canvasGroup => cachedCanvasGroup;
+		public Canvas canvas => m_cachedCanvas;
+		public CanvasGroup canvasGroup => m_cachedCanvasGroup;
 
 		private Status viewStatus;
 
@@ -38,14 +38,14 @@ namespace Extend.UI {
 				switch( viewStatus ) {
 					case Status.Showing:
 					case Status.Hiding:
-						cachedCanvasGroup.interactable = false;
+						m_cachedCanvasGroup.interactable = false;
 						break;
 					case Status.Loop:
-						cachedCanvasGroup.interactable = true;
+						m_cachedCanvasGroup.interactable = true;
 						break;
 					case Status.Hidden:
-						if( cachedCanvas )
-							cachedCanvas.enabled = false;
+						if( m_cachedCanvas )
+							m_cachedCanvas.enabled = false;
 						break;
 					default:
 						throw new ArgumentOutOfRangeException();
@@ -54,15 +54,15 @@ namespace Extend.UI {
 		}
 
 		public void SetVisible(bool visible) {
-			cachedCanvas.enabled = visible;
+			m_cachedCanvas.enabled = visible;
 			canvasGroup.blocksRaycasts = visible;
 		}
 
 		protected abstract void OnShow();
 
 		public void Show() {
-			if( cachedCanvas )
-				cachedCanvas.enabled = true;
+			if( m_cachedCanvas )
+				m_cachedCanvas.enabled = true;
 			Showing?.Invoke();
 			ViewStatus = Status.Showing;
 			OnShow();

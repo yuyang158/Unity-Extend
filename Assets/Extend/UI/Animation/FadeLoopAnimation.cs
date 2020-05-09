@@ -1,26 +1,27 @@
 ﻿using System;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Extend.UI.Animation {
 	[Serializable]
 	public class FadeLoopAnimation : StateLoopAnimation {
 		[SerializeField]
-		private float from;
+		private float m_from;
 		public float From {
-			get => from;
+			get => m_from;
 			set {
 				dirty = true;
-				from = value;
+				m_from = value;
 			}
 		}
 
 		[SerializeField]
-		private float to;
+		private float m_to;
 		public float To {
-			get => to;
+			get => m_to;
 			set {
-				to = value;
+				m_to = value;
 				dirty = true;
 			}
 		}

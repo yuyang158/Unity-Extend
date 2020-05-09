@@ -17,6 +17,7 @@ namespace Extend.UI.Editor {
 		public static readonly string[] PUNCH_ANIMATION_MODE = {"Move", "Rotate", "Scale"};
 		public static readonly string[] STATE_ANIMATION_MODE = {"Move", "Rotate", "Scale", "Fade"};
 		public const float ROW_CONTROL_MARGIN = 5;
+		public static readonly float LINE_HEIGHT = EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
 
 		public static void StartPreview(SerializedProperty property) {
 			var transform = PreviewComponent(property, out var animation);
@@ -64,8 +65,11 @@ namespace Extend.UI.Editor {
 			transformModeSelectionRect.width /= types.Count;
 			foreach( var type in types ) {
 				var typProp = animationProp.FindPropertyRelative(type);
-				var activeProp = typProp.FindPropertyRelative("active");
-
+				if( typProp == null ) {
+					Debug.LogError($"{type}");
+					continue;
+				}
+				var activeProp = typProp.FindPropertyRelative("m_active");
 				activeProp.boolValue = EditorGUI.ToggleLeft(transformModeSelectionRect, type, activeProp.boolValue);
 				transformModeSelectionRect.x = transformModeSelectionRect.xMax;
 				if( activeProp.boolValue )

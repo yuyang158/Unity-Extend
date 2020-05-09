@@ -1,28 +1,29 @@
 ﻿using System;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Extend.UI.Animation {
 	[Serializable]
 	public class RotateLoopAnimation : StateLoopAnimation {
 		[SerializeField]
-		private Vector3 rotateBy;
+		private Vector3 m_rotateBy;
 
 		public Vector3 RotateBy {
-			get => rotateBy;
+			get => m_rotateBy;
 			set {
-				rotateBy = value;
+				m_rotateBy = value;
 				dirty = true;
 			}
 		}
 
 		[SerializeField]
-		private RotateMode rotateMode = RotateMode.Fast;
+		private RotateMode m_rotateMode = RotateMode.Fast;
 
 		public RotateMode RotateMode {
-			get => rotateMode;
+			get => m_rotateMode;
 			set {
-				rotateMode = value;
+				m_rotateMode = value;
 				dirty = true;
 			}
 		}

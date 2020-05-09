@@ -10,7 +10,6 @@ namespace Extend.Asset {
 	public class AssetReference : IDisposable {
 		private AssetInstance asset;
 
-		[FormerlySerializedAs("assetGUID")]
 		[SerializeField, HideInInspector]
 		private string m_assetGUID;
 

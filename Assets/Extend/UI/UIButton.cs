@@ -10,10 +10,10 @@ namespace Extend.UI {
 		public UIAnimation PointerClick;
 		public UIAnimation PointerUp;
 
-		private Tween[] currentTweens;
+		private Tween[] m_currentTweens;
 
 		private Tween[] CurrentTweens {
-			get => currentTweens;
+			get => m_currentTweens;
 			set {
 				if( CurrentTweens != null ) {
 					foreach( var tween in CurrentTweens ) {
@@ -21,7 +21,7 @@ namespace Extend.UI {
 					}
 				}
 
-				currentTweens = value;
+				m_currentTweens = value;
 			}
 		}
 

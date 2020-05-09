@@ -3,20 +3,19 @@ using UnityEngine;
 
 namespace Extend.UI.Editor {
 	public abstract class UIAnimationPropertyBaseDrawer : PropertyDrawer {
-		protected static readonly float lineHeight = EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
 		protected SerializedProperty animationProperty;
 		public override float GetPropertyHeight(SerializedProperty property, GUIContent label) {
 			animationProperty = property;
-			var enabledProp = property.FindPropertyRelative("enabled");
+			var enabledProp = property.FindPropertyRelative("m_enabled");
 			if( !enabledProp.boolValue )
-				return lineHeight;
+				return UIEditorUtil.LINE_HEIGHT;
 
 			var modeProp = property.FindPropertyRelative("Mode");
 			var mode = modeProp.intValue;
 			if( mode == 0 ) {
-				return lineHeight * 5;
+				return UIEditorUtil.LINE_HEIGHT * 5;
 			}
-			return lineHeight * 3 + ( SingleDoTweenHeight + EditorGUIUtility.standardVerticalSpacing ) * animationModeActiveCount + lineHeight;
+			return UIEditorUtil.LINE_HEIGHT * 3 + ( SingleDoTweenHeight + EditorGUIUtility.standardVerticalSpacing ) * animationModeActiveCount + UIEditorUtil.LINE_HEIGHT;
 		}
 
 		private int animationModeActiveCount;
@@ -25,13 +24,13 @@ namespace Extend.UI.Editor {
 		protected abstract string[] Mode { get; }
 
 		protected virtual string GetAnimationFieldName(int mode) {
-			return "state";
+			return "m_state";
 		}
 
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label) {
 			animationProperty = property;
 			position.height = EditorGUIUtility.singleLineHeight;
-			var enabledProp = property.FindPropertyRelative("enabled");
+			var enabledProp = property.FindPropertyRelative("m_enabled");
 			var foldRect = position;
 			foldRect.xMax = foldRect.xMin + 10;
 			EditorGUI.Foldout(foldRect, enabledProp.boolValue, GUIContent.none);
@@ -40,30 +39,33 @@ namespace Extend.UI.Editor {
 			enabledProp.boolValue = EditorGUI.Toggle(enabledRect, property.name, enabledProp.boolValue);
 			if( !enabledProp.boolValue )
 				return;
-			position.y += lineHeight;
-			position.y += EditorGUIUtility.standardVerticalSpacing;
+			position.y += UIEditorUtil.LINE_HEIGHT;
 			var modeProp = property.FindPropertyRelative("Mode");
 			EditorGUI.PropertyField(position, modeProp);
 
 			var mode = modeProp.intValue;
-			position.y += lineHeight;
+			position.y += UIEditorUtil.LINE_HEIGHT;
 			if( mode == 0 ) {
-				var animatorProcessorProp = property.FindPropertyRelative("processor");
+				var animatorProcessorProp = property.FindPropertyRelative("m_processor");
 				EditorGUI.PropertyField(position, animatorProcessorProp);
 			}
 			else {
 				var previewRect = position;
 				previewRect.xMax = previewRect.x + 120;
 				DrawPreview(property, previewRect);
-				position.y += lineHeight;
+				position.y += UIEditorUtil.LINE_HEIGHT;
 				var animationProp = property.FindPropertyRelative(GetAnimationFieldName(mode));
+				if( animationProp == null ) {
+					Debug.LogError($"mode {GetAnimationFieldName(mode)} not exist");
+					return;
+				}
 				animationModeActiveCount = UIEditorUtil.DrawAnimationMode(position, animationProp, Mode);
-				position.y += lineHeight;
+				position.y += UIEditorUtil.LINE_HEIGHT;
 				var originLabelWidth = EditorGUIUtility.labelWidth;
 				for( var i = 0; i < Mode.Length; i++ ) {
 					var type = Mode[i];
 					var typProp = animationProp.FindPropertyRelative(type);
-					var activeProp = typProp.FindPropertyRelative("active");
+					var activeProp = typProp.FindPropertyRelative("m_active");
 					if( !activeProp.boolValue )
 						continue;
 					position = CurrentAnimation[i].OnGUI(position, typProp);

@@ -5,13 +5,13 @@ using Extend.Network.SocketClient;
 namespace Extend.Network {
 	public class NetworkService : IService, IServiceUpdate {
 		public CSharpServiceManager.ServiceType ServiceType => CSharpServiceManager.ServiceType.NETWORK_SERVICE;
-		private readonly List<AutoReconnectTcpClient> clients = new List<AutoReconnectTcpClient>();
+		private readonly List<AutoReconnectTcpClient> m_clients = new List<AutoReconnectTcpClient>();
 		public void RegisterTcpClient(AutoReconnectTcpClient client) {
-			clients.Add(client);
+			m_clients.Add(client);
 		}
 
 		public void UnregisterTcpClient(AutoReconnectTcpClient client) {
-			clients.Remove(client);
+			m_clients.Remove(client);
 		}
 		
 		public void Initialize() {
@@ -19,14 +19,14 @@ namespace Extend.Network {
 		}
 
 		public void Destroy() {
-			while( clients.Count > 0 ) {
-				var client = clients[0];
+			while( m_clients.Count > 0 ) {
+				var client = m_clients[0];
 				client.Destroy();
 			}
 		}
 
 		public void Update() {
-			foreach( var client in clients ) {
+			foreach( var client in m_clients ) {
 				client.Update();
 			}
 		}

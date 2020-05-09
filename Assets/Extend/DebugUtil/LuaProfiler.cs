@@ -6,40 +6,40 @@ namespace Extend.DebugUtil {
 	public static class LuaProfiler {
 		[Conditional("UNITY_EDITOR")]
 		public static void BeginSample(int id) {
-			_showNames.TryGetValue(id, out var name);
+			m_showNames.TryGetValue(id, out var name);
 			name = name ?? string.Empty;
 
 			Profiler.BeginSample(name);
-			++_sampleDepth;
+			++m_sampleDepth;
 		}
 
 		[Conditional("UNITY_EDITOR")]
 		public static void BeginSample(int id, string name) {
 			name = name ?? string.Empty;
-			_showNames[id] = name;
+			m_showNames[id] = name;
 
 			Profiler.BeginSample(name);
-			++_sampleDepth;
+			++m_sampleDepth;
 		}
 
 		[Conditional("UNITY_EDITOR")]
 		internal static void BeginSample(string name) {
 			name = name ?? string.Empty;
 			Profiler.BeginSample(name);
-			++_sampleDepth;
+			++m_sampleDepth;
 		}
 
 		[Conditional("UNITY_EDITOR")]
 		public static void EndSample() {
-			if( _sampleDepth > 0 ) {
-				--_sampleDepth;
+			if( m_sampleDepth > 0 ) {
+				--m_sampleDepth;
 				Profiler.EndSample();
 			}
 		}
 
-		private static int _sampleDepth;
+		private static int m_sampleDepth;
 
 		// private const int  _maxSampleDepth = 100;
-		private static readonly Dictionary<int, string> _showNames = new Dictionary<int, string>();
+		private static readonly Dictionary<int, string> m_showNames = new Dictionary<int, string>();
 	}
 }

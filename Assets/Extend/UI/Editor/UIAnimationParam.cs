@@ -11,10 +11,10 @@ namespace Extend.UI.Editor {
 			public GUIContent Label;
 		}
 
-		private readonly List<Param> parameters = new List<Param>();
+		private readonly List<Param> m_parameters = new List<Param>();
 
 		public UIAnimationInlineParam Add(string fieldName, float percent, string displayName = "") {
-			parameters.Add(new Param {
+			m_parameters.Add(new Param {
 				FieldName = fieldName,
 				WidthInPercent = percent,
 				Label = new GUIContent(displayName)
@@ -23,17 +23,17 @@ namespace Extend.UI.Editor {
 		}
 
 		public void OnGUI(Rect position, SerializedProperty property) {
-			Assert.IsTrue(parameters.Count > 0);
-			if( parameters.Count == 1 ) {
-				DrawGUI(position, parameters[0], property);
+			Assert.IsTrue(m_parameters.Count > 0);
+			if( m_parameters.Count == 1 ) {
+				DrawGUI(position, m_parameters[0], property);
 			}
 			else {
 				var originLabelWidth = EditorGUIUtility.labelWidth;
-				for( var i = 0; i < parameters.Count; i++ ) {
-					var parameter = parameters[i];
+				for( var i = 0; i < m_parameters.Count; i++ ) {
+					var parameter = m_parameters[i];
 					var rect = position;
 					rect.width *= parameter.WidthInPercent;
-					if( i < parameters.Count - 1 )
+					if( i < m_parameters.Count - 1 )
 						rect.xMax -= 5;
 					EditorGUIUtility.labelWidth = rect.width * 0.5f;
 					DrawGUI(rect, parameter, property);
@@ -46,6 +46,10 @@ namespace Extend.UI.Editor {
 
 		private static void DrawGUI(Rect position, Param parameter, SerializedProperty property) {
 			var p = property.FindPropertyRelative(parameter.FieldName);
+			if( p == null ) {
+				Debug.LogError($"field with name : {parameter.FieldName} not exist");
+				return;
+			}
 			if( string.IsNullOrEmpty(parameter.Label.text) ) {
 				EditorGUI.PropertyField(position, p);
 			}
@@ -56,35 +60,34 @@ namespace Extend.UI.Editor {
 	}
 
 	public class UIAnimationParamCombine {
-		private static readonly float lineHeight = EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
-		private readonly UIAnimationInlineParam[] _params;
-		private readonly int _modeIndex;
+		private readonly UIAnimationInlineParam[] m_params;
+		private readonly int m_modeIndex;
 
 		public UIAnimationParamCombine(int rowCount, int modeIndex) {
-			_params = new UIAnimationInlineParam[rowCount];
+			m_params = new UIAnimationInlineParam[rowCount];
 			for( var i = 0; i < rowCount; i++ ) {
-				_params[i] = new UIAnimationInlineParam();
+				m_params[i] = new UIAnimationInlineParam();
 			}
 
-			_modeIndex = modeIndex;
+			m_modeIndex = modeIndex;
 		}
 
 		public UIAnimationInlineParam GetRow(int index) {
-			Assert.IsTrue(index >= 0 && index < _params.Length);
-			return _params[index];
+			Assert.IsTrue(index >= 0 && index < m_params.Length);
+			return m_params[index];
 		}
 
 		public Rect OnGUI(Rect position, SerializedProperty property) {
 			var bgColor = GUI.backgroundColor;
-			GUI.backgroundColor = UIEditorUtil.UI_ANIMATION_COLORS[_modeIndex];
+			GUI.backgroundColor = UIEditorUtil.UI_ANIMATION_COLORS[m_modeIndex];
 			var bgRect = position;
-			bgRect.height = lineHeight * _params.Length;
+			bgRect.height = UIEditorUtil.LINE_HEIGHT * m_params.Length;
 			bgRect.x = 0;
 			bgRect.xMax = EditorGUIUtility.currentViewWidth;
 			EditorGUI.DrawRect(bgRect, GUI.backgroundColor);
-			foreach( var inlineParam in _params ) {
+			foreach( var inlineParam in m_params ) {
 				inlineParam.OnGUI(position, property);
-				position.y += lineHeight;
+				position.y += UIEditorUtil.LINE_HEIGHT;
 			}
 
 			GUI.backgroundColor = bgColor;

@@ -1,17 +1,18 @@
 ﻿using System;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Extend.UI.Animation {
 	[Serializable]
 	public class ScaleInAnimation : StateAnimation {
 		[SerializeField]
-		private Vector3 scaleFrom;
+		private Vector3 m_scaleFrom;
 
 		public Vector3 ScaleFrom {
-			get => scaleFrom;
+			get => m_scaleFrom;
 			set {
-				scaleFrom = value;
+				m_scaleFrom = value;
 				dirty = true;
 			}
 		}

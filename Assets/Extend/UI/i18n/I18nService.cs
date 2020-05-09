@@ -8,10 +8,10 @@ using UnityEngine;
 namespace UI.i18n {
 	public class I18nService : IService {
 		public CSharpServiceManager.ServiceType ServiceType => CSharpServiceManager.ServiceType.I18N;
-		private int currentLang = -1;
-		private string currentLangName;
-		private string[] supportedLang;
-		private readonly Dictionary<string, string> languageText = new Dictionary<string, string>(10240);
+		private int m_currentLang = -1;
+		private string m_currentLangName;
+		private string[] m_supportedLang;
+		private readonly Dictionary<string, string> m_languageText = new Dictionary<string, string>(10240);
 
 		public event Action OnLanguageChanged;
 
@@ -25,15 +25,15 @@ namespace UI.i18n {
 				var doc = new XmlDocument();
 				doc.LoadXml(assetRef.GetTextAsset().text);
 				var rootElement = doc.DocumentElement;
-				if( supportedLang == null ) {
+				if( m_supportedLang == null ) {
 					var supportLangAttr = rootElement.Attributes["support-lang"];
-					supportedLang = supportLangAttr.Value.Split(';');
-					if( string.IsNullOrEmpty(currentLangName) ) {
-						currentLangName = supportedLang[0];
-						currentLang = 0;
+					m_supportedLang = supportLangAttr.Value.Split(';');
+					if( string.IsNullOrEmpty(m_currentLangName) ) {
+						m_currentLangName = m_supportedLang[0];
+						m_currentLang = 0;
 					}
 					else {
-						currentLang = Array.IndexOf(supportedLang, currentLangName);
+						m_currentLang = Array.IndexOf(m_supportedLang, m_currentLangName);
 					}
 				}
 
@@ -43,34 +43,34 @@ namespace UI.i18n {
 					}
 
 					var key = node.Name;
-					var val = node.Attributes[currentLang].Value;
-					languageText.Add(key, val);
+					var val = node.Attributes[m_currentLang].Value;
+					m_languageText.Add(key, val);
 				}
 			}
 		}
 
 		public void ChangeCurrentLanguage(string lang) {
-			var selected = Array.IndexOf(supportedLang, lang);
+			var selected = Array.IndexOf(m_supportedLang, lang);
 			if( selected == -1 ) {
 				throw new Exception($"Not supported language : {lang}");
 			}
 
-			if( currentLang == selected )
+			if( m_currentLang == selected )
 				return;
 
-			currentLang = selected;
-			languageText.Clear();
+			m_currentLang = selected;
+			m_languageText.Clear();
 			RefreshLanguageText();
 			
 			OnLanguageChanged?.Invoke();
 		}
 
 		public void Destroy() {
-			languageText.Clear();
+			m_languageText.Clear();
 		}
 
 		public string GetText(string key) {
-			if( !languageText.TryGetValue(key, out var ret) ) {
+			if( !m_languageText.TryGetValue(key, out var ret) ) {
 				Debug.LogWarning($"key {key} not present in static-i18n config");
 				ret = string.Empty;
 			}

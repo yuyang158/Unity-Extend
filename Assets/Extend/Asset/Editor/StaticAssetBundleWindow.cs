@@ -27,7 +27,7 @@ namespace Extend.Asset.Editor {
 			reList = new ReorderableList(serializedObject, settingsProp);
 			reList.drawHeaderCallback += rect => { EditorGUI.LabelField(rect, "AB特殊处理列表"); };
 			reList.drawElementCallback += (rect, index, active, focused) => {
-				rect.height = EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+				rect.height = EditorGUIUtility.singleLineHeight;
 				var totalWidth = position.width;
 				rect.width = totalWidth / 2;
 				
@@ -46,7 +46,7 @@ namespace Extend.Asset.Editor {
 			otherDependencyList = new ReorderableList(otherDepend.serializedObject, otherDepend);
 			otherDependencyList.drawHeaderCallback += rect => { EditorGUI.LabelField(rect, "非Resources依赖"); };
 			otherDependencyList.drawElementCallback += (rect, index, active, focused) => {
-				rect.height = EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+				rect.height = EditorGUIUtility.singleLineHeight;
 				var dependProp = otherDependencyList.serializedProperty.GetArrayElementAtIndex(index);
 				EditorGUI.BeginChangeCheck();
 				EditorGUI.PropertyField(rect, dependProp);
