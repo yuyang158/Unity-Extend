@@ -14,11 +14,11 @@ namespace Extend.Asset.AssetProvider {
 			public string ABName;
 		}
 
-		private AssetBundleManifest manifest;
-		private static string streamingAssetsPath;
-		private static string persistentDataPath;
-		private readonly Dictionary<string, AssetBundlePath> asset2ABMap = new Dictionary<string, AssetBundlePath>();
-		private readonly Dictionary<string, string> guid2AssetPath = new Dictionary<string, string>();
+		private AssetBundleManifest m_manifest;
+		private static string STREAMING_ASSET_PATH;
+		private static string PERSISTENT_DATA_PATH;
+		private readonly Dictionary<string, AssetBundlePath> m_asset2ABMap = new Dictionary<string, AssetBundlePath>();
+		private readonly Dictionary<string, string> m_guid2AssetPath = new Dictionary<string, string>();
 
 		public override string FormatAssetPath(string path) {
 			if( path.StartsWith("assets") ) {
@@ -36,12 +36,12 @@ namespace Extend.Asset.AssetProvider {
 #else
 			const string platform = "StandaloneWindows";
 #endif
-			streamingAssetsPath = Path.Combine(Application.streamingAssetsPath, "ABBuild", platform);
-			persistentDataPath = Path.Combine(Application.persistentDataPath, "ABBuild", platform);
+			STREAMING_ASSET_PATH = Path.Combine(Application.streamingAssetsPath, "ABBuild", platform);
+			PERSISTENT_DATA_PATH = Path.Combine(Application.persistentDataPath, "ABBuild", platform);
 
 			var manifestPath = DetermineLocation(platform);
 			var manifestAB = AssetBundle.LoadFromFile(manifestPath);
-			manifest = manifestAB.LoadAsset<AssetBundleManifest>("AssetBundleManifest");
+			m_manifest = manifestAB.LoadAsset<AssetBundleManifest>("AssetBundleManifest");
 
 #if UNITY_ANDROID
 			var mapPath = DetermineLocation("package.conf", out var persistent);
@@ -78,8 +78,8 @@ namespace Extend.Asset.AssetProvider {
 						Path = string.Intern(assetPath),
 						ABName = string.Intern(assetAB)
 					};
-					asset2ABMap.Add(fullPath, abContext);
-					guid2AssetPath.Add(assetGUID, fullPath);
+					m_asset2ABMap.Add(fullPath, abContext);
+					m_guid2AssetPath.Add(assetGUID, fullPath);
 					line = reader.ReadLine();
 				}
 			}
@@ -98,7 +98,7 @@ namespace Extend.Asset.AssetProvider {
 			if( mainABInstance == null ) {
 				mainABInstance = new AssetBundleInstance(abPathContext.ABName);
 				loadHandle.Container.Put(mainABInstance);
-				var allDependencies = manifest.GetAllDependencies(abPathContext.ABName);
+				var allDependencies = m_manifest.GetAllDependencies(abPathContext.ABName);
 				if( allDependencies.Length > 0 ) {
 					foreach( var dependency in allDependencies ) {
 						var depHash = AssetBundleInstance.GenerateHash(dependency);
@@ -125,7 +125,7 @@ namespace Extend.Asset.AssetProvider {
 		}
 
 		private bool TryGetABContext(string path, out AssetBundlePath context) {
-			if( !asset2ABMap.TryGetValue(path, out context) ) {
+			if( !m_asset2ABMap.TryGetValue(path, out context) ) {
 				Debug.LogError($"Can not file asset at {path}");
 				return false;
 			}
@@ -153,7 +153,7 @@ namespace Extend.Asset.AssetProvider {
 				mainABInstance = new AssetBundleInstance(abPathContext.ABName);
 				container.Put(mainABInstance);
 				var needLoadPaths = new List<AssetBundleInstance>();
-				var allDependencies = manifest.GetAllDependencies(abPathContext.ABName);
+				var allDependencies = m_manifest.GetAllDependencies(abPathContext.ABName);
 				foreach( var dependency in allDependencies ) {
 					var depHash = AssetBundleInstance.GenerateHash(dependency);
 					if( !( container.TryGetAsset(depHash) is AssetBundleInstance depAsset ) ) {
@@ -184,7 +184,7 @@ namespace Extend.Asset.AssetProvider {
 		}
 
 		internal override AssetInstance ProvideAssetWithGUID<T>(string guid, AssetContainer container, out string path) {
-			if( guid2AssetPath.TryGetValue(guid, out path) ) {
+			if( m_guid2AssetPath.TryGetValue(guid, out path) ) {
 				return ProvideAsset(path, container, typeof(T));
 			}
 
@@ -193,27 +193,27 @@ namespace Extend.Asset.AssetProvider {
 		}
 
 		internal override string ConvertGUID2Path(string guid) {
-			return guid2AssetPath.TryGetValue(guid, out var path) ? path : null;
+			return m_guid2AssetPath.TryGetValue(guid, out var path) ? path : null;
 		}
 
 		public string[] GetDirectDependencies(string abName) {
-			return manifest.GetDirectDependencies(abName);
+			return m_manifest.GetDirectDependencies(abName);
 		}
 
 		public static string DetermineLocation(string path) {
-			var streamingAsset = Path.Combine(persistentDataPath, path);
-			return File.Exists(streamingAsset) ? streamingAsset : Path.Combine(streamingAssetsPath, path);
+			var streamingAsset = Path.Combine(PERSISTENT_DATA_PATH, path);
+			return File.Exists(streamingAsset) ? streamingAsset : Path.Combine(STREAMING_ASSET_PATH, path);
 		}
 		
 		public static string DetermineLocation(string path, out bool persistent) {
-			var streamingAsset = Path.Combine(persistentDataPath, path);
+			var streamingAsset = Path.Combine(PERSISTENT_DATA_PATH, path);
 			if( File.Exists(streamingAsset) ) {
 				persistent = true;
 				return streamingAsset;
 			}
 
 			persistent = false;
-			return Path.Combine(streamingAssetsPath, path);
+			return Path.Combine(STREAMING_ASSET_PATH, path);
 		}
 	}
 }

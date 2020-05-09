@@ -6,21 +6,21 @@ namespace Extend.Common {
 	[LuaCallCSharp]
 	public class GlobalCoroutineRunnerService : IService {
 		public CSharpServiceManager.ServiceType ServiceType => CSharpServiceManager.ServiceType.COROUTINE_SERVICE;
-		private CSharpServiceManager service;
+		private CSharpServiceManager m_service;
 		public void Initialize() {
-			service = GameObject.Find("CSharpServiceManager").GetComponent<CSharpServiceManager>();
+			m_service = CSharpServiceManager.Instance;
 		}
 
 		public Coroutine StartCoroutine(IEnumerator enumerator) {
-			return service.StartCoroutine(enumerator);
+			return m_service.StartCoroutine(enumerator);
 		}
 
 		public void StopCoroutine(Coroutine co) {
-			service.StopCoroutine(co);
+			m_service.StopCoroutine(co);
 		}
 
 		public void StopAllCoroutines() {
-			service.StopAllCoroutines();
+			m_service.StopAllCoroutines();
 		}
 
 		public void Destroy() {

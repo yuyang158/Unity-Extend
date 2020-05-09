@@ -10,33 +10,33 @@ namespace Extend.Asset {
 				return new SpriteLoadingHandle(asset, img, spriteRenderer, path);
 			}
 
-			private readonly string mPath;
-			private readonly AssetInstance mAsset;
-			private readonly Image mImg;
-			private readonly SpriteRenderer mSpriteRenderer;
+			private readonly string m_path;
+			private readonly AssetInstance m_asset;
+			private readonly Image m_img;
+			private readonly SpriteRenderer m_spriteRenderer;
 
 			private SpriteLoadingHandle(AssetInstance asset, Image img, SpriteRenderer spriteRenderer, string path) {
-				mAsset = asset;
-				mPath = path;
-				mSpriteRenderer = spriteRenderer;
-				mImg = img;
+				m_asset = asset;
+				m_path = path;
+				m_spriteRenderer = spriteRenderer;
+				m_img = img;
 
-				mAsset.OnStatusChanged += OnAssetStatusChanged;
+				m_asset.OnStatusChanged += OnAssetStatusChanged;
 			}
 
 			private void OnAssetStatusChanged(AssetRefObject _) {
-				mAsset.OnStatusChanged -= OnAssetStatusChanged;
-				if( mAsset.IsFinished ) {
-					TryApplySprite(mImg, mSpriteRenderer, mAsset);
+				m_asset.OnStatusChanged -= OnAssetStatusChanged;
+				if( m_asset.IsFinished ) {
+					TryApplySprite(m_img, m_spriteRenderer, m_asset);
 				}
 			}
 
 			public void GiveUp() {
-				mAsset.OnStatusChanged -= OnAssetStatusChanged;
+				m_asset.OnStatusChanged -= OnAssetStatusChanged;
 			}
 
 			public override string ToString() {
-				return $"Loading Sprite --> {mPath}";
+				return $"Loading Sprite --> {m_path}";
 			}
 		}
 
@@ -46,13 +46,13 @@ namespace Extend.Asset {
 			return CSharpServiceManager.Get<SpriteAssetService>(CSharpServiceManager.ServiceType.SPRITE_ASSET_SERVICE);
 		}
 
-		private readonly Dictionary<string, AssetInstance> sprites = new Dictionary<string, AssetInstance>();
+		private readonly Dictionary<string, AssetInstance> m_sprites = new Dictionary<string, AssetInstance>();
 
 		public SpriteLoadingHandle SetUIImage(Image img, SpriteRenderer spriteRenderer, string path, bool sync = false) {
 			SpriteLoadingHandle ret = null;
-			if( sprites.TryGetValue(path, out var spriteAsset) ) {
+			if( m_sprites.TryGetValue(path, out var spriteAsset) ) {
 				if( spriteAsset.Status == AssetRefObject.AssetStatus.DESTROYED ) {
-					sprites.Remove(path);
+					m_sprites.Remove(path);
 				}
 				else {
 					if( spriteAsset.IsFinished ) {
@@ -76,12 +76,12 @@ namespace Extend.Asset {
 				ret = SpriteLoadingHandle.Create(img, spriteRenderer, spriteAsset, path);
 			}
 
-			sprites.Add(path, spriteAsset);
+			m_sprites.Add(path, spriteAsset);
 			return ret;
 		}
 
 		public void Release(string key) {
-			if( !sprites.TryGetValue(key, out var spriteAsset) ) {
+			if( !m_sprites.TryGetValue(key, out var spriteAsset) ) {
 				return;
 			}
 

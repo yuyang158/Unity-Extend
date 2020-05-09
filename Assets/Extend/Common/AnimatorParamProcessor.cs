@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Extend.Common {
 	[Serializable]
@@ -17,26 +18,27 @@ namespace Extend.Common {
 
 		public Animator Ani => ani;
 
+		[FormerlySerializedAs("paramValue")]
 		[SerializeField, HideInInspector]
-		private AnimatorParameterValue paramValue;
+		private AnimatorParameterValue m_paramValue;
 
-		public AnimatorParameterValue ParameterValue => paramValue;
+		public AnimatorParameterValue ParameterValue => m_paramValue;
 
 		public void Apply() {
 			foreach( var parameter in Ani.parameters ) {
-				if( parameter.nameHash != paramValue.NameHash ) continue;
+				if( parameter.nameHash != m_paramValue.NameHash ) continue;
 				switch( parameter.type ) {
 					case AnimatorControllerParameterType.Float:
-						Ani.SetFloat(paramValue.NameHash, paramValue.fV);
+						Ani.SetFloat(m_paramValue.NameHash, m_paramValue.fV);
 						break;
 					case AnimatorControllerParameterType.Int:
-						Ani.SetInteger(paramValue.NameHash, paramValue.iV);
+						Ani.SetInteger(m_paramValue.NameHash, m_paramValue.iV);
 						break;
 					case AnimatorControllerParameterType.Bool:
-						Ani.SetBool(paramValue.NameHash, paramValue.bV);
+						Ani.SetBool(m_paramValue.NameHash, m_paramValue.bV);
 						break;
 					case AnimatorControllerParameterType.Trigger:
-						Ani.SetTrigger(paramValue.NameHash);
+						Ani.SetTrigger(m_paramValue.NameHash);
 						break;
 					default:
 						throw new ArgumentOutOfRangeException();

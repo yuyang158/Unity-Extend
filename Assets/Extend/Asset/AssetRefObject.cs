@@ -11,11 +11,11 @@ namespace Extend.Asset {
 			DESTROYED
 		}
 
-		private AssetStatus status = AssetStatus.NONE;
+		private AssetStatus m_status = AssetStatus.NONE;
 		public AssetStatus Status {
-			get => status;
+			get => m_status;
 			set {
-				status = value;
+				m_status = value;
 				OnStatusChanged?.Invoke(this);
 
 				if( Status == AssetStatus.FAIL ) {
@@ -24,7 +24,7 @@ namespace Extend.Asset {
 			}
 		}
 
-		public bool IsFinished => status == AssetStatus.DONE || status == AssetStatus.FAIL;
+		public bool IsFinished => m_status == AssetStatus.DONE || m_status == AssetStatus.FAIL;
 
 		public event Action<AssetRefObject> OnStatusChanged;
 
@@ -33,21 +33,21 @@ namespace Extend.Asset {
 			private set;
 		}
 
-		private int refCount;
+		private int m_refCount;
 		public void IncRef() {
-			refCount++;
+			m_refCount++;
 		}
 
 		public int Release() {
-			refCount--;
-			if( refCount <= 0 ) {
+			m_refCount--;
+			if( m_refCount <= 0 ) {
 				ZeroRefTimeStart = Time.time;
 			}
-			return refCount;
+			return m_refCount;
 		}
 
 		public int GetRefCount() {
-			return refCount;
+			return m_refCount;
 		}
 
 		public abstract void Destroy();

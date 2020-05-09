@@ -6,13 +6,13 @@ namespace Extend.Asset {
 	[LuaCallCSharp]
 	public class SpriteAssetAssignment : MonoBehaviour {
 		public bool Sync;
-		private string spriteKey;
-		private SpriteAssetService.SpriteLoadingHandle loadingHandle;
+		private string m_spriteKey;
+		private SpriteAssetService.SpriteLoadingHandle m_loadingHandle;
 
 		public string ImgSpriteKey {
-			get => spriteKey;
+			get => m_spriteKey;
 			set {
-				if(spriteKey == value)
+				if(m_spriteKey == value)
 					return;
 				var img = GetComponent<Image>();
 				ApplyNewKey(value, img, null);
@@ -20,9 +20,9 @@ namespace Extend.Asset {
 		}
 		
 		public string SpriteRendererKey {
-			get => spriteKey;
+			get => m_spriteKey;
 			set {
-				if(spriteKey == value)
+				if(m_spriteKey == value)
 					return;
 				var spriteRenderer = GetComponent<SpriteRenderer>();
 				ApplyNewKey(value, null, spriteRenderer);
@@ -30,15 +30,15 @@ namespace Extend.Asset {
 		}
 
 		private void ApplyNewKey(string key, Image img, SpriteRenderer spriteRenderer) {
-			loadingHandle?.GiveUp();
+			m_loadingHandle?.GiveUp();
 			if( !string.IsNullOrEmpty(SpriteRendererKey) ) {
 				SpriteAssetService.Get().Release(SpriteRendererKey);
 			}
-			spriteKey = key;
-			loadingHandle = SpriteAssetService.Get().SetUIImage(img, spriteRenderer, SpriteRendererKey, Sync);
+			m_spriteKey = key;
+			m_loadingHandle = SpriteAssetService.Get().SetUIImage(img, spriteRenderer, SpriteRendererKey, Sync);
 		}
 		private void OnDestroy() {
-			loadingHandle?.GiveUp();
+			m_loadingHandle?.GiveUp();
 			if( string.IsNullOrEmpty(ImgSpriteKey) )
 				return;
 			SpriteAssetService.Get().Release(ImgSpriteKey);

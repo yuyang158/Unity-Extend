@@ -7,10 +7,10 @@ using Object = UnityEngine.Object;
 
 namespace Extend.Asset.AssetProvider {
 	public class ResourcesLoadProvider : AssetLoadProvider {
-		private static readonly WaitForSeconds debugWait = new WaitForSeconds(0.2f);
+		private static readonly WaitForSeconds DEBUG_WAIT = new WaitForSeconds(0.2f);
 
 		private static IEnumerator SimulateDelayLoad(AssetAsyncLoadHandle loadHandle, Type typ) {
-			yield return debugWait;
+			yield return DEBUG_WAIT;
 			Object unityObject;
 			if( loadHandle.Location.StartsWith("assets", true, CultureInfo.CurrentCulture) ) {
 #if UNITY_EDITOR

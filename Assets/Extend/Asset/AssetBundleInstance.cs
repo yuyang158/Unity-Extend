@@ -7,29 +7,29 @@ namespace Extend.Asset {
 	public class AssetBundleInstance : AssetRefObject {
 		public AssetBundle AB { get; private set; }
 		public string ABPath { get; }
-		private AssetBundleInstance[] dependencies;
+		private AssetBundleInstance[] m_dependencies;
 
 		public AssetBundleInstance(string abPath) {
 			ABPath = string.Intern(abPath);
 		}
 
-		public void SetAssetBundle(AssetBundle ab, string[] deps) {
+		public void SetAssetBundle(AssetBundle ab, string[] dependencies) {
 			AB = ab;
 			var service = CSharpServiceManager.Get<AssetService>(CSharpServiceManager.ServiceType.ASSET_SERVICE);
-			var assetBundles = new AssetBundleInstance[deps.Length];
-			for( var i = 0; i < deps.Length; i++ ) {
-				var hash = GenerateHash(deps[i]);
+			var assetBundles = new AssetBundleInstance[dependencies.Length];
+			for( var i = 0; i < dependencies.Length; i++ ) {
+				var hash = GenerateHash(dependencies[i]);
 				var dep = service.Container.TryGetAsset(hash);
-				assetBundles[i] = dep as AssetBundleInstance ?? throw new Exception($"Can not find dependency : {deps[i]}");
+				assetBundles[i] = dep as AssetBundleInstance ?? throw new Exception($"Can not find dependency : {dependencies[i]}");
 			}
 			
-			dependencies = assetBundles;
-			foreach( var dependency in dependencies ) {
+			m_dependencies = assetBundles;
+			foreach( var dependency in this.m_dependencies ) {
 				dependency.IncRef();
 			}
 
 			if( AB ) {
-				if( dependencies.Any(dependency => dependency.Status != AssetStatus.DONE) ) {
+				if( m_dependencies.Any(dependency => dependency.Status != AssetStatus.DONE) ) {
 					Status = AssetStatus.FAIL;
 					return;
 				}
@@ -42,7 +42,7 @@ namespace Extend.Asset {
 		}
 
 		public override void Destroy() {
-			foreach( var dependency in dependencies ) {
+			foreach( var dependency in m_dependencies ) {
 				dependency.Release();
 			}
 			AB.Unload( false );

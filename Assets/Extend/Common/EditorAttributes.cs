@@ -2,6 +2,11 @@
 using UnityEngine;
 
 namespace Extend.Common {
+	public interface IExtendAttribute {
+		
+	}
+	
+	[AttributeUsage(AttributeTargets.Field)]
 	public class LabelTextAttribute : PropertyAttribute, IExtendAttribute {
 		public string Text { get; }
 

@@ -13,7 +13,7 @@ namespace Extend.Asset.Editor {
 					label.text += " (Asset)";
 			}
 
-			var guidProp = property.FindPropertyRelative("assetGUID");
+			var guidProp = property.FindPropertyRelative("m_assetGUID");
 			var attributes = fieldInfo.GetCustomAttributes(typeof(AssetReferenceAssetTypeAttribute), false);
 			var type = typeof(Object);
 			if( !string.IsNullOrEmpty(label.tooltip) ) {

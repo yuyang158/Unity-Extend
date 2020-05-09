@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.Assertions;
+using UnityEngine.Serialization;
 using XLua;
 using Object = UnityEngine.Object;
 
@@ -9,8 +10,9 @@ namespace Extend.Asset {
 	public class AssetReference : IDisposable {
 		private AssetInstance asset;
 
+		[FormerlySerializedAs("assetGUID")]
 		[SerializeField, HideInInspector]
-		private string assetGUID;
+		private string m_assetGUID;
 
 		public AssetRefObject.AssetStatus AssetStatus => asset?.Status ?? AssetRefObject.AssetStatus.NONE;
 		public bool IsFinished => asset?.IsFinished ?? false;
@@ -22,11 +24,11 @@ namespace Extend.Asset {
 			asset?.IncRef();
 		}
 
-		public bool GUIDValid => !string.IsNullOrEmpty(assetGUID);
+		public bool GUIDValid => !string.IsNullOrEmpty(m_assetGUID);
 
 		private T GetAsset<T>() where T : Object {
 			if( asset == null ) {
-				asset = AssetService.Get().LoadAssetWithGUID<T>(assetGUID);
+				asset = AssetService.Get().LoadAssetWithGUID<T>(m_assetGUID);
 			}
 			
 			Assert.AreEqual(asset.Status, AssetRefObject.AssetStatus.DONE, asset.Status.ToString());
@@ -70,7 +72,7 @@ namespace Extend.Asset {
 		}
 		
 		public AssetAsyncLoadHandle LoadAsync(Type typ) {
-			var handle = AssetService.Get().LoadAsyncWithGUID(assetGUID, typ);
+			var handle = AssetService.Get().LoadAsyncWithGUID(m_assetGUID, typ);
 			Assert.IsNotNull(handle.Asset);
 			asset = handle.Asset;
 			return handle;

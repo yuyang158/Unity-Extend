@@ -7,10 +7,10 @@ using UnityEngine;
 namespace Extend.DebugUtil {
 	public class ErrorLogToFile : IService {
 		public CSharpServiceManager.ServiceType ServiceType => CSharpServiceManager.ServiceType.ERROR_LOG_TO_FILE;
-		private TextWriter writer;
-		private readonly AutoResetEvent autoEvent = new AutoResetEvent(false);
-		private Thread writeThread;
-		private bool exit;
+		private TextWriter m_writer;
+		private readonly AutoResetEvent m_autoEvent = new AutoResetEvent(false);
+		private Thread m_writeThread;
+		private bool m_exit;
 
 		public void Initialize() {
 			var errorLogPath = Application.persistentDataPath + "/error.log";
@@ -26,12 +26,12 @@ namespace Extend.DebugUtil {
 				}
 			}
 			finally {
-				writer = new StreamWriter(errorLogPath);
+				m_writer = new StreamWriter(errorLogPath);
 				Application.logMessageReceivedThreaded += HandleLogThreaded;
 			}
 
-			writeThread = new Thread(WriteThread);
-			writeThread.Start();
+			m_writeThread = new Thread(WriteThread);
+			m_writeThread.Start();
 		}
 
 		private string log;
@@ -39,15 +39,15 @@ namespace Extend.DebugUtil {
 
 		private void WriteThread() {
 			while( true ) {
-				autoEvent.WaitOne();
-				lock( writer ) {
-					if( exit ) {
-						writer.Close();
+				m_autoEvent.WaitOne();
+				lock( m_writer ) {
+					if( m_exit ) {
+						m_writer.Close();
 						break;
 					}
-					writer.WriteLine(log);
-					writer.Write(_stackTrace);
-					writer.Flush();
+					m_writer.WriteLine(log);
+					m_writer.Write(_stackTrace);
+					m_writer.Flush();
 				}
 			}
 		}
@@ -56,7 +56,7 @@ namespace Extend.DebugUtil {
 			if( type == LogType.Assert || type == LogType.Error || type == LogType.Exception || type == LogType.Warning ) {
 				var now = DateTime.Now;
 				var typeStr = type.ToString().ToUpper();
-				lock( writer ) {
+				lock( m_writer ) {
 					log = $"[{now.ToShortDateString()} {now.ToLongTimeString()}] [{typeStr}]: {message}";
 					if( type == LogType.Assert || type == LogType.Exception || type == LogType.Error ) {
 						_stackTrace = stackTrace;
@@ -65,15 +65,15 @@ namespace Extend.DebugUtil {
 						_stackTrace = string.Empty;
 					}
 				}
-				autoEvent.Set();
+				m_autoEvent.Set();
 			}
 		}
 
 		public void Destroy() {
 			Application.logMessageReceivedThreaded -= HandleLogThreaded;
-			lock( writer ) {
-				exit = true;
-				autoEvent.Set();
+			lock( m_writer ) {
+				m_exit = true;
+				m_autoEvent.Set();
 			}
 		}
 	}

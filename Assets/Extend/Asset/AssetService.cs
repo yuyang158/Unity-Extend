@@ -16,13 +16,13 @@ namespace Extend.Asset {
 		[BlackList]
 		public AssetContainer Container { get; } = new AssetContainer();
 
-		private AssetLoadProvider provider;
-		private Stopwatch stopwatch;
+		private AssetLoadProvider m_provider;
+		private Stopwatch m_stopwatch;
 
-		private readonly bool forceAssetBundleMode;
+		private readonly bool m_forceAssetBundleMode;
 
 		public AssetService(bool forceABMode = false) {
-			forceAssetBundleMode = forceABMode;
+			m_forceAssetBundleMode = forceABMode;
 		}
 
 		public static AssetService Get() {
@@ -31,16 +31,16 @@ namespace Extend.Asset {
 
 		[BlackList]
 		public void Initialize() {
-			if( Application.isEditor && forceAssetBundleMode == false ) {
-				provider = new ResourcesLoadProvider();
+			if( Application.isEditor && m_forceAssetBundleMode == false ) {
+				m_provider = new ResourcesLoadProvider();
 				// provider = new AssetBundleLoadProvider();
 			}
 			else {
-				provider = new AssetBundleLoadProvider();
+				m_provider = new AssetBundleLoadProvider();
 			}
 
-			provider.Initialize();
-			stopwatch = new Stopwatch();
+			m_provider.Initialize();
+			m_stopwatch = new Stopwatch();
 		}
 
 		[BlackList]
@@ -54,14 +54,14 @@ namespace Extend.Asset {
 
 		public AssetReference Load(string path, Type typ) {
 #if UNITY_DEBUG
-			var ticks = stopwatch.ElapsedTicks;
-			stopwatch.Start();
+			var ticks = m_stopwatch.ElapsedTicks;
+			m_stopwatch.Start();
 #endif
-			path = provider.FormatAssetPath(path);
-			var assetRef = provider.Provide(path, Container, typ);
+			path = m_provider.FormatAssetPath(path);
+			var assetRef = m_provider.Provide(path, Container, typ);
 #if UNITY_DEBUG
-			var time = stopwatch.ElapsedTicks - ticks;
-			stopwatch.Stop();
+			var time = m_stopwatch.ElapsedTicks - ticks;
+			m_stopwatch.Stop();
 			var statService = CSharpServiceManager.Get<StatService>(CSharpServiceManager.ServiceType.STAT);
 			statService.LogStat("AssetLoad", path, time);
 #endif
@@ -70,13 +70,13 @@ namespace Extend.Asset {
 
 		internal AssetInstance LoadAssetWithGUID<T>(string guid) where T : Object {
 #if UNITY_DEBUG
-			var ticks = stopwatch.ElapsedTicks;
-			stopwatch.Start();
+			var ticks = m_stopwatch.ElapsedTicks;
+			m_stopwatch.Start();
 #endif
-			var assetRef = provider.ProvideAssetWithGUID<T>(guid, Container, out var path);
+			var assetRef = m_provider.ProvideAssetWithGUID<T>(guid, Container, out var path);
 #if UNITY_DEBUG
-			var time = stopwatch.ElapsedTicks - ticks;
-			stopwatch.Stop();
+			var time = m_stopwatch.ElapsedTicks - ticks;
+			m_stopwatch.Stop();
 			var statService = CSharpServiceManager.Get<StatService>(CSharpServiceManager.ServiceType.STAT);
 			statService.LogStat("AssetLoad", path, time);
 #endif
@@ -84,13 +84,13 @@ namespace Extend.Asset {
 		}
 
 		public AssetAsyncLoadHandle LoadAsync(string path, Type typ) {
-			var handle = new AssetAsyncLoadHandle(Container, provider, path);
+			var handle = new AssetAsyncLoadHandle(Container, m_provider, path);
 			handle.Execute(typ);
 			return handle;
 		}
 
 		internal AssetAsyncLoadHandle LoadAsyncWithGUID(string guid, Type typ) {
-			var path = provider.ConvertGUID2Path(guid);
+			var path = m_provider.ConvertGUID2Path(guid);
 			return LoadAsync(path, typ);
 		}
 	}

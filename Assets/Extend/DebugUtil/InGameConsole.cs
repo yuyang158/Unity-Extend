@@ -42,23 +42,23 @@ namespace Extend.DebugUtil {
 
 		#endregion
 
-		private static readonly GUIContent clearLabel = new GUIContent("Clear", "Clear the contents of the console.");
-		private static GUIStyle _windowStyle;
-		private static readonly Color BackgroundColor = new Color(0.1f, 0.3f, 0.4f, 0.8f);
+		private static readonly GUIContent CLEAR_LABEL = new GUIContent("Clear", "Clear the contents of the console.");
+		private static readonly Color BACKGROUND_COLOR = new Color(0.1f, 0.3f, 0.4f, 0.8f);
 
+		private static GUIStyle m_windowStyle;
 		private static GUIStyle windowStyle {
 			get {
-				if( _windowStyle == null ) {
+				if( m_windowStyle == null ) {
 					var backgroundTexture = new Texture2D(1, 1);
-					backgroundTexture.SetPixel(0, 0, BackgroundColor);
+					backgroundTexture.SetPixel(0, 0, BACKGROUND_COLOR);
 					backgroundTexture.Apply();
 					
-					_windowStyle = new GUIStyle();
-					_windowStyle.normal.background = backgroundTexture;
-					_windowStyle.padding = new RectOffset(4, 4, 4, 4);
+					m_windowStyle = new GUIStyle();
+					m_windowStyle.normal.background = backgroundTexture;
+					m_windowStyle.padding = new RectOffset(4, 4, 4, 4);
 				}
 
-				return _windowStyle;
+				return m_windowStyle;
 			}
 		}
 
@@ -72,23 +72,23 @@ namespace Extend.DebugUtil {
 
 		private static EventSystem cachedEventSystem;
 
-		private bool isCollapsed;
-		private bool isVisible;
+		private bool m_isCollapsed;
+		private bool m_isVisible;
 		private bool IsVisible {
-			get => isVisible;
+			get => m_isVisible;
 			set {
-				isVisible = value;
+				m_isVisible = value;
 				if( !cachedEventSystem ) {
 					cachedEventSystem = EventSystem.current;
 				}
-				cachedEventSystem.enabled = !isVisible;
+				cachedEventSystem.enabled = !m_isVisible;
 			}
 		}
-		private readonly List<Log> logs = new List<Log>();
-		private readonly ConcurrentQueue<Log> queuedLogs = new ConcurrentQueue<Log>();
+		private readonly List<Log> m_logs = new List<Log>();
+		private readonly ConcurrentQueue<Log> m_queuedLogs = new ConcurrentQueue<Log>();
 
-		private Vector2 scrollPosition;
-		private Rect windowRect = new Rect(0, 0, Screen.width, Screen.height * 0.75f);
+		private Vector2 m_scrollPosition;
+		private Rect m_windowRect = new Rect(0, 0, Screen.width, Screen.height * 0.75f);
 
 		private readonly Dictionary<LogType, bool> logTypeFilters = new Dictionary<LogType, bool> {
 			{LogType.Assert, true},
@@ -149,7 +149,7 @@ namespace Extend.DebugUtil {
 				return;
 			}
 
-			windowRect = GUILayout.Window(123456, windowRect, DrawWindow, string.Empty, windowStyle);
+			m_windowRect = GUILayout.Window(123456, m_windowRect, DrawWindow, string.Empty, windowStyle);
 		}
 		
 		private class LuaCommand {
@@ -205,7 +205,7 @@ namespace Extend.DebugUtil {
 		private void DrawLog(Log log, GUIStyle logStyle) {
 			GUI.contentColor = logTypeColors[log.type];
 
-			if( isCollapsed ) {
+			if( m_isCollapsed ) {
 				DrawCollapsedLog(log, logStyle);
 			}
 			else {
@@ -220,12 +220,12 @@ namespace Extend.DebugUtil {
 			var logStyle = GUI.skin.label;
 			logStyle.fontSize = logFontSize;
 
-			scrollPosition = GUILayout.BeginScrollView(scrollPosition);
+			m_scrollPosition = GUILayout.BeginScrollView(m_scrollPosition);
 
 			// Used to determine height of accumulated log labels.
 			GUILayout.BeginVertical();
 
-			var visibleLogs = logs.Where(IsLogVisible);
+			var visibleLogs = m_logs.Where(IsLogVisible);
 
 			foreach( var log in visibleLogs ) {
 				DrawLog(log, logStyle);
@@ -284,8 +284,8 @@ namespace Extend.DebugUtil {
 			}
 			GUILayout.Space(5);
 
-			if( GUILayout.Button(clearLabel, GUILayout.Width(80)) ) {
-				logs.Clear();
+			if( GUILayout.Button(CLEAR_LABEL, GUILayout.Width(80)) ) {
+				m_logs.Clear();
 			}
 
 			foreach( LogType logType in Enum.GetValues(typeof(LogType)) ) {
@@ -304,15 +304,15 @@ namespace Extend.DebugUtil {
 		}
 
 		private Log? GetLastLog() {
-			if( logs.Count == 0 ) {
+			if( m_logs.Count == 0 ) {
 				return null;
 			}
 
-			return logs.Last();
+			return m_logs.Last();
 		}
 
 		private void UpdateQueuedLogs() {
-			while( queuedLogs.TryDequeue(out var log) ) {
+			while( m_queuedLogs.TryDequeue(out var log) ) {
 				ProcessLogItem(log);
 			}
 		}
@@ -327,7 +327,7 @@ namespace Extend.DebugUtil {
 
 			// Queue the log into a ConcurrentQueue to be processed later in the Unity main thread,
 			// so that we don't get GUI-related errors for logs coming from other threads
-			queuedLogs.Enqueue(log);
+			m_queuedLogs.Enqueue(log);
 		}
 
 		private void ProcessLogItem(Log log) {
@@ -337,10 +337,10 @@ namespace Extend.DebugUtil {
 			if( isDuplicateOfLastLog ) {
 				// Replace previous log with incremented count instead of adding a new one.
 				log.count = lastLog.Value.count + 1;
-				logs[logs.Count - 1] = log;
+				m_logs[m_logs.Count - 1] = log;
 			}
 			else {
-				logs.Add(log);
+				m_logs.Add(log);
 				TrimExcessLogs();
 			}
 		}
@@ -357,11 +357,11 @@ namespace Extend.DebugUtil {
 
 			// If contents of scroll view haven't exceeded outer container, treat it as scrolled to bottom.
 			// Scrolled to bottom (with error margin for float math)
-			return outerScrollHeight > innerScrollHeight || Mathf.Approximately(innerScrollHeight, scrollPosition.y + outerScrollHeight);
+			return outerScrollHeight > innerScrollHeight || Mathf.Approximately(innerScrollHeight, m_scrollPosition.y + outerScrollHeight);
 		}
 
 		private void ScrollToBottom() {
-			scrollPosition = new Vector2(0, float.MaxValue);
+			m_scrollPosition = new Vector2(0, float.MaxValue);
 		}
 
 		private void TrimExcessLogs() {
@@ -369,12 +369,12 @@ namespace Extend.DebugUtil {
 				return;
 			}
 
-			var amountToRemove = logs.Count - maxLogCount;
+			var amountToRemove = m_logs.Count - maxLogCount;
 			if( amountToRemove <= 0 ) {
 				return;
 			}
 
-			logs.RemoveRange(0, amountToRemove);
+			m_logs.RemoveRange(0, amountToRemove);
 		}
 
 		public CSharpServiceManager.ServiceType ServiceType => CSharpServiceManager.ServiceType.IN_GAME_CONSOLE;
