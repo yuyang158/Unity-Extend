@@ -23,7 +23,9 @@ function M.Init()
 	for i = 0, transform.childCount - 1 do
 		local childLayer = transform:GetChild(i)
 		local canvas = childLayer:GetComponent(typeof(CS.UnityEngine.Canvas))
-		canvas.worldCamera = uiCam
+		if canvas.name ~= "Scene" then
+			canvas.worldCamera = uiCam
+		end
 		local name = childLayer.name
 		local layer = {
 			layerTransform = childLayer,
@@ -38,6 +40,13 @@ function M.Init()
 		local layerEnum = assert(CS.Extend.UI.UILayer.__CastFrom(name), name)
 		layers[layerEnum] = layer
 	end
+	
+	M.SetSceneCamera(CS.UnityEngine.Camera.main)
+end
+
+function M.SetSceneCamera(camera)
+	local layer = layers[CS.Extend.UI.UILayer.Scene]
+	layer.canvas.worldCamera = camera
 end
 
 local function hideFullScreen(layer, shownView)

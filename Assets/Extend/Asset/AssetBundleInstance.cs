@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using Extend.Common;
+using Extend.DebugUtil;
 using UnityEngine;
 
 namespace Extend.Asset {
@@ -35,6 +36,8 @@ namespace Extend.Asset {
 				}
 
 				Status = AssetStatus.DONE;
+				var statService = CSharpServiceManager.Get<StatService>(CSharpServiceManager.ServiceType.STAT);
+				statService.Increase(StatService.StatName.ASSET_BUNDLE_COUNT, 1);
 			}
 			else {
 				Status = AssetStatus.FAIL;
@@ -42,11 +45,15 @@ namespace Extend.Asset {
 		}
 
 		public override void Destroy() {
+			if(Status != AssetStatus.DONE)
+				return;
 			foreach( var dependency in m_dependencies ) {
 				dependency.Release();
 			}
 			AB.Unload( false );
 			UnityEngine.Object.Destroy(AB);
+			var statService = CSharpServiceManager.Get<StatService>(CSharpServiceManager.ServiceType.STAT);
+			statService.Increase(StatService.StatName.ASSET_BUNDLE_COUNT, -1);
 		}
 
 		public static int GenerateHash(string path) {
