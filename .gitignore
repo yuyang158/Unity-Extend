@@ -52,3 +52,5 @@ UnityRemoteCmd/Server/bin
 UnityRemoteCmd/Server/obj
 
 Assets/XLua/Gen.meta
+Assets/Editor/EmmyLuaService.cs.meta
+Assets/Editor/EmmyLuaService.cs

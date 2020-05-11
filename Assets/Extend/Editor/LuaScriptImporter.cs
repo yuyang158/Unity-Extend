@@ -23,6 +23,12 @@ namespace Extend.Editor {
 			modifiedModules.Clear();
 		}
 		private static readonly List<string> modifiedModules = new List<string>();
+
+		static LuaScriptImporter() {
+			Application.quitting += () => {
+				modifiedModules.Clear();
+			};
+		}
 		
 		public override void OnImportAsset(AssetImportContext ctx) {
 			if( Application.isPlaying ) {

@@ -1,7 +1,6 @@
 ﻿using Extend.Common;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace UI.i18n {
 	[RequireComponent(typeof(TextMeshProUGUI))]

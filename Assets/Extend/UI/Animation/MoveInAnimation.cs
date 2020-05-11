@@ -2,7 +2,6 @@
 using DG.Tweening;
 using Extend.Common;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Extend.UI.Animation {
 	[Serializable]

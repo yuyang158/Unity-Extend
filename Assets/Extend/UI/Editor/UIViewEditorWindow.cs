@@ -56,10 +56,18 @@ namespace Extend.UI.Editor {
 			
 			var configurations = serializedObject.FindProperty("m_configurations");
 			var element = configurations.GetArrayElementAtIndex(index);
-			var prop = element.FindPropertyRelative(columnIndexToFieldName[columnIndex]);
+
+			var fieldName = columnIndexToFieldName[columnIndex];
+			var prop = element.FindPropertyRelative(fieldName);
 			
 			EditorGUI.BeginChangeCheck();
 			EditorGUI.PropertyField(rect, prop, GUIContent.none);
+			if( fieldName == "FullScreen" && prop.boolValue == false ) {
+				var bgProp = element.FindPropertyRelative("BackgroundFx");
+				if( bgProp.objectReferenceValue ) {
+					prop.boolValue = true;
+				}
+			}
 			if( EditorGUI.EndChangeCheck() ) {
 				serializedObject.ApplyModifiedProperties();
 			}

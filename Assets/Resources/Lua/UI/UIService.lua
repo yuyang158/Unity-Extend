@@ -49,7 +49,7 @@ function M.SetSceneCamera(camera)
 	layer.canvas.worldCamera = camera
 end
 
-local function hideFullScreen(layer, shownView)
+local function fullScreenShow(layer, shownView)
 	for elementIndex = 1, #layer.elements do
 		local view = layer.elements[elementIndex].view
 		if view ~= shownView then
@@ -62,6 +62,19 @@ local function hideFullScreen(layer, shownView)
 		for elementIndex = 1, #currentLayer.elements do
 			local view = currentLayer.elements[elementIndex].view
 			view:SetVisible(false)
+		end
+	end
+end
+
+local function fullScreenHiding(layer, hidingView)
+	for i = layer.layerIndex, 0, -1 do
+		local layerEnum = CS.Extend.UI.UILayer.__CastFrom(i)
+		local currentLayer = layers[layerEnum]
+		for elementIndex = 1, #currentLayer.elements do
+			local view = currentLayer.elements[elementIndex].view
+			if view ~= hidingView then
+				
+			end
 		end
 	end
 end
@@ -97,13 +110,20 @@ local function loadView(configuration, callback)
 		local shownCb
 		shownCb = function()
 			view:Shown("-", shownCb)
-			hideFullScreen(layer, view)
+			fullScreenShow(layer, view)
 		end
 		view:Shown("+", shownCb)
+		
+		local fullScreenViewHiding
+		fullScreenViewHiding = function()
+			view:Hiding("-", fullScreenViewHiding)
+			
+		end
+		view:Hiding("+", fullScreenViewHiding)
 	end
 
-	view.canvas.overrideSorting = true
-	view.canvas.sortingOrder = layer.baseSortingOrder + #layer.elements * 2
+	view.Canvas.overrideSorting = true
+	view.Canvas.sortingOrder = layer.baseSortingOrder + #layer.elements * 2
 	view:Show()
 	return view
 end
@@ -118,8 +138,8 @@ local function loadBgFx(assetRef, foreView)
 		view:Show()
 	end
 	
-	view.canvas.overrideSorting = true
-	view.canvas.sortingOrder = foreView.canvas.sortingOrder - 1
+	view.Canvas.overrideSorting = true
+	view.Canvas.sortingOrder = foreView.Canvas.sortingOrder - 1
 	return view
 end
 
@@ -129,7 +149,7 @@ function M.Show(viewName, callback)
 		if configuration.Transition and configuration.Transition.GUIDValid then
 			loadView({
 				UIView = configuration.Transition,
-				FullScreen = true,
+				FullScreen = false,
 				AttachLayer = CS.Extend.UI.UILayer.Transition
 			}, function(_, view)
 				local onShown

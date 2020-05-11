@@ -47,6 +47,15 @@ namespace Extend {
 #endif
 		}
 
+		public void LogCallStack() {
+			object[] msg = Default.Global.GetInPath<LuaFunction>("debug.traceback").Call();
+			if (msg != null && msg.Length == 1)
+			{
+				var str = "lua stack : " + msg[0];
+				Debug.Log(str);
+			}
+		}
+
 		public void Destroy() {
 			OnDestroy.Call();
 			OnDestroy.Dispose();
