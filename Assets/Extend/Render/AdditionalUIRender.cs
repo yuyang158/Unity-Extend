@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Extend.Common;
+using UnityEngine;
 using UnityEngine.Experimental.Rendering.Universal;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
@@ -39,7 +40,7 @@ namespace Extend.Render {
 		public override void Create() {
 			var filter = settings.filterSettings;
 			renderObjectsPass = new AdditionalUIRenderPass(settings.passTag, settings.Event, filter.PassNames,
-				filter.RenderQueueType, filter.LayerMask);
+				filter.RenderQueueType, filter.LayerMask, settings.clearFlag);
 
 			if( settings.overrideDepthState )
 				renderObjectsPass.SetDepthState(settings.enableWrite, settings.depthCompareFunction);
