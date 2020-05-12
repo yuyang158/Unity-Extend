@@ -4,24 +4,20 @@ using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
 namespace Extend.Render {
-	public class AdditionalRender : ScriptableRendererFeature {
+	public class AdditionalUIRender : ScriptableRendererFeature {
 		[System.Serializable]
-		public class RenderObjectsSettings {
-			public string passTag = "AdditionalRender";
+		public class AdditionalRenderSettings {
+			public string passTag = "AdditionalUIRender";
 			public RenderPassEvent Event = RenderPassEvent.AfterRenderingPostProcessing;
 
 			public FilterSettings filterSettings = new FilterSettings();
 
-			public Material overrideMaterial = null;
-			public int overrideMaterialPassIndex = 0;
-
-			public bool overrideDepthState = false;
+			public bool overrideDepthState;
 			public CompareFunction depthCompareFunction = CompareFunction.LessEqual;
 			public bool enableWrite = true;
 
 			public StencilStateData stencilSettings = new StencilStateData();
-
-			public RenderObjects.CustomCameraSettings cameraSettings = new RenderObjects.CustomCameraSettings();
+			public ClearFlag clearFlag;
 		}
 
 		[System.Serializable]
@@ -37,21 +33,17 @@ namespace Extend.Render {
 			}
 		}
 
-		public RenderObjectsSettings settings = new RenderObjectsSettings();
-
-		RenderObjectsPass renderObjectsPass;
+		public AdditionalRenderSettings settings = new AdditionalRenderSettings();
+		private AdditionalUIRenderPass renderObjectsPass;
 
 		public override void Create() {
 			var filter = settings.filterSettings;
-			renderObjectsPass = new RenderObjectsPass(settings.passTag, settings.Event, filter.PassNames,
-				filter.RenderQueueType, filter.LayerMask, settings.cameraSettings) {
-				overrideMaterial = settings.overrideMaterial,
-				overrideMaterialPassIndex = settings.overrideMaterialPassIndex
-			};
+			renderObjectsPass = new AdditionalUIRenderPass(settings.passTag, settings.Event, filter.PassNames,
+				filter.RenderQueueType, filter.LayerMask);
 
-
+			renderObjectsPass.ConfigureClear(settings.clearFlag, Color.black);
 			if( settings.overrideDepthState )
-				renderObjectsPass.SetDetphState(settings.enableWrite, settings.depthCompareFunction);
+				renderObjectsPass.SetDepthState(settings.enableWrite, settings.depthCompareFunction);
 
 			if( settings.stencilSettings.overrideStencilState )
 				renderObjectsPass.SetStencilState(settings.stencilSettings.stencilReference,

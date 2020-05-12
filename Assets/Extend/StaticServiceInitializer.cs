@@ -29,6 +29,8 @@ namespace Extend {
 			CSharpServiceManager.Register(new NetworkService());
 			
 			CSharpServiceManager.Instance.SceneLoaded();
+
+			Application.targetFrameRate = 60;
 		}
 	}
 }

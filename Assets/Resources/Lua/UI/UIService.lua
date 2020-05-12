@@ -1,7 +1,7 @@
 ﻿local M = {}
 local layers = {}
 local bgFx = {}
-local table, assert, typeof = table, assert, typeof
+local table, assert, typeof, pairs = table, assert, typeof, pairs
 ---@type CS.Extend.Asset.AssetService
 local AssetService = CS.Extend.Asset.AssetService.Get()
 local Object = CS.UnityEngine.Object
@@ -12,8 +12,6 @@ local UIViewBaseType = typeof(CS.Extend.UI.UIViewBase)
 
 function M.Init()
 	UIViewConfiguration = CS.Extend.UI.UIViewConfiguration.Load()
-	local GameObject = CS.UnityEngine.GameObject
-	local uiCam = GameObject.Find("UICamera"):GetComponent(typeof(CS.UnityEngine.Camera))
 	local ref = AssetService:Load("UILayers", typeof(CS.UnityEngine.GameObject))
 	local go = ref:Instantiate()
 	go.name = "UI"
@@ -23,9 +21,6 @@ function M.Init()
 	for i = 0, transform.childCount - 1 do
 		local childLayer = transform:GetChild(i)
 		local canvas = childLayer:GetComponent(typeof(CS.UnityEngine.Canvas))
-		if canvas.name ~= "Scene" then
-			canvas.worldCamera = uiCam
-		end
 		local name = childLayer.name
 		local layer = {
 			layerTransform = childLayer,
@@ -41,12 +36,13 @@ function M.Init()
 		layers[layerEnum] = layer
 	end
 	
-	M.SetSceneCamera(CS.UnityEngine.Camera.main)
+	M.SetUICamera(CS.UnityEngine.Camera.main)
 end
 
-function M.SetSceneCamera(camera)
-	local layer = layers[CS.Extend.UI.UILayer.Scene]
-	layer.canvas.worldCamera = camera
+function M.SetUICamera(camera)
+	for _, layer in pairs(layers) do
+		layer.canvas.worldCamera = camera
+	end
 end
 
 local function fullScreenShow(layer, shownView)
