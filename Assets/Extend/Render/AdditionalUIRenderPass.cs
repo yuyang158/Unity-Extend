@@ -66,6 +66,7 @@ namespace Extend.Render {
 			using( new ProfilingScope(cmd, m_ProfilingSampler) ) {
 				context.ExecuteCommandBuffer(cmd);
 				cmd.Clear();
+				cmd.ClearRenderTarget((clearFlag & ClearFlag.Depth) != 0, false, Color.black);
 				context.DrawRenderers(renderingData.cullResults, ref drawingSettings, ref m_FilteringSettings,
 					ref m_RenderStateBlock);
 			}

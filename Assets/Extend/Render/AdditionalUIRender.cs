@@ -41,7 +41,6 @@ namespace Extend.Render {
 			renderObjectsPass = new AdditionalUIRenderPass(settings.passTag, settings.Event, filter.PassNames,
 				filter.RenderQueueType, filter.LayerMask);
 
-			renderObjectsPass.ConfigureClear(settings.clearFlag, Color.black);
 			if( settings.overrideDepthState )
 				renderObjectsPass.SetDepthState(settings.enableWrite, settings.depthCompareFunction);
 
