@@ -29,7 +29,7 @@ namespace Extend.Editor.InspectorGUI {
 				}
 				
 				var label = new GUIContent(property.GetLabel());
-				EditorGUILayout.PropertyField(property, label);
+				EditorGUILayout.PropertyField(property, label, includeChildren);
 			}
 		}
 	}

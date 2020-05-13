@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Extend.Asset.Editor.Process;
 using UnityEditor;
 using UnityEngine.Assertions;
 
@@ -20,7 +21,7 @@ namespace Extend.Asset.Editor {
 
 		public string AssetBundleName {
 			get => importer.assetBundleName;
-			set {
+			private set {
 				Assert.IsFalse(Calculated);
 				Calculated = true;
 				var abName = value.ToLower();
@@ -32,15 +33,6 @@ namespace Extend.Asset.Editor {
 
 		public string GUID => AssetDatabase.AssetPathToGUID(AssetPath);
 
-		public ulong AssetTimeStamp => importer.assetTimeStamp;
-
-		public uint Crc32 {
-			get {
-				BuildPipeline.GetCRCForAssetBundle(importer.assetBundleName, out var crc32);
-				return crc32;
-			}
-		} 
-
 		private readonly List<AssetNode> referenceNodes = new List<AssetNode>();
 		private readonly AssetImporter importer;
 
@@ -48,6 +40,7 @@ namespace Extend.Asset.Editor {
 
 		public AssetNode(string path) {
 			importer = AssetImporter.GetAtPath(path);
+			AssetCustomProcesses.Process(importer);
 		}
 
 		public bool IsValid => importer != null;

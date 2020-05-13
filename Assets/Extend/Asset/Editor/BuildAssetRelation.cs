@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using Extend.Asset.Editor.Process;
 using Unity.EditorCoroutines.Editor;
 using UnityEditor;
 
@@ -60,6 +61,7 @@ namespace Extend.Asset.Editor {
 
 		private static HashSet<string> s_spritesInAtlas;
 		public static void BuildRelation(StaticABSetting[] settings, HashSet<string> spritesInAtlas, Action completeCallback) {
+			AssetCustomProcesses.Init();
 			manualSettings = settings;
 			s_spritesInAtlas = spritesInAtlas;
 			foreach( var setting in manualSettings ) {
@@ -182,6 +184,8 @@ namespace Extend.Asset.Editor {
 			//Debug.Log( sb.ToString() );
 			EditorUtility.ClearProgressBar();
 			completeCallback();
+			AssetCustomProcesses.PostProcess();
+			AssetCustomProcesses.Shutdown();
 		}
 	}
 }
