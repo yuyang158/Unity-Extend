@@ -9,38 +9,16 @@ using UnityEngine.Profiling;
 using XLua;
 
 namespace Extend.DebugUtil {
-	/// <summary>
-	/// A console to display Unity's debug logs in-game.
-	/// </summary>
 	public class InGameConsole : MonoBehaviour, IService {
-		#region Inspector Settings
-
-		/// <summary>
-		/// The hotkey to show and hide the console window.
-		/// </summary>
 		public KeyCode toggleKey = KeyCode.BackQuote;
 
-		/// <summary>
-		/// Whether to open as soon as the game starts.
-		/// </summary>
 		public bool openOnStart;
 
-		/// <summary>
-		/// Whether to only keep a certain number of logs, useful if memory usage is a concern.
-		/// </summary>
 		public bool restrictLogCount;
 
-		/// <summary>
-		/// Number of logs to keep before removing old ones.
-		/// </summary>
 		public int maxLogCount = 100;
 
-		/// <summary>
-		/// Font size to display log entries with.
-		/// </summary>
 		public int logFontSize = 16;
-
-		#endregion
 
 		private static readonly GUIContent CLEAR_LABEL = new GUIContent("Clear", "Clear the contents of the console.");
 		private static readonly Color BACKGROUND_COLOR = new Color(0.1f, 0.3f, 0.4f, 0.8f);
@@ -141,6 +119,7 @@ namespace Extend.DebugUtil {
 			builder.AppendFormat("Mono : {0} KB\n", GC.GetTotalMemory(false) / 1024);
 			builder.AppendFormat("Lua : {0} KB\n", luvVM.Default.Memroy);
 			builder.AppendFormat("Unity : {0} MB\n", unityTotalMemory);
+			builder.AppendFormat("Texture : {0} KB\n", Texture.currentTextureMemory / 1024);
 			if(Debug.isDebugBuild)
 				builder.AppendFormat("Graphics : {0} MB", graphicsDriver);
 			GUILayout.Box(builder.ToString(), Style);

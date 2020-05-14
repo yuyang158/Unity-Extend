@@ -40,6 +40,39 @@ namespace Extend.Common {
 		}
 	}
 	
+	[AttributeUsage(AttributeTargets.Field)]
+	public class EnableIfAttribute : PropertyAttribute, IExtendAttribute {
+		public readonly string FieldName;
+		public readonly object Value;
+		public EnableIfAttribute(string fieldName, object value) {
+			FieldName = fieldName;
+			Value = value;
+		}
+	}
+
+	public enum ButtonSize {
+		Small,
+		Medium,
+		Large
+	}
+	
+	[AttributeUsage(AttributeTargets.Method)]
+	public class ButtonAttribute : PropertyAttribute, IExtendAttribute {
+		public readonly string ButtonName;
+		public readonly ButtonSize Size = ButtonSize.Small;
+		public ButtonAttribute(string buttonName) {
+			ButtonName = buttonName;
+		}
+
+		public ButtonAttribute(ButtonSize size) {
+			Size = size;
+		}
+	}
+
+	[AttributeUsage(AttributeTargets.Field)]
+	public class RequireAttribute : PropertyAttribute, IExtendAttribute {
+	}
+	
 	public abstract class SpecialCaseAttribute : PropertyAttribute, IExtendAttribute {
 	}
 

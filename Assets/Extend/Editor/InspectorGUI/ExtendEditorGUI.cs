@@ -27,9 +27,39 @@ namespace Extend.Editor.InspectorGUI {
 					if(val != showAttr.Value)
 						return;
 				}
+
+				var enableAttr = property.GetAttribute<EnableIfAttribute>();
+				if( enableAttr != null ) {
+					var fieldInfo = target.GetType().GetField(enableAttr.FieldName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+					var val = fieldInfo.GetValue(target);
+					if( val != enableAttr.Value ) {
+						GUI.enabled = false;
+					}
+				}
+
+				var requireAttr = property.GetAttribute<RequireAttribute>();
+				if( requireAttr != null ) {
+					if( property.propertyType == SerializedPropertyType.String ) {
+						if( string.IsNullOrEmpty(property.stringValue) ) {
+							EditorGUILayout.HelpBox($"{property.name} is required", MessageType.Error);
+						}
+					}
+					else if( property.propertyType == SerializedPropertyType.ObjectReference ) {
+						if( !property.objectReferenceValue ) {
+							EditorGUILayout.HelpBox($"{property.name} is required", MessageType.Error);
+						}
+					}
+					else {
+						Debug.LogError($"only string or unity object type support require attribute");
+					}
+				}
 				
 				var label = new GUIContent(property.GetLabel());
 				EditorGUILayout.PropertyField(property, label, includeChildren);
+
+				if( enableAttr != null ) {
+					GUI.enabled = true;
+				}
 			}
 		}
 	}
