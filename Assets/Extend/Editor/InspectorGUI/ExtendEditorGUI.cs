@@ -6,6 +6,11 @@ using UnityEngine;
 namespace Extend.Editor.InspectorGUI {
 	public static class ExtendEditorGUI {
 		public static void PropertyField_Layout(SerializedProperty property, bool includeChildren) {
+			if( property.GetAttribute<IExtendAttribute>() == null ) {
+				EditorGUILayout.PropertyField(property, includeChildren);
+				return;
+			}
+			
 			var specialCastAttribute = property.GetAttribute<SpecialCaseAttribute>();
 			if( specialCastAttribute != null ) {
 				specialCastAttribute.GetDrawer().OnGUI(property);
@@ -16,7 +21,7 @@ namespace Extend.Editor.InspectorGUI {
 				if( hideAttr != null ) {
 					var fieldInfo = target.GetType().GetField(hideAttr.FieldName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 					var val = fieldInfo.GetValue(target);
-					if(val == hideAttr.Value)
+					if(val.Equals(hideAttr.Value))
 						return;
 				}
 				
@@ -24,7 +29,7 @@ namespace Extend.Editor.InspectorGUI {
 				if( showAttr != null ) {
 					var fieldInfo = target.GetType().GetField(showAttr.FieldName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 					var val = fieldInfo.GetValue(target);
-					if(val != showAttr.Value)
+					if(!val.Equals(showAttr.Value))
 						return;
 				}
 
