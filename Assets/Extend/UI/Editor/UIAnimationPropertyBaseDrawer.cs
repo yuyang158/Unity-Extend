@@ -3,6 +3,7 @@ using System.Linq;
 using DG.DOTweenEditor;
 using DG.Tweening;
 using UnityEditor;
+using UnityEditor.Graphs;
 using UnityEngine;
 
 namespace Extend.UI.Editor {
@@ -10,27 +11,40 @@ namespace Extend.UI.Editor {
 		protected SerializedProperty animationProperty;
 		public override float GetPropertyHeight(SerializedProperty property, GUIContent label) {
 			animationProperty = property;
+			var height = UIEditorUtil.LINE_HEIGHT;
 			var enabledProp = property.FindPropertyRelative("m_enabled");
 			if( !enabledProp.boolValue )
-				return UIEditorUtil.LINE_HEIGHT;
+				return height;
+
+			height += 2 * UIEditorUtil.LINE_HEIGHT;
 
 			var modeProp = property.FindPropertyRelative("Mode");
 			var mode = modeProp.intValue;
 			if( mode == 0 ) {
-				return UIEditorUtil.LINE_HEIGHT * 6;
+				height += 5 * UIEditorUtil.LINE_HEIGHT;
 			}
-			return UIEditorUtil.LINE_HEIGHT * 4 + ( SingleDoTweenHeight + EditorGUIUtility.standardVerticalSpacing ) * animationModeActiveCount + UIEditorUtil.LINE_HEIGHT;
+			else {
+				height += UIEditorUtil.LINE_HEIGHT * 4 + ( SingleDoTweenHeight + EditorGUIUtility.standardVerticalSpacing ) 
+				          * animationModeActiveCount;
+			}
+			return height;
 		}
 
-		private bool animationMode = true;
+		private bool animationOrTriggerMode = true;
 
 		private GUIStyle m_buttonSelectedStyle;
+		private static readonly Color SELECTED_COLOR = Color.red;
 		private GUIStyle ButtonSelectedStyle {
 			get {
 				if( m_buttonSelectedStyle == null ) {
+					var texture = new Texture2D(1, 1);
+					texture.SetPixel(0, 0, SELECTED_COLOR);
+					texture.Apply();
 					m_buttonSelectedStyle = new GUIStyle(GUI.skin.button) {
-						
-					}
+						normal = new GUIStyleState {
+							background = texture
+						}
+					};
 				}
 
 				return m_buttonSelectedStyle;
@@ -80,13 +94,14 @@ namespace Extend.UI.Editor {
 
 			position.y += UIEditorUtil.LINE_HEIGHT;
 			var splitRect = position;
+			splitRect.height = UIEditorUtil.LINE_HEIGHT * 2 - EditorGUIUtility.standardVerticalSpacing;
 			var width = splitRect.width / 2;
 			splitRect.width = width;
-			GUI.Button(splitRect, "Animation");
+			GUI.Button(splitRect, "Animation", animationOrTriggerMode ? ButtonSelectedStyle : GUI.skin.button);
 			splitRect.x = splitRect.xMax;
-			GUI.Button(splitRect, "OnTrigger");
+			GUI.Button(splitRect, "OnTrigger", animationOrTriggerMode ? GUI.skin.button : ButtonSelectedStyle);
 
-			position.y += UIEditorUtil.LINE_HEIGHT;
+			position.y += UIEditorUtil.LINE_HEIGHT * 2;
 			var modeProp = property.FindPropertyRelative("Mode");
 			EditorGUI.PropertyField(position, modeProp);
 
