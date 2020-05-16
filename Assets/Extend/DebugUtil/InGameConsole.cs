@@ -30,10 +30,11 @@ namespace Extend.DebugUtil {
 					var backgroundTexture = new Texture2D(1, 1);
 					backgroundTexture.SetPixel(0, 0, BACKGROUND_COLOR);
 					backgroundTexture.Apply();
-					
-					m_windowStyle = new GUIStyle();
-					m_windowStyle.normal.background = backgroundTexture;
-					m_windowStyle.padding = new RectOffset(4, 4, 4, 4);
+
+					m_windowStyle = new GUIStyle {
+						normal = {background = backgroundTexture},
+						padding = new RectOffset(4, 4, 4, 4)
+					};
 				}
 
 				return m_windowStyle;
@@ -82,8 +83,8 @@ namespace Extend.DebugUtil {
 		private void Awake() {
 			luvVM = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
 			logFontSize = (int)(16 * Screen.dpi / 96.0f);
-			if( logFontSize > 25 ) {
-				logFontSize = 25;
+			if( logFontSize > 35 ) {
+				logFontSize = 35;
 			}
 		}
 
@@ -111,20 +112,19 @@ namespace Extend.DebugUtil {
 			}
 		}
 		private void OnGUI() {
-			builder.Clear();
-			builder.AppendFormat("FPS : {0} / {1}\n", Mathf.RoundToInt(1 / Time.smoothDeltaTime), 
-				Application.targetFrameRate <= 0 ? "No Limit" : Application.targetFrameRate.ToString());
-			var graphicsDriver = Profiler.GetAllocatedMemoryForGraphicsDriver() / 1024 / 1024;
-			var unityTotalMemory = Profiler.GetTotalReservedMemoryLong() / 1024 / 1024;
-			builder.AppendFormat("Mono : {0} KB\n", GC.GetTotalMemory(false) / 1024);
-			builder.AppendFormat("Lua : {0} KB\n", luvVM.Default.Memroy);
-			builder.AppendFormat("Unity : {0} MB\n", unityTotalMemory);
-			builder.AppendFormat("Texture : {0} KB\n", Texture.currentTextureMemory / 1024);
-			if(Debug.isDebugBuild)
-				builder.AppendFormat("Graphics : {0} MB", graphicsDriver);
-			GUILayout.Box(builder.ToString(), Style);
-
 			if( !IsVisible ) {
+				builder.Clear();
+				builder.AppendFormat("FPS : {0} / {1}\n", Mathf.RoundToInt(1 / Time.smoothDeltaTime), 
+					Application.targetFrameRate <= 0 ? "No Limit" : Application.targetFrameRate.ToString());
+				var graphicsDriver = Profiler.GetAllocatedMemoryForGraphicsDriver() / 1024 / 1024;
+				var unityTotalMemory = Profiler.GetTotalReservedMemoryLong() / 1024 / 1024;
+				builder.AppendFormat("Mono : {0} KB\n", GC.GetTotalMemory(false) / 1024);
+				builder.AppendFormat("Lua : {0} KB\n", luvVM.Default.Memroy);
+				builder.AppendFormat("Unity : {0} MB\n", unityTotalMemory);
+				builder.AppendFormat("Texture : {0} KB\n", Texture.currentTextureMemory / 1024);
+				if(Debug.isDebugBuild)
+					builder.AppendFormat("Graphics : {0} MB", graphicsDriver);
+				GUILayout.Box(builder.ToString(), Style);
 				return;
 			}
 
@@ -366,28 +366,18 @@ namespace Extend.DebugUtil {
 		}
 	}
 
-	/// <summary>
-	/// A basic container for log details.
-	/// </summary>
 	internal struct Log {
 		public int count;
 		public string message;
 		// public string stackTrace;
 		public LogType type;
 
-		/// <summary>
-		/// The max string length supported by UnityEngine.GUILayout.Label without triggering this error:
-		/// "String too long for TextMeshGenerator. Cutting off characters."
-		/// </summary>
 		private const int maxMessageLength = 16382;
 
 		public bool Equals(Log log) {
 			return message == log.message && type == log.type;
 		}
 
-		/// <summary>
-		/// Return a truncated message if it exceeds the max message length.
-		/// </summary>
 		public string GetTruncatedMessage() {
 			if( string.IsNullOrEmpty(message) ) {
 				return message;
@@ -397,14 +387,6 @@ namespace Extend.DebugUtil {
 		}
 	}
 
-	/// <summary>
-	/// Alternative to System.Collections.Concurrent.ConcurrentQueue
-	/// (It's only available in .NET 4.0 and greater)
-	/// </summary>
-	/// <remarks>
-	/// It's a bit slow (as it uses locks), and only provides a small subset of the interface
-	/// Overall, the implementation is intended to be simple & robust
-	/// </remarks>
 	internal class ConcurrentQueue<T> {
 		readonly Queue<T> queue = new Queue<T>();
 		readonly object queueLock = new object();
