@@ -3,6 +3,13 @@ using UnityEngine;
 
 namespace Extend.Example {
 	public class AttributeExample : MonoBehaviour {
+		public enum EnumType {
+			One,
+			Two,
+			Three,
+			Four
+		}
+		
 		[HideIf("B", 2)]
 		public int A;
 
@@ -17,6 +24,9 @@ namespace Extend.Example {
 
 		[Require]
 		public GameObject E;
+
+		[EnumToggleButtons]
+		public EnumType EnumValue;
 
 		[Button(ButtonSize.Medium)]
 		public static void Click() {

@@ -31,25 +31,7 @@ namespace Extend.UI.Editor {
 		}
 
 		private bool animationOrTriggerMode = true;
-
-		private GUIStyle m_buttonSelectedStyle;
-		private static readonly Color SELECTED_COLOR = Color.red;
-		private GUIStyle ButtonSelectedStyle {
-			get {
-				if( m_buttonSelectedStyle == null ) {
-					var texture = new Texture2D(1, 1);
-					texture.SetPixel(0, 0, SELECTED_COLOR);
-					texture.Apply();
-					m_buttonSelectedStyle = new GUIStyle(GUI.skin.button) {
-						normal = new GUIStyleState {
-							background = texture
-						}
-					};
-				}
-
-				return m_buttonSelectedStyle;
-			}
-		}
+		
 
 		private int animationModeActiveCount;
 		protected abstract UIAnimationParamCombine[] CurrentAnimation { get; }
@@ -97,42 +79,51 @@ namespace Extend.UI.Editor {
 			splitRect.height = UIEditorUtil.LINE_HEIGHT * 2 - EditorGUIUtility.standardVerticalSpacing;
 			var width = splitRect.width / 2;
 			splitRect.width = width;
-			GUI.Button(splitRect, "Animation", animationOrTriggerMode ? ButtonSelectedStyle : GUI.skin.button);
+			if( GUI.Button(splitRect, "Animation", animationOrTriggerMode ? UIEditorUtil.ButtonSelectedStyle : GUI.skin.button) ) {
+				animationOrTriggerMode = true;
+			}
 			splitRect.x = splitRect.xMax;
-			GUI.Button(splitRect, "OnTrigger", animationOrTriggerMode ? GUI.skin.button : ButtonSelectedStyle);
-
+			if( GUI.Button(splitRect, "OnTrigger", animationOrTriggerMode ? GUI.skin.button : UIEditorUtil.ButtonSelectedStyle) ) {
+				animationOrTriggerMode = false;
+			}
 			position.y += UIEditorUtil.LINE_HEIGHT * 2;
-			var modeProp = property.FindPropertyRelative("Mode");
-			EditorGUI.PropertyField(position, modeProp);
 
-			var mode = modeProp.intValue;
-			position.y += UIEditorUtil.LINE_HEIGHT;
-			if( mode == 0 ) {
-				var animatorProcessorProp = property.FindPropertyRelative("m_processor");
-				EditorGUI.PropertyField(position, animatorProcessorProp);
+			if( animationOrTriggerMode ) {
+				var modeProp = property.FindPropertyRelative("Mode");
+				EditorGUI.PropertyField(position, modeProp);
+
+				var mode = modeProp.intValue;
+				position.y += UIEditorUtil.LINE_HEIGHT;
+				if( mode == 0 ) {
+					var animatorProcessorProp = property.FindPropertyRelative("m_processor");
+					EditorGUI.PropertyField(position, animatorProcessorProp);
+				}
+				else {
+					var previewRect = position;
+					previewRect.xMax = previewRect.x + 120;
+					DrawPreview(property, previewRect);
+					position.y += UIEditorUtil.LINE_HEIGHT;
+					var animationProp = property.FindPropertyRelative(GetAnimationFieldName(mode));
+					if( animationProp == null ) {
+						Debug.LogError($"mode {GetAnimationFieldName(mode)} not exist");
+						return;
+					}
+					animationModeActiveCount = DrawAnimationMode(position, animationProp, Mode);
+					position.y += UIEditorUtil.LINE_HEIGHT;
+					var originLabelWidth = EditorGUIUtility.labelWidth;
+					for( var i = 0; i < Mode.Length; i++ ) {
+						var type = Mode[i];
+						var typProp = animationProp.FindPropertyRelative(type);
+						var activeProp = typProp.FindPropertyRelative("m_active");
+						if( !activeProp.boolValue )
+							continue;
+						position = CurrentAnimation[i].OnGUI(position, typProp);
+						EditorGUIUtility.labelWidth = originLabelWidth;
+					}
+				}
 			}
 			else {
-				var previewRect = position;
-				previewRect.xMax = previewRect.x + 120;
-				DrawPreview(property, previewRect);
-				position.y += UIEditorUtil.LINE_HEIGHT;
-				var animationProp = property.FindPropertyRelative(GetAnimationFieldName(mode));
-				if( animationProp == null ) {
-					Debug.LogError($"mode {GetAnimationFieldName(mode)} not exist");
-					return;
-				}
-				animationModeActiveCount = DrawAnimationMode(position, animationProp, Mode);
-				position.y += UIEditorUtil.LINE_HEIGHT;
-				var originLabelWidth = EditorGUIUtility.labelWidth;
-				for( var i = 0; i < Mode.Length; i++ ) {
-					var type = Mode[i];
-					var typProp = animationProp.FindPropertyRelative(type);
-					var activeProp = typProp.FindPropertyRelative("m_active");
-					if( !activeProp.boolValue )
-						continue;
-					position = CurrentAnimation[i].OnGUI(position, typProp);
-					EditorGUIUtility.labelWidth = originLabelWidth;
-				}
+				
 			}
 		}
 		

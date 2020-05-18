@@ -15,5 +15,20 @@ namespace Extend.UI.Editor {
 		public const float ROW_CONTROL_MARGIN = 5;
 		public static readonly float LINE_HEIGHT = EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
 
+		private static GUIStyle m_buttonSelectedStyle;
+		public static GUIStyle ButtonSelectedStyle {
+			get {
+				if( m_buttonSelectedStyle == null ) {
+					m_buttonSelectedStyle = new GUIStyle(GUI.skin.button) {
+						normal = new GUIStyleState() {
+							background = GUI.skin.button.onActive.scaledBackgrounds[0],
+							textColor = new Color(0.8f, 0.8f, 0.8f, 1)
+						}
+					};
+				}
+
+				return m_buttonSelectedStyle;
+			}
+		}
 	}
 }

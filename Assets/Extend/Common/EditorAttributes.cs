@@ -72,6 +72,11 @@ namespace Extend.Common {
 	[AttributeUsage(AttributeTargets.Field)]
 	public class RequireAttribute : PropertyAttribute, IExtendAttribute {
 	}
+
+	[AttributeUsage(AttributeTargets.Field)]
+	public class EnumToggleButtonsAttribute : PropertyAttribute {
+		
+	}
 	
 	public abstract class SpecialCaseAttribute : PropertyAttribute, IExtendAttribute {
 	}
