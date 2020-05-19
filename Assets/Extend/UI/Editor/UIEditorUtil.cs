@@ -19,9 +19,10 @@ namespace Extend.UI.Editor {
 		public static GUIStyle ButtonSelectedStyle {
 			get {
 				if( m_buttonSelectedStyle == null ) {
-					m_buttonSelectedStyle = new GUIStyle(GUI.skin.button) {
+					var style = (GUIStyle)"ButtonMid";
+					m_buttonSelectedStyle = new GUIStyle(style) {
 						normal = new GUIStyleState() {
-							background = GUI.skin.button.onActive.scaledBackgrounds[0],
+							background = style.onActive.scaledBackgrounds[0],
 							textColor = new Color(0.8f, 0.8f, 0.8f, 1)
 						}
 					};

@@ -29,7 +29,7 @@ namespace Extend.Editor.InspectorGUI {
 			toggleGroupRect.width = singleWidth;
 			for( var i = 0; i < names.Length; i++ ) {
 				var name = names[i];
-				if( GUI.Button(toggleGroupRect, name, i == property.intValue ? UIEditorUtil.ButtonSelectedStyle : GUI.skin.button) ) {
+				if( GUI.Button(toggleGroupRect, name, i == property.intValue ? UIEditorUtil.ButtonSelectedStyle : "ButtonMid") ) {
 					property.intValue = i;
 				}
 

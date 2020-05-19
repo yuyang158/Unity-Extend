@@ -8,7 +8,7 @@ using UnityEngine;
 namespace Extend.Editor.InspectorGUI {
 	[InitializeOnLoad]
 	public static class ExtendEditorGUI {
-		private static Dictionary<Type, ExtendAttributeProcess> m_processors = new Dictionary<Type, ExtendAttributeProcess>();
+		private static readonly Dictionary<Type, ExtendAttributeProcess> m_processors = new Dictionary<Type, ExtendAttributeProcess>();
 		static ExtendEditorGUI() {
 			var types = typeof(ExtendEditorGUI).Assembly.GetTypes();
 			foreach( var type in types ) {

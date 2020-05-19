@@ -11,14 +11,14 @@ namespace Extend.Editor.InspectorGUI {
 	[CanEditMultipleObjects]
 	[CustomEditor(typeof(Object), true)]
 	public class ExtendInspector : UnityEditor.Editor {
-		private readonly List<SerializedProperty> serializedProperties = new List<SerializedProperty>();
+		private readonly List<SerializedProperty> m_serializedProperties = new List<SerializedProperty>();
 
 		private void GetSerializedProperties() {
-			serializedProperties.Clear();
+			m_serializedProperties.Clear();
 			using( var it = serializedObject.GetIterator() ) {
 				if( it.NextVisible(true) ) {
 					do {
-						serializedProperties.Add(serializedObject.FindProperty(it.name));
+						m_serializedProperties.Add(serializedObject.FindProperty(it.name));
 					} while( it.NextVisible(false) );
 				}
 			}
@@ -26,7 +26,7 @@ namespace Extend.Editor.InspectorGUI {
 
 		private void DrawSerializedProperties() {
 			serializedObject.Update();
-			foreach( var serializedProperty in serializedProperties ) {
+			foreach( var serializedProperty in m_serializedProperties ) {
 				ExtendEditorGUI.PropertyField_Layout(serializedProperty, true);
 			}
 
@@ -35,7 +35,7 @@ namespace Extend.Editor.InspectorGUI {
 
 		public override void OnInspectorGUI() {
 			GetSerializedProperties();
-			var anyCustomAttr = serializedProperties.Any(p => p.GetAttribute<IExtendAttribute>() != null);
+			var anyCustomAttr = m_serializedProperties.Any(p => p.GetAttribute<IExtendAttribute>() != null);
 			if( !anyCustomAttr ) {
 				DrawDefaultInspector();
 			}
@@ -79,7 +79,7 @@ namespace Extend.Editor.InspectorGUI {
 			}
 		}
 
-		private void OnDisable() {
+		protected virtual void OnDisable() {
 			ReorderListPropertyDrawer.Instance.ClearCache();
 		}
 	}

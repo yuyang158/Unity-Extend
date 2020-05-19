@@ -85,4 +85,15 @@ namespace Extend.Common {
 	public class AssetOnlyAttribute : PropertyAttribute {
 		
 	}
+
+
+	[AttributeUsage(AttributeTargets.Class)]
+	public class CustomPreviewAttribute : Attribute {
+		public readonly Type PreviewBehaviour;
+		public readonly bool IncludeChildNode;
+		public CustomPreviewAttribute(Type previewBehaviour, bool includeChildNode = false) {
+			PreviewBehaviour = previewBehaviour;
+			IncludeChildNode = includeChildNode;
+		}
+	}
 }

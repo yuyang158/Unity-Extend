@@ -222,6 +222,7 @@ MonoBehaviour:
   C: 1
   D: 0100000003000000
   E: {fileID: 8694791660466165694, guid: 2f8fb33ed7d19c546bb204e461c234d7, type: 3}
+  EnumValue: 2
 --- !u!4 &832064406
 Transform:
   m_ObjectHideFlags: 0
