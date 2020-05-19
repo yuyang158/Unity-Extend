@@ -5,7 +5,7 @@ using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
-namespace Extend.Editor.InspectorGUI {
+namespace Extend.Editor.Preview {
 	[InitializeOnLoad]
 	public static class CustomPreviewProcessor {
 		private static readonly Dictionary<Extend.Common.CustomPreviewAttribute, Type> m_previewTypes = new Dictionary<Extend.Common.CustomPreviewAttribute, Type>();
