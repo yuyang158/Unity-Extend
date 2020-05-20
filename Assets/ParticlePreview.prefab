@@ -50,7 +50,7 @@ MonoBehaviour:
   C: 1
   D: 0100000003000000
   E: {fileID: 8694791660466165694, guid: 2f8fb33ed7d19c546bb204e461c234d7, type: 3}
-  EnumValue: 2
+  EnumValue: 1
 --- !u!198 &4747077712100353696
 ParticleSystem:
   m_ObjectHideFlags: 0
@@ -4728,7 +4728,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 0}
+  - {fileID: 10301, guid: 0000000000000000f000000000000000, type: 0}
   - {fileID: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0

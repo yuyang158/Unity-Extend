@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Assertions;
+using XLua;
 
 namespace Extend.Common {
 	public interface IService {
@@ -14,6 +15,8 @@ namespace Extend.Common {
 		void Update();
 	}
 
+	[CSharpCallLua]
+	public delegate void LuaCommandDelegate(params object[] cmd);
 
 	public class CSharpServiceManager : MonoBehaviour {
 		public enum ServiceType {

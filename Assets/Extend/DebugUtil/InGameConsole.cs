@@ -10,8 +10,6 @@ using XLua;
 
 namespace Extend.DebugUtil {
 	[CSharpCallLua]
-	public delegate void LuaCommandDelegate(params object[] cmd);
-	[CSharpCallLua]
 	public delegate LuaTable GetLuaService(int index);
 
 	public class InGameConsole : MonoBehaviour, IService {

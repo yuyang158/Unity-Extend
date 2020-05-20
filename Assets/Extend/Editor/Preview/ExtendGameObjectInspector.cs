@@ -2,6 +2,7 @@
 using Extend.Editor.Preview;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace Extend.Editor.InspectorGUI {
 	[CustomEditor(typeof(GameObject), true), CanEditMultipleObjects]
@@ -74,13 +75,16 @@ namespace Extend.Editor.InspectorGUI {
 				preview.OnPreviewGUI(r, background);
 			}
 			else {
+				var pipeline = GraphicsSettings.renderPipelineAsset;
+				GraphicsSettings.renderPipelineAsset = null;
 				baseEditor.OnPreviewGUI(r, background);
+				GraphicsSettings.renderPipelineAsset = pipeline;
 			}
 		}
 
 		public override void OnInteractivePreviewGUI(Rect r, GUIStyle background) {
 			if( IsShowParticleSystemPreview() ) {
-				preview.OnInteractivePreviewGUI(r, background);
+				preview?.OnInteractivePreviewGUI(r, background);
 			}
 			else {
 				baseEditor.OnInteractivePreviewGUI(r, background);
@@ -89,7 +93,7 @@ namespace Extend.Editor.InspectorGUI {
 
 		public override void OnPreviewSettings() {
 			if( IsShowParticleSystemPreview() ) {
-				preview.OnPreviewSettings();
+				preview?.OnPreviewSettings();
 			}
 			else {
 				baseEditor.OnPreviewSettings();
@@ -97,12 +101,12 @@ namespace Extend.Editor.InspectorGUI {
 		}
 
 		public override string GetInfoString() {
-			return IsShowParticleSystemPreview() ? preview.GetInfoString() : baseEditor.GetInfoString();
+			return IsShowParticleSystemPreview() ? preview?.GetInfoString() : baseEditor.GetInfoString();
 		}
 
 		public override void ReloadPreviewInstances() {
 			if( IsShowParticleSystemPreview() ) {
-				preview.ReloadPreviewInstances();
+				preview?.ReloadPreviewInstances();
 			}
 			else {
 				baseEditor.ReloadPreviewInstances();
