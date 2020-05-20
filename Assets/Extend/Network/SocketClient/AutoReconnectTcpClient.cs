@@ -1,6 +1,7 @@
 using System;
 using System.Net.Sockets;
 using Extend.Common;
+using Extend.Common.Lua;
 using Extend.DebugUtil;
 using UnityEngine;
 using XLua;
@@ -27,12 +28,12 @@ namespace Extend.Network.SocketClient {
 		private float m_statusTimeLast;
 		private int m_reconnectTime;
 		
-		private readonly LuaTable m_callback;
+		private readonly ILuaTable m_callback;
 		private readonly LuaFunction m_statusChangedCallback;
 		private readonly LuaFunction m_receivePackageCallback;
 		
 		[CSharpCallLua]
-		public delegate void LuaUpdate(LuaTable owner);
+		public delegate void LuaUpdate(ILuaTable owner);
 		public readonly LuaUpdate updateCallback;
 
 		private readonly byte[] m_receiveBuffer = new byte[65536];
@@ -67,7 +68,7 @@ namespace Extend.Network.SocketClient {
 			}
 		}
 
-		public AutoReconnectTcpClient(LuaTable luaCallback) {
+		public AutoReconnectTcpClient(ILuaTable luaCallback) {
 			m_client = new TcpClient(AddressFamily.InterNetwork) {
 				NoDelay = true
 			};

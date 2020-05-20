@@ -1,6 +1,6 @@
+using Extend.Common.Lua;
 using UnityEngine;
 using UnityEngine.UI;
-using XLua;
 
 namespace Extend.Asset {
 	[LuaCallCSharp]

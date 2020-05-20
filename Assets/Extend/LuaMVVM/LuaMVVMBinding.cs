@@ -1,5 +1,5 @@
+using Extend.Common.Lua;
 using UnityEngine;
-using XLua;
 
 namespace Extend.LuaMVVM {
 	public class LuaMVVMBinding : MonoBehaviour {
@@ -12,7 +12,7 @@ namespace Extend.LuaMVVM {
 			}
 		}
 
-		public void SetDataContext(LuaTable dataSource) {
+		public void SetDataContext(ILuaTable dataSource) {
 			foreach( var option in BindingOptions.Options ) {
 				option.Bind(dataSource);
 			}

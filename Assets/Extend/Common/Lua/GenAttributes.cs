@@ -9,7 +9,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace XLua
+namespace Extend.Common.Lua
 {
     public enum GenFlag
     {

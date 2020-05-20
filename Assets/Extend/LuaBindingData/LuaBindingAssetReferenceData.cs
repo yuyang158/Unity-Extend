@@ -1,6 +1,6 @@
 using System;
 using Extend.Asset;
-using XLua;
+using Extend.Common.Lua;
 
 namespace Extend.LuaBindingData {
 	[Serializable]
@@ -9,7 +9,7 @@ namespace Extend.LuaBindingData {
 
 		public AssetReference Data;
 
-		public override void ApplyToLuaInstance(LuaTable instance) {
+		public override void ApplyToLuaInstance(ILuaTable instance) {
 			instance.SetInPath(FieldName, Data);
 		}
 

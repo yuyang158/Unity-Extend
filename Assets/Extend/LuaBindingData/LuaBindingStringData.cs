@@ -1,11 +1,11 @@
 using System;
-using XLua;
+using Extend.Common.Lua;
 
 namespace Extend.LuaBindingData {
 	[Serializable]
 	public class LuaBindingStringData : LuaBindingDataBase {
 		public string Data;
-		public override void ApplyToLuaInstance(LuaTable instance) {
+		public override void ApplyToLuaInstance(ILuaTable instance) {
 			instance.Set(FieldName, Data);
 		}
 	}

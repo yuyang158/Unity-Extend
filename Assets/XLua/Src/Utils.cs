@@ -11,7 +11,7 @@ using System;
 using System.Reflection;
 using System.Linq;
 using System.Runtime.CompilerServices;
-
+using Extend.Common.Lua;
 #if USE_UNI_LUA
 using LuaAPI = UniLua.Lua;
 using RealStatePtr = UniLua.ILuaState;

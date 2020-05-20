@@ -1,4 +1,5 @@
 using Extend.Common;
+using Extend.Common.Lua;
 using UnityEngine;
 using XLua;
 
@@ -11,7 +12,7 @@ namespace Extend.LuaUtil {
 		public void Initialize() {
 			var luaVM = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
 			var luaGetService = luaVM.Default.Global.GetInPath<LuaFunction>( "_ServiceManager.GetService" );
-			var luaTickService = luaGetService.Call( 2 )[0] as LuaTable;
+			var luaTickService = luaGetService.Call( 2 )[0] as ILuaTable;
 			m_tick = luaTickService.Get<LuaFunction>( "Tick" );
 		}
  

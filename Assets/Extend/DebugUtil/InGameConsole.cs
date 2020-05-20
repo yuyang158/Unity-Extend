@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Extend.Common;
+using Extend.Common.Lua;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Profiling;
@@ -142,7 +143,7 @@ namespace Extend.DebugUtil {
 			luaCommands.Clear();
 			var luaVm = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
 			var getServiceFunc = luaVm.Default.Global.GetInPath<LuaFunction>("_ServiceManager.GetService");
-			var commands = getServiceFunc.Call(3)[0] as LuaTable;
+			var commands = getServiceFunc.Call(3)[0] as ILuaTable;
 			commands.ForEach((string cmdName, LuaFunction cmd) => {
 				luaCommands.Add(new LuaCommand() {
 					CommandName = cmdName,

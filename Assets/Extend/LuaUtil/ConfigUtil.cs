@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using Extend.Asset;
 using Extend.Common;
+using Extend.Common.Lua;
 using UnityEngine;
 using UnityEngine.Assertions;
 using XLua;
@@ -10,7 +11,7 @@ namespace Extend.LuaUtil {
 	public static class ConfigUtil {
 		private const string CONFIG_PATH_PREFIX = "Config/";
 
-		private static LuaTable ConvertStringArrayToLua(string[] values) {
+		private static ILuaTable ConvertStringArrayToLua(string[] values) {
 			var luaVM = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
 			var luaArr = luaVM.Default.NewTable();
 			for( var i = 0; i < values.Length; i++ ) {
@@ -20,7 +21,7 @@ namespace Extend.LuaUtil {
 			return luaArr;
 		}
 
-		public static LuaTable LoadConfigFile(string filename) {
+		public static ILuaTable LoadConfigFile(string filename) {
 			var service = CSharpServiceManager.Get<AssetService>(CSharpServiceManager.ServiceType.ASSET_SERVICE);
 			var assetRef = service.Load( CONFIG_PATH_PREFIX + filename, typeof(TextAsset) );
 			var asset = assetRef.GetTextAsset();
@@ -30,16 +31,16 @@ namespace Extend.LuaUtil {
 				reader.ReadLine();
 
 				var luaVM = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
-				var luaTable = luaVM.Default.NewTable();
+				var ILuaTable = luaVM.Default.NewTable();
 				var keyArr = keys.Split( '\t' );
 				var typeArr = types.Split( '\t' );
 				Assert.IsTrue( keyArr.Length == typeArr.Length, $"Table {filename} key count {keyArr.Length} != type count {typeArr.Length}" );
 
-				luaTable.Set( "keys", ConvertStringArrayToLua(keyArr) );
-				luaTable.Set( "types", ConvertStringArrayToLua(typeArr) );
+				ILuaTable.Set( "keys", ConvertStringArrayToLua(keyArr) );
+				ILuaTable.Set( "types", ConvertStringArrayToLua(typeArr) );
 
 				var dataTable = luaVM.Default.NewTable();
-				luaTable.Set( "rows", dataTable );
+				ILuaTable.Set( "rows", dataTable );
 
 				var dataIndex = 1;
 				while( true ) {
@@ -55,7 +56,7 @@ namespace Extend.LuaUtil {
 				}
 
 				Resources.UnloadAsset( asset );
-				return luaTable;
+				return ILuaTable;
 			}
 		}
 	}

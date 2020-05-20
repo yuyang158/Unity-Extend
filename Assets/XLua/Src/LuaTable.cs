@@ -18,12 +18,12 @@ using LuaCSFunction = XLua.LuaDLL.lua_CSFunction;
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Collections;
+using Extend.Common.Lua;
 
 namespace XLua
 {
-    public partial class LuaTable : LuaBase
+    public partial class LuaTable : LuaBase, ILuaTable
     {
         public LuaTable(int reference, LuaEnv luaenv) : base(reference, luaenv)
         {

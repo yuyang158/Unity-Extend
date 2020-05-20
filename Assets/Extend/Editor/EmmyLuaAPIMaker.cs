@@ -17,6 +17,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
+using Extend.Common.Lua;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -648,7 +649,7 @@ static public class EmmyLuaAPIMaker
         {
             Type t = attrs[j].GetType();
 
-            if (t == typeof(System.ObsoleteAttribute) || t == typeof(XLua.BlackListAttribute))
+            if (t == typeof(System.ObsoleteAttribute) || t == typeof(BlackListAttribute))
             {
                 return true;
             }
@@ -803,7 +804,7 @@ static public class EmmyLuaAPIMaker
                 Type t = methodReturnType.GetElementType();
                 result = t.Name + "[]";
             }
-            else if (methodReturnType == typeof(LuaTable))
+            else if (methodReturnType == typeof(ILuaTable))
             {
                 result = "table";
             }

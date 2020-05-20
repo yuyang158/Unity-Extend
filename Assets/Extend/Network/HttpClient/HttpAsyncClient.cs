@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Text;
+using Extend.Common.Lua;
 using XLua;
 
 namespace Extend.Network.HttpClient {

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
+using Extend.Common.Lua;
 using UnityEngine;
-using XLua;
 
 namespace Extend.Switcher {
 	[LuaCallCSharp]

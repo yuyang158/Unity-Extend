@@ -3,6 +3,7 @@ using System.Net.Sockets;
 using System.Text;
 using Extend;
 using Extend.Common;
+using Extend.Common.Lua;
 using UnityEngine;
 using XLua;
 

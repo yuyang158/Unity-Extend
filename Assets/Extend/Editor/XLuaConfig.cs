@@ -12,6 +12,7 @@ using System.Diagnostics;
 using XLua;
 using System.Reflection;
 using System.Linq;
+using Extend.Common.Lua;
 using UnityEngine;
 using UnityEngine.Events;
 

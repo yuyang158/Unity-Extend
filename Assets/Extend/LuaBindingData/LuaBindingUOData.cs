@@ -1,7 +1,7 @@
 using System;
 using Extend.Common;
+using Extend.Common.Lua;
 using UnityEngine;
-using XLua;
 using Object = UnityEngine.Object;
 
 namespace Extend.LuaBindingData {
@@ -9,7 +9,7 @@ namespace Extend.LuaBindingData {
 	public class LuaBindingUOData : LuaBindingDataBase {
 		public Object Data;
 
-		public override void ApplyToLuaInstance(LuaTable instance) {
+		public override void ApplyToLuaInstance(ILuaTable instance) {
 			if( !Data ) {
 				Debug.LogWarning($"Field {FieldName} value is null!");
 				return;

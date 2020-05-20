@@ -2,8 +2,8 @@ using System;
 using System.Collections;
 using Extend.Asset.AssetProvider;
 using Extend.Common;
+using Extend.Common.Lua;
 using UnityEngine;
-using XLua;
 
 namespace Extend.Asset {
 	[LuaCallCSharp, CSharpCallLua]

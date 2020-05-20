@@ -18,6 +18,7 @@ using System.Reflection;
 using System.Text;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using Extend.Common.Lua;
 
 namespace CSObjectWrapEditor
 {

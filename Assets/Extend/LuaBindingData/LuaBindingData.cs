@@ -1,5 +1,5 @@
 using System;
-using XLua;
+using Extend.Common.Lua;
 
 namespace Extend.LuaBindingData {
 	[Serializable]
@@ -7,7 +7,7 @@ namespace Extend.LuaBindingData {
 		public string FieldName;
 		[NonSerialized]
 		public string FieldType;
-		public abstract void ApplyToLuaInstance(LuaTable instance);
+		public abstract void ApplyToLuaInstance(ILuaTable instance);
 
 		public virtual void Destroy() {
 			

@@ -1,7 +1,7 @@
 using System;
+using Extend.Common.Lua;
 using UnityEngine;
 using UnityEngine.Assertions;
-using XLua;
 using Object = UnityEngine.Object;
 
 namespace Extend.Asset {

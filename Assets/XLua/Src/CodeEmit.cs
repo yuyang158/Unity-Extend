@@ -12,7 +12,7 @@ using System.Reflection.Emit;
 using System.Reflection;
 using System;
 using System.Linq;
-
+using Extend.Common.Lua;
 #if USE_UNI_LUA
 using LuaAPI = UniLua.Lua;
 using RealStatePtr = UniLua.ILuaState;

@@ -1,6 +1,6 @@
 ﻿using System;
+using Extend.Common.Lua;
 using UnityEngine;
-using XLua;
 
 namespace Extend.UI {
 	[LuaCallCSharp, RequireComponent(typeof(CanvasGroup))]

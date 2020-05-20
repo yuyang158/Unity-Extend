@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using Extend.Common.Lua;
 using UnityEngine;
 using UnityEngine.Assertions;
 using XLua;
@@ -27,13 +28,13 @@ namespace Extend.LuaMVVM {
 		public BindMode Mode = BindMode.ONE_TIME;
 		public string Path;
 
-		private LuaTable m_dataSource;
+		private ILuaTable m_dataSource;
 		private PropertyInfo m_propertyInfo;
 		private object m_value;
 
-		private delegate void WatchCallback(LuaTable self, object val);
+		private delegate void WatchCallback(ILuaTable self, object val);
 
-		private delegate void Detach(LuaTable self, string path, WatchCallback callback);
+		private delegate void Detach(ILuaTable self, string path, WatchCallback callback);
 
 		[CSharpCallLua]
 		private WatchCallback watchCallback;
@@ -72,7 +73,7 @@ namespace Extend.LuaMVVM {
 			m_value = fieldVal;
 		}
 
-		private void SetPropertyValue(LuaTable _, object val) {
+		private void SetPropertyValue(ILuaTable _, object val) {
 			if( m_propertyInfo.PropertyType == typeof(string) ) {
 				m_value = val == null ? "" : val.ToString();
 			}
@@ -104,7 +105,7 @@ namespace Extend.LuaMVVM {
 			return $"Binding {BindTarget}->{Path}";
 		}
 
-		public void Bind(LuaTable dataContext) {
+		public void Bind(ILuaTable dataContext) {
 			if( m_dataSource != null ) {
 				TryDetach();
 			}
