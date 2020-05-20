@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using Extend.Common.Lua;
 using UnityEngine;
 using XLua;
 
@@ -14,12 +13,12 @@ namespace Extend.LuaUtil {
 			go.transform.SetParent(parent, stayWorld);
 		}
 		
-		public static ILuaTable GetLuaBinding(this GameObject go, string type) {
+		public static LuaTable GetLuaBinding(this GameObject go, string type) {
 			var bindings = go.GetComponents<LuaBinding>();
 			return FindInLuaBinding(type, bindings);
 		}
 
-		public static ILuaTable GetLuaBinding(this Component component, string type) {
+		public static LuaTable GetLuaBinding(this Component component, string type) {
 			var bindings = component.GetComponents<LuaBinding>();
 			return FindInLuaBinding(type, bindings);
 		}
@@ -28,7 +27,7 @@ namespace Extend.LuaUtil {
 			return component.gameObject.AddComponent<T>();
 		}
 
-		private static ILuaTable FindInLuaBinding(string type, LuaBinding[] bindings) {
+		private static LuaTable FindInLuaBinding(string type, LuaBinding[] bindings) {
 			type = type.Replace('.', '/');
 			// ReSharper disable once LoopCanBeConvertedToQuery
 			foreach( var binding in bindings ) {

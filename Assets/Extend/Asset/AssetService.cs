@@ -2,9 +2,8 @@ using System;
 using System.Diagnostics;
 using Extend.Asset.AssetProvider;
 using Extend.Common;
-using Extend.Common.Lua;
-using Extend.DebugUtil;
 using UnityEngine;
+using XLua;
 using Object = UnityEngine.Object;
 
 namespace Extend.Asset {

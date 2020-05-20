@@ -1,12 +1,11 @@
-﻿using System;
-using System.Reflection;
+﻿using System.Reflection;
 using Extend.Common;
 using UnityEditor;
 using UnityEngine;
 
 namespace Extend.Editor.InspectorGUI {
 	public class ExtendAttributeProcess {
-		public virtual bool Hide { get; }
+		public virtual bool Hide => false;
 
 		public virtual void Process(SerializedProperty property, GUIContent label, IExtendAttribute attribute) {
 		}
@@ -15,12 +14,14 @@ namespace Extend.Editor.InspectorGUI {
 		}
 	}
 
+	// ReSharper disable once UnusedType.Global
 	public class LabelTextAttributeProcess : ExtendAttributeProcess {
 		public override void Process(SerializedProperty property, GUIContent label, IExtendAttribute attribute) {
 			label.text = ((LabelTextAttribute)attribute).Text;
 		}
 	}
 
+	// ReSharper disable once UnusedType.Global
 	public class HideIfAttributeProcess : ExtendAttributeProcess {
 		private bool m_hide;
 		public override bool Hide => m_hide;
@@ -34,6 +35,7 @@ namespace Extend.Editor.InspectorGUI {
 		}
 	}
 
+	// ReSharper disable once UnusedType.Global
 	public class ShowIfAttributeProcess : ExtendAttributeProcess {
 		private bool m_hide;
 		public override bool Hide => m_hide;
@@ -47,6 +49,7 @@ namespace Extend.Editor.InspectorGUI {
 		}
 	}
 
+	// ReSharper disable once UnusedType.Global
 	public class RequireAttributeProcess : ExtendAttributeProcess {
 		public override void Process(SerializedProperty property, GUIContent label, IExtendAttribute attr) {
 			if( property.propertyType == SerializedPropertyType.String ) {
@@ -65,6 +68,7 @@ namespace Extend.Editor.InspectorGUI {
 		}
 	}
 
+	// ReSharper disable once UnusedType.Global
 	public class EnableIfAttributeProcess : ExtendAttributeProcess {
 		public override void Process(SerializedProperty property, GUIContent label, IExtendAttribute attr) {
 			var attribute = attr as EnableIfAttribute;

@@ -85,7 +85,7 @@ namespace XLua
         static Data getSizeReport(LuaEnv env)
         {
             Data data = new Data();
-            data.Memroy = env.Memroy;
+            data.Memroy = env.Memory;
 
             LuaDLL.Lua.xlua_report_table_size(env.L, (IntPtr p, int size) => {
                 data.TableSizes.Add(p, size);

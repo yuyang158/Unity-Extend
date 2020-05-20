@@ -1,7 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using Extend.Common;
-using Extend.Common.Lua;
 using UnityEditor;
 using UnityEditor.Experimental.AssetImporters;
 using UnityEngine;
@@ -16,10 +16,10 @@ namespace Extend.Editor {
 				return;
 
 			var luaVm = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
-			var hotfixModule = luaVm.LoadFileAtPath("hotfix.hotfix")[0] as ILuaTable;
-			var func = hotfixModule.Get<LuaFunction>("hotfix_module");
+			var hotfixModule = luaVm.LoadFileAtPath("hotfix.hotfix")[0] as LuaTable;
+			var func = hotfixModule.Get<Action<string>>("hotfix_module");
 			foreach( var module in modifiedModules ) {
-				func.Call(module);
+				func(module);
 			}
 			modifiedModules.Clear();
 		}

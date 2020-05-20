@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Extend.DebugUtil;
 using UnityEngine;
 using UnityEngine.Assertions;
 
@@ -85,10 +84,9 @@ namespace Extend.Common {
 		}
 
 		public void SceneLoaded() {
-			Register(gameObject.AddComponent<InGameConsole>());
 		}
 
-		public static T Get<T>(ServiceType typ) where T : IService {
+		public static T Get<T>(ServiceType typ) where T : class {
 			Assert.IsTrue(Initialized);
 			if( !services.TryGetValue(typ, out var service) ) {
 				Debug.LogError($"Service {typ} not exist!");

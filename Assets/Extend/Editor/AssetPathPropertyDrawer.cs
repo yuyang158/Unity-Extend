@@ -1,5 +1,5 @@
 using System.IO;
-using Extend.LuaBindingData;
+using Extend.Common;
 using Extend.UI.Editor;
 using UnityEditor;
 using UnityEngine;

@@ -3,7 +3,6 @@ using System.Net.Sockets;
 using System.Text;
 using Extend;
 using Extend.Common;
-using Extend.Common.Lua;
 using UnityEngine;
 using XLua;
 
@@ -50,8 +49,8 @@ public static class RemoteCmdClient {
 				var lua = Encoding.UTF8.GetString(buffer);
 				Debug.LogWarning($"REMOTE DEBUG REQUEST : {lua}");
 				var luaService = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
-				var func = luaService.Default.Global.Get<LuaFunction>("Global_DebugFunction");
-				var ret = func.Call(lua)[0].ToString();
+				var func = luaService.Global.Get<Func<string, string>>("Global_DebugFunction");
+				var ret = func(lua);
 				
 				protocol = new byte[] {2};
 				await tcpClient.GetStream().WriteAsync(protocol, 0, protocol.Length);

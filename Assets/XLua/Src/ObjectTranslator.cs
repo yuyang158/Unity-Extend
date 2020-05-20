@@ -15,7 +15,6 @@ using LuaAPI = XLua.LuaDLL.Lua;
 using RealStatePtr = System.IntPtr;
 using LuaCSFunction = XLua.LuaDLL.lua_CSFunction;
 #endif
-using Extend.Common.Lua;
 
 
 namespace XLua
@@ -24,7 +23,6 @@ namespace XLua
     using System.Collections;
     using System.Reflection;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Linq;
 
     class ReferenceEqualsComparer : IEqualityComparer<object>

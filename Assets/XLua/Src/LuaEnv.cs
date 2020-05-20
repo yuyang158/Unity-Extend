@@ -744,7 +744,7 @@ namespace XLua
 #endif
         }
 
-        public int Memroy
+        public int Memory
         {
             get
             {

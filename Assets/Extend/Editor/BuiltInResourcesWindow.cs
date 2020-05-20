@@ -7,7 +7,7 @@ namespace Extend.Editor {
 	public class BuiltInResourcesWindow : EditorWindow {
 		[MenuItem("Window/Built-in styles and icons")]
 		public static void ShowWindow() {
-			BuiltInResourcesWindow w = (BuiltInResourcesWindow)EditorWindow.GetWindow<BuiltInResourcesWindow>();
+			var w = GetWindow<BuiltInResourcesWindow>();
 			w.Show();
 		}
 
@@ -24,7 +24,7 @@ namespace Extend.Editor {
 		private Rect _oldPosition;
 
 		private bool _showingStyles = true;
-		private bool _showingIcons = false;
+		private bool _showingIcons;
 
 		private string _search = "";
 
@@ -113,7 +113,7 @@ namespace Extend.Editor {
 				else if( _showingIcons ) {
 					if( _objects == null ) {
 						_objects = new List<UnityEngine.Object>(Resources.FindObjectsOfTypeAll(typeof(Texture)));
-						_objects.Sort((pA, pB) => System.String.Compare(pA.name, pB.name, System.StringComparison.OrdinalIgnoreCase));
+						_objects.Sort((pA, pB) => string.Compare(pA.name, pB.name, StringComparison.OrdinalIgnoreCase));
 					}
 
 					float rowHeight = 0.0f;
@@ -179,7 +179,6 @@ namespace Extend.Editor {
 			Rect area = new Rect(0, top, position.width - 16.0f, areaHeight);
 			GUILayout.BeginArea(area);
 
-			int count = 0;
 			foreach( Drawing draw in Drawings ) {
 				Rect newRect = draw.Rect;
 				newRect.y -= _scrollPos;
@@ -188,8 +187,6 @@ namespace Extend.Editor {
 					GUILayout.BeginArea(newRect, GUI.skin.textField);
 					draw.Draw();
 					GUILayout.EndArea();
-
-					count++;
 				}
 			}
 

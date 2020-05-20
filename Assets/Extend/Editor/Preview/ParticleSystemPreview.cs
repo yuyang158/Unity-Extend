@@ -1,10 +1,10 @@
-﻿using UnityEngine;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEditorInternal;
+using UnityEngine;
 using UnityEngine.Rendering;
 
 namespace Extend.Editor.Preview {
-	[Extend.Common.CustomPreview(typeof(ParticleSystem), true)]
+	[Common.CustomPreview(typeof(ParticleSystem), true)]
 // ReSharper disable once UnusedType.Global
 	public class ParticleSystemPreview : ObjectPreview {
 		private class Styles {
@@ -131,7 +131,7 @@ namespace Extend.Editor.Preview {
 			}
 		}
 
-		public override void Initialize(UnityEngine.Object[] targets) {
+		public override void Initialize(Object[] targets) {
 			base.Initialize(targets);
 
 			if( m_CacheEditor == null ) {
@@ -294,28 +294,28 @@ namespace Extend.Editor.Preview {
 
 			if( m_ReferenceInstance == null ) {
 				var original = (GameObject)EditorGUIUtility.Load("Avatar/dial_flat.prefab");
-				m_ReferenceInstance = UnityEngine.Object.Instantiate(original, Vector3.zero, Quaternion.identity);
+				m_ReferenceInstance = Object.Instantiate(original, Vector3.zero, Quaternion.identity);
 				InitInstantiatedPreviewRecursive(m_ReferenceInstance);
 				AddSingleGO(m_ReferenceInstance);
 			}
 
 			if( m_DirectionInstance == null ) {
 				var original2 = (GameObject)EditorGUIUtility.Load("Avatar/arrow.fbx");
-				m_DirectionInstance = UnityEngine.Object.Instantiate(original2, Vector3.zero, Quaternion.identity);
+				m_DirectionInstance = Object.Instantiate(original2, Vector3.zero, Quaternion.identity);
 				InitInstantiatedPreviewRecursive(m_DirectionInstance);
 				AddSingleGO(m_DirectionInstance);
 			}
 
 			if( m_PivotInstance == null ) {
 				var original3 = (GameObject)EditorGUIUtility.Load("Avatar/root.fbx");
-				m_PivotInstance = UnityEngine.Object.Instantiate(original3, Vector3.zero, Quaternion.identity);
+				m_PivotInstance = Object.Instantiate(original3, Vector3.zero, Quaternion.identity);
 				InitInstantiatedPreviewRecursive(m_PivotInstance);
 				AddSingleGO(m_PivotInstance);
 			}
 
 			if( m_RootInstance == null ) {
 				var original4 = (GameObject)EditorGUIUtility.Load("Avatar/root.fbx");
-				m_RootInstance = UnityEngine.Object.Instantiate(original4, Vector3.zero, Quaternion.identity);
+				m_RootInstance = Object.Instantiate(original4, Vector3.zero, Quaternion.identity);
 				InitInstantiatedPreviewRecursive(m_RootInstance);
 				AddSingleGO(m_RootInstance);
 			}
@@ -334,7 +334,7 @@ namespace Extend.Editor.Preview {
 		}
 
 		private void DoRenderPreview() {
-			var pos = this.bodyPosition;
+			var pos = bodyPosition;
 			var quaternion = Quaternion.identity;
 			var vector = Vector3.zero;
 			var quaternion2 = Quaternion.identity;
@@ -374,7 +374,7 @@ namespace Extend.Editor.Preview {
 
 		private void CreatePreviewInstances() {
 			DestroyPreviewInstances();
-			var gameObject = UnityEngine.Object.Instantiate(target) as GameObject;
+			var gameObject = Object.Instantiate(target) as GameObject;
 			InitInstantiatedPreviewRecursive(gameObject);
 			AddSingleGO(gameObject);
 			var component = gameObject.GetComponent<Animator>();
@@ -403,12 +403,12 @@ namespace Extend.Editor.Preview {
 				return;
 			}
 
-			UnityEngine.Object.DestroyImmediate(m_PreviewInstance);
-			UnityEngine.Object.DestroyImmediate(m_FloorMaterial);
-			UnityEngine.Object.DestroyImmediate(m_ReferenceInstance);
-			UnityEngine.Object.DestroyImmediate(m_RootInstance);
-			UnityEngine.Object.DestroyImmediate(m_PivotInstance);
-			UnityEngine.Object.DestroyImmediate(m_DirectionInstance);
+			Object.DestroyImmediate(m_PreviewInstance);
+			Object.DestroyImmediate(m_FloorMaterial);
+			Object.DestroyImmediate(m_ReferenceInstance);
+			Object.DestroyImmediate(m_RootInstance);
+			Object.DestroyImmediate(m_PivotInstance);
+			Object.DestroyImmediate(m_DirectionInstance);
 		}
 
 		private void AddSingleGO(GameObject go) {

@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using Extend.Asset;
 using Extend.Asset.Attribute;
-using Extend.Common.Lua;
 using UnityEngine;
+using XLua;
 
 namespace Extend.LuaMVVM {
 	public class LuaMVVMForEach : MonoBehaviour {
@@ -11,7 +11,7 @@ namespace Extend.LuaMVVM {
 		[AssetReferenceAssetType(AssetType = typeof(GameObject))]
 		public AssetReference Asset;
 
-		private ILuaTable m_arrayData;
+		private LuaTable m_arrayData;
 		private readonly List<GameObject> m_generatedAsset = new List<GameObject>();
 
 		private void OnDestroy() {
@@ -20,7 +20,7 @@ namespace Extend.LuaMVVM {
 			m_arrayData = null;
 		}
 
-		public ILuaTable LuaArrayData {
+		public LuaTable LuaArrayData {
 			get => m_arrayData;
 			set {
 				m_arrayData?.Dispose();
@@ -51,7 +51,7 @@ namespace Extend.LuaMVVM {
 			var prefab = Asset.GetGameObject();
 			int finalIndex;
 			for( var i = 1; ; i++ ) {
-				var dataContext = m_arrayData.Get<int, ILuaTable>(i);
+				var dataContext = m_arrayData.Get<int, LuaTable>(i);
 				if( dataContext == null ) {
 					finalIndex = i;
 					break;

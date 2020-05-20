@@ -19,11 +19,10 @@ using LuaCSFunction = XLua.LuaDLL.lua_CSFunction;
 using System;
 using System.Collections.Generic;
 using System.Collections;
-using Extend.Common.Lua;
 
 namespace XLua
 {
-    public partial class LuaTable : LuaBase, ILuaTable
+    public partial class LuaTable : LuaBase
     {
         public LuaTable(int reference, LuaEnv luaenv) : base(reference, luaenv)
         {
@@ -340,8 +339,9 @@ namespace XLua
             lock (luaEnv.luaEnvLock)
             {
 #endif
+            var luaMetaTable = (LuaTable)metaTable;
                 push(luaEnv.L);
-                metaTable.push(luaEnv.L);
+                luaMetaTable.push(luaEnv.L);
                 LuaAPI.lua_setmetatable(luaEnv.L, -2);
                 LuaAPI.lua_pop(luaEnv.L, 1);
 #if THREAD_SAFE || HOTFIX_ENABLE

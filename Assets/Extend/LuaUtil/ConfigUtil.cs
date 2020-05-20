@@ -1,7 +1,6 @@
 ﻿using System.IO;
 using Extend.Asset;
 using Extend.Common;
-using Extend.Common.Lua;
 using UnityEngine;
 using UnityEngine.Assertions;
 using XLua;
@@ -11,9 +10,9 @@ namespace Extend.LuaUtil {
 	public static class ConfigUtil {
 		private const string CONFIG_PATH_PREFIX = "Config/";
 
-		private static ILuaTable ConvertStringArrayToLua(string[] values) {
+		private static LuaTable ConvertStringArrayToLua(string[] values) {
 			var luaVM = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
-			var luaArr = luaVM.Default.NewTable();
+			var luaArr = luaVM.NewTable();
 			for( var i = 0; i < values.Length; i++ ) {
 				luaArr.Set( i + 1, values[i] );
 			}
@@ -21,7 +20,7 @@ namespace Extend.LuaUtil {
 			return luaArr;
 		}
 
-		public static ILuaTable LoadConfigFile(string filename) {
+		public static LuaTable LoadConfigFile(string filename) {
 			var service = CSharpServiceManager.Get<AssetService>(CSharpServiceManager.ServiceType.ASSET_SERVICE);
 			var assetRef = service.Load( CONFIG_PATH_PREFIX + filename, typeof(TextAsset) );
 			var asset = assetRef.GetTextAsset();
@@ -31,16 +30,16 @@ namespace Extend.LuaUtil {
 				reader.ReadLine();
 
 				var luaVM = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
-				var ILuaTable = luaVM.Default.NewTable();
+				var LuaTable = luaVM.NewTable();
 				var keyArr = keys.Split( '\t' );
 				var typeArr = types.Split( '\t' );
 				Assert.IsTrue( keyArr.Length == typeArr.Length, $"Table {filename} key count {keyArr.Length} != type count {typeArr.Length}" );
 
-				ILuaTable.Set( "keys", ConvertStringArrayToLua(keyArr) );
-				ILuaTable.Set( "types", ConvertStringArrayToLua(typeArr) );
+				LuaTable.Set( "keys", ConvertStringArrayToLua(keyArr) );
+				LuaTable.Set( "types", ConvertStringArrayToLua(typeArr) );
 
-				var dataTable = luaVM.Default.NewTable();
-				ILuaTable.Set( "rows", dataTable );
+				var dataTable = luaVM.NewTable();
+				LuaTable.Set( "rows", dataTable );
 
 				var dataIndex = 1;
 				while( true ) {
@@ -56,7 +55,7 @@ namespace Extend.LuaUtil {
 				}
 
 				Resources.UnloadAsset( asset );
-				return ILuaTable;
+				return LuaTable;
 			}
 		}
 	}

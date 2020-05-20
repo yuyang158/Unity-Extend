@@ -1,15 +1,15 @@
 using System;
 using Extend.Common;
-using Extend.Common.Lua;
+using XLua;
 
 namespace Extend.LuaBindingData {
 	[Serializable]
 	public class LuaBindingUOArrayData : LuaBindingDataBase {
 		public UnityEngine.Object[] Data;
 
-		public override void ApplyToLuaInstance(ILuaTable instance) {
+		public override void ApplyToLuaInstance(LuaTable instance) {
 			var luaVM = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
-			var arrayLuaTable = luaVM.Default.NewTable();
+			var arrayLuaTable = luaVM.NewTable();
 			for( var i = 0; i < Data.Length; i++ ) {
 				arrayLuaTable.Set(i + 1, Data[i]);
 			}

@@ -1,8 +1,6 @@
 using System;
 using System.Net.Sockets;
 using Extend.Common;
-using Extend.Common.Lua;
-using Extend.DebugUtil;
 using UnityEngine;
 using XLua;
 
@@ -28,12 +26,12 @@ namespace Extend.Network.SocketClient {
 		private float m_statusTimeLast;
 		private int m_reconnectTime;
 		
-		private readonly ILuaTable m_callback;
-		private readonly LuaFunction m_statusChangedCallback;
-		private readonly LuaFunction m_receivePackageCallback;
+		private readonly LuaTable m_callback;
+		private readonly Action<LuaTable, Status> m_statusChangedCallback;
+		private readonly Action<LuaTable, byte[]> m_receivePackageCallback;
 		
 		[CSharpCallLua]
-		public delegate void LuaUpdate(ILuaTable owner);
+		public delegate void LuaUpdate(LuaTable owner);
 		public readonly LuaUpdate updateCallback;
 
 		private readonly byte[] m_receiveBuffer = new byte[65536];
@@ -58,7 +56,7 @@ namespace Extend.Network.SocketClient {
 				}
 
 				m_tcpStatus = value;
-				m_statusChangedCallback.Call(m_callback, value);
+				m_statusChangedCallback(m_callback, value);
 				if( m_tcpStatus == Status.CONNECTED ) {
 					DoReceive();
 				}
@@ -68,14 +66,14 @@ namespace Extend.Network.SocketClient {
 			}
 		}
 
-		public AutoReconnectTcpClient(ILuaTable luaCallback) {
+		public AutoReconnectTcpClient(LuaTable luaCallback) {
 			m_client = new TcpClient(AddressFamily.InterNetwork) {
 				NoDelay = true
 			};
 			m_connectionContext = new ConnectionContext();
 			m_callback = luaCallback;
-			m_statusChangedCallback = m_callback.Get<LuaFunction>("OnStatusChanged");
-			m_receivePackageCallback = m_callback.Get<LuaFunction>("OnRecvPackage");
+			m_statusChangedCallback = m_callback.Get<Action<LuaTable, Status>>("OnStatusChanged");
+			m_receivePackageCallback = m_callback.Get<Action<LuaTable, byte[]>>("OnRecvPackage");
 			updateCallback = m_callback.Get<LuaUpdate>("OnUpdate");
 
 			var service = CSharpServiceManager.Get<NetworkService>(CSharpServiceManager.ServiceType.NETWORK_SERVICE);
@@ -146,7 +144,7 @@ namespace Extend.Network.SocketClient {
 
 						var packageBuffer = new byte[packageSize];
 						Array.Copy(m_receiveBuffer, readOffset + 2, packageBuffer, 0, packageSize);
-						m_receivePackageCallback.Call(m_callback, packageBuffer);
+						m_receivePackageCallback(m_callback, packageBuffer);
 						readOffset += packageSize + 2;
 					}
 					if( readOffset > 0 && m_receiveOffset - readOffset >= 0 ) {

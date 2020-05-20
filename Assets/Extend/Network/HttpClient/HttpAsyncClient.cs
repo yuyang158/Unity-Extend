@@ -1,6 +1,6 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Text;
-using Extend.Common.Lua;
 using XLua;
 
 namespace Extend.Network.HttpClient {
@@ -19,7 +19,7 @@ namespace Extend.Network.HttpClient {
 			return client;
 		}
 
-		public async void DoJsonRequest(string json, LuaFunction callback) {
+		public async void DoJsonRequest(string json, Action<string> callback) {
 			if( request.Method != "GET" ) {
 				var stream = await request.GetRequestStreamAsync();
 				var buffer = Encoding.UTF8.GetBytes(json);
@@ -33,7 +33,7 @@ namespace Extend.Network.HttpClient {
 			var responseStream = response.GetResponseStream();
 			var readCount = await responseStream.ReadAsync(responseBuffer, 0, responseBuffer.Length);
 			json = Encoding.UTF8.GetString(responseBuffer, 0, readCount);
-			callback.Call(json);
+			callback(json);
 		}
 
 		private static int MinPo2(long length) {

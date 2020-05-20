@@ -1,6 +1,6 @@
 ﻿using System.Collections;
-using Extend.Common.Lua;
 using UnityEngine;
+using XLua;
 
 namespace Extend.Common {
 	[LuaCallCSharp]

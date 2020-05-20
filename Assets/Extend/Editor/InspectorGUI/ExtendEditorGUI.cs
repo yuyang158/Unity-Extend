@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
 using Extend.Common;
 using UnityEditor;
 using UnityEngine;
@@ -31,6 +30,8 @@ namespace Extend.Editor.InspectorGUI {
 				else {
 					if( m_processors.TryGetValue(attribute.GetType(), out var process) ) {
 						process.Process(property, label, attribute);
+						if(process.Hide)
+							return;
 					}
 				}
 			}

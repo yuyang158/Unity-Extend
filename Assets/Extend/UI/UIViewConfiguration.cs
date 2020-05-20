@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using Extend.Asset;
 using Extend.Asset.Attribute;
-using Extend.Common.Lua;
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.Serialization;
+using XLua;
 
 namespace Extend.UI {
 	[Serializable, LuaCallCSharp]

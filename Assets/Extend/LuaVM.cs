@@ -11,12 +11,23 @@ namespace Extend {
 		private LuaMemoryLeakChecker.Data leakData;
 		private static readonly string LUA_DEBUG_DIRECTORY = Application.persistentDataPath + "/Lua/";
 		private LuaFunction OnDestroy;
-		public LuaEnv Default { get; private set; }
+		private LuaEnv Default { get; set; }
+		public LuaTable Global => Default.Global;
+
+		public LuaTable NewTable() {
+			return Default.NewTable();
+		}
+
+		public long Memory => Default.Memory;
 
 		public object[] LoadFileAtPath(string luaFileName) {
 			luaFileName = luaFileName.Replace('/', '.');
 			var ret = Default.DoString($"return require '{luaFileName}'");
 			return ret;
+		}
+
+		public object[] DoString(string code, string chunkName = "chuck") {
+			return Default.DoString(code, chunkName);
 		}
 
 		public CSharpServiceManager.ServiceType ServiceType => CSharpServiceManager.ServiceType.LUA_SERVICE;
@@ -48,17 +59,13 @@ namespace Extend {
 		}
 
 		public void LogCallStack() {
-			object[] msg = Default.Global.GetInPath<LuaFunction>("debug.traceback").Call();
-			if (msg != null && msg.Length == 1)
-			{
-				var str = "lua stack : " + msg[0];
-				Debug.Log(str);
-			}
+			var msg = Default.Global.GetInPath<Func<string>>("debug.traceback");
+			var str = "lua stack : " + msg;
+			Debug.Log(str);
 		}
 
 		public void Destroy() {
 			OnDestroy.Call();
-			OnDestroy.Dispose();
 		}
 
 		public void Update() {

@@ -16,9 +16,6 @@ using RealStatePtr = System.IntPtr;
 using LuaCSFunction = XLua.LuaDLL.lua_CSFunction;
 #endif
 
-using System.Collections.Generic;
-using System;
-
 namespace XLua
 {
 	public class ObjectTranslatorPool

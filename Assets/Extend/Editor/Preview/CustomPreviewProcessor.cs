@@ -4,20 +4,21 @@ using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
+using CustomPreviewAttribute = Extend.Common.CustomPreviewAttribute;
 
 namespace Extend.Editor.Preview {
 	[InitializeOnLoad]
 	public static class CustomPreviewProcessor {
-		private static readonly Dictionary<Extend.Common.CustomPreviewAttribute, Type> m_previewTypes = new Dictionary<Extend.Common.CustomPreviewAttribute, Type>();
+		private static readonly Dictionary<CustomPreviewAttribute, Type> m_previewTypes = new Dictionary<CustomPreviewAttribute, Type>();
 		static CustomPreviewProcessor() {
 			var types = typeof(CustomPreviewProcessor).Assembly.GetTypes();
 			foreach( var type in types ) {
 				if( type.IsSubclassOf(typeof(ObjectPreview)) ) {
-					var attributes = type.GetCustomAttributes(typeof(Extend.Common.CustomPreviewAttribute)).ToArray();
+					var attributes = type.GetCustomAttributes(typeof(CustomPreviewAttribute)).ToArray();
 					if(attributes.Length == 0) 
 						continue;
 
-					var previewAttribute = attributes[0] as Extend.Common.CustomPreviewAttribute;
+					var previewAttribute = attributes[0] as CustomPreviewAttribute;
 					m_previewTypes.Add(previewAttribute, type);
 				}
 			}

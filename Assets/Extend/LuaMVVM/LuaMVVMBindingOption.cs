@@ -1,10 +1,8 @@
 using System;
 using System.Reflection;
-using Extend.Common.Lua;
 using UnityEngine;
 using UnityEngine.Assertions;
 using XLua;
-using LuaAPI = XLua.LuaDLL.Lua;
 using Object = UnityEngine.Object;
 
 namespace Extend.LuaMVVM {
@@ -28,13 +26,13 @@ namespace Extend.LuaMVVM {
 		public BindMode Mode = BindMode.ONE_TIME;
 		public string Path;
 
-		private ILuaTable m_dataSource;
+		private LuaTable m_dataSource;
 		private PropertyInfo m_propertyInfo;
 		private object m_value;
 
-		private delegate void WatchCallback(ILuaTable self, object val);
+		private delegate void WatchCallback(LuaTable self, object val);
 
-		private delegate void Detach(ILuaTable self, string path, WatchCallback callback);
+		private delegate void Detach(LuaTable self, string path, WatchCallback callback);
 
 		[CSharpCallLua]
 		private WatchCallback watchCallback;
@@ -73,7 +71,7 @@ namespace Extend.LuaMVVM {
 			m_value = fieldVal;
 		}
 
-		private void SetPropertyValue(ILuaTable _, object val) {
+		private void SetPropertyValue(LuaTable _, object val) {
 			if( m_propertyInfo.PropertyType == typeof(string) ) {
 				m_value = val == null ? "" : val.ToString();
 			}
@@ -105,7 +103,7 @@ namespace Extend.LuaMVVM {
 			return $"Binding {BindTarget}->{Path}";
 		}
 
-		public void Bind(ILuaTable dataContext) {
+		public void Bind(LuaTable dataContext) {
 			if( m_dataSource != null ) {
 				TryDetach();
 			}
@@ -115,7 +113,7 @@ namespace Extend.LuaMVVM {
 				return;
 			}
 
-			var watch = dataContext.GetInPath<LuaFunction>("watch");
+			var watch = dataContext.GetInPath<Action<LuaTable, string, WatchCallback>>("watch");
 			var val = dataContext.GetInPath<object>(Path);
 			if( val == null ) {
 				Debug.LogWarning($"Not found value in path {Path}");
@@ -128,7 +126,7 @@ namespace Extend.LuaMVVM {
 				case BindMode.ONE_TIME: {
 					SetPropertyValue(dataContext, val);
 					if( Mode == BindMode.ONE_WAY || Mode == BindMode.TWO_WAY ) {
-						watch.Call(dataContext, Path, watchCallback);
+						watch(dataContext, Path, watchCallback);
 						detach = dataContext.Get<Detach>("detach");
 						Assert.IsNotNull(detach);
 						if( Mode == BindMode.TWO_WAY ) {

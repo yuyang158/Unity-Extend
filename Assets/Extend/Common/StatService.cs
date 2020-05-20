@@ -1,8 +1,7 @@
 ﻿using System.IO;
-using Extend.Common;
 using UnityEngine;
 
-namespace Extend.DebugUtil {
+namespace Extend.Common {
 	public class StatService : IService {
 		public CSharpServiceManager.ServiceType ServiceType => CSharpServiceManager.ServiceType.STAT;
 

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Extend.Common;
-using Extend.Common.Lua;
 using Extend.LuaBindingData;
 using UnityEngine;
 using XLua;
@@ -12,24 +11,21 @@ namespace Extend {
 	public class LuaBinding : MonoBehaviour, ISerializationCallbackReceiver {
 		[AssetPath(AssetType = typeof(TextAsset), RootDir = "Assets/Resources/Lua", Extension = ".lua"), BlackList]
 		public string LuaFile;
-		public ILuaTable LuaInstance { get; private set; }
-		private delegate void LuaUnityEventFunction(ILuaTable self);
+		public LuaTable LuaInstance { get; private set; }
+		private delegate void LuaUnityEventFunction(LuaTable self);
 
 		private void Awake() {
 			if( string.IsNullOrEmpty(LuaFile) )
 				return;
 			var ret = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE).LoadFileAtPath(LuaFile);
-			if( !( ret[0] is ILuaTable luaClass ) )
+			if( !( ret[0] is LuaTable luaClass ) )
 				return;
-			var constructor = luaClass.Get<LuaFunction>("new");
-			ret = constructor?.Call(gameObject);
-			if( ret.Length <= 0 )
-				return;
-			var ILuaTable = ret[0] as ILuaTable;
-			Bind(ILuaTable);
+			var constructor = luaClass.Get<Func<GameObject, LuaTable>>("new");
+			var luaInstance = constructor?.Invoke(gameObject);
+			Bind(luaInstance);
 
-			var awake = ILuaTable.Get<LuaUnityEventFunction>("awake");
-			awake?.Invoke(ILuaTable);
+			var awake = luaInstance.Get<LuaUnityEventFunction>("awake");
+			awake?.Invoke(luaInstance);
 		}
 
 		private void Start() {
@@ -51,7 +47,7 @@ namespace Extend {
 		[BlackList, NonSerialized]
 		public List<LuaBindingDataBase> BindingContainer;
 		
-		public void Bind(ILuaTable instance) {
+		public void Bind(LuaTable instance) {
 			LuaInstance = instance;
 			LuaInstance.SetInPath("__CSBinding", this);
 			if( BindingContainer == null ) return;

@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace Extend.LuaBindingData {
+namespace Extend.Common {
 	public class AssetPathAttribute : PropertyAttribute {
 		public Type AssetType;
 		public string RootDir;

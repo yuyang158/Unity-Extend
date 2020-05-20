@@ -18,7 +18,6 @@ using System.Reflection;
 using System.Text;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using Extend.Common.Lua;
 
 namespace CSObjectWrapEditor
 {
@@ -1483,6 +1482,9 @@ namespace CSObjectWrapEditor
 
             foreach (var t in check_types)
             {
+                if( t == typeof(Extend.DebugUtil.GetLuaService) ) {
+                    Debug.Log("1");
+                }
                 MergeCfg(t, null, () => t);
 
                 if (!t.IsAbstract || !t.IsSealed) continue;

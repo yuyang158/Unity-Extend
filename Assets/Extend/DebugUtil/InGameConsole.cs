@@ -3,13 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Extend.Common;
-using Extend.Common.Lua;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Profiling;
 using XLua;
 
 namespace Extend.DebugUtil {
+	[LuaCallCSharp]
+	public delegate void LuaCommandDelegate(params object[] cmd);
+	[LuaCallCSharp]
+	public delegate LuaTable GetLuaService(int index);
+
 	public class InGameConsole : MonoBehaviour, IService {
 		public KeyCode toggleKey = KeyCode.BackQuote;
 
@@ -120,7 +124,7 @@ namespace Extend.DebugUtil {
 				var graphicsDriver = Profiler.GetAllocatedMemoryForGraphicsDriver() / 1024 / 1024;
 				var unityTotalMemory = Profiler.GetTotalReservedMemoryLong() / 1024 / 1024;
 				builder.AppendFormat("Mono : {0} KB\n", GC.GetTotalMemory(false) / 1024);
-				builder.AppendFormat("Lua : {0} KB\n", luvVM.Default.Memroy);
+				builder.AppendFormat("Lua : {0} KB\n", luvVM.Memory);
 				builder.AppendFormat("Unity : {0} MB\n", unityTotalMemory);
 				builder.AppendFormat("Texture : {0} KB\n", Texture.currentTextureMemory / 1024);
 				if(Debug.isDebugBuild)
@@ -134,7 +138,7 @@ namespace Extend.DebugUtil {
 		
 		private class LuaCommand {
 			public string CommandName;
-			public LuaFunction Command;
+			public LuaCommandDelegate Command;
 		}
 		
 		private static readonly List<LuaCommand> luaCommands = new List<LuaCommand>();
@@ -142,9 +146,9 @@ namespace Extend.DebugUtil {
 		private void Start() {
 			luaCommands.Clear();
 			var luaVm = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
-			var getServiceFunc = luaVm.Default.Global.GetInPath<LuaFunction>("_ServiceManager.GetService");
-			var commands = getServiceFunc.Call(3)[0] as ILuaTable;
-			commands.ForEach((string cmdName, LuaFunction cmd) => {
+			var getServiceFunc = luaVm.Global.GetInPath<GetLuaService>("_ServiceManager.GetService");
+			var commands = getServiceFunc(3);
+			commands.ForEach((string cmdName, LuaCommandDelegate cmd) => {
 				luaCommands.Add(new LuaCommand() {
 					CommandName = cmdName,
 					Command = cmd
@@ -258,7 +262,7 @@ namespace Extend.DebugUtil {
 					if( split.Length > 1 ) {
 						Array.Copy(split, 1, param, 0, split.Length - 1);
 					}
-					cmd.Command.Call(param);
+					cmd.Command(param);
 					command = "";
 				}
 			}

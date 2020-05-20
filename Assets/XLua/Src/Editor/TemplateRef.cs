@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using System.Collections;
+
 namespace XLua
 {
     public class TemplateRef : ScriptableObject

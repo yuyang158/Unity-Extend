@@ -27,8 +27,9 @@ namespace Extend {
 			CSharpServiceManager.Register(new LuaVM());
 			CSharpServiceManager.Register(new TickService());
 			CSharpServiceManager.Register(new NetworkService());
-			
-			CSharpServiceManager.Instance.SceneLoaded();
+
+			var service = CSharpServiceManager.Instance;
+			CSharpServiceManager.Register(service.gameObject.AddComponent<InGameConsole>());
 
 			Application.targetFrameRate = 60;
 		}

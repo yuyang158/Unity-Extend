@@ -2,7 +2,6 @@
 using Extend.Asset;
 using Extend.Asset.Attribute;
 using UnityEngine;
-using UnityEngine.Audio;
 
 namespace Extend.UI.Animation {
 	[Serializable]

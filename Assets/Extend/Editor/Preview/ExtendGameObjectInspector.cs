@@ -16,6 +16,8 @@ namespace Extend.Editor.InspectorGUI {
 			get {
 				if( m_Preview == null ) {
 					m_Preview = CustomPreviewProcessor.TryGeneratePreview(target as GameObject);
+					if( m_Preview == null )
+						return null;
 					m_Preview.Initialize(targets);
 				}
 
@@ -35,8 +37,11 @@ namespace Extend.Editor.InspectorGUI {
 		}
 
 		private void OnDisable() {
-			var method = preview.GetType().GetMethod("OnDestroy");
-			method.Invoke(preview, null);
+			if( preview != null ) {
+				var method = preview.GetType().GetMethod("OnDestroy");
+				method.Invoke(preview, null);	
+			}
+			
 			DestroyImmediate(baseEditor);
 		}
 
@@ -112,7 +117,7 @@ namespace Extend.Editor.InspectorGUI {
 			var t = baseEditor.GetType();
 			var onSceneDragMi = t.GetMethod("OnSceneDrag", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 			if( onSceneDragMi != null ) {
-				onSceneDragMi.Invoke(baseEditor, new object[1] {sceneView});
+				onSceneDragMi.Invoke(baseEditor, new object[] {sceneView});
 			}
 		}
 	}

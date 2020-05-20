@@ -139,8 +139,8 @@ namespace Extend.Editor {
 			if( Application.isPlaying ) {
 				foreach( var methodName in descriptor.DebugMethods ) {
 					if( GUILayout.Button(methodName) && binding.LuaInstance != null ) {
-						var func = binding.LuaInstance.Get<LuaFunction>(methodName);
-						func.Call(binding.LuaInstance);
+						var func = binding.LuaInstance.Get<Action<LuaTable>>(methodName);
+						func(binding.LuaInstance);
 					}
 				}
 			}

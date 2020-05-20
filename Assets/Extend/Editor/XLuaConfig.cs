@@ -9,12 +9,11 @@
 using System.Collections.Generic;
 using System;
 using System.Diagnostics;
-using XLua;
 using System.Reflection;
 using System.Linq;
-using Extend.Common.Lua;
 using UnityEngine;
 using UnityEngine.Events;
+using XLua;
 
 //配置的详细介绍请看Doc下《XLua的配置.doc》
 public static class XLuaGenConfig {
@@ -35,7 +34,7 @@ public static class XLuaGenConfig {
 		"TextEditor", "TextEditorDblClickSnapping",
 		"TextGenerator", "TextClipping", "Gizmos", "Occlusion",
 		"ADBannerView", "ADInterstitialAd",
-		"Android", "Tizen", "jvalue",
+		"Android", "Tizen", "jvalue", "Localiz",
 		"iPhone", "iOS", "Windows", "CalendarIdentifier",
 		"CalendarUnit", "CalendarUnit",
 		"ClusterInput", "FullScreenMovieControlMode",

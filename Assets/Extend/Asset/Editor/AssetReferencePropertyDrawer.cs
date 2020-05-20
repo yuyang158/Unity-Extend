@@ -7,6 +7,18 @@ using UnityEngine;
 namespace Extend.Asset.Editor {
 	[CustomPropertyDrawer(typeof(AssetReference), true)]
 	public class AssetReferencePropertyDrawer : PropertyDrawer {
+		private static GUIContent quickEditPen;
+		public static GUIContent QuickEditPen {
+			get {
+				if( quickEditPen == null ) {
+					var texture2D = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Editor/icon/QuickEditPen.png");
+					quickEditPen = new GUIContent(texture2D, "Click to edit in a new inspector window");
+				}
+
+				return quickEditPen;
+			}
+		}
+		
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label) {
 			if( !string.IsNullOrEmpty(label.text) ) {
 				if( !label.text.Contains("(Asset)") )
@@ -55,7 +67,7 @@ namespace Extend.Asset.Editor {
 			position.xMax += EditorGUIUtility.singleLineHeight;
 			position.xMin = position.xMax - EditorGUIUtility.singleLineHeight;
 			GUI.enabled = newResObj != null;
-			if( GUI.Button(position, LazyTextureLoader.QuickEditPen, GUI.skin.box) && newResObj != null ) {
+			if( GUI.Button(position, QuickEditPen, GUI.skin.box) && newResObj != null ) {
 				var originObj = Selection.objects;
 				// Retrieve the existing Inspector tab, or create a new one if none is open
 				var inspectorWindow = EditorWindow.GetWindow(typeof(UnityEditor.Editor).Assembly.GetType("UnityEditor.InspectorWindow"));
