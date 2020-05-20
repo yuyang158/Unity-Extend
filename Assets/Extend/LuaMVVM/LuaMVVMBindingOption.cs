@@ -74,6 +74,9 @@ namespace Extend.LuaMVVM {
 			if( m_propertyInfo.PropertyType == typeof(string) ) {
 				m_value = val == null ? "" : val.ToString();
 			}
+			else if( m_propertyInfo.PropertyType == typeof(float) ) {
+				m_value = (float)(double)val;
+			}
 			else {
 				m_value = val;
 			}
