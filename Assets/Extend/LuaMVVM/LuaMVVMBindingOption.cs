@@ -30,14 +30,13 @@ namespace Extend.LuaMVVM {
 		private PropertyInfo m_propertyInfo;
 		private object m_value;
 
+		[CSharpCallLua]
 		private delegate void WatchCallback(LuaTable self, object val);
 
+		[CSharpCallLua]
 		private delegate void Detach(LuaTable self, string path, WatchCallback callback);
 
-		[CSharpCallLua]
 		private WatchCallback watchCallback;
-
-		[CSharpCallLua]
 		private Detach detach;
 
 		public void Start() {

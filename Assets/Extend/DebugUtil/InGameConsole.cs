@@ -9,9 +9,9 @@ using UnityEngine.Profiling;
 using XLua;
 
 namespace Extend.DebugUtil {
-	[LuaCallCSharp]
+	[CSharpCallLua]
 	public delegate void LuaCommandDelegate(params object[] cmd);
-	[LuaCallCSharp]
+	[CSharpCallLua]
 	public delegate LuaTable GetLuaService(int index);
 
 	public class InGameConsole : MonoBehaviour, IService {
