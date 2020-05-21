@@ -76,19 +76,28 @@ namespace Extend.Editor.Preview {
 		private readonly List<ParticleSystem> m_pss = new List<ParticleSystem>();
 		private readonly List<int> m_psMaxCount = new List<int>();
 		public override void OnPreviewSettings() {
-			if( GUILayout.Button("Optimize Vertex Count") ) {
+			if( GUILayout.Button("Optimize Max") ) {
 				SimulateEnable();
 				m_pss.Clear();
 				m_psMaxCount.Clear();
 				m_PreviewInstance.GetComponentsInChildren(m_pss);
 				m_psMaxCount.Capacity = m_pss.Count;
-				for( var i = 0; i < m_pss.Count; i++ ) {
-					var particleSystem = m_pss[i];
+				foreach( var particleSystem in m_pss ) {
 					var main = particleSystem.main;
 					main.maxParticles = 1000;
 					m_psMaxCount.Add(0);
 				}
+			}
+			if( m_pss.Count > 0 && GUILayout.Button("Apply") ) {
+				var go = target as GameObject;
+				var pss = new List<ParticleSystem>();
+				go.GetComponentsInChildren(pss);
 
+				for( var i = 0; i < pss.Count; i++ ) {
+					var ps = pss[i];
+					var main = ps.main;
+					main.maxParticles = m_psMaxCount[i];
+				}
 			}
 			base.OnPreviewSettings();
 		}

@@ -364,6 +364,7 @@ namespace Extend.Editor.Preview {
 		private void CreatePreviewInstances() {
 			DestroyPreviewInstances();
 			var gameObject = Object.Instantiate(target) as GameObject;
+			gameObject.name = target.name;
 			InitInstantiatedPreviewRecursive(gameObject);
 			AddSingleGO(gameObject);
 			var component = gameObject.GetComponent<Animator>();

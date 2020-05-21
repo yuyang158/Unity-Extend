@@ -39,6 +39,8 @@ namespace Extend.LuaMVVM {
 		private WatchCallback watchCallback;
 		private Detach detach;
 
+		private Delegate m_getPropertyDel;
+
 		public void Start() {
 			if( !BindTarget ) {
 				Debug.LogError($"Binding target is null, Path : {Path} Property : {BindTargetProp}");
@@ -48,6 +50,10 @@ namespace Extend.LuaMVVM {
 			m_propertyInfo = BindTarget.GetType().GetProperty(BindTargetProp);
 			Assert.IsNotNull(m_propertyInfo, BindTargetProp);
 			watchCallback = SetPropertyValue;
+
+			if( Mode == BindMode.TWO_WAY || Mode == BindMode.ONE_WAY_TO_SOURCE ) {
+				m_getPropertyDel = Delegate.CreateDelegate(typeof(Func<object>), BindTarget, m_propertyInfo.GetMethod);
+			}
 		}
 
 		public void Destroy() {
@@ -58,16 +64,16 @@ namespace Extend.LuaMVVM {
 			if( m_dataSource == null )
 				return;
 
-			if( Mode != BindMode.TWO_WAY && Mode != BindMode.ONE_WAY_TO_SOURCE )
+			if( m_getPropertyDel == null )
 				return;
 
-			var fieldVal = m_propertyInfo.GetValue(BindTarget);
+			var fieldVal = m_getPropertyDel.DynamicInvoke();
 			if( Equals(m_value, fieldVal) ) {
 				return;
 			}
 
-			m_dataSource.SetInPath(Path, m_value);
 			m_value = fieldVal;
+			m_dataSource.SetInPath(Path, fieldVal);
 		}
 
 		private void SetPropertyValue(LuaTable _, object val) {
