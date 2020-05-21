@@ -170,6 +170,12 @@ namespace Extend.Editor.Preview {
 				return;
 			}
 
+			if( m_ReferenceInstance == null ) {
+				OnDestroy();
+				m_Loaded = false;
+				return;
+			}
+
 			var rect2 = r;
 			var controlID = GUIUtility.GetControlID(m_PreviewHint, FocusType.Passive, rect2);
 			var current = Event.current;
