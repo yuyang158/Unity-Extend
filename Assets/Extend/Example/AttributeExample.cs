@@ -1,4 +1,6 @@
-﻿using Extend.Common;
+﻿using Extend.Asset;
+using Extend.Asset.Attribute;
+using Extend.Common;
 using UnityEngine;
 
 namespace Extend.Example {
@@ -22,8 +24,11 @@ namespace Extend.Example {
 		[ReorderList]
 		public int[] D;
 
-		[Require]
+		[Require, AssetOnly]
 		public GameObject E;
+
+		[AssetReferenceAssetType(AssetType = typeof(GameObject))]
+		public AssetReference Asset;
 
 		[EnumToggleButtons]
 		public EnumType EnumValue;

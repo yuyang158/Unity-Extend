@@ -99,7 +99,7 @@ namespace Extend.DebugUtil {
 			Application.logMessageReceivedThreaded += HandleLogThreaded;
 		}
 
-		private readonly StringBuilder builder = new StringBuilder(128);
+		private readonly StringBuilder builder = new StringBuilder(1024);
 
 		private GUIStyle style;
 		private GUIStyle Style {

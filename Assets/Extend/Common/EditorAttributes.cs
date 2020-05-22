@@ -82,7 +82,12 @@ namespace Extend.Common {
 	}
 
 	[AttributeUsage(AttributeTargets.Field)]
-	public class AssetOnlyAttribute : PropertyAttribute {
+	public class AssetOnlyAttribute : PropertyAttribute, IExtendAttribute {
+		
+	}
+	
+	[AttributeUsage(AttributeTargets.Field)]
+	public class SceneOnlyAttribute : PropertyAttribute, IExtendAttribute {
 		
 	}
 

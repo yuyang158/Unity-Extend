@@ -25,8 +25,8 @@ namespace Extend.Asset {
 			}
 
 			private void OnAssetStatusChanged(AssetRefObject _) {
-				m_asset.OnStatusChanged -= OnAssetStatusChanged;
 				if( m_asset.IsFinished ) {
+					m_asset.OnStatusChanged -= OnAssetStatusChanged;
 					TryApplySprite(m_img, m_spriteRenderer, m_asset);
 				}
 			}

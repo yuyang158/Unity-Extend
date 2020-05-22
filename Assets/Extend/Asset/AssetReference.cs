@@ -27,6 +27,7 @@ namespace Extend.Asset {
 		private T GetAsset<T>() where T : Object {
 			if( asset == null ) {
 				asset = AssetService.Get().LoadAssetWithGUID<T>(m_assetGUID);
+				asset.IncRef();
 			}
 			
 			Assert.AreEqual(asset.Status, AssetRefObject.AssetStatus.DONE, asset.Status.ToString());

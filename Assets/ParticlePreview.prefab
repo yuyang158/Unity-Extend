@@ -50,6 +50,8 @@ MonoBehaviour:
   C: 1
   D: 0100000062010000
   E: {fileID: 8694791660466165694, guid: 2f8fb33ed7d19c546bb204e461c234d7, type: 3}
+  Asset:
+    m_assetGUID: 8c8f6b66c313df7419ef4c97f687ce6a
   EnumValue: 1
 --- !u!198 &4747077712100353696
 ParticleSystem:
