@@ -70,8 +70,8 @@ namespace Extend.Editor.Preview {
 		protected ViewTool m_ViewTool;
 		private bool m_ShowReference;
 		private bool m_Loaded;
-		private int m_PreviewHint = "Preview".GetHashCode();
-		private int m_PreviewSceneHint = "PreviewScene".GetHashCode();
+		private readonly int m_PreviewHint = "Preview".GetHashCode();
+		private readonly int m_PreviewSceneHint = "PreviewScene".GetHashCode();
 
 		private bool m_Playing;
 		protected float m_RunningTime;
@@ -245,7 +245,6 @@ namespace Extend.Editor.Preview {
 		}
 
 		public override void ReloadPreviewInstances() {
-			Debug.Log("reload");
 			if( m_PreviewUtility == null ) {
 				return;
 			}

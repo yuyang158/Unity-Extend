@@ -117,6 +117,8 @@ namespace Extend.DebugUtil {
 		private void OnGUI() {
 			if( !IsVisible ) {
 				builder.Clear();
+				StatService.Get().Output(builder);
+				
 				builder.AppendFormat("FPS : {0} / {1}\n", Mathf.RoundToInt(1 / Time.smoothDeltaTime), 
 					Application.targetFrameRate <= 0 ? "No Limit" : Application.targetFrameRate.ToString());
 				var graphicsDriver = Profiler.GetAllocatedMemoryForGraphicsDriver() / 1024 / 1024;
@@ -241,12 +243,17 @@ namespace Extend.DebugUtil {
 					var singleLineHeight = rect.height + 2;
 					rect.y -= singleLineHeight * selecteds.Count;
 					rect.height = singleLineHeight * selecteds.Count;
-					GUI.Box(rect, new GUIContent(Texture2D.blackTexture));
 					rect.x += 5;
 					rect.height = singleLineHeight;
 					foreach( var luaCommand in selecteds ) {
-						GUI.Label(rect, luaCommand.CommandName);
+						if( GUI.Button(rect, luaCommand.CommandName) ) {
+							command = luaCommand.CommandName;
+						}
 						rect.y += singleLineHeight;
+					}
+
+					if( Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Tab ) {
+						command = selecteds[0].CommandName;
 					}
 				}
 			}

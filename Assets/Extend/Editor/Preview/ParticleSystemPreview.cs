@@ -6,7 +6,6 @@ using UnityEngine;
 namespace Extend.Editor.Preview {
 	[Common.CustomPreview(typeof(ParticleSystem), true)]
 	public class ParticleSystemPreview : PreviewBase {
-		private bool m_LockParticleSystem = true;
 		protected override float PlaybackSpeed {
 			get => base.PlaybackSpeed;
 			set {
@@ -14,6 +13,7 @@ namespace Extend.Editor.Preview {
 				if( !m_PreviewInstance ) {
 					return;
 				}
+
 				var particleSystems = m_PreviewInstance.GetComponentsInChildren<ParticleSystem>(true);
 				foreach( var particleSystem in particleSystems ) {
 					var main = particleSystem.main;
@@ -32,27 +32,22 @@ namespace Extend.Editor.Preview {
 		}
 
 		protected override void SimulateDisable() {
-			if( m_LockParticleSystem ) {
-				ParticleSystemEditorUtilsReflect.editorIsScrubbing = false;
-				ParticleSystemEditorUtilsReflect.editorPlaybackTime = 0f;
-				ParticleSystemEditorUtilsReflect.StopEffect();
-			}
-			
+			ParticleSystemEditorUtilsReflect.editorIsScrubbing = false;
+			ParticleSystemEditorUtilsReflect.editorPlaybackTime = 0f;
+			ParticleSystemEditorUtilsReflect.StopEffect();
+
 			base.SimulateDisable();
 
 			if( m_pss.Count > 0 ) {
-				
 			}
 		}
 
 		protected override void SimulateEnable() {
 			base.SimulateEnable();
-			if( m_LockParticleSystem ) {
-				var particleSystem = m_PreviewInstance.GetComponentInChildren<ParticleSystem>(true);
-				if( particleSystem ) {
-					particleSystem.Play();
-					ParticleSystemEditorUtilsReflect.editorIsScrubbing = false;
-				}
+			var particleSystem = m_PreviewInstance.GetComponentInChildren<ParticleSystem>(true);
+			if( particleSystem ) {
+				particleSystem.Play();
+				ParticleSystemEditorUtilsReflect.editorIsScrubbing = false;
 			}
 		}
 
@@ -62,19 +57,15 @@ namespace Extend.Editor.Preview {
 				var particleSystem = m_PreviewInstance.GetComponentInChildren<ParticleSystem>(true);
 				if( !particleSystem )
 					return;
-				if( m_LockParticleSystem ) {
-					if( ParticleSystemEditorUtilsReflect.lockedParticleSystem != particleSystem ) {
-						ParticleSystemEditorUtilsReflect.lockedParticleSystem = particleSystem;
-					}
-				}
-				else {
-					ParticleSystemEditorUtilsReflect.lockedParticleSystem = null;
+				if( ParticleSystemEditorUtilsReflect.lockedParticleSystem != particleSystem ) {
+					ParticleSystemEditorUtilsReflect.lockedParticleSystem = particleSystem;
 				}
 			}
 		}
 
 		private readonly List<ParticleSystem> m_pss = new List<ParticleSystem>();
 		private readonly List<int> m_psMaxCount = new List<int>();
+
 		public override void OnPreviewSettings() {
 			if( GUILayout.Button("Optimize Max") ) {
 				SimulateEnable();
@@ -88,6 +79,7 @@ namespace Extend.Editor.Preview {
 					m_psMaxCount.Add(0);
 				}
 			}
+
 			if( m_pss.Count > 0 && GUILayout.Button("Apply") ) {
 				var go = target as GameObject;
 				var pss = new List<ParticleSystem>();
@@ -99,18 +91,20 @@ namespace Extend.Editor.Preview {
 					main.maxParticles = m_psMaxCount[i];
 				}
 			}
+
 			base.OnPreviewSettings();
 		}
 
 		private readonly StringBuilder m_builder = new StringBuilder(256);
+
 		public override void OnPreviewGUI(Rect r, GUIStyle background) {
 			base.OnPreviewGUI(r, background);
-			if(m_PreviewInstance == null)
+			if( m_PreviewInstance == null )
 				return;
 
-			if(m_pss.Count == 0)
+			if( m_pss.Count == 0 )
 				return;
-			
+
 			m_builder.Clear();
 			for( var i = 0; i < m_pss.Count; i++ ) {
 				var ps = m_pss[i];
@@ -133,19 +127,9 @@ namespace Extend.Editor.Preview {
 		}
 
 		protected override void SimulateUpdate() {
-			if( m_LockParticleSystem ) {
-				Repaint();
-				return;
-			}
-
-			var gameObject = m_PreviewInstance;
-			var particleSystem = gameObject.GetComponentInChildren<ParticleSystem>(true);
-			if( particleSystem ) {
-				particleSystem.Simulate(m_RunningTime, true);
-				Repaint();
-			}
+			Repaint();
 		}
-		
+
 		/// <summary>
 		/// 解锁粒子
 		/// </summary>
@@ -153,7 +137,7 @@ namespace Extend.Editor.Preview {
 			if( m_PreviewInstance ) {
 				var particleSystem = m_PreviewInstance.GetComponentInChildren<ParticleSystem>(true);
 				if( particleSystem ) {
-					if( m_LockParticleSystem && ParticleSystemEditorUtilsReflect.lockedParticleSystem == particleSystem ) {
+					if( ParticleSystemEditorUtilsReflect.lockedParticleSystem == particleSystem ) {
 						ParticleSystemEditorUtilsReflect.lockedParticleSystem = null;
 					}
 				}

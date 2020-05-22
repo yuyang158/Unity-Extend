@@ -30,6 +30,7 @@ namespace Extend.Common {
 			IN_GAME_CONSOLE,
 			LUA_SERVICE,
 			I18N,
+			COUNT
 		}
 
 		private static bool Initialized { get; set; }
@@ -46,28 +47,28 @@ namespace Extend.Common {
 			Instance = go.AddComponent<CSharpServiceManager>();
 
 			Application.quitting += () => {
-				var serviceList = new List<IService>(services.Values);
+				var serviceList = new List<IService>(services);
 				serviceList.Sort((a, b) => -a.ServiceType.CompareTo(b.ServiceType));
 				
 				foreach( var service in serviceList ) {
 					service.Destroy();
 				}
 
-				var luaService = services[ServiceType.LUA_SERVICE] as IDisposable;
+				var luaService = services[(int)ServiceType.LUA_SERVICE] as IDisposable;
 				luaService.Dispose();
 			};
 		}
 
-		private static readonly Dictionary<ServiceType, IService> services = new Dictionary<ServiceType, IService>();
+		private static readonly IService[] services = new IService[(int)ServiceType.COUNT];
 		private static readonly List<IServiceUpdate> updateableServices = new List<IServiceUpdate>();
 
 		public static void Register(IService service) {
 			Assert.IsTrue(Initialized);
-			if( services.ContainsKey(service.ServiceType) ) {
+			if( services[(int)service.ServiceType] != null ) {
 				throw new Exception($"Service {service.ServiceType} exist.");
 			}
 
-			services.Add(service.ServiceType, service);
+			services[(int)service.ServiceType] = service;
 			service.Initialize();
 			if( service is IServiceUpdate update ) {
 				updateableServices.Add(update);
@@ -76,10 +77,10 @@ namespace Extend.Common {
 
 		public static void Unregister(ServiceType type) {
 			Assert.IsTrue(Initialized);
-			if( services.ContainsKey(type) ) {
-				var service = services[type];
+			if( services[(int)type] != null ) {
+				var service = services[(int)type];
 				service.Destroy();
-				services.Remove(type);
+				services[(int)type] = null;
 			}
 			else {
 				throw new Exception($"Service {type} not exist");
@@ -91,7 +92,8 @@ namespace Extend.Common {
 
 		public static T Get<T>(ServiceType typ) where T : class {
 			Assert.IsTrue(Initialized);
-			if( !services.TryGetValue(typ, out var service) ) {
+			var service = services[(int)typ];
+			if(service == null) {
 				Debug.LogError($"Service {typ} not exist!");
 			}
 			return (T)service;

@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Text;
 using UnityEngine;
 
 namespace Extend.Common {
@@ -13,9 +14,17 @@ namespace Extend.Common {
 			TCP_RECEIVED,
 			TCP_SENT,
 			ASSET_BUNDLE_COUNT,
+			ASSET_COUNT,
 			COUNT
 		}
-		
+
+		private static readonly string[] STAT_DESCRIPTIONS = new[] {
+			"Tcp Received",
+			"Tcp Sent",
+			"Asset bundle",
+			"Asset"
+		};
+
 		private readonly long[] m_stats = new long[(int)StatName.COUNT];
 		private TextWriter m_writer;
 
@@ -44,9 +53,15 @@ namespace Extend.Common {
 		public void Destroy() {
 			for( var i = 0; i < (int)StatName.COUNT; i++ ) {
 				var type = (StatName)i;
-				LogStat("Stat", type.ToString(), m_stats[i]);
+				LogStat("Stat", type.ToString(), m_stats[i].ToString());
 			}
 			m_writer.Close();
+		}
+
+		public void Output(StringBuilder builder) {
+			for( var i = 0; i < (int)StatName.COUNT; i++ ) {
+				builder.AppendLine($"{STAT_DESCRIPTIONS[i]} : {m_stats[i].ToString()}");
+			}
 		}
 	}
 }

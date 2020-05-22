@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 4747077712100353696}
   - component: {fileID: 9218730759553234005}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: ParticlePreview
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -48,7 +48,7 @@ MonoBehaviour:
   A: 0
   B: 1
   C: 1
-  D: 0100000003000000
+  D: 0100000062010000
   E: {fileID: 8694791660466165694, guid: 2f8fb33ed7d19c546bb204e461c234d7, type: 3}
   EnumValue: 1
 --- !u!198 &4747077712100353696
@@ -619,7 +619,7 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
     randomizeRotationDirection: 0
-    maxNumParticles: 1000
+    maxNumParticles: 50
     size3D: 0
     rotation3D: 0
     gravityModifier:

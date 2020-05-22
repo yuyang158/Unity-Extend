@@ -1,3 +1,4 @@
+using Extend.Common;
 using UnityEngine;
 
 namespace Extend.Asset {
@@ -17,9 +18,15 @@ namespace Extend.Asset {
 				RefAssetBundle.IncRef();
 			}
 			Status = UnityObject ? AssetStatus.DONE : AssetStatus.FAIL;
+			if( Status == AssetStatus.DONE ) {
+				StatService.Get().Increase(StatService.StatName.ASSET_COUNT, 1);
+			}
 		}
 
 		public override void Destroy() {
+			if( Status == AssetStatus.DONE ) {
+				StatService.Get().Increase(StatService.StatName.ASSET_COUNT, -1);
+			}
 			Status = AssetStatus.DESTROYED;
 			RefAssetBundle?.Release();
 		}

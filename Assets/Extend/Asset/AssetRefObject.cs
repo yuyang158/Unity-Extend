@@ -1,4 +1,5 @@
 using System;
+using Extend.Common;
 using UnityEngine;
 
 namespace Extend.Asset {
@@ -18,7 +19,7 @@ namespace Extend.Asset {
 				m_status = value;
 				OnStatusChanged?.Invoke(this);
 
-				if( Status == AssetStatus.FAIL ) {
+				if( Status == AssetStatus.DONE ) {
 					// Debug.LogError("Load asset fail");
 				}
 			}
