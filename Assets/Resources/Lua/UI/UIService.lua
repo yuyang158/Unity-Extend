@@ -1,10 +1,13 @@
 ﻿local M = {}
 local layers = {}
 local bgFx = {}
-local table, assert, typeof, pairs = table, assert, typeof, pairs
+local table, assert, typeof, pairs, ipairs = table, assert, typeof, pairs, ipairs
 ---@type CS.Extend.Asset.AssetService
 local AssetService = CS.Extend.Asset.AssetService.Get()
 local Object = CS.UnityEngine.Object
+local UILayer = CS.Extend.UI.UILayer
+local sequence = require("base.action.sequence")
+local sortedElements = {}
 
 ---@type CS.Extend.UI.UIViewConfiguration
 local UIViewConfiguration
@@ -23,8 +26,8 @@ function M.Init()
 		local canvas = childLayer:GetComponent(typeof(CS.UnityEngine.Canvas))
 		local name = childLayer.name
 		local layer = {
-			layerTransform = childLayer,
-			layerGO = childLayer.gameObject,
+			transform = childLayer,
+			go = childLayer.gameObject,
 			name = name,
 			elements = {},
 			baseSortingOrder = canvas.sortingOrder,
@@ -32,10 +35,10 @@ function M.Init()
 			layerIndex = i
 		}
 		canvas.enabled = false
-		local layerEnum = assert(CS.Extend.UI.UILayer.__CastFrom(name), name)
+		local layerEnum = assert(UILayer.__CastFrom(name), name)
 		layers[layerEnum] = layer
 	end
-	
+
 	M.SetUICamera(CS.UnityEngine.Camera.main)
 end
 
@@ -45,124 +48,57 @@ function M.SetUICamera(camera)
 	end
 end
 
-local function fullScreenShow(layer, shownView)
-	for elementIndex = 1, #layer.elements do
-		local view = layer.elements[elementIndex].view
-		if view ~= shownView then
-			view:SetVisible(false)
+function M._AddElement(element)
+	for i, v in ipairs(sortedElements) do
+		if v.view.Canvas.sortingOrder > element.view.Canvas.sortingOrder then
+			table.insert(sortedElements, i, element)
+			return
 		end
 	end
-	for i = layer.layerIndex - 1, 0, -1 do
-		local layerEnum = CS.Extend.UI.UILayer.__CastFrom(i)
-		local currentLayer = layers[layerEnum]
-		for elementIndex = 1, #currentLayer.elements do
-			local view = currentLayer.elements[elementIndex].view
-			view:SetVisible(false)
-		end
-	end
-end
-
-local function fullScreenHiding(layer, hidingView)
-	for i = layer.layerIndex, 0, -1 do
-		local layerEnum = CS.Extend.UI.UILayer.__CastFrom(i)
-		local currentLayer = layers[layerEnum]
-		for elementIndex = 1, #currentLayer.elements do
-			local view = currentLayer.elements[elementIndex].view
-			if view ~= hidingView then
-				
-			end
-		end
-	end
-end
-
----@param configuration CS.Extend.UI.UIViewConfiguration.Configuration
-local function loadView(configuration, callback)
-	local layer = layers[configuration.AttachLayer]
-	if #layer.elements == 0 then
-		layer.canvas.enabled = true
-	end
-	local go = configuration.UIView:Instantiate(layer.layerTransform)
-	---@type CS.Extend.UI.UIViewBase
-	local view = go:GetComponent(UIViewBaseType)
-	local hiddenCb
-	hiddenCb = function()
-		view:Hidden("-", hiddenCb)
-		configuration.UIView:Dispose()
-		local index = table.index_of_predict(layer.elements, function(element)
-			return element.go == go
-		end)
-		if index > 0 then
-			table.remove(layer.elements, index)
-		end
-		Object.Destroy(go)
-	end
-	view:Hidden("+", hiddenCb)
-	table.insert(layer.elements, {go = go, view = view})
-	if callback then
-		callback(go, view)
-	end
-
-	if configuration.FullScreen then
-		local shownCb
-		shownCb = function()
-			view:Shown("-", shownCb)
-			fullScreenShow(layer, view)
-		end
-		view:Shown("+", shownCb)
-		
-		local fullScreenViewHiding
-		fullScreenViewHiding = function()
-			view:Hiding("-", fullScreenViewHiding)
-			
-		end
-		view:Hiding("+", fullScreenViewHiding)
-	end
-
-	view.Canvas.overrideSorting = true
-	view.Canvas.sortingOrder = layer.baseSortingOrder + #layer.elements * 2
-	view:Show()
-	return view
-end
-
----@param assetRef CS.Extend.Asset.AssetReference
----@param foreView CS.Extend.UI.UIViewBase
-local function loadBgFx(assetRef, foreView)
-	local view = bgFx[assetRef]
-	if not view then
-		local go = assetRef:Instantiate(foreView.transform.parent)
-		view = go:GetComponent(UIViewBaseType)
-		view:Show()
-	end
-	
-	view.Canvas.overrideSorting = true
-	view.Canvas.sortingOrder = foreView.Canvas.sortingOrder - 1
-	return view
+	table.insert(sortedElements, element)
 end
 
 function M.Show(viewName, callback)
 	local configuration = UIViewConfiguration:GetOne(viewName)
-	if configuration.FullScreen then
-		if configuration.Transition and configuration.Transition.GUIDValid then
-			loadView({
-				UIView = configuration.Transition,
-				FullScreen = false,
-				AttachLayer = CS.Extend.UI.UILayer.Transition
-			}, function(_, view)
-				local onShown
-				onShown = function()
-					view:Shown("-", onShown)
-					view:Hide()
-					loadView(configuration, callback)
-				end
-				view:Shown("+", onShown)
-			end)
-		else
-			loadView(configuration, callback)
+	local seq = sequence.new()
+	local behaviour = seq:build()
+
+	local context = {}
+	if configuration.Transition and configuration.Transition.GUIDValid then
+		context.transitionFlag = true
+		behaviour:instantiate(configuration.Transition, layers[UILayer.MostTop].transform, function(go)
+			context.transition = assert(go:GetComponent(UIViewBaseType))
+		end):view_show(context.transition):wait_view_shown(context.transition)
+	end
+
+	local layer = layers[configuration.AttachLayer]
+	behaviour:instantiate(configuration.UIView, layer.transform, function(go)
+		local view = go:GetComponent(UIViewBaseType)
+		view.Canvas.overrideSorting = true
+		view.Canvas.sortingOrder = layer.baseSortingOrder + #layer.elements * 2
+		context.view = view
+		M._AddElement(context)
+	end):view_show(context.view):custom(function()
+		if not configuration.FullScreen and configuration.BackgroundFx and configuration.BackgroundFx.GUIDValid then
+			
 		end
+	end):wait_view_shown(context.view):custom(function()
+		if context.transitionFlag then
+
+		end
+	end)
+
+	
+	if configuration.FullScreen then
+		
 	else
-		local view = loadView(configuration, callback)
 		if configuration.BackgroundFx and configuration.BackgroundFx.GUIDValid then
-			loadBgFx(configuration.BackgroundFx, view)
+			behaviour:instantiate(configuration.BackgroundFx, layer.transform, function(go)
+				local bg = go:GetComponent(UIViewBaseType)
+				bg.Canvas.overrideSorting = true
+				bg.Canvas.sortingOrder = context.view.Canvas.sortingOrder - 1
+				context.bg = bg
+			end):view_show(context.bg)
 		end
 	end
 end
