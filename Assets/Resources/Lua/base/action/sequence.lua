@@ -15,20 +15,22 @@ function M:build()
 	return behaviour.new(self)
 end
 
-function M:next()
+function M:next(...)
 	self.current = self.current + 1
 	local action = self.actions[self.current]
 	if not action then
 		if self.on_complete then
-			self.on_complete()
+			self.on_complete(...)
 		end
 		return
 	end
 	
-	local ok, ret = xpcall(action.active, traceback)
+	local ok, ret = xpcall(action.active, traceback, ...)
 	if not ok then
 		if self.on_error then
-			self.on_error()
+			self.on_error(ret)
+		else
+			error(ret)
 		end
 	end
 end

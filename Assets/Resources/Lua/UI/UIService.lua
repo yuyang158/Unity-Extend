@@ -8,10 +8,10 @@ local Object = CS.UnityEngine.Object
 local UILayer = CS.Extend.UI.UILayer
 local sequence = require("base.action.sequence")
 local sortedElements = {}
+local UIViewBaseType = typeof(CS.Extend.UI.UIViewBase)
 
 ---@type CS.Extend.UI.UIViewConfiguration
 local UIViewConfiguration
-local UIViewBaseType = typeof(CS.Extend.UI.UIViewBase)
 
 function M.Init()
 	UIViewConfiguration = CS.Extend.UI.UIViewConfiguration.Load()
@@ -52,10 +52,18 @@ function M._AddElement(element)
 	for i, v in ipairs(sortedElements) do
 		if v.view.Canvas.sortingOrder > element.view.Canvas.sortingOrder then
 			table.insert(sortedElements, i, element)
-			return
 		end
 	end
 	table.insert(sortedElements, element)
+end
+
+function M._Index(element)
+	for i, v in ipairs(sortedElements) do
+		if v == element then
+			return i
+		end
+	end
+	return -1
 end
 
 function M.Show(viewName, callback)
@@ -65,10 +73,11 @@ function M.Show(viewName, callback)
 
 	local context = {}
 	if configuration.Transition and configuration.Transition.GUIDValid then
-		context.transitionFlag = true
 		behaviour:instantiate(configuration.Transition, layers[UILayer.MostTop].transform, function(go)
-			context.transition = assert(go:GetComponent(UIViewBaseType))
-		end):view_show(context.transition):wait_view_shown(context.transition)
+			local view = go:GetComponent(UIViewBaseType)
+			context.transition = view
+			return view
+		end):view_show():wait_view_shown()
 	end
 
 	local layer = layers[configuration.AttachLayer]
@@ -77,20 +86,22 @@ function M.Show(viewName, callback)
 		view.Canvas.overrideSorting = true
 		view.Canvas.sortingOrder = layer.baseSortingOrder + #layer.elements * 2
 		context.view = view
-		M._AddElement(context)
-	end):view_show(context.view):custom(function()
-		if not configuration.FullScreen and configuration.BackgroundFx and configuration.BackgroundFx.GUIDValid then
-			
-		end
-	end):wait_view_shown(context.view):custom(function()
-		if context.transitionFlag then
-
+		callback(view)
+		return view
+	end):view_show(function()
+		if context.transition then
+			context.transition:Hide()
+			context.transition = nil
 		end
 	end)
 
-	
 	if configuration.FullScreen then
-		
+		behaviour:custom(function()
+			for i = 1, M._Index(context) - 1 do
+				local element = sortedElements[i]
+				element.view:SetVisible(false)
+			end
+		end)
 	else
 		if configuration.BackgroundFx and configuration.BackgroundFx.GUIDValid then
 			behaviour:instantiate(configuration.BackgroundFx, layer.transform, function(go)
@@ -98,9 +109,12 @@ function M.Show(viewName, callback)
 				bg.Canvas.overrideSorting = true
 				bg.Canvas.sortingOrder = context.view.Canvas.sortingOrder - 1
 				context.bg = bg
+				return bg
 			end):view_show(context.bg)
 		end
 	end
+	
+	behaviour:start()
 end
 
 return M

@@ -19,63 +19,64 @@ function M:wait_for_second(seconds)
 	return self
 end
 
----@param view CS.Extend.UI.UIViewBase
-function M:view_show(view)
+function M:view_show()
 	self.sequence:add({
-		active = function()
+		active = function(view)
+			self.sequence:next(view)
 			view:Show()
-			self.sequence:next()
 		end
 	})
 	return self
 end
 
----@param view CS.Extend.UI.UIViewBase
-function M:view_hide(view)
+function M:view_hide()
 	self.sequence:add({
-		active = function()
+		active = function(view)
+			self.sequence:next(view)
 			view:Hide()
-			self.sequence:next()
 		end
 	})
 	return self
 end
 
----@param view CS.Extend.UI.UIViewBase
-function M:wait_view_shown(view)
-	local callback
-	callback = function()
-		self.sequence:next()
-		view.Shown("-", callback)
-	end
+function M:wait_view_shown(on_shown)
 	self.sequence:add({
-		active = function()
-			view.Shown("+", callback)
+		active = function(view)
+			local callback
+			callback = function()
+				if on_shown then
+					on_shown()
+				end
+				view:Shown("-", callback)
+				self.sequence:next(view)
+			end
+			view:Shown("+", callback)
 		end
 	})
 	return self
 end
 
----@param view CS.Extend.UI.UIViewBase
-function M:wait_view_hidden(view)
-	local callback
-	callback = function()
-		self.sequence:next()
-		view.Hidden("-", callback)
-	end
+function M:wait_view_hidden()
 	self.sequence:add({
-		active = function()
-			view.Hidden("+", callback)
+		active = function(view)
+			local callback
+			callback = function()
+				view:Hidden("-", callback)
+				self.sequence:next()
+			end
+			view:Hidden("+", callback)
 		end
 	})
 	return self
 end
+
 
 function M:instantiate(asset, parent, callback) 
 	self.sequence:add({
 		active = function()
 			local go = asset:Instantiate(parent)
-			callback(go)
+			local param = callback(go)
+			self.sequence:next(param)
 		end
 	})
 	return self
@@ -83,7 +84,10 @@ end
 
 function M:custom(callback)
 	self.sequence:add({
-		active = callback
+		active = function()
+			callback()
+			self.sequence:next()
+		end
 	})
 	return self
 end
