@@ -46,7 +46,7 @@ namespace Extend.Asset.AssetProvider {
 				return asset;
 			}
 
-			asset = new AssetInstance(path);
+			asset = typ == typeof(GameObject) ? new PrefabAssetInstance(path) : new AssetInstance(path);
 			Object unityObject;
 			if( path.StartsWith("assets", true, CultureInfo.CurrentCulture) ) {
 #if UNITY_EDITOR

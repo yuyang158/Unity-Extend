@@ -50,7 +50,7 @@ namespace Extend.Asset {
 			var hashCode = AssetInstance.GenerateHash(Location);
 			Asset = Container.TryGetAsset(hashCode) as AssetInstance;
 			if( Asset == null ) {
-				Asset = new AssetInstance(Location);
+				Asset = typ == typeof(GameObject) ? new PrefabAssetInstance(Location) : new AssetInstance(Location);
 				Container.Put(Asset);
 			}
 			else if( Asset.IsFinished ) {

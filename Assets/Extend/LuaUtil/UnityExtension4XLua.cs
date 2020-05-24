@@ -5,14 +5,6 @@ using XLua;
 namespace Extend.LuaUtil {
 	[LuaCallCSharp]
 	public static class UnityExtension4XLua {
-		public static void SetParent(this GameObject go, GameObject parent, bool stayWorld = false) {
-			go.transform.SetParent(parent.transform, stayWorld);
-		}
-		
-		public static void SetParent(this GameObject go, Transform parent, bool stayWorld = false) {
-			go.transform.SetParent(parent, stayWorld);
-		}
-		
 		public static LuaTable GetLuaBinding(this GameObject go, string type) {
 			var bindings = go.GetComponents<LuaBinding>();
 			return FindInLuaBinding(type, bindings);

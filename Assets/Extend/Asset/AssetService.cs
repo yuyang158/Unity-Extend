@@ -17,6 +17,9 @@ namespace Extend.Asset {
 
 		private AssetLoadProvider m_provider;
 		private Stopwatch m_stopwatch;
+		private Transform m_poolNode;
+
+		public Transform PoolNode => m_poolNode;
 
 		private readonly bool m_forceAssetBundleMode;
 
@@ -40,6 +43,11 @@ namespace Extend.Asset {
 
 			m_provider.Initialize();
 			m_stopwatch = new Stopwatch();
+			
+			var poolGO = new GameObject("Pool");
+			Object.DontDestroyOnLoad(poolGO);
+			poolGO.SetActive(false);
+			m_poolNode = poolGO.transform;
 		}
 
 		[BlackList]

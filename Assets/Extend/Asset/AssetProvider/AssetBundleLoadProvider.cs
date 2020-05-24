@@ -144,7 +144,7 @@ namespace Extend.Asset.AssetProvider {
 			}
 
 			if( !( container.TryGetAsset(AssetBundleInstance.GenerateHash(path)) is AssetInstance asset ) ) {
-				asset = new AssetInstance(path);
+				asset = typ == typeof(GameObject) ? new PrefabAssetInstance(path) : new AssetInstance(path);
 				container.Put(asset);
 			}
 

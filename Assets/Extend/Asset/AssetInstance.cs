@@ -11,7 +11,7 @@ namespace Extend.Asset {
 			AssetPath = string.Intern(assetPath);
 		}
 
-		public void SetAsset(Object unityObj, AssetBundleInstance refAssetBundle) {
+		public virtual void SetAsset(Object unityObj, AssetBundleInstance refAssetBundle) {
 			UnityObject = unityObj;
 			if( refAssetBundle != null ) {
 				RefAssetBundle = refAssetBundle;
