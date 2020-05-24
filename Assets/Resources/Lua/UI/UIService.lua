@@ -75,6 +75,8 @@ function M.Show(viewName, callback)
 	if configuration.Transition and configuration.Transition.GUIDValid then
 		behaviour:instantiate(configuration.Transition, layers[UILayer.MostTop].transform, function(go)
 			local view = go:GetComponent(UIViewBaseType)
+			view.Canvas.overrideSorting = true
+			view.Canvas.sortingOrder = layers[UILayer.MostTop].baseSortingOrder
 			context.transition = view
 			return view
 		end):view_show():wait_view_shown()
@@ -113,7 +115,6 @@ function M.Show(viewName, callback)
 			end):view_show(context.bg)
 		end
 	end
-	
 	behaviour:start()
 end
 

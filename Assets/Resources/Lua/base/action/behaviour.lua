@@ -19,9 +19,12 @@ function M:wait_for_second(seconds)
 	return self
 end
 
-function M:view_show()
+function M:view_show(callback)
 	self.sequence:add({
 		active = function(view)
+			if callback then
+				callback()
+			end
 			self.sequence:next(view)
 			view:Show()
 		end
@@ -84,9 +87,9 @@ end
 
 function M:custom(callback)
 	self.sequence:add({
-		active = function()
-			callback()
-			self.sequence:next()
+		active = function(...)
+			callback(...)
+			self.sequence:next(...)
 		end
 	})
 	return self
