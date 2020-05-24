@@ -1,6 +1,6 @@
 using System;
 using System.Linq;
-using Extend.Editor.InspectorGUI;
+using Extend.Common.Editor.InspectorGUI;
 using UnityEditor;
 using UnityEngine;
 

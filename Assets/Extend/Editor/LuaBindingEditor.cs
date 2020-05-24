@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Extend.Common;
-using Extend.Editor.InspectorGUI;
+using Extend.Common.Editor.InspectorGUI;
 using Extend.LuaBindingData;
 using UnityEditor;
 using UnityEngine;

@@ -1,12 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
-using Extend.Common;
-using Extend.UI.Editor;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
 
-namespace Extend.Editor.InspectorGUI {
+namespace Extend.Common.Editor.InspectorGUI {
 	public class ReorderListPropertyDrawer : SpecialCasePropertyDrawerBase {
 		public static readonly ReorderListPropertyDrawer Instance = new ReorderListPropertyDrawer();
 

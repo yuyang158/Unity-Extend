@@ -1,10 +1,8 @@
 ﻿using System;
-using Extend.Common;
-using Extend.UI.Editor;
 using UnityEditor;
 using UnityEngine;
 
-namespace Extend.Editor.InspectorGUI {
+namespace Extend.Common.Editor.InspectorGUI {
 	[CustomPropertyDrawer(typeof(EnumToggleButtonsAttribute))]
 	public class EnumToggleButtonsDrawer : PropertyDrawer {
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label) {

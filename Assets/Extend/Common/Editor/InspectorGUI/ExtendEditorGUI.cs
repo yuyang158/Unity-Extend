@@ -4,7 +4,7 @@ using Extend.Common;
 using UnityEditor;
 using UnityEngine;
 
-namespace Extend.Editor.InspectorGUI {
+namespace Extend.Common.Editor.InspectorGUI {
 	[InitializeOnLoad]
 	public static class ExtendEditorGUI {
 		private static readonly Dictionary<Type, ExtendAttributeProcess> m_processors = new Dictionary<Type, ExtendAttributeProcess>();

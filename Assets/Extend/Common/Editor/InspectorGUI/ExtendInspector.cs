@@ -7,7 +7,7 @@ using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Extend.Editor.InspectorGUI {
+namespace Extend.Common.Editor.InspectorGUI {
 	[CanEditMultipleObjects]
 	[CustomEditor(typeof(Object), true)]
 	public class ExtendInspector : UnityEditor.Editor {

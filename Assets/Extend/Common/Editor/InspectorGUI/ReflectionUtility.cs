@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace Extend.Editor.InspectorGUI {
+namespace Extend.Common.Editor.InspectorGUI {
 	public static class ReflectionUtility {
 		public static IEnumerable<FieldInfo> GetAllFields(object target, Func<FieldInfo, bool> predicate) {
 			var types = new List<Type>() {

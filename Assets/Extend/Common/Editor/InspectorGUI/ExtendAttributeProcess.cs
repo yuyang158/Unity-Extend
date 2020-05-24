@@ -3,7 +3,7 @@ using Extend.Common;
 using UnityEditor;
 using UnityEngine;
 
-namespace Extend.Editor.InspectorGUI {
+namespace Extend.Common.Editor.InspectorGUI {
 	public class ExtendAttributeProcess {
 		public virtual bool Hide => false;
 

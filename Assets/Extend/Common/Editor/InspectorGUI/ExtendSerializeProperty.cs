@@ -4,7 +4,7 @@ using System.Reflection;
 using Extend.Common;
 using UnityEditor;
 
-namespace Extend.Editor.InspectorGUI {
+namespace Extend.Common.Editor.InspectorGUI {
 	public static class ExtendSerializeProperty {
 		private static object GetValue_Imp(object source, string name) {
 			if( source == null ) {

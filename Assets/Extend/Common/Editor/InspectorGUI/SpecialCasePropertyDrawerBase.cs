@@ -4,7 +4,7 @@ using Extend.Common;
 using UnityEditor;
 using UnityEngine;
 
-namespace Extend.Editor.InspectorGUI {
+namespace Extend.Common.Editor.InspectorGUI {
 	public abstract class SpecialCasePropertyDrawerBase {
 		public void OnGUI(SerializedProperty property) {
 			OnGUI_Internal(property, new GUIContent(property.GetLabel()));

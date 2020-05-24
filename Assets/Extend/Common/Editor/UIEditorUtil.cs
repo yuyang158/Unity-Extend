@@ -1,7 +1,7 @@
 ﻿using UnityEditor;
 using UnityEngine;
 
-namespace Extend.UI.Editor {
+namespace Extend.Common.Editor {
 	public static class UIEditorUtil {
 		public static readonly Color[] UI_ANIMATION_COLORS = {
 			new Color(0, 0.5f, 0, 0.4f),
