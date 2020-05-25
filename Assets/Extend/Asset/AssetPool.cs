@@ -6,16 +6,19 @@ using Object = UnityEngine.Object;
 
 namespace Extend.Asset {
 	public class AssetPool : IDisposable {
-		public int PreferSize { get; private set; }
+		private int PreferSize { get; }
 
-		public int MaxSize { get; private set; }
+		private int MaxSize { get; }
 
 		private readonly List<GameObject> m_cached;
 		private readonly Transform m_poolNode;
+		private readonly PrefabAssetInstance m_assetInstance;
+		private float m_cacheStart = 0;
 
-		public AssetPool(string name, int prefer, int max) {
+		public AssetPool(string name, int prefer, int max, PrefabAssetInstance assetInstance) {
 			PreferSize = prefer;
 			MaxSize = max;
+			m_assetInstance = assetInstance;
 			m_cached = new List<GameObject>(MaxSize);
 			var root = AssetService.Get().PoolNode;
 			var go = new GameObject(name);
@@ -23,30 +26,78 @@ namespace Extend.Asset {
 			m_poolNode = go.transform;
 		}
 
-		public bool Cache(GameObject go) {
+		public void Cache(GameObject go) {
+			m_assetInstance.Release();
+			if( m_cached.Count == 0 ) {
+				m_cacheStart = Time.time;
+			}
 			if( m_cached.Count >= MaxSize ) {
 				Object.Destroy(go);
-				return false;
+				return;
 			}
 
 			go.transform.SetParent(m_poolNode, false);
 			m_cached.Add(go);
-			return true;
 		}
 
-		public GameObject Get() {
-			GameObject go = null;
+		private GameObject GetFromCache() {
 			if( m_cached.Count > 0 ) {
-				go = m_cached[0];
+				var go = m_cached[0];
 				m_cached.RemoveSwapAt(0);
+				return go;
 			}
 
+			return null;
+		}
+
+		public GameObject Get(Transform parent, bool stayWorldPosition) {
+			var go = GetFromCache();
+			if( go ) {
+				go.transform.SetParent(parent, stayWorldPosition);
+			}
+			else {
+				go = Object.Instantiate(m_assetInstance.UnityObject, parent, stayWorldPosition) as GameObject;
+				var config = go.GetOrAddComponent<AssetCacheConfig>();
+				config.Pool = this;
+			}
+
+			m_assetInstance.IncRef();
+			return go;
+		}
+		
+		public GameObject Get(Vector3 position, Quaternion quaternion, Transform parent) {
+			var go = GetFromCache();
+			if( go ) {
+				go.transform.SetParent(parent);
+				go.transform.position = position;
+				go.transform.rotation = quaternion;
+			}
+			else {
+				go = Object.Instantiate(m_assetInstance.UnityObject, position, quaternion, parent) as GameObject;
+				var config = go.GetOrAddComponent<AssetCacheConfig>();
+				config.Pool = this;
+			}
+
+			m_assetInstance.IncRef();
 			return go;
 		}
 
 		public void Dispose() {
 			m_cached.Clear();
 			Object.Destroy(m_poolNode.gameObject);
+		}
+
+		public void Update() {
+			if(m_cached.Count == 0)
+				return;
+			
+			if(m_cached.Count <= PreferSize)
+				return;
+
+			if( m_cacheStart - Time.time > 30 ) {
+				Object.Destroy(m_cached[0]);
+				m_cached.RemoveSwapAt(0);
+			}
 		}
 	}
 }

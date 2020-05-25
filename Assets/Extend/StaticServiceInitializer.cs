@@ -1,3 +1,4 @@
+using System.IO;
 using DG.Tweening;
 using Extend.Asset;
 using Extend.Common;
@@ -18,6 +19,12 @@ namespace Extend {
 			CSharpServiceManager.Register(new StatService());
 			CSharpServiceManager.Register(new ErrorLogToFile());
 			CSharpServiceManager.Register(new AssetService());
+			using( var asset = AssetService.Get().Load("Config/SystemSetting", typeof(TextAsset)) ) {
+				using( var reader = new StringReader(asset.GetTextAsset().text) ) {
+					IniRead.Parse(reader);
+				}
+			}
+
 			CSharpServiceManager.Register(new SpriteAssetService());
 			CSharpServiceManager.Register(new I18nService());
 		}

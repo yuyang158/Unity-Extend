@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
+using Extend.Common;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace Extend.Asset {
 	public class PrefabAssetInstance : AssetInstance {
-		private List<GameObject> m_inUsedGo = new List<GameObject>();
 		private AssetPool m_pool;
 		
 		public PrefabAssetInstance(string assetPath) : base(assetPath) {
@@ -20,7 +19,7 @@ namespace Extend.Asset {
 					if( m_pool != null ) {
 						throw new Exception("Pool is created!");
 					}
-					m_pool = new AssetPool(prefab.name, cacheConfig.PreferCount, cacheConfig.MaxCount);
+					m_pool = new AssetPool(prefab.name, cacheConfig.PreferCount, cacheConfig.MaxCount, this);
 				}
 			}
 		}
@@ -28,7 +27,7 @@ namespace Extend.Asset {
 		public void InitPool(string name, int prefer, int max) {
 			if(m_pool != null)
 				throw new Exception("Pool is created!");
-			m_pool = new AssetPool(name, prefer, max);
+			m_pool = new AssetPool(name, prefer, max, this);
 		}
 
 		public GameObject Instantiate(Transform parent, bool stayWorldPosition) {
@@ -37,15 +36,7 @@ namespace Extend.Asset {
 				go = Object.Instantiate(UnityObject, parent, stayWorldPosition) as GameObject;
 				return go;
 			}
-			go = m_pool.Get();
-			if( go ) {
-				go.transform.SetParent(parent, stayWorldPosition);
-			}
-			else {
-				go = Object.Instantiate(UnityObject, parent, stayWorldPosition) as GameObject;
-				var cache = go.GetComponent<AssetCacheConfig>();
-				cache.Pool = m_pool;
-			}
+			go = m_pool.Get(parent, stayWorldPosition);
 			return go;
 		}
 
@@ -55,17 +46,7 @@ namespace Extend.Asset {
 				go = Object.Instantiate(UnityObject, position, quaternion, parent) as GameObject;
 				return go;
 			}
-			go = m_pool.Get();
-			if( go ) {
-				go.transform.SetParent(parent, false);
-				go.transform.localPosition = position;
-				go.transform.localRotation = quaternion;
-			}
-			else {
-				go = Object.Instantiate(UnityObject, position, quaternion, parent) as GameObject;
-				var cache = go.GetComponent<AssetCacheConfig>();
-				cache.Pool = m_pool;
-			}
+			go = m_pool.Get(position, quaternion, parent);
 			return go;
 		}
 

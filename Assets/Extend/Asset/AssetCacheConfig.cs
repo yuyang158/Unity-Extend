@@ -13,6 +13,6 @@ namespace Extend.Asset {
 
 		public int MaxCount => m_maxCount;
 
-		public AssetPool Pool;
+		public AssetPool Pool { get; set; }
 	}
 }

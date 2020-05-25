@@ -1,0 +1,2 @@
+[DEBUG]
+ShowFPS = 1

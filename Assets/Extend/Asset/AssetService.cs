@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using Extend.Asset.AssetProvider;
 using Extend.Common;
@@ -17,9 +18,10 @@ namespace Extend.Asset {
 
 		private AssetLoadProvider m_provider;
 		private Stopwatch m_stopwatch;
-		private Transform m_poolNode;
+		private readonly List<AssetPool> m_pools = new List<AssetPool>();
+		private int m_poolUpdateIndex;
 
-		public Transform PoolNode => m_poolNode;
+		public Transform PoolNode { get; private set; }
 
 		private readonly bool m_forceAssetBundleMode;
 
@@ -47,7 +49,7 @@ namespace Extend.Asset {
 			var poolGO = new GameObject("Pool");
 			Object.DontDestroyOnLoad(poolGO);
 			poolGO.SetActive(false);
-			m_poolNode = poolGO.transform;
+			PoolNode = poolGO.transform;
 		}
 
 		[BlackList]
@@ -57,6 +59,14 @@ namespace Extend.Asset {
 		[BlackList]
 		public void Update() {
 			Container.Collect();
+			
+			if(m_pools.Count == 0)
+				return;
+
+			if( m_poolUpdateIndex >= m_pools.Count ) {
+				m_poolUpdateIndex = 0;
+			}
+			// m_pools[m_poolUpdateIndex]
 		}
 
 		public AssetReference Load(string path, Type typ) {
@@ -84,6 +94,10 @@ namespace Extend.Asset {
 				Object.Destroy(go);
 			}
 		}
+
+		internal void AddPool(AssetPool pool) {
+			m_pools.Add(pool);
+		} 
 
 		internal AssetInstance LoadAssetWithGUID<T>(string guid) where T : Object {
 #if UNITY_DEBUG
