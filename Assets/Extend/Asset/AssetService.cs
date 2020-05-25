@@ -75,6 +75,16 @@ namespace Extend.Asset {
 			return assetRef;
 		}
 
+		public void Recycle(GameObject go) {
+			var cache = go.GetComponent<AssetCacheConfig>();
+			if( cache ) {
+				cache.Pool.Cache(go);
+			}
+			else {
+				Object.Destroy(go);
+			}
+		}
+
 		internal AssetInstance LoadAssetWithGUID<T>(string guid) where T : Object {
 #if UNITY_DEBUG
 			var ticks = m_stopwatch.ElapsedTicks;

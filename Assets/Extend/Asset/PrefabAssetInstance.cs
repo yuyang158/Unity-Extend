@@ -32,27 +32,45 @@ namespace Extend.Asset {
 		}
 
 		public GameObject Instantiate(Transform parent, bool stayWorldPosition) {
-			var go = m_pool.Get();
+			GameObject go;
+			if( m_pool == null ) {
+				go = Object.Instantiate(UnityObject, parent, stayWorldPosition) as GameObject;
+				return go;
+			}
+			go = m_pool.Get();
 			if( go ) {
 				go.transform.SetParent(parent, stayWorldPosition);
 			}
 			else {
 				go = Object.Instantiate(UnityObject, parent, stayWorldPosition) as GameObject;
+				var cache = go.GetComponent<AssetCacheConfig>();
+				cache.Pool = m_pool;
 			}
 			return go;
 		}
 
-		public GameObject Instantiate(Vector3 position, Quaternion quaternion, Transform parent = null) {
-			var go = m_pool.Get();
+		public GameObject Instantiate(Vector3 position, Quaternion quaternion, Transform parent) {
+			GameObject go;
+			if( m_pool == null ) {
+				go = Object.Instantiate(UnityObject, position, quaternion, parent) as GameObject;
+				return go;
+			}
+			go = m_pool.Get();
 			if( go ) {
 				go.transform.SetParent(parent, false);
-				go.transform.position = position;
-				go.transform.rotation = quaternion;
+				go.transform.localPosition = position;
+				go.transform.localRotation = quaternion;
 			}
 			else {
-				go = Object.Instantiate(UnityObject, position, quaternion) as GameObject;
+				go = Object.Instantiate(UnityObject, position, quaternion, parent) as GameObject;
+				var cache = go.GetComponent<AssetCacheConfig>();
+				cache.Pool = m_pool;
 			}
 			return go;
+		}
+
+		public void Recycle(GameObject go) {
+			m_pool.Cache(go);
 		}
 
 		public override void Destroy() {

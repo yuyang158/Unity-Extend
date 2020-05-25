@@ -5,7 +5,7 @@ namespace Extend.Asset {
 	public class AssetInstance : AssetRefObject {
 		public Object UnityObject { get; private set; }
 		private AssetBundleInstance RefAssetBundle { get; set; }
-		private string AssetPath { get; }
+		public string AssetPath { get; }
 
 		public AssetInstance(string assetPath) {
 			AssetPath = string.Intern(assetPath);

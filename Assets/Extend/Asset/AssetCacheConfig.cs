@@ -12,5 +12,7 @@ namespace Extend.Asset {
 		public int PreferCount => m_preferCount;
 
 		public int MaxCount => m_maxCount;
+
+		public AssetPool Pool;
 	}
 }
