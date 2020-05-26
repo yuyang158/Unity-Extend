@@ -3,15 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Extend.Common;
+using Extend.LuaUtil;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Profiling;
-using XLua;
 
 namespace Extend.DebugUtil {
-	[CSharpCallLua]
-	public delegate LuaTable GetLuaService(int index);
-
 	public class InGameConsole : MonoBehaviour, IService {
 		public KeyCode toggleKey = KeyCode.BackQuote;
 
