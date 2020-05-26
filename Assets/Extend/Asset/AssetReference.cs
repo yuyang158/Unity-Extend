@@ -77,28 +77,28 @@ namespace Extend.Asset {
 		private GameObject m_go;
 
 		public GameObject Instantiate(Transform parent = null, bool stayWorldPosition = false) {
+			if( Asset == null ) {
+				Asset = AssetService.Get().LoadAssetWithGUID<GameObject>(m_assetGUID);
+				Asset.IncRef();
+			}
 			if( !( Asset is PrefabAssetInstance prefabAsset ) ) {
 				Debug.LogError($"{Asset.AssetPath} is not a prefab!");
 				return null;
 			}
 
-			if( Asset == null ) {
-				Asset = AssetService.Get().LoadAssetWithGUID<GameObject>(m_assetGUID);
-				Asset.IncRef();
-			}
 			return prefabAsset.Instantiate(parent, stayWorldPosition);
 		}
 
 		public GameObject Instantiate(Vector3 position, Quaternion quaternion, Transform parent = null) {
+			if( Asset == null ) {
+				Asset = AssetService.Get().LoadAssetWithGUID<GameObject>(m_assetGUID);
+				Asset.IncRef();
+			}
 			if( !( Asset is PrefabAssetInstance prefabAsset ) ) {
 				Debug.LogError($"{Asset.AssetPath} is not a prefab!");
 				return null;
 			}
 
-			if( Asset == null ) {
-				Asset = AssetService.Get().LoadAssetWithGUID<GameObject>(m_assetGUID);
-				Asset.IncRef();
-			}
 			return prefabAsset.Instantiate(position, quaternion, parent);
 		}
 

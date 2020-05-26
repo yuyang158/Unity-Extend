@@ -85,6 +85,9 @@ namespace Extend.DebugUtil {
 		};
 
 		private LuaVM luvVM;
+		private bool m_showConsoleWhenError;
+		private bool m_showFps;
+		private bool m_logScrollVisible;
 
 		private void Awake() {
 			luvVM = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
@@ -92,6 +95,10 @@ namespace Extend.DebugUtil {
 			if( logFontSize > 35 ) {
 				logFontSize = 35;
 			}
+
+			m_showConsoleWhenError = GameSystem.Get().SystemSetting.GetBool("DEBUG", "ShowConsoleWhenError");
+			m_showFps = GameSystem.Get().SystemSetting.GetBool("DEBUG", "ShowFPS");
+			m_logScrollVisible = GameSystem.Get().SystemSetting.GetBool("DEBUG", "LogPanelGUIVisible");
 		}
 
 		private void OnDisable() {
@@ -114,6 +121,8 @@ namespace Extend.DebugUtil {
 
 		private void OnGUI() {
 			if( !IsLogGUIVisible ) {
+				if(!m_showFps)
+					return;
 				builder.Clear();
 				StatService.Get().Output(builder);
 
@@ -238,7 +247,7 @@ namespace Extend.DebugUtil {
 				if( selecteds.Count > 0 ) {
 					var rect = GUILayoutUtility.GetLastRect();
 					var singleLineHeight = rect.height + 2;
-					rect.y -= singleLineHeight * selecteds.Count;
+					rect.y += singleLineHeight;
 					rect.height = singleLineHeight * selecteds.Count;
 					rect.x += 5;
 					rect.height = singleLineHeight;
@@ -277,18 +286,22 @@ namespace Extend.DebugUtil {
 				m_logs.Clear();
 			}
 
-			foreach( LogType logType in Enum.GetValues(typeof(LogType)) ) {
-				var currentState = logTypeFilters[logType];
-				var label = logType.ToString();
-				logTypeFilters[logType] = GUILayout.Toggle(currentState, label, GUILayout.ExpandWidth(false));
-				GUILayout.Space(20);
+			if( m_logScrollVisible ) {
+				foreach( LogType logType in Enum.GetValues(typeof(LogType)) ) {
+					var currentState = logTypeFilters[logType];
+					var label = logType.ToString();
+					logTypeFilters[logType] = GUILayout.Toggle(currentState, label, GUILayout.ExpandWidth(false));
+					GUILayout.Space(20);
+				}
 			}
 
 			GUILayout.EndHorizontal();
 		}
 
 		private void DrawWindow(int windowID) {
-			DrawLogList();
+			if( m_logScrollVisible ) {
+				DrawLogList();
+			}
 			DrawToolbar();
 		}
 
@@ -314,8 +327,9 @@ namespace Extend.DebugUtil {
 				type = type,
 			};
 
-			// Queue the log into a ConcurrentQueue to be processed later in the Unity main thread,
-			// so that we don't get GUI-related errors for logs coming from other threads
+			if( m_showConsoleWhenError && (type == LogType.Error || type == LogType.Exception) ) {
+				IsLogGUIVisible = true;
+			}
 			m_queuedLogs.Enqueue(log);
 		}
 

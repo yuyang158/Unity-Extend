@@ -1,2 +1,4 @@
 [DEBUG]
 ShowFPS = 1
+ShowConsoleWhenError = 1
+LogPanelGUIVisible = 0

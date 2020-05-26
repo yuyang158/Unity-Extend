@@ -19,6 +19,7 @@ namespace Extend {
 			CSharpServiceManager.Register(new StatService());
 			CSharpServiceManager.Register(new ErrorLogToFile());
 			CSharpServiceManager.Register(new AssetService());
+			CSharpServiceManager.Register(new GameSystem());
 			CSharpServiceManager.Register(new SpriteAssetService());
 			CSharpServiceManager.Register(new I18nService());
 		}
