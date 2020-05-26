@@ -118,4 +118,15 @@ function M.Show(viewName, callback)
 	behaviour:start()
 end
 
+---@param view CS.Extend.UI.UIViewBase
+function M:Hide(view)
+	local callback
+	callback = function()
+		view:Hidden("-", callback)
+		AssetService:Recycle(view)
+	end
+	view:Hidden("+", callback)
+	view:Hide()
+end
+
 return M

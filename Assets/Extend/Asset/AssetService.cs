@@ -94,6 +94,10 @@ namespace Extend.Asset {
 				Object.Destroy(go);
 			}
 		}
+		
+		public void Recycle(Component component) {
+			Recycle(component.gameObject);
+		}
 
 		internal void AddPool(AssetPool pool) {
 			m_pools.Add(pool);

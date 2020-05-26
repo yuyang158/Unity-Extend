@@ -85,6 +85,7 @@ function M:instantiate(asset, parent, callback)
 	return self
 end
 
+---@param callback function
 function M:custom(callback)
 	self.sequence:add({
 		active = function(...)
