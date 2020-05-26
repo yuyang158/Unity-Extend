@@ -27,6 +27,7 @@ namespace Extend.DebugUtil {
 		private static readonly Color BACKGROUND_COLOR = new Color(0.1f, 0.3f, 0.4f, 0.8f);
 
 		private static GUIStyle m_windowStyle;
+
 		private static GUIStyle windowStyle {
 			get {
 				if( m_windowStyle == null ) {
@@ -55,17 +56,20 @@ namespace Extend.DebugUtil {
 		private static EventSystem cachedEventSystem;
 
 		private bool m_isCollapsed;
-		private bool m_isVisible;
-		private bool IsVisible {
-			get => m_isVisible;
+		private bool m_isLogGUIVisible;
+
+		private bool IsLogGUIVisible {
+			get => m_isLogGUIVisible;
 			set {
-				m_isVisible = value;
+				m_isLogGUIVisible = value;
 				if( !cachedEventSystem ) {
 					cachedEventSystem = EventSystem.current;
 				}
-				cachedEventSystem.enabled = !m_isVisible;
+
+				cachedEventSystem.enabled = !m_isLogGUIVisible;
 			}
 		}
+
 		private readonly List<Log> m_logs = new List<Log>();
 		private readonly ConcurrentQueue<Log> m_queuedLogs = new ConcurrentQueue<Log>();
 
@@ -80,12 +84,11 @@ namespace Extend.DebugUtil {
 			{LogType.Warning, true},
 		};
 
-		#region MonoBehaviour Messages
-
 		private LuaVM luvVM;
+
 		private void Awake() {
 			luvVM = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
-			logFontSize = (int)(16 * Screen.dpi / 96.0f);
+			logFontSize = (int)( 16 * Screen.dpi / 96.0f );
 			if( logFontSize > 35 ) {
 				logFontSize = 35;
 			}
@@ -102,24 +105,19 @@ namespace Extend.DebugUtil {
 		private readonly StringBuilder builder = new StringBuilder(1024);
 
 		private GUIStyle style;
-		private GUIStyle Style {
-			get {
-				if( style == null ) {
-					style = new GUIStyle(GUI.skin.box) {
-						alignment = TextAnchor.MiddleLeft,
-						fontSize = logFontSize
-					};
-				}
 
-				return style;
-			}
-		}
+		private GUIStyle Style =>
+			style ?? ( style = new GUIStyle(GUI.skin.box) {
+				alignment = TextAnchor.MiddleLeft,
+				fontSize = logFontSize
+			} );
+
 		private void OnGUI() {
-			if( !IsVisible ) {
+			if( !IsLogGUIVisible ) {
 				builder.Clear();
 				StatService.Get().Output(builder);
-				
-				builder.AppendFormat("FPS : {0} / {1}\n", Mathf.RoundToInt(1 / Time.smoothDeltaTime), 
+
+				builder.AppendFormat("FPS : {0} / {1}\n", Mathf.RoundToInt(1 / Time.smoothDeltaTime),
 					Application.targetFrameRate <= 0 ? "No Limit" : Application.targetFrameRate.ToString());
 				var graphicsDriver = Profiler.GetAllocatedMemoryForGraphicsDriver() / 1024 / 1024;
 				var unityTotalMemory = Profiler.GetTotalReservedMemoryLong() / 1024 / 1024;
@@ -127,7 +125,7 @@ namespace Extend.DebugUtil {
 				builder.AppendFormat("Lua : {0} KB\n", luvVM.Memory);
 				builder.AppendFormat("Unity : {0} MB\n", unityTotalMemory);
 				builder.AppendFormat("Texture : {0} KB\n", Texture.currentTextureMemory / 1024);
-				if(Debug.isDebugBuild)
+				if( Debug.isDebugBuild )
 					builder.AppendFormat("Graphics : {0} MB", graphicsDriver);
 				GUILayout.Box(builder.ToString(), Style);
 				return;
@@ -135,12 +133,12 @@ namespace Extend.DebugUtil {
 
 			m_windowRect = GUILayout.Window(123456, m_windowRect, DrawWindow, string.Empty, windowStyle);
 		}
-		
+
 		private class LuaCommand {
 			public string CommandName;
 			public LuaCommandDelegate Command;
 		}
-		
+
 		private static readonly List<LuaCommand> luaCommands = new List<LuaCommand>();
 
 		private void Start() {
@@ -154,9 +152,9 @@ namespace Extend.DebugUtil {
 					Command = cmd
 				});
 			});
-			
+
 			if( openOnStart ) {
-				IsVisible = true;
+				IsLogGUIVisible = true;
 			}
 		}
 
@@ -164,11 +162,9 @@ namespace Extend.DebugUtil {
 			UpdateQueuedLogs();
 
 			if( Input.GetKeyDown(toggleKey) ) {
-				IsVisible = !IsVisible;
+				IsLogGUIVisible = !IsLogGUIVisible;
 			}
 		}
-
-		#endregion
 
 		private static void DrawCollapsedLog(Log log, GUIStyle logStyle) {
 			GUILayout.BeginHorizontal();
@@ -230,6 +226,7 @@ namespace Extend.DebugUtil {
 		}
 
 		private string command;
+
 		private void DrawToolbar() {
 			GUILayout.BeginHorizontal();
 
@@ -249,6 +246,7 @@ namespace Extend.DebugUtil {
 						if( GUI.Button(rect, luaCommand.CommandName) ) {
 							command = luaCommand.CommandName;
 						}
+
 						rect.y += singleLineHeight;
 					}
 
@@ -257,9 +255,9 @@ namespace Extend.DebugUtil {
 					}
 				}
 			}
-			
+
 			GUILayout.Space(5);
-			if( (GUILayout.Button("OK", GUILayout.Width(80)) || returnDown) && !string.IsNullOrEmpty(command) ) {
+			if( ( GUILayout.Button("OK", GUILayout.Width(80)) || returnDown ) && !string.IsNullOrEmpty(command) ) {
 				var split = command.Split(' ');
 				var cmd = luaCommands.Find(luaCommand => luaCommand.CommandName == split[0]);
 				if( cmd != null ) {
@@ -267,10 +265,12 @@ namespace Extend.DebugUtil {
 					if( split.Length > 1 ) {
 						Array.Copy(split, 1, param, 0, split.Length - 1);
 					}
+
 					cmd.Command(param);
 					command = "";
 				}
 			}
+
 			GUILayout.Space(5);
 
 			if( GUILayout.Button(CLEAR_LABEL, GUILayout.Width(80)) ) {
@@ -367,8 +367,8 @@ namespace Extend.DebugUtil {
 		}
 
 		public CSharpServiceManager.ServiceType ServiceType => CSharpServiceManager.ServiceType.IN_GAME_CONSOLE;
+
 		public void Initialize() {
-			
 		}
 
 		public void Destroy() {
@@ -378,7 +378,9 @@ namespace Extend.DebugUtil {
 
 	internal struct Log {
 		public int count;
+
 		public string message;
+
 		// public string stackTrace;
 		public LogType type;
 
