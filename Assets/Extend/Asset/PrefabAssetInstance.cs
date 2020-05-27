@@ -14,7 +14,7 @@ namespace Extend.Asset {
 			base.SetAsset(unityObj, refAssetBundle);
 			if( Status == AssetStatus.DONE ) {
 				var prefab = unityObj as GameObject;
-				var cacheConfig = prefab.GetComponent<AssetCacheConfig>();
+				var cacheConfig = prefab.GetComponent<PoolCacheGO>();
 				if( cacheConfig ) {
 					if( m_pool != null ) {
 						throw new Exception("Pool is created!");
@@ -34,9 +34,13 @@ namespace Extend.Asset {
 			GameObject go;
 			if( m_pool == null ) {
 				go = Object.Instantiate(UnityObject, parent, stayWorldPosition) as GameObject;
-				return go;
+				var direct = go.AddComponent<DirectDestroyGO>();
+				direct.PrefabAsset = this;
 			}
-			go = m_pool.Get(parent, stayWorldPosition);
+			else {
+				go = m_pool.Get(parent, stayWorldPosition);
+			}
+			StatService.Get().Increase(StatService.StatName.IN_USE_GO, 1);
 			return go;
 		}
 
@@ -44,9 +48,13 @@ namespace Extend.Asset {
 			GameObject go;
 			if( m_pool == null ) {
 				go = Object.Instantiate(UnityObject, position, quaternion, parent) as GameObject;
-				return go;
+				var direct = go.AddComponent<DirectDestroyGO>();
+				direct.PrefabAsset = this;
 			}
-			go = m_pool.Get(position, quaternion, parent);
+			else {
+				go = m_pool.Get(position, quaternion, parent);
+			}
+			StatService.Get().Increase(StatService.StatName.IN_USE_GO, 1);
 			return go;
 		}
 

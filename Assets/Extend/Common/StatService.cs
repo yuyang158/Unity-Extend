@@ -15,6 +15,8 @@ namespace Extend.Common {
 			TCP_SENT,
 			ASSET_BUNDLE_COUNT,
 			ASSET_COUNT,
+			IN_USE_GO,
+			IN_POOL_GO,
 			COUNT
 		}
 
@@ -22,7 +24,9 @@ namespace Extend.Common {
 			"Tcp Received",
 			"Tcp Sent",
 			"Asset bundle",
-			"Asset"
+			"Asset",
+			"In use go",
+			"In pool go"
 		};
 
 		private readonly long[] m_stats = new long[(int)StatName.COUNT];

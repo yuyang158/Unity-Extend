@@ -85,16 +85,12 @@ namespace Extend.Asset {
 		}
 
 		public static void Recycle(GameObject go) {
-			var cache = go.GetComponent<AssetCacheConfig>();
-			if( cache ) {
-				cache.Pool.Cache(go);
-			}
-			else {
-				Object.Destroy(go);
-			}
+			var cache = go.GetComponent<AssetServiceManagedGO>();
+			cache.Recycle();
 		}
 		
 		public static void Recycle(Component component) {
+			StatService.Get().Increase(StatService.StatName.IN_USE_GO, -1);
 			Recycle(component.gameObject);
 		}
 

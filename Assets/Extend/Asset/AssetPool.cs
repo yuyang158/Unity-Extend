@@ -26,6 +26,7 @@ namespace Extend.Asset {
 		}
 
 		public void Cache(GameObject go) {
+			StatService.Get().Increase(StatService.StatName.IN_USE_GO, -1);
 			m_assetInstance.Release();
 			if( m_cached.Count == 0 ) {
 				m_cacheStart = Time.time;
@@ -36,6 +37,7 @@ namespace Extend.Asset {
 			}
 
 			go.transform.SetParent(PoolNode, false);
+			StatService.Get().Increase(StatService.StatName.IN_POOL_GO, 1);
 			m_cached.Add(go);
 		}
 
@@ -43,6 +45,7 @@ namespace Extend.Asset {
 			if( m_cached.Count > 0 ) {
 				var go = m_cached[0];
 				m_cached.RemoveSwapAt(0);
+				StatService.Get().Increase(StatService.StatName.IN_POOL_GO, -1);
 				return go;
 			}
 
@@ -56,11 +59,11 @@ namespace Extend.Asset {
 			}
 			else {
 				go = Object.Instantiate(m_assetInstance.UnityObject, parent, stayWorldPosition) as GameObject;
-				var config = go.GetOrAddComponent<AssetCacheConfig>();
-				config.Pool = this;
+				var config = go.GetOrAddComponent<PoolCacheGO>();
+				config.SharedPool = this;
+				config.PrefabAsset = m_assetInstance;
 			}
 
-			m_assetInstance.IncRef();
 			return go;
 		}
 		
@@ -73,15 +76,16 @@ namespace Extend.Asset {
 			}
 			else {
 				go = Object.Instantiate(m_assetInstance.UnityObject, position, quaternion, parent) as GameObject;
-				var config = go.GetOrAddComponent<AssetCacheConfig>();
-				config.Pool = this;
+				var config = go.GetOrAddComponent<PoolCacheGO>();
+				config.SharedPool = this;
+				config.PrefabAsset = m_assetInstance;
 			}
 
-			m_assetInstance.IncRef();
 			return go;
 		}
 
 		public void Dispose() {
+			StatService.Get().Increase(StatService.StatName.IN_POOL_GO, -m_cached.Count);
 			m_cached.Clear();
 			Object.Destroy(PoolNode.gameObject);
 		}
@@ -95,6 +99,7 @@ namespace Extend.Asset {
 
 			if( m_cacheStart - Time.time > 30 ) {
 				Object.Destroy(m_cached[0]);
+				StatService.Get().Increase(StatService.StatName.IN_POOL_GO, -1);
 				m_cached.RemoveSwapAt(0);
 			}
 		}

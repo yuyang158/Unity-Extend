@@ -2,7 +2,7 @@
 using UnityEngine;
 
 namespace Extend.Asset {
-	public class AssetCacheConfig : MonoBehaviour {
+	public class PoolCacheGO : AssetServiceManagedGO {
 		[SerializeField]
 		private int m_preferCount;
 
@@ -13,6 +13,11 @@ namespace Extend.Asset {
 
 		public int MaxCount => m_maxCount;
 
-		public AssetPool Pool { get; set; }
+		public AssetPool SharedPool { private get; set; }
+
+		public override void Recycle() {
+			SharedPool.Cache(gameObject);
+			base.Recycle();
+		}
 	}
 }

@@ -84,6 +84,8 @@ namespace Extend.DebugUtil {
 		private LuaVM luvVM;
 		private bool m_showConsoleWhenError;
 		private bool m_showFps;
+		private bool m_showMemory;
+		private bool m_showStat;
 		private bool m_logScrollVisible;
 
 		private void Awake() {
@@ -95,6 +97,8 @@ namespace Extend.DebugUtil {
 
 			m_showConsoleWhenError = GameSystem.Get().SystemSetting.GetBool("DEBUG", "ShowConsoleWhenError");
 			m_showFps = GameSystem.Get().SystemSetting.GetBool("DEBUG", "ShowFPS");
+			m_showMemory = GameSystem.Get().SystemSetting.GetBool("DEBUG", "ShowMemory");
+			m_showStat = GameSystem.Get().SystemSetting.GetBool("DEBUG", "ShowStat");
 			m_logScrollVisible = GameSystem.Get().SystemSetting.GetBool("DEBUG", "LogPanelGUIVisible");
 		}
 
@@ -118,21 +122,28 @@ namespace Extend.DebugUtil {
 
 		private void OnGUI() {
 			if( !IsLogGUIVisible ) {
-				if(!m_showFps)
+				if( !m_showFps )
 					return;
 				builder.Clear();
-				StatService.Get().Output(builder);
+				if( m_showFps ) {
+					builder.AppendFormat("FPS : {0} / {1}\n", Mathf.RoundToInt(1 / Time.smoothDeltaTime),
+						Application.targetFrameRate <= 0 ? "No Limit" : Application.targetFrameRate.ToString());
+				}
 
-				builder.AppendFormat("FPS : {0} / {1}\n", Mathf.RoundToInt(1 / Time.smoothDeltaTime),
-					Application.targetFrameRate <= 0 ? "No Limit" : Application.targetFrameRate.ToString());
-				var graphicsDriver = Profiler.GetAllocatedMemoryForGraphicsDriver() / 1024 / 1024;
-				var unityTotalMemory = Profiler.GetTotalReservedMemoryLong() / 1024 / 1024;
-				builder.AppendFormat("Mono : {0} KB\n", GC.GetTotalMemory(false) / 1024);
-				builder.AppendFormat("Lua : {0} KB\n", luvVM.Memory);
-				builder.AppendFormat("Unity : {0} MB\n", unityTotalMemory);
-				builder.AppendFormat("Texture : {0} KB\n", Texture.currentTextureMemory / 1024);
-				if( Debug.isDebugBuild )
-					builder.AppendFormat("Graphics : {0} MB", graphicsDriver);
+				if( m_showMemory ) {
+					var graphicsDriver = Profiler.GetAllocatedMemoryForGraphicsDriver() / 1024 / 1024;
+					var unityTotalMemory = Profiler.GetTotalReservedMemoryLong() / 1024 / 1024;
+					builder.AppendFormat("Mono : {0} KB\n", GC.GetTotalMemory(false) / 1024);
+					builder.AppendFormat("Lua : {0} KB\n", luvVM.Memory);
+					builder.AppendFormat("Unity : {0} MB\n", unityTotalMemory);
+					builder.AppendFormat("Texture : {0} KB\n", Texture.currentTextureMemory / 1024);
+					if( Debug.isDebugBuild )
+						builder.AppendFormat("Graphics : {0} MB\n", graphicsDriver);
+				}
+
+				if( m_showStat ) {
+					StatService.Get().Output(builder);
+				}
 				GUILayout.Box(builder.ToString(), Style);
 				return;
 			}
@@ -299,6 +310,7 @@ namespace Extend.DebugUtil {
 			if( m_logScrollVisible ) {
 				DrawLogList();
 			}
+
 			DrawToolbar();
 		}
 
@@ -324,9 +336,10 @@ namespace Extend.DebugUtil {
 				type = type,
 			};
 
-			if( m_showConsoleWhenError && (type == LogType.Error || type == LogType.Exception) ) {
+			if( m_showConsoleWhenError && ( type == LogType.Error || type == LogType.Exception ) ) {
 				IsLogGUIVisible = true;
 			}
+
 			m_queuedLogs.Enqueue(log);
 		}
 
