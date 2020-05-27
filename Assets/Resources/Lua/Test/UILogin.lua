@@ -1,6 +1,5 @@
 ﻿---@class Test.UILogin
 local M = class()
-local SM = require "ServiceManager"
 local binding = require("mvvm.binding")
 
 function M:start()
@@ -16,7 +15,6 @@ function M:start()
 			green = "Sprites/green"
 		}
 	}
-	
 	binding.build(self.context)
 	self.mvvmBinding:SetDataContext(self.context)
 end
@@ -26,10 +24,10 @@ function M:OnMessageButtonClicked()
 	uiService.Show("SingleMessageBox", function()
 		
 	end)]]
-	
+
 	self.context.red = "Sprites/green"
 	self.context.green = "Sprites/red"
-	
+
 	self.context.progress = math.random()
 	self.context.on = not self.context.on
 end

@@ -12,7 +12,7 @@ namespace Extend.Asset {
 
 		private readonly List<GameObject> m_cached;
 		private readonly PrefabAssetInstance m_assetInstance;
-		private float m_cacheStart = 0;
+		private float m_cacheStart;
 
 		public Transform PoolNode { get; }
 

@@ -18,7 +18,6 @@ using LuaCSFunction = XLua.LuaDLL.lua_CSFunction;
 
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 
 namespace XLua
 {

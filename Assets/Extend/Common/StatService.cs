@@ -23,10 +23,10 @@ namespace Extend.Common {
 		private static readonly string[] STAT_DESCRIPTIONS = new[] {
 			"Tcp Received",
 			"Tcp Sent",
-			"Asset bundle",
+			"Asset Bundle",
 			"Asset",
-			"In use go",
-			"In pool go"
+			"In Used GO",
+			"In Pool GO"
 		};
 
 		private readonly long[] m_stats = new long[(int)StatName.COUNT];

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Reflection;
-using Extend.Common;
 using UnityEditor;
 
 namespace Extend.Common.Editor.InspectorGUI {

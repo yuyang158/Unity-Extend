@@ -1,5 +1,4 @@
-﻿using Extend.Common;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Extend.Asset {
 	[DisallowMultipleComponent]
