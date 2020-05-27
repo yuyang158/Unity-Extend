@@ -41,22 +41,26 @@ namespace Extend.Editor {
 				modifiedModules.Add(moduleName);
 			}
 
-			var proc = new Process {
-				StartInfo = new ProcessStartInfo {
-					FileName = @"E:\tools\luacheck.exe",
-					Arguments = ctx.assetPath,
-					UseShellExecute = false,
-					RedirectStandardOutput = true,
-					CreateNoWindow = true
+			var setting = LuaCheckSetting.GetOrCreateSettings();
+			if( !string.IsNullOrEmpty(setting.LuaCheckExecPath) ) {
+				var proc = new Process {
+					StartInfo = new ProcessStartInfo {
+						FileName = setting.LuaCheckExecPath,
+						Arguments = $"{ctx.assetPath} --no-global --max-line-length {setting.MaxLineLength}",
+						UseShellExecute = false,
+						RedirectStandardOutput = true,
+						CreateNoWindow = true
+					}
+				};
+				proc.Start();
+				var builder = new StringBuilder(1024);
+				while( !proc.StandardOutput.EndOfStream ) {
+					var line = proc.StandardOutput.ReadLine();
+					builder.AppendLine(line);
 				}
-			};
-			proc.Start();
-			var builder = new StringBuilder(1024);
-			while( !proc.StandardOutput.EndOfStream ) {
-				var line = proc.StandardOutput.ReadLine();
-				builder.AppendLine(line);
+				Debug.Log(builder.ToString());
 			}
-			Debug.Log(builder.ToString());
+			
 
 			var text = File.ReadAllText(ctx.assetPath);
 			var asset = new TextAsset(text);

@@ -1,6 +1,5 @@
 ﻿local M = {}
 local layers = {}
-local bgFx = {}
 local table, assert, typeof, pairs, ipairs = table, assert, typeof, pairs, ipairs
 local AssetService = CS.Extend.Asset.AssetService
 ---@type CS.Extend.Asset.AssetService
@@ -106,6 +105,7 @@ function M.Show(viewName, callback)
 	local seq = sequence.new(function()
 		M._AddElement(context)
 	end, function(err)
+		error(err)
 		if context.transition then
 			AssetService.Recycle(context.transition)
 		end
@@ -157,12 +157,11 @@ function M.Show(viewName, callback)
 	return context
 end
 
-function M:Hide(context)
+function M.Hide(context)
 	context.view:Hide()
 	if context.bg then
 		context.bg:Hide()
 	end
 	M._RemoveElement(context)
 end
-
 return M
