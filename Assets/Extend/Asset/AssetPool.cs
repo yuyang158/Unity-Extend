@@ -11,19 +11,18 @@ namespace Extend.Asset {
 		private int MaxSize { get; }
 
 		private readonly List<GameObject> m_cached;
-		private readonly Transform m_poolNode;
 		private readonly PrefabAssetInstance m_assetInstance;
 		private float m_cacheStart = 0;
+
+		public Transform PoolNode { get; }
 
 		public AssetPool(string name, int prefer, int max, PrefabAssetInstance assetInstance) {
 			PreferSize = prefer;
 			MaxSize = max;
 			m_assetInstance = assetInstance;
 			m_cached = new List<GameObject>(MaxSize);
-			var root = AssetService.Get().PoolNode;
-			var go = new GameObject(name);
-			go.transform.SetParent(root, false);
-			m_poolNode = go.transform;
+			PoolNode = new GameObject(name).transform;
+			AssetService.Get().AddPool(this);
 		}
 
 		public void Cache(GameObject go) {
@@ -36,7 +35,7 @@ namespace Extend.Asset {
 				return;
 			}
 
-			go.transform.SetParent(m_poolNode, false);
+			go.transform.SetParent(PoolNode, false);
 			m_cached.Add(go);
 		}
 
@@ -84,7 +83,7 @@ namespace Extend.Asset {
 
 		public void Dispose() {
 			m_cached.Clear();
-			Object.Destroy(m_poolNode.gameObject);
+			Object.Destroy(PoolNode.gameObject);
 		}
 
 		public void Update() {

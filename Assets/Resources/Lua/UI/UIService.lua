@@ -2,8 +2,9 @@
 local layers = {}
 local bgFx = {}
 local table, assert, typeof, pairs, ipairs = table, assert, typeof, pairs, ipairs
+local AssetService = CS.Extend.Asset.AssetService
 ---@type CS.Extend.Asset.AssetService
-local AssetService = CS.Extend.Asset.AssetService.Get()
+local AssetServiceInstance = AssetService.Get()
 local Object = CS.UnityEngine.Object
 local UILayer = CS.Extend.UI.UILayer
 local sequence = require("base.action.sequence")
@@ -15,7 +16,7 @@ local UIViewConfiguration
 
 function M.Init()
 	UIViewConfiguration = CS.Extend.UI.UIViewConfiguration.Load()
-	local ref = AssetService:Load("UILayers", typeof(CS.UnityEngine.GameObject))
+	local ref = AssetServiceInstance:Load("UILayers", typeof(CS.UnityEngine.GameObject))
 	local go = ref:Instantiate()
 	go.name = "UI"
 	ref:Dispose()
@@ -48,30 +49,74 @@ function M.SetUICamera(camera)
 	end
 end
 
+local topFullScreenViewOrder = 0
 function M._AddElement(element)
+	local order = element.view.Canvas.sortingOrder
+	local insertIndex
 	for i, v in ipairs(sortedElements) do
-		if v.view.Canvas.sortingOrder > element.view.Canvas.sortingOrder then
+		if v.view.Canvas.sortingOrder > order then
 			table.insert(sortedElements, i, element)
+			insertIndex = i
+			break
 		end
 	end
-	table.insert(sortedElements, element)
+	if not insertIndex then
+		table.insert(sortedElements, element)
+		insertIndex = #sortedElements
+	end
+	if element.configuration.FullScreen and order > topFullScreenViewOrder then
+		topFullScreenViewOrder = order
+		for i = 1, insertIndex - 1 do
+			local context = sortedElements[i]
+			context.view:SetVisible(false)
+			if context.bg then
+				context.bg:SetVisible(false)
+			end
+		end
+	end
 end
 
-function M._Index(element)
+function M._RemoveElement(element)
+	local index
 	for i, v in ipairs(sortedElements) do
 		if v == element then
-			return i
+			table.remove(sortedElements, i)
+			index = i
 		end
 	end
-	return -1
+	assert(index)
+	if element.configuration.FullScreen and element.view.Canvas.sortingOrder >= topFullScreenViewOrder then
+		for i = index - 1, 1, -1 do
+			local context = sortedElements[i]
+			context.view:SetVisible(true)
+			if context.bg then
+				context.bg:SetVisible(true)
+			end
+			if context.configuration.FullScreen then
+				topFullScreenViewOrder = context.view.Canvas.sortingOrder
+				break
+			end
+		end
+	end
 end
 
 function M.Show(viewName, callback)
 	local configuration = UIViewConfiguration:GetOne(viewName)
-	local seq = sequence.new()
+	local context = { configuration = configuration }
+	local seq = sequence.new(function()
+		M._AddElement(context)
+	end, function(err)
+		if context.transition then
+			AssetService.Recycle(context.transition)
+		end
+		if context.view then
+			AssetService.Recycle(context.view)
+		end
+		if context.bg then
+			AssetService.Recycle(context.bg)
+		end
+	end)
 	local behaviour = seq:build()
-
-	local context = {}
 	if configuration.Transition and configuration.Transition.GUIDValid then
 		behaviour:instantiate(configuration.Transition, layers[UILayer.MostTop].transform, function(go)
 			local view = go:GetComponent(UIViewBaseType)
@@ -97,14 +142,7 @@ function M.Show(viewName, callback)
 		end
 	end)
 
-	if configuration.FullScreen then
-		behaviour:custom(function()
-			for i = 1, M._Index(context) - 1 do
-				local element = sortedElements[i]
-				element.view:SetVisible(false)
-			end
-		end)
-	else
+	if not configuration.FullScreen then
 		if configuration.BackgroundFx and configuration.BackgroundFx.GUIDValid then
 			behaviour:instantiate(configuration.BackgroundFx, layer.transform, function(go)
 				local bg = go:GetComponent(UIViewBaseType)
@@ -116,17 +154,15 @@ function M.Show(viewName, callback)
 		end
 	end
 	behaviour:start()
+	return context
 end
 
----@param view CS.Extend.UI.UIViewBase
-function M:Hide(view)
-	local callback
-	callback = function()
-		view:Hidden("-", callback)
-		AssetService:Recycle(view)
+function M:Hide(context)
+	context.view:Hide()
+	if context.bg then
+		context.bg:Hide()
 	end
-	view:Hidden("+", callback)
-	view:Hide()
+	M._RemoveElement(context)
 end
 
 return M

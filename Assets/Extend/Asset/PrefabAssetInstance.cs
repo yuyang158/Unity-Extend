@@ -50,10 +50,6 @@ namespace Extend.Asset {
 			return go;
 		}
 
-		public void Recycle(GameObject go) {
-			m_pool.Cache(go);
-		}
-
 		public override void Destroy() {
 			base.Destroy();
 			m_pool?.Dispose();

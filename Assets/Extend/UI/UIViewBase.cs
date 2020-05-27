@@ -1,4 +1,5 @@
 ﻿using System;
+using Extend.Asset;
 using UnityEngine;
 using XLua;
 
@@ -60,24 +61,24 @@ namespace Extend.UI {
 		public void Show() {
 			if( Canvas )
 				Canvas.enabled = true;
-			Showing?.Invoke();
 			ViewStatus = Status.Showing;
+			Showing?.Invoke();
 			OnShow();
 		}
 
 		protected abstract void OnHide();
 
 		public void Hide() {
-			Hiding?.Invoke();
 			ViewStatus = Status.Hiding;
+			Hiding?.Invoke();
 			OnHide();
 		}
 
 		protected abstract void OnLoop();
 
 		protected void Loop() {
-			Shown?.Invoke();
 			ViewStatus = Status.Loop;
+			Shown?.Invoke();
 			OnLoop();
 		}
 
@@ -91,6 +92,7 @@ namespace Extend.UI {
 		protected virtual void OnClosed() {
 			ViewStatus = Status.Hidden;
 			Hidden?.Invoke();
+			AssetService.Recycle(this);
 		}
 	}
 }

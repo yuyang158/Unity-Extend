@@ -20,8 +20,7 @@ namespace Extend.Asset {
 		private Stopwatch m_stopwatch;
 		private readonly List<AssetPool> m_pools = new List<AssetPool>();
 		private int m_poolUpdateIndex;
-
-		public Transform PoolNode { get; private set; }
+		private Transform m_poolRootNode;
 
 		private readonly bool m_forceAssetBundleMode;
 
@@ -49,7 +48,7 @@ namespace Extend.Asset {
 			var poolGO = new GameObject("Pool");
 			Object.DontDestroyOnLoad(poolGO);
 			poolGO.SetActive(false);
-			PoolNode = poolGO.transform;
+			m_poolRootNode = poolGO.transform;
 		}
 
 		[BlackList]
@@ -85,7 +84,7 @@ namespace Extend.Asset {
 			return assetRef;
 		}
 
-		public void Recycle(GameObject go) {
+		public static void Recycle(GameObject go) {
 			var cache = go.GetComponent<AssetCacheConfig>();
 			if( cache ) {
 				cache.Pool.Cache(go);
@@ -95,12 +94,13 @@ namespace Extend.Asset {
 			}
 		}
 		
-		public void Recycle(Component component) {
+		public static void Recycle(Component component) {
 			Recycle(component.gameObject);
 		}
 
 		internal void AddPool(AssetPool pool) {
 			m_pools.Add(pool);
+			pool.PoolNode.SetParent(m_poolRootNode, false);
 		} 
 
 		internal AssetInstance LoadAssetWithGUID<T>(string guid) where T : Object {
