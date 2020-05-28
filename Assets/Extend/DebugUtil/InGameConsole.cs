@@ -122,8 +122,6 @@ namespace Extend.DebugUtil {
 
 		private void OnGUI() {
 			if( !IsLogGUIVisible ) {
-				if( !m_showFps )
-					return;
 				builder.Clear();
 				if( m_showFps ) {
 					builder.AppendFormat("FPS : {0} / {1}\n", Mathf.RoundToInt(1 / Time.smoothDeltaTime),
@@ -144,7 +142,8 @@ namespace Extend.DebugUtil {
 				if( m_showStat ) {
 					StatService.Get().Output(builder);
 				}
-				GUILayout.Box(builder.ToString(), Style);
+				if(builder.Length > 0)
+					GUILayout.Box(builder.ToString(), Style);
 				return;
 			}
 
