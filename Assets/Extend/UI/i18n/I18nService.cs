@@ -5,7 +5,7 @@ using Extend.Asset;
 using Extend.Common;
 using UnityEngine;
 
-namespace UI.i18n {
+namespace Extend.UI.i18n {
 	public class I18nService : IService {
 		public CSharpServiceManager.ServiceType ServiceType => CSharpServiceManager.ServiceType.I18N;
 		private int m_currentLang = -1;

@@ -60,7 +60,6 @@ namespace Extend.Editor {
 				}
 				Debug.Log(builder.ToString());
 			}
-			
 
 			var text = File.ReadAllText(ctx.assetPath);
 			var asset = new TextAsset(text);

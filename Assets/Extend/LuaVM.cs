@@ -19,6 +19,7 @@ namespace Extend {
 		}
 
 		public long Memory => Default.Memory;
+		public int LuaMapCount => Default.translator.objects.Count;
 
 		public object[] LoadFileAtPath(string luaFileName) {
 			luaFileName = luaFileName.Replace('/', '.');

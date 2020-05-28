@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Extend.Common;
 using Extend.LuaBindingData;
+using Extend.LuaUtil;
 using UnityEngine;
 using XLua;
 
@@ -12,7 +13,6 @@ namespace Extend {
 		[AssetPath(AssetType = typeof(TextAsset), RootDir = "Assets/Resources/Lua", Extension = ".lua"), BlackList]
 		public string LuaFile;
 		public LuaTable LuaInstance { get; private set; }
-		private delegate void LuaUnityEventFunction(LuaTable self);
 
 		private void Awake() {
 			if( string.IsNullOrEmpty(LuaFile) )
@@ -20,7 +20,7 @@ namespace Extend {
 			var ret = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE).LoadFileAtPath(LuaFile);
 			if( !( ret[0] is LuaTable luaClass ) )
 				return;
-			var constructor = luaClass.Get<Func<GameObject, LuaTable>>("new");
+			var constructor = luaClass.Get<LuaBindingClassNew>("new");
 			var luaInstance = constructor?.Invoke(gameObject);
 			Bind(luaInstance);
 

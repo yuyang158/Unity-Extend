@@ -81,7 +81,7 @@ namespace Extend.DebugUtil {
 			{LogType.Warning, true},
 		};
 
-		private LuaVM luvVM;
+		private LuaVM luaVM;
 		private bool m_showConsoleWhenError;
 		private bool m_showFps;
 		private bool m_showMemory;
@@ -89,7 +89,7 @@ namespace Extend.DebugUtil {
 		private bool m_logScrollVisible;
 
 		private void Awake() {
-			luvVM = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
+			luaVM = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
 			logFontSize = (int)( 16 * Screen.dpi / 96.0f );
 			if( logFontSize > 35 ) {
 				logFontSize = 35;
@@ -124,19 +124,20 @@ namespace Extend.DebugUtil {
 			if( !IsLogGUIVisible ) {
 				builder.Clear();
 				if( m_showFps ) {
-					builder.AppendFormat("FPS : {0} / {1}\n", Mathf.RoundToInt(1 / Time.smoothDeltaTime),
+					builder.AppendFormat("FPS : {0} / {1}\n", Mathf.RoundToInt(1 / Time.smoothDeltaTime).ToString(),
 						Application.targetFrameRate <= 0 ? "No Limit" : Application.targetFrameRate.ToString());
 				}
 
 				if( m_showMemory ) {
 					var graphicsDriver = Profiler.GetAllocatedMemoryForGraphicsDriver() / 1024 / 1024;
 					var unityTotalMemory = Profiler.GetTotalReservedMemoryLong() / 1024 / 1024;
-					builder.AppendFormat("Mono : {0} KB\n", GC.GetTotalMemory(false) / 1024);
-					builder.AppendFormat("Lua : {0} KB\n", luvVM.Memory);
-					builder.AppendFormat("Unity : {0} MB\n", unityTotalMemory);
-					builder.AppendFormat("Texture : {0} KB\n", Texture.currentTextureMemory / 1024);
+					builder.AppendFormat("Mono : {0} KB\n", (GC.GetTotalMemory(false) / 1024).ToString());
+					builder.AppendFormat("Lua : {0} KB\n", luaVM.Memory.ToString());
+					builder.AppendFormat("Lua Map : {0}\n", luaVM.LuaMapCount.ToString());
+					builder.AppendFormat("Unity : {0} MB\n", unityTotalMemory.ToString());
+					builder.AppendFormat("Texture : {0} KB\n", (Texture.currentTextureMemory / 1024).ToString());
 					if( Debug.isDebugBuild )
-						builder.AppendFormat("Graphics : {0} MB\n", graphicsDriver);
+						builder.AppendFormat("Graphics : {0} MB\n", graphicsDriver.ToString());
 				}
 
 				if( m_showStat ) {

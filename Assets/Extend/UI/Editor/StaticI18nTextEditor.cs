@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
+using Extend.UI.i18n;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
 
-namespace UI.i18n.Editor {
+namespace Extend.UI.Editor {
 	[CustomEditor(typeof(StaticI18nText))]
 	public class StaticI18nTextEditor : UnityEditor.Editor {
 		private const string DEFAULT_EDITOR_LANG = "zh-s";

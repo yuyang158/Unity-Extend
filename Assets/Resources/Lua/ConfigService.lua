@@ -7,116 +7,116 @@ local json = require "json"
 local i18n
 
 local configRowMetaTable = {
-    __index = function(t, k)
-        local index = assert(t.source.keymap[k], k)
-        return t.values[index]
-    end
+	__index = function(t, k)
+		local index = assert(t.source.keymap[k], k)
+		return t.values[index]
+	end
 }
 
 local linkTypeMetaTable = {
-    __index = function(t, k)
-        local record = M.GetConfigRow(t.configName, t.id)
-        return record[k]
-    end
+	__index = function(t, k)
+		local record = M.GetConfigRow(t.configName, t.id)
+		return record[k]
+	end
 }
 
 local columnDataConverter = {
-    ["int"] = function(data)
-        return assert(math.tointeger(data))
-    end,
-    ["number"] = function(data)
-        return assert(tonumber(data))
-    end,
-    ["string"] = function(data)
-        return data
-    end,
-    ["json"] = function(data)
-        return json.decode(data)
-    end,
-    ["link"] = function(data, configName)
-        local v = {
-            id = data,
-            configName = configName
-        }
+	["int"] = function(data)
+		return assert(math.tointeger(data))
+	end,
+	["number"] = function(data)
+		return assert(tonumber(data))
+	end,
+	["string"] = function(data)
+		return data
+	end,
+	["json"] = function(data)
+		return json.decode(data)
+	end,
+	["link"] = function(data, configName)
+		local v = {
+			id = data,
+			configName = configName
+		}
 
-        return setmetatable(v, linkTypeMetaTable)
-    end,
-    ["boolean"] = function(data)
-        return data == "1"
-    end,
-    ["translate"] = function()
-        
-    end
+		return setmetatable(v, linkTypeMetaTable)
+	end,
+	["boolean"] = function(data)
+		return data == "1"
+	end,
+	["translate"] = function()
+
+	end
 }
 
 ---@param columnType string
 ---@param data table
 local function convert_column_data(data, columnType, colName)
-    if not data or #data == 0 then
-        assert(columnType == "translate")
-    end
-    return assert(columnDataConverter[columnType], columnType)(data, colName)
+	if not data or #data == 0 then
+		assert(columnType == "translate")
+	end
+	return assert(columnDataConverter[columnType], columnType)(data, colName)
 end
 
 local function load_config_data(filename)
-    local textData = ConfigUtil.LoadConfigFile(filename)
-    local config = {
-        keymap = {}
-    }
+	local textData = ConfigUtil.LoadConfigFile(filename)
+	local config = {
+		keymap = {}
+	}
 
-    for i, v in ipairs(textData.keys) do
-        config.keymap[v] = i
-    end
+	for i, v in ipairs(textData.keys) do
+		config.keymap[v] = i
+	end
 
-    for _, row in ipairs(textData.rows) do
-        local id = row[1]
-        local convertedRow = { id }
-        for i = 2, #row do
-            local typ = textData.types[i]
-            local key = textData.keys[i]
+	for _, row in ipairs(textData.rows) do
+		local id = row[1]
+		local convertedRow = { id }
+		for i = 2, #row do
+			local typ = textData.types[i]
+			local key = textData.keys[i]
 
-            if typ == "translate" then
-                local i18nConf = M.GetConfigRow("i18n", string.format("%s:%s:%s", filename, id, key))
-                table.insert(convertedRow, assert(i18nConf[M.currentLanguage]))
-            else
-                table.insert(convertedRow, convert_column_data(row[i], typ, key))
-            end
-        end
+			if typ == "translate" then
+				local i18nConf = M.GetConfigRow("i18n", string.format("%s:%s:%s", filename, id, key))
+				table.insert(convertedRow, assert(i18nConf[M.currentLanguage]))
+			else
+				table.insert(convertedRow, convert_column_data(row[i], typ, key))
+			end
+		end
 
-        local parsedData = { source = config, values = convertedRow }
-        config[id] = setmetatable(parsedData, configRowMetaTable)
-    end
+		local parsedData = { source = config, values = convertedRow }
+		config[id] = setmetatable(parsedData, configRowMetaTable)
+	end
 
-    configs[filename] = config
+	configs[filename] = config
 end
 
 function M.Init()
-    load_config_data("i18n")
-    load_config_data("excel1")
-    load_config_data("excel2")
+	load_config_data("i18n")
+	load_config_data("excel1")
+	load_config_data("excel2")
 
-    i18n = configs.i18n
+	i18n = configs.i18n
 end
 
 ---@param name string
 function M.GetConfig(name)
-    return assert(configs[name], name)
+	return assert(configs[name], name)
 end
 
 ---@param name string
 ---@param id string
 function M.GetConfigRow(name, id)
-    local config = assert(configs[name], name)
-    return config[id]
+	local config = assert(configs[name], name)
+	return config[id]
 end
 
 M.currentLanguage = "zh-s"
 function M.ChangeLanguage(lang)
-    M.currentLanguage = lang
+	M.currentLanguage = lang
 end
 
 function M.clear()
-    configs = nil
+	configs = nil
 end
 
 return M

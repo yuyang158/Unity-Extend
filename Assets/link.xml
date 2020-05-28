@@ -3,20 +3,16 @@
 <linker>
 
 	<assembly fullname="Assembly-CSharp">
-	    <type fullname="Extend.LuaBinding" preserve="all"/>
-		<type fullname="Extend.UI.UIViewBase" preserve="all"/>
+	    <type fullname="RemoteCmdClient" preserve="all"/>
+		<type fullname="Extend.GameSystem" preserve="all"/>
+		<type fullname="Extend.LuaBinding" preserve="all"/>
 		<type fullname="Extend.Switcher.StateSwitcher" preserve="all"/>
 		<type fullname="Extend.Network.SocketClient.AutoReconnectTcpClient" preserve="all"/>
 		<type fullname="Extend.Network.HttpClient.HttpAsyncClient" preserve="all"/>
 		<type fullname="Extend.LuaUtil.ConfigUtil" preserve="all"/>
 		<type fullname="Extend.LuaUtil.UnityExtension4XLua" preserve="all"/>
-		<type fullname="Extend.Common.GlobalCoroutineRunnerService" preserve="all"/>
-		<type fullname="Extend.AssetService.AssetAsyncLoadHandle" preserve="all"/>
-		<type fullname="Extend.AssetService.AssetReference" preserve="all"/>
-		<type fullname="Extend.AssetService.AssetService" preserve="all"/>
-		<type fullname="Extend.AssetService.SpriteAssetAssignment" preserve="all"/>
 		<type fullname="Extend.LuaUtil.TickService" preserve="all"/>
-		<type fullname="XLua.DelegateBridge" preserve="all"/>
+		
 	</assembly>
 
 	<assembly fullname="UnityEngine.AnimationModule">
@@ -81,19 +77,13 @@
 		<type fullname="UnityEngine.RenderSettings" preserve="all"/>
 		<type fullname="UnityEngine.Material" preserve="all"/>
 		<type fullname="UnityEngine.GraphicsBuffer" preserve="all"/>
-		<type fullname="UnityEngine.OcclusionPortal" preserve="all"/>
-		<type fullname="UnityEngine.OcclusionArea" preserve="all"/>
 		<type fullname="UnityEngine.LensFlare" preserve="all"/>
 		<type fullname="UnityEngine.Skybox" preserve="all"/>
 		<type fullname="UnityEngine.MeshFilter" preserve="all"/>
-		<type fullname="UnityEngine.SkinnedMeshRenderer" preserve="all"/>
-		<type fullname="UnityEngine.MeshRenderer" preserve="all"/>
 		<type fullname="UnityEngine.LineUtility" preserve="all"/>
 		<type fullname="UnityEngine.Texture" preserve="all"/>
-		<type fullname="UnityEngine.Texture2D" preserve="all"/>
 		<type fullname="UnityEngine.Cubemap" preserve="all"/>
 		<type fullname="UnityEngine.Texture3D" preserve="all"/>
-		<type fullname="UnityEngine.Texture2DArray" preserve="all"/>
 		<type fullname="UnityEngine.CubemapArray" preserve="all"/>
 		<type fullname="UnityEngine.SparseTexture" preserve="all"/>
 		<type fullname="UnityEngine.RenderTexture" preserve="all"/>
@@ -164,11 +154,6 @@
 		
 	</assembly>
 
-	<assembly fullname="UnityEngine.LocalizationModule">
-	    <type fullname="UnityEngine.LocalizationAsset" preserve="all"/>
-		
-	</assembly>
-
 	<assembly fullname="UnityEngine.ParticleSystemModule">
 	    <type fullname="UnityEngine.ParticlePhysicsExtensions" preserve="all"/>
 		
@@ -193,40 +178,6 @@
 		<type fullname="UnityEngine.ConfigurableJoint" preserve="all"/>
 		<type fullname="UnityEngine.PhysicsSceneExtensions" preserve="all"/>
 		<type fullname="UnityEngine.Physics" preserve="all"/>
-		
-	</assembly>
-
-	<assembly fullname="UnityEngine.Physics2DModule">
-	    <type fullname="UnityEngine.PhysicsSceneExtensions2D" preserve="all"/>
-		<type fullname="UnityEngine.Physics2D" preserve="all"/>
-		<type fullname="UnityEngine.Collision2D" preserve="all"/>
-		<type fullname="UnityEngine.Rigidbody2D" preserve="all"/>
-		<type fullname="UnityEngine.Collider2D" preserve="all"/>
-		<type fullname="UnityEngine.CircleCollider2D" preserve="all"/>
-		<type fullname="UnityEngine.CapsuleCollider2D" preserve="all"/>
-		<type fullname="UnityEngine.EdgeCollider2D" preserve="all"/>
-		<type fullname="UnityEngine.BoxCollider2D" preserve="all"/>
-		<type fullname="UnityEngine.PolygonCollider2D" preserve="all"/>
-		<type fullname="UnityEngine.CompositeCollider2D" preserve="all"/>
-		<type fullname="UnityEngine.Joint2D" preserve="all"/>
-		<type fullname="UnityEngine.AnchoredJoint2D" preserve="all"/>
-		<type fullname="UnityEngine.SpringJoint2D" preserve="all"/>
-		<type fullname="UnityEngine.DistanceJoint2D" preserve="all"/>
-		<type fullname="UnityEngine.FrictionJoint2D" preserve="all"/>
-		<type fullname="UnityEngine.HingeJoint2D" preserve="all"/>
-		<type fullname="UnityEngine.RelativeJoint2D" preserve="all"/>
-		<type fullname="UnityEngine.SliderJoint2D" preserve="all"/>
-		<type fullname="UnityEngine.TargetJoint2D" preserve="all"/>
-		<type fullname="UnityEngine.FixedJoint2D" preserve="all"/>
-		<type fullname="UnityEngine.WheelJoint2D" preserve="all"/>
-		<type fullname="UnityEngine.Effector2D" preserve="all"/>
-		<type fullname="UnityEngine.AreaEffector2D" preserve="all"/>
-		<type fullname="UnityEngine.BuoyancyEffector2D" preserve="all"/>
-		<type fullname="UnityEngine.PointEffector2D" preserve="all"/>
-		<type fullname="UnityEngine.PlatformEffector2D" preserve="all"/>
-		<type fullname="UnityEngine.SurfaceEffector2D" preserve="all"/>
-		<type fullname="UnityEngine.ConstantForce2D" preserve="all"/>
-		<type fullname="UnityEngine.PhysicsMaterial2D" preserve="all"/>
 		
 	</assembly>
 
@@ -270,16 +221,6 @@
 		
 	</assembly>
 
-	<assembly fullname="UnityEngine.UnityWebRequestModule">
-	    <type fullname="UnityEngine.WWWForm" preserve="all"/>
-		
-	</assembly>
-
-	<assembly fullname="UnityEngine.VehiclesModule">
-	    <type fullname="UnityEngine.WheelCollider" preserve="all"/>
-		
-	</assembly>
-
 	<assembly fullname="UnityEngine.UI">
 	    <type fullname="UnityEngine.UI.Button" preserve="all"/>
 		<type fullname="UnityEngine.UI.CanvasUpdateRegistry" preserve="all"/>
@@ -308,7 +249,6 @@
 		<type fullname="UnityEngine.UI.MaskUtilities" preserve="all"/>
 		<type fullname="UnityEngine.UI.MaskableGraphic" preserve="all"/>
 		<type fullname="UnityEngine.UI.RawImage" preserve="all"/>
-		<type fullname="UnityEngine.UI.RectMask2D" preserve="all"/>
 		<type fullname="UnityEngine.UI.ScrollRect" preserve="all"/>
 		<type fullname="UnityEngine.UI.Scrollbar" preserve="all"/>
 		<type fullname="UnityEngine.UI.Selectable" preserve="all"/>
@@ -324,6 +264,40 @@
 		<type fullname="UnityEngine.UI.Shadow" preserve="all"/>
 		<type fullname="UnityEngine.UI.Dropdown+OptionData" preserve="all"/>
 		<type fullname="UnityEngine.UI.Dropdown+OptionDataList" preserve="all"/>
+		
+	</assembly>
+
+	<assembly fullname="System">
+	    <type fullname="System.Diagnostics.Stopwatch" preserve="all"/>
+		
+	</assembly>
+
+	<assembly fullname="Unity.TextMeshPro">
+	    <type fullname="TMPro.TextMeshProUGUI" preserve="all"/>
+		<type fullname="TMPro.TextMeshPro" preserve="all"/>
+		<type fullname="TMPro.TMP_InputField" preserve="all"/>
+		
+	</assembly>
+
+	<assembly fullname="Extend.Common">
+	    <type fullname="Extend.Common.GlobalCoroutineRunnerService" preserve="all"/>
+		<type fullname="Extend.Common.IniRead" preserve="all"/>
+		
+	</assembly>
+
+	<assembly fullname="Extend.UI">
+	    <type fullname="Extend.UI.UIViewBase" preserve="all"/>
+		<type fullname="Extend.UI.UILayer" preserve="all"/>
+		<type fullname="Extend.UI.UIViewConfiguration" preserve="all"/>
+		<type fullname="Extend.UI.UIViewConfiguration+Configuration" preserve="all"/>
+		
+	</assembly>
+
+	<assembly fullname="Extend.Asset">
+	    <type fullname="Extend.Asset.AssetAsyncLoadHandle" preserve="all"/>
+		<type fullname="Extend.Asset.AssetReference" preserve="all"/>
+		<type fullname="Extend.Asset.AssetService" preserve="all"/>
+		<type fullname="Extend.Asset.SpriteAssetAssignment" preserve="all"/>
 		
 	</assembly>
 

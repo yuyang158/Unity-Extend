@@ -22,7 +22,6 @@ end
 function M:OnMessageButtonClicked()
 	--[[local uiService = SM.GetService(SM.SERVICE_TYPE.UI)
 	uiService.Show("SingleMessageBox", function()
-		
 	end)]]
 
 	self.context.red = "Sprites/green"
@@ -30,5 +29,6 @@ function M:OnMessageButtonClicked()
 
 	self.context.progress = math.random()
 	self.context.on = not self.context.on
+	assert(false)
 end
 return M

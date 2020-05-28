@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Extend.Common {
@@ -44,9 +45,9 @@ namespace Extend.Common {
 			return m_stats[(int)name];
 		}
 
-		public void LogStat(string type, string key, object value) {
+		public async Task LogStat(string type, string key, object value) {
 			var line = string.Join("\t", type, key, value);
-			m_writer.WriteLineAsync(line);
+			await m_writer.WriteLineAsync(line);
 		}
 		
 		public void Initialize() {

@@ -5,6 +5,11 @@ using Extend.Asset.AssetOperator;
 using UnityEngine;
 using UnityEngine.Assertions;
 
+#if UNITY_ANDROID
+using System.Threading;
+using UnityEngine.Networking;
+#endif
+
 namespace Extend.Asset.AssetProvider {
 	public class AssetBundleLoadProvider : AssetLoadProvider {
 		private struct AssetBundlePath {

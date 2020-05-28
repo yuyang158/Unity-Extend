@@ -1,9 +1,11 @@
 {
-    "name": "Extend.Asset",
+    "name": "Extend.Common.Editor",
     "references": [
         "GUID:22784c00bfb32f049827a00b892b0d3c"
     ],
-    "includePlatforms": [],
+    "includePlatforms": [
+        "Editor"
+    ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,

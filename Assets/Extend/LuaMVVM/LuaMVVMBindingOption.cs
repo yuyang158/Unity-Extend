@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using Extend.LuaUtil;
 using UnityEngine;
 using UnityEngine.Assertions;
 using XLua;
@@ -30,14 +31,8 @@ namespace Extend.LuaMVVM {
 		private PropertyInfo m_propertyInfo;
 		private object m_value;
 
-		[CSharpCallLua]
-		private delegate void WatchCallback(LuaTable self, object val);
-
-		[CSharpCallLua]
-		private delegate void Detach(LuaTable self, string path, WatchCallback callback);
-
 		private WatchCallback watchCallback;
-		private Detach detach;
+		private DetachLuaProperty detach;
 
 		private Delegate m_getPropertyDel;
 
@@ -121,7 +116,7 @@ namespace Extend.LuaMVVM {
 				return;
 			}
 
-			var watch = dataContext.GetInPath<Action<LuaTable, string, WatchCallback>>("watch");
+			var watch = dataContext.GetInPath<WatchLuaProperty>("watch");
 			var val = dataContext.GetInPath<object>(Path);
 			if( val == null ) {
 				Debug.LogWarning($"Not found value in path {Path}");
@@ -135,7 +130,7 @@ namespace Extend.LuaMVVM {
 					SetPropertyValue(dataContext, val);
 					if( Mode == BindMode.ONE_WAY || Mode == BindMode.TWO_WAY ) {
 						watch(dataContext, Path, watchCallback);
-						detach = dataContext.Get<Detach>("detach");
+						detach = dataContext.Get<DetachLuaProperty>("detach");
 						Assert.IsNotNull(detach);
 						if( Mode == BindMode.TWO_WAY ) {
 							m_value = val;

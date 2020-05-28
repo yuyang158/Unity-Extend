@@ -11,8 +11,10 @@ using System;
 using System.Diagnostics;
 using System.Reflection;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.UI;
 using XLua;
 
 //配置的详细介绍请看Doc下《XLua的配置.doc》
@@ -36,7 +38,7 @@ public static class XLuaGenConfig {
 		"ADBannerView", "ADInterstitialAd",
 		"Android", "Tizen", "jvalue", "Localiz",
 		"iPhone", "iOS", "Windows", "CalendarIdentifier",
-		"CalendarUnit", "CalendarUnit",
+		"CalendarUnit", "CalendarUnit", "Editor",
 		"ClusterInput", "FullScreenMovieControlMode",
 		"FullScreenMovieScalingMode", "Handheld",
 		"LocalNotification", "NotificationServices",
@@ -54,7 +56,7 @@ public static class XLuaGenConfig {
 		"Advertisements", "UnityEditor", "WSA", "StateMachineBehaviour",
 		"EventProvider", "Apple", "Motion", "WindZone", "Subsystem",
 		"UnityEngine.UI.ReflectionMethodsCache", "NativeLeakDetection",
-		"NativeLeakDetectionMode", "WWWAudioExtensions", "UnityEngine.Experimental",
+		"NativeLeakDetectionMode", "WWWAudioExtensions", "UnityEngine.Experimental", "MeshRenderer",
 		"CanvasRenderer", "AnimatorControllerParameter", "AudioSetting", "Caching",
 		"DrivenRectTransformTracker", "LightProbeGroup", "Animation", "DefaultControls",
 		"UnityEngine.Light", "WebCam", "Human", "QualitySettings", "LOD", "ParticleSystem", "UIVertex"
@@ -125,7 +127,10 @@ public static class XLuaGenConfig {
 	}
 
 	private static readonly Type[] exportToLua = {
-		typeof(Stopwatch)
+		typeof(Stopwatch),
+		typeof(TextMeshProUGUI),
+		typeof(TextMeshPro),
+		typeof(TMP_InputField)
 	};
 
 	[LuaCallCSharp]
@@ -142,6 +147,7 @@ public static class XLuaGenConfig {
 				where type.Namespace != null && namespaces.Contains(type.Namespace) && !isExcluded(type)
 				      && type.BaseType != typeof(MulticastDelegate) && !type.IsInterface && !type.IsEnum && !type.IsValueType
 				select type );
+			
 			var basicMathValueType = new[] {
 				typeof(Vector2),
 				typeof(Vector3),

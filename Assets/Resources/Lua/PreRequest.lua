@@ -29,7 +29,7 @@ SM.RegisterService(SM.SERVICE_TYPE.CONSOLE_COMMAND, CmdService)
 SM.RegisterService(SM.SERVICE_TYPE.UI, UIService)
 
 UIService.Show("Login", function()
-	
+
 end)
 
 return function()

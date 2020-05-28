@@ -73,8 +73,7 @@ function M:wait_view_hidden()
 	return self
 end
 
-
-function M:instantiate(asset, parent, callback) 
+function M:instantiate(asset, parent, callback)
 	self.sequence:add({
 		active = function()
 			local go = asset:Instantiate(parent)

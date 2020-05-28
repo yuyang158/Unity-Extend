@@ -24,7 +24,7 @@ function M:next(...)
 		end
 		return
 	end
-	
+
 	local ok, ret = xpcall(action.active, traceback, ...)
 	if not ok then
 		if self.on_error then

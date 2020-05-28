@@ -2,7 +2,7 @@
 using TMPro;
 using UnityEngine;
 
-namespace UI.i18n {
+namespace Extend.UI.i18n {
 	[RequireComponent(typeof(TextMeshProUGUI))]
 	public class StaticI18nText : MonoBehaviour {
 		[SerializeField]

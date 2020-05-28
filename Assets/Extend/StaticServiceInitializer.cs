@@ -4,7 +4,7 @@ using Extend.Common;
 using Extend.DebugUtil;
 using Extend.LuaUtil;
 using Extend.Network;
-using UI.i18n;
+using Extend.UI.i18n;
 using UnityEngine;
 
 namespace Extend {

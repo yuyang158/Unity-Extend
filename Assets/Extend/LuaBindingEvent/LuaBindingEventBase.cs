@@ -1,23 +1,11 @@
 using System;
 using System.Collections.Generic;
-using Extend.Asset;
+using Extend.LuaUtil;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using XLua;
 
 namespace Extend.LuaBindingEvent {
 	public abstract class LuaBindingEventBase : MonoBehaviour {
-		[CSharpCallLua]
-		private delegate void NoneEventAction(LuaTable t, PointerEventData data);
-		[CSharpCallLua]
-		private delegate void IntEventAction(LuaTable t, PointerEventData data, int val);
-		[CSharpCallLua]
-		private delegate void FloatEventAction(LuaTable t, PointerEventData data, float val);
-		[CSharpCallLua]
-		private delegate void StringEventAction(LuaTable t, PointerEventData data, string val);
-		[CSharpCallLua]
-		private delegate void AssetEventAction(LuaTable t, PointerEventData data, AssetReference val);
-		
 		protected static void TriggerPointerEvent(IEnumerable<BindingEvent> events, PointerEventData data) {
 			foreach( var evt in events ) {
 				var emmyFunction = evt.Function;
