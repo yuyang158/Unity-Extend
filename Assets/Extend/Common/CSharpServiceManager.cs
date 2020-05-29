@@ -16,7 +16,7 @@ namespace Extend.Common {
 	}
 
 	[CSharpCallLua]
-	public delegate void LuaCommandDelegate(params object[] cmd);
+	public delegate void LuaCommandDelegate(string[] param);
 
 	public class CSharpServiceManager : MonoBehaviour {
 		public enum ServiceType {

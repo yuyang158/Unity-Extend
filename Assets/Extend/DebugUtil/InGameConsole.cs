@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Extend.Common;
 using Extend.LuaUtil;
@@ -34,7 +35,7 @@ namespace Extend.DebugUtil {
 
 		[SerializeField]
 		private GameObject m_suggestScrollGO;
-		
+
 		[SerializeField]
 		private ScrollRect m_logScroll;
 
@@ -62,6 +63,7 @@ namespace Extend.DebugUtil {
 		private bool m_logScrollVisible;
 
 		private bool m_scrollToEnd = true;
+
 		private bool LogScrollVisible {
 			get => m_logScrollVisible;
 			set {
@@ -79,13 +81,14 @@ namespace Extend.DebugUtil {
 			m_showMemory = GameSystem.Get().SystemSetting.GetBool("DEBUG", "ShowMemory");
 			m_showStat = GameSystem.Get().SystemSetting.GetBool("DEBUG", "ShowStat");
 			m_logScrollVisible = GameSystem.Get().SystemSetting.GetBool("DEBUG", "LogPanelGUIVisible");
-			
+
 			DontDestroyOnLoad(gameObject);
 		}
-		
+
 		private class LuaCommandMatch : IComparable {
 			public int Index;
 			public LuaCommand Command;
+
 			public int CompareTo(object obj) {
 				var other = (LuaCommandMatch)obj;
 				var ret = Index.CompareTo(other.Index);
@@ -96,6 +99,30 @@ namespace Extend.DebugUtil {
 		public void OnLogScrollDrag() {
 			m_scrollToEnd = m_logScroll.verticalNormalizedPosition < 0.0000001f;
 		}
+
+
+		public void OnSendCommand() {
+			if( string.IsNullOrWhiteSpace(m_cmdInput.text) )
+				return;
+
+			var input = m_cmdInput.text;
+			var inputs = input.Split(' ');
+			var cmd = inputs[0];
+			string[] param = null;
+			if( inputs.Length > 1 ) {
+				param = inputs.Skip(1).Take(inputs.Length - 1).ToArray();
+			}
+
+			foreach( var luaCommand in luaCommands ) { 
+				if( luaCommand.CommandName.ToLower() == cmd.ToLower() ) {
+					luaCommand.Command(param);
+					break;
+				}
+			}
+
+			m_cmdInput.text = "";
+		}
+		List<LuaCommandMatch> m_matches = new List<LuaCommandMatch>();
 
 		public void OnInputCommandChanged() {
 			foreach( Transform child in m_suggestContentRoot ) {
@@ -109,30 +136,27 @@ namespace Extend.DebugUtil {
 
 			var parts = m_cmdInput.text.Split(' ');
 			var inputCmd = parts[0];
-			var matches = new List<LuaCommandMatch>();
 			foreach( var luaCommand in luaCommands ) {
 				var index = luaCommand.CommandName.IndexOf(inputCmd, StringComparison.CurrentCultureIgnoreCase);
 				if( index >= 0 ) {
-					matches.Add(new LuaCommandMatch() {
+					m_matches.Add(new LuaCommandMatch() {
 						Command = luaCommand,
 						Index = index
 					});
 				}
 			}
 
-			matches.Sort();
-			foreach( var match in matches ) {
+			m_matches.Sort();
+			foreach( var match in m_matches ) {
 				var luaCommand = match.Command;
 				var suggestBtn = Instantiate(m_suggestTemplate, m_suggestContentRoot, false);
 				suggestBtn.gameObject.SetActive(true);
 				var txt = suggestBtn.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
 				txt.text = luaCommand.CommandName;
-				suggestBtn.onClick.AddListener(() => {
-					m_cmdInput.text = luaCommand.CommandName;
-				});
+				suggestBtn.onClick.AddListener(() => { m_cmdInput.text = luaCommand.CommandName; });
 			}
-			
-			m_suggestScrollGO.SetActive(matches.Count > 0);
+
+			m_suggestScrollGO.SetActive(m_matches.Count > 0);
 		}
 
 		private void HandleLogThreaded(string message, string stacktrace, LogType type) {
@@ -146,15 +170,17 @@ namespace Extend.DebugUtil {
 			else {
 				var text = Instantiate(m_txtLogTemplate, m_logContentRoot, false);
 				text.gameObject.SetActive(true);
+				text.text = message;
 				text.color = logTypeColors[type];
 				log = new Log() {
 					text = text,
 					type = type
 				};
 			}
+
 			m_queuedLogs.Enqueue(log);
 
-			if( m_showConsoleWhenError && (type == LogType.Assert || type == LogType.Error || type == LogType.Exception) ) {
+			if( m_showConsoleWhenError && ( type == LogType.Assert || type == LogType.Error || type == LogType.Exception ) ) {
 				LogScrollVisible = true;
 			}
 
@@ -204,7 +230,13 @@ namespace Extend.DebugUtil {
 			}
 
 			if( Input.GetKeyDown(KeyCode.Tab) ) {
-				
+				if( m_matches.Count > 0 ) {
+					m_cmdInput.text = m_matches[0].Command.CommandName;
+				}
+			}
+
+			if( Input.GetKeyDown(KeyCode.Return) ) {
+				OnSendCommand();
 			}
 		}
 
@@ -236,7 +268,7 @@ namespace Extend.DebugUtil {
 
 		[Button(ButtonSize.Medium)]
 		public void RebuildLuaCommand() {
-			if(!Application.isPlaying)
+			if( !Application.isPlaying )
 				return;
 			BuildLuaCommand();
 		}

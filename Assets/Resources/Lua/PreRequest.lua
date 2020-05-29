@@ -1,3 +1,7 @@
+package.cpath = package.cpath .. ';C:/Users/YuYang/AppData/Roaming/JetBrains/Rider2020.1/plugins/intellij-emmylua/classes/debugger/emmy/windows/x64/?.dll'
+local dbg = require('emmy_core')
+dbg.tcpConnect('localhost', 9988)
+
 require('util')
 
 function Global_ShowLogFile()
