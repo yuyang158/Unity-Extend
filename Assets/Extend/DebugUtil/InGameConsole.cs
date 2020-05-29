@@ -24,7 +24,16 @@ namespace Extend.DebugUtil {
 		private TextMeshProUGUI m_txtLogTemplate;
 
 		[SerializeField]
+		private Button m_suggestTemplate;
+
+		[SerializeField]
 		private Transform m_logContentRoot;
+
+		[SerializeField]
+		private Transform m_suggestContentRoot;
+
+		[SerializeField]
+		private GameObject m_suggestScrollGO;
 		
 		[SerializeField]
 		private ScrollRect m_logScroll;
@@ -33,7 +42,7 @@ namespace Extend.DebugUtil {
 		private GameObject m_logGO;
 
 		[SerializeField]
-		private InputField m_cmdInput;
+		private TMP_InputField m_cmdInput;
 
 		private static readonly Dictionary<LogType, Color> logTypeColors = new Dictionary<LogType, Color> {
 			{LogType.Assert, Color.white},
@@ -73,13 +82,57 @@ namespace Extend.DebugUtil {
 			
 			DontDestroyOnLoad(gameObject);
 		}
+		
+		private class LuaCommandMatch : IComparable {
+			public int Index;
+			public LuaCommand Command;
+			public int CompareTo(object obj) {
+				var other = (LuaCommandMatch)obj;
+				var ret = Index.CompareTo(other.Index);
+				return ret == 0 ? string.Compare(Command.CommandName, other.Command.CommandName, StringComparison.Ordinal) : ret;
+			}
+		}
 
 		public void OnLogScrollDrag() {
 			m_scrollToEnd = m_logScroll.verticalNormalizedPosition < 0.0000001f;
 		}
 
 		public void OnInputCommandChanged() {
+			foreach( Transform child in m_suggestContentRoot ) {
+				Destroy(child.gameObject);
+			}
 
+			if( string.IsNullOrEmpty(m_cmdInput.text) ) {
+				m_suggestScrollGO.SetActive(false);
+				return;
+			}
+
+			var parts = m_cmdInput.text.Split(' ');
+			var inputCmd = parts[0];
+			var matches = new List<LuaCommandMatch>();
+			foreach( var luaCommand in luaCommands ) {
+				var index = luaCommand.CommandName.IndexOf(inputCmd, StringComparison.CurrentCultureIgnoreCase);
+				if( index >= 0 ) {
+					matches.Add(new LuaCommandMatch() {
+						Command = luaCommand,
+						Index = index
+					});
+				}
+			}
+
+			matches.Sort();
+			foreach( var match in matches ) {
+				var luaCommand = match.Command;
+				var suggestBtn = Instantiate(m_suggestTemplate, m_suggestContentRoot, false);
+				suggestBtn.gameObject.SetActive(true);
+				var txt = suggestBtn.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+				txt.text = luaCommand.CommandName;
+				suggestBtn.onClick.AddListener(() => {
+					m_cmdInput.text = luaCommand.CommandName;
+				});
+			}
+			
+			m_suggestScrollGO.SetActive(matches.Count > 0);
 		}
 
 		private void HandleLogThreaded(string message, string stacktrace, LogType type) {
