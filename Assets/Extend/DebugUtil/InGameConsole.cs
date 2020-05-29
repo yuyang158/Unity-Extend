@@ -100,6 +100,21 @@ namespace Extend.DebugUtil {
 			m_scrollToEnd = m_logScroll.verticalNormalizedPosition < 0.0000001f;
 		}
 
+		private readonly Queue<string> m_cmdHistory = new Queue<string>();
+		private int m_historyIndex = -1;
+
+		private int HistoryIndex {
+			get => m_historyIndex;
+			set {
+				m_historyIndex = value;
+				if( m_historyIndex < 0 )
+					return;
+				if( m_historyIndex >= m_cmdHistory.Count )
+					m_historyIndex = m_cmdHistory.Count - 1;
+				var arr = m_cmdHistory.ToArray();
+				m_cmdInput.text = arr[m_historyIndex];
+			}
+		}
 
 		public void OnSendCommand() {
 			if( string.IsNullOrWhiteSpace(m_cmdInput.text) )
@@ -113,16 +128,23 @@ namespace Extend.DebugUtil {
 				param = inputs.Skip(1).Take(inputs.Length - 1).ToArray();
 			}
 
-			foreach( var luaCommand in luaCommands ) { 
+			foreach( var luaCommand in luaCommands ) {
 				if( luaCommand.CommandName.ToLower() == cmd.ToLower() ) {
 					luaCommand.Command(param);
 					break;
 				}
 			}
 
+			while( m_cmdHistory.Count > 10 ) {
+				m_cmdHistory.Dequeue();
+			}
+
+			m_cmdHistory.Enqueue(m_cmdInput.text);
 			m_cmdInput.text = "";
+			HistoryIndex = -1;
 		}
-		List<LuaCommandMatch> m_matches = new List<LuaCommandMatch>();
+
+		private readonly List<LuaCommandMatch> m_matches = new List<LuaCommandMatch>();
 
 		public void OnInputCommandChanged() {
 			foreach( Transform child in m_suggestContentRoot ) {
@@ -134,6 +156,7 @@ namespace Extend.DebugUtil {
 				return;
 			}
 
+			m_matches.Clear();
 			var parts = m_cmdInput.text.Split(' ');
 			var inputCmd = parts[0];
 			foreach( var luaCommand in luaCommands ) {
@@ -229,6 +252,9 @@ namespace Extend.DebugUtil {
 				LogScrollVisible = !LogScrollVisible;
 			}
 
+			if( !LogScrollVisible )
+				return;
+
 			if( Input.GetKeyDown(KeyCode.Tab) ) {
 				if( m_matches.Count > 0 ) {
 					m_cmdInput.text = m_matches[0].Command.CommandName;
@@ -237,6 +263,27 @@ namespace Extend.DebugUtil {
 
 			if( Input.GetKeyDown(KeyCode.Return) ) {
 				OnSendCommand();
+			}
+
+			if( Input.GetKeyDown(KeyCode.UpArrow) ) {
+				if( m_cmdHistory.Count == 0 )
+					return;
+
+				if( HistoryIndex < 0 ) {
+					HistoryIndex = m_cmdHistory.Count - 1;
+				}
+				else if( HistoryIndex > 0 ) {
+					HistoryIndex--;
+				}
+			}
+
+			if( Input.GetKeyDown(KeyCode.DownArrow) ) {
+				if( m_cmdHistory.Count == 0 )
+					return;
+				
+				if(HistoryIndex < 0)
+					return;
+				HistoryIndex++;
 			}
 		}
 

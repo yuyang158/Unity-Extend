@@ -42,7 +42,7 @@ namespace Extend.Editor {
 			}
 
 			var setting = LuaCheckSetting.GetOrCreateSettings();
-			if( !string.IsNullOrEmpty(setting.LuaCheckExecPath) ) {
+			if( !string.IsNullOrEmpty(setting.LuaCheckExecPath) && File.Exists(setting.LuaCheckExecPath) ) {
 				var proc = new Process {
 					StartInfo = new ProcessStartInfo {
 						FileName = setting.LuaCheckExecPath,

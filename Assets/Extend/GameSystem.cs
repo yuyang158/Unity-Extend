@@ -15,7 +15,7 @@ namespace Extend {
 		}
 		public void Initialize() {
 			const string fileName = "SystemSetting";
-			if( Application.isEditor ) {
+			if( Application.isMobilePlatform ) {
 				var path = Path.Combine(Application.persistentDataPath, fileName + ".ini");
 				if( !File.Exists(path) ) {
 					using( var asset = AssetService.Get().Load($"Config/{fileName}", typeof(TextAsset)) ) {
@@ -26,9 +26,11 @@ namespace Extend {
 					SystemSetting = IniRead.Parse(reader);
 				}
 			}
-			using( var asset = AssetService.Get().Load($"Config/{fileName}", typeof(TextAsset)) ) {
-				using( var reader = new StringReader(asset.GetTextAsset().text) ) {
-					SystemSetting = IniRead.Parse(reader);
+			else {
+				using( var asset = AssetService.Get().Load($"Config/{fileName}", typeof(TextAsset)) ) {
+					using( var reader = new StringReader(asset.GetTextAsset().text) ) {
+						SystemSetting = IniRead.Parse(reader);
+					}
 				}
 			}
 		}
