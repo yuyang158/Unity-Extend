@@ -1,46 +1,39 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using Extend.Common;
 using Extend.LuaUtil;
+using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.Profiling;
+using UnityEngine.UI;
 
 namespace Extend.DebugUtil {
 	public class InGameConsole : MonoBehaviour, IService {
 		public KeyCode toggleKey = KeyCode.BackQuote;
 
-		public bool openOnStart;
-
-		public bool restrictLogCount;
-
 		public int maxLogCount = 100;
 
-		public int logFontSize = 16;
+		[SerializeField]
+		private GameObject m_statGO;
 
-		private static readonly GUIContent CLEAR_LABEL = new GUIContent("Clear", "Clear the contents of the console.");
-		private static readonly Color BACKGROUND_COLOR = new Color(0.1f, 0.3f, 0.4f, 0.8f);
+		[SerializeField]
+		private TextMeshProUGUI m_txtStat;
 
-		private static GUIStyle m_windowStyle;
+		[SerializeField]
+		private TextMeshProUGUI m_txtLogTemplate;
 
-		private static GUIStyle windowStyle {
-			get {
-				if( m_windowStyle == null ) {
-					var backgroundTexture = new Texture2D(1, 1);
-					backgroundTexture.SetPixel(0, 0, BACKGROUND_COLOR);
-					backgroundTexture.Apply();
+		[SerializeField]
+		private Transform m_logContentRoot;
+		
+		[SerializeField]
+		private ScrollRect m_logScroll;
 
-					m_windowStyle = new GUIStyle {
-						normal = {background = backgroundTexture},
-						padding = new RectOffset(4, 4, 4, 4)
-					};
-				}
+		[SerializeField]
+		private GameObject m_logGO;
 
-				return m_windowStyle;
-			}
-		}
+		[SerializeField]
+		private InputField m_cmdInput;
 
 		private static readonly Dictionary<LogType, Color> logTypeColors = new Dictionary<LogType, Color> {
 			{LogType.Assert, Color.white},
@@ -50,36 +43,7 @@ namespace Extend.DebugUtil {
 			{LogType.Warning, Color.yellow},
 		};
 
-		private static EventSystem cachedEventSystem;
-
-		private bool m_isCollapsed;
-		private bool m_isLogGUIVisible;
-
-		private bool IsLogGUIVisible {
-			get => m_isLogGUIVisible;
-			set {
-				m_isLogGUIVisible = value;
-				if( !cachedEventSystem ) {
-					cachedEventSystem = EventSystem.current;
-				}
-
-				cachedEventSystem.enabled = !m_isLogGUIVisible;
-			}
-		}
-
-		private readonly List<Log> m_logs = new List<Log>();
-		private readonly ConcurrentQueue<Log> m_queuedLogs = new ConcurrentQueue<Log>();
-
-		private Vector2 m_scrollPosition;
-		private Rect m_windowRect = new Rect(0, 0, Screen.width, Screen.height * 0.75f);
-
-		private readonly Dictionary<LogType, bool> logTypeFilters = new Dictionary<LogType, bool> {
-			{LogType.Assert, true},
-			{LogType.Error, true},
-			{LogType.Exception, true},
-			{LogType.Log, true},
-			{LogType.Warning, true},
-		};
+		private readonly Queue<Log> m_queuedLogs = new Queue<Log>();
 
 		private LuaVM luaVM;
 		private bool m_showConsoleWhenError;
@@ -88,18 +52,62 @@ namespace Extend.DebugUtil {
 		private bool m_showStat;
 		private bool m_logScrollVisible;
 
+		private bool m_scrollToEnd = true;
+		private bool LogScrollVisible {
+			get => m_logScrollVisible;
+			set {
+				m_logScrollVisible = value;
+				m_logGO.SetActive(value);
+				m_statGO.SetActive(!value);
+			}
+		}
+
 		private void Awake() {
 			luaVM = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
-			logFontSize = (int)( 16 * Screen.dpi / 96.0f );
-			if( logFontSize > 35 ) {
-				logFontSize = 35;
-			}
 
 			m_showConsoleWhenError = GameSystem.Get().SystemSetting.GetBool("DEBUG", "ShowConsoleWhenError");
 			m_showFps = GameSystem.Get().SystemSetting.GetBool("DEBUG", "ShowFPS");
 			m_showMemory = GameSystem.Get().SystemSetting.GetBool("DEBUG", "ShowMemory");
 			m_showStat = GameSystem.Get().SystemSetting.GetBool("DEBUG", "ShowStat");
 			m_logScrollVisible = GameSystem.Get().SystemSetting.GetBool("DEBUG", "LogPanelGUIVisible");
+			
+			DontDestroyOnLoad(gameObject);
+		}
+
+		public void OnLogScrollDrag() {
+			m_scrollToEnd = m_logScroll.verticalNormalizedPosition < 0.0000001f;
+		}
+
+		public void OnInputCommandChanged() {
+
+		}
+
+		private void HandleLogThreaded(string message, string stacktrace, LogType type) {
+			Log log;
+			if( m_queuedLogs.Count > maxLogCount ) {
+				log = m_queuedLogs.Dequeue();
+				log.text.text = message;
+				log.text.color = logTypeColors[type];
+				log.text.transform.SetAsLastSibling();
+			}
+			else {
+				var text = Instantiate(m_txtLogTemplate, m_logContentRoot, false);
+				text.gameObject.SetActive(true);
+				text.color = logTypeColors[type];
+				log = new Log() {
+					text = text,
+					type = type
+				};
+			}
+			m_queuedLogs.Enqueue(log);
+
+			if( m_showConsoleWhenError && (type == LogType.Assert || type == LogType.Error || type == LogType.Exception) ) {
+				LogScrollVisible = true;
+			}
+
+			if( m_scrollToEnd ) {
+				m_logScroll.verticalNormalizedPosition = 0;
+			}
 		}
 
 		private void OnDisable() {
@@ -112,43 +120,39 @@ namespace Extend.DebugUtil {
 
 		private readonly StringBuilder builder = new StringBuilder(1024);
 
-		private GUIStyle style;
-
-		private GUIStyle Style =>
-			style ?? ( style = new GUIStyle(GUI.skin.box) {
-				alignment = TextAnchor.MiddleLeft,
-				fontSize = logFontSize
-			} );
-
-		private void OnGUI() {
-			if( !IsLogGUIVisible ) {
-				builder.Clear();
-				if( m_showFps ) {
-					builder.AppendFormat("FPS : {0} / {1}\n", Mathf.RoundToInt(1 / Time.smoothDeltaTime).ToString(),
-						Application.targetFrameRate <= 0 ? "No Limit" : Application.targetFrameRate.ToString());
-				}
-
-				if( m_showMemory ) {
-					var graphicsDriver = Profiler.GetAllocatedMemoryForGraphicsDriver() / 1024 / 1024;
-					var unityTotalMemory = Profiler.GetTotalReservedMemoryLong() / 1024 / 1024;
-					builder.AppendFormat("Mono : {0} KB\n", (GC.GetTotalMemory(false) / 1024).ToString());
-					builder.AppendFormat("Lua : {0} KB\n", luaVM.Memory.ToString());
-					builder.AppendFormat("Lua Map : {0}\n", luaVM.LuaMapCount.ToString());
-					builder.AppendFormat("Unity : {0} MB\n", unityTotalMemory.ToString());
-					builder.AppendFormat("Texture : {0} KB\n", (Texture.currentTextureMemory / 1024).ToString());
-					if( Debug.isDebugBuild )
-						builder.AppendFormat("Graphics : {0} MB\n", graphicsDriver.ToString());
-				}
-
-				if( m_showStat ) {
-					StatService.Get().Output(builder);
-				}
-				if(builder.Length > 0)
-					GUILayout.Box(builder.ToString(), Style);
-				return;
+		private void Update() {
+			builder.Clear();
+			if( m_showFps ) {
+				builder.AppendFormat("FPS : {0} / {1}\n", Mathf.RoundToInt(1 / Time.smoothDeltaTime).ToString(),
+					Application.targetFrameRate <= 0 ? "No Limit" : Application.targetFrameRate.ToString());
 			}
 
-			m_windowRect = GUILayout.Window(123456, m_windowRect, DrawWindow, string.Empty, windowStyle);
+			if( m_showMemory ) {
+				var graphicsDriver = Profiler.GetAllocatedMemoryForGraphicsDriver() / 1024 / 1024;
+				var unityTotalMemory = Profiler.GetTotalReservedMemoryLong() / 1024 / 1024;
+				builder.AppendFormat("Mono : {0} KB\n", ( GC.GetTotalMemory(false) / 1024 ).ToString());
+				builder.AppendFormat("Lua : {0} KB\n", luaVM.Memory.ToString());
+				builder.AppendFormat("Lua Map : {0}\n", luaVM.LuaMapCount.ToString());
+				builder.AppendFormat("Unity : {0} MB\n", unityTotalMemory.ToString());
+				builder.AppendFormat("Texture : {0} KB\n", ( Texture.currentTextureMemory / 1024 ).ToString());
+				if( Debug.isDebugBuild )
+					builder.AppendFormat("Graphics : {0} MB\n", graphicsDriver.ToString());
+			}
+
+			if( m_showStat ) {
+				StatService.Get().Output(builder);
+			}
+
+			if( builder.Length > 0 )
+				m_txtStat.text = builder.ToString();
+
+			if( Input.GetKeyDown(toggleKey) ) {
+				LogScrollVisible = !LogScrollVisible;
+			}
+
+			if( Input.GetKeyDown(KeyCode.Tab) ) {
+				
+			}
 		}
 
 		private class LuaCommand {
@@ -158,7 +162,13 @@ namespace Extend.DebugUtil {
 
 		private static readonly List<LuaCommand> luaCommands = new List<LuaCommand>();
 
-		private void Start() {
+		public CSharpServiceManager.ServiceType ServiceType => CSharpServiceManager.ServiceType.IN_GAME_CONSOLE;
+
+		public void Initialize() {
+			BuildLuaCommand();
+		}
+
+		private static void BuildLuaCommand() {
 			luaCommands.Clear();
 			var luaVm = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
 			var getServiceFunc = luaVm.Global.GetInPath<GetLuaService>("_ServiceManager.GetService");
@@ -169,280 +179,21 @@ namespace Extend.DebugUtil {
 					Command = cmd
 				});
 			});
-
-			if( openOnStart ) {
-				IsLogGUIVisible = true;
-			}
 		}
 
-		private void Update() {
-			UpdateQueuedLogs();
-
-			if( Input.GetKeyDown(toggleKey) ) {
-				IsLogGUIVisible = !IsLogGUIVisible;
-			}
-		}
-
-		private static void DrawCollapsedLog(Log log, GUIStyle logStyle) {
-			GUILayout.BeginHorizontal();
-
-			GUILayout.Label(log.GetTruncatedMessage(), logStyle);
-			GUILayout.FlexibleSpace();
-			GUILayout.Label(log.count.ToString(), GUI.skin.box);
-
-			GUILayout.EndHorizontal();
-		}
-
-		private static void DrawExpandedLog(Log log, GUIStyle logStyle) {
-			for( var i = 0; i < log.count; i += 1 ) {
-				GUILayout.Label(log.GetTruncatedMessage(), logStyle);
-			}
-		}
-
-		private void DrawLog(Log log, GUIStyle logStyle) {
-			GUI.contentColor = logTypeColors[log.type];
-
-			if( m_isCollapsed ) {
-				DrawCollapsedLog(log, logStyle);
-			}
-			else {
-				DrawExpandedLog(log, logStyle);
-			}
-		}
-
-		private void DrawLogList() {
-			var badgeStyle = GUI.skin.box;
-			badgeStyle.fontSize = logFontSize;
-
-			var logStyle = GUI.skin.label;
-			logStyle.fontSize = logFontSize;
-
-			m_scrollPosition = GUILayout.BeginScrollView(m_scrollPosition);
-
-			// Used to determine height of accumulated log labels.
-			GUILayout.BeginVertical();
-
-			var visibleLogs = m_logs.Where(IsLogVisible);
-
-			foreach( var log in visibleLogs ) {
-				DrawLog(log, logStyle);
-			}
-
-			GUILayout.EndVertical();
-			var innerScrollRect = GUILayoutUtility.GetLastRect();
-			GUILayout.EndScrollView();
-			var outerScrollRect = GUILayoutUtility.GetLastRect();
-
-			// If we're scrolled to bottom now, guarantee that it continues to be in next cycle.
-			if( Event.current.type == EventType.Repaint && IsScrolledToBottom(innerScrollRect, outerScrollRect) ) {
-				ScrollToBottom();
-			}
-
-			// Ensure GUI colour is reset before drawing other components.
-			GUI.contentColor = Color.white;
-		}
-
-		private string command;
-
-		private void DrawToolbar() {
-			GUILayout.BeginHorizontal();
-
-			var returnDown = Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Return;
-			command = GUILayout.TextField(command);
-			if( !string.IsNullOrEmpty(command) ) {
-				var readCommand = command.Split(' ')[0];
-				var selecteds = luaCommands.FindAll(luaCommand => luaCommand.CommandName.StartsWith(readCommand));
-				if( selecteds.Count > 0 ) {
-					var rect = GUILayoutUtility.GetLastRect();
-					var singleLineHeight = rect.height + 2;
-					rect.y += singleLineHeight;
-					rect.height = singleLineHeight * selecteds.Count;
-					rect.x += 5;
-					rect.height = singleLineHeight;
-					foreach( var luaCommand in selecteds ) {
-						if( GUI.Button(rect, luaCommand.CommandName) ) {
-							command = luaCommand.CommandName;
-						}
-
-						rect.y += singleLineHeight;
-					}
-
-					if( Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Tab ) {
-						command = selecteds[0].CommandName;
-					}
-				}
-			}
-
-			GUILayout.Space(5);
-			if( ( GUILayout.Button("OK", GUILayout.Width(80)) || returnDown ) && !string.IsNullOrEmpty(command) ) {
-				var split = command.Split(' ');
-				var cmd = luaCommands.Find(luaCommand => luaCommand.CommandName == split[0]);
-				if( cmd != null ) {
-					var param = new object[split.Length - 1];
-					if( split.Length > 1 ) {
-						Array.Copy(split, 1, param, 0, split.Length - 1);
-					}
-
-					cmd.Command(param);
-					command = "";
-				}
-			}
-
-			GUILayout.Space(5);
-
-			if( GUILayout.Button(CLEAR_LABEL, GUILayout.Width(80)) ) {
-				m_logs.Clear();
-			}
-
-			if( m_logScrollVisible ) {
-				foreach( LogType logType in Enum.GetValues(typeof(LogType)) ) {
-					var currentState = logTypeFilters[logType];
-					var label = logType.ToString();
-					logTypeFilters[logType] = GUILayout.Toggle(currentState, label, GUILayout.ExpandWidth(false));
-					GUILayout.Space(20);
-				}
-			}
-
-			GUILayout.EndHorizontal();
-		}
-
-		private void DrawWindow(int windowID) {
-			if( m_logScrollVisible ) {
-				DrawLogList();
-			}
-
-			DrawToolbar();
-		}
-
-		private Log? GetLastLog() {
-			if( m_logs.Count == 0 ) {
-				return null;
-			}
-
-			return m_logs.Last();
-		}
-
-		private void UpdateQueuedLogs() {
-			while( m_queuedLogs.TryDequeue(out var log) ) {
-				ProcessLogItem(log);
-			}
-		}
-
-		private void HandleLogThreaded(string message, string stackTrace, LogType type) {
-			var now = DateTime.Now;
-			var log = new Log {
-				count = 1,
-				message = $"[{now.ToShortDateString()} {now.ToLongTimeString()}]: {message}",
-				type = type,
-			};
-
-			if( m_showConsoleWhenError && ( type == LogType.Error || type == LogType.Exception ) ) {
-				IsLogGUIVisible = true;
-			}
-
-			m_queuedLogs.Enqueue(log);
-		}
-
-		private void ProcessLogItem(Log log) {
-			var lastLog = GetLastLog();
-			var isDuplicateOfLastLog = lastLog.HasValue && log.Equals(lastLog.Value);
-
-			if( isDuplicateOfLastLog ) {
-				// Replace previous log with incremented count instead of adding a new one.
-				log.count = lastLog.Value.count + 1;
-				m_logs[m_logs.Count - 1] = log;
-			}
-			else {
-				m_logs.Add(log);
-				TrimExcessLogs();
-			}
-		}
-
-		private bool IsLogVisible(Log log) {
-			return logTypeFilters[log.type];
-		}
-
-		private bool IsScrolledToBottom(Rect innerScrollRect, Rect outerScrollRect) {
-			var innerScrollHeight = innerScrollRect.height;
-
-			// Take into account extra padding added to the scroll container.
-			var outerScrollHeight = outerScrollRect.height - GUI.skin.box.padding.vertical;
-
-			// If contents of scroll view haven't exceeded outer container, treat it as scrolled to bottom.
-			// Scrolled to bottom (with error margin for float math)
-			return outerScrollHeight > innerScrollHeight || Mathf.Approximately(innerScrollHeight, m_scrollPosition.y + outerScrollHeight);
-		}
-
-		private void ScrollToBottom() {
-			m_scrollPosition = new Vector2(0, float.MaxValue);
-		}
-
-		private void TrimExcessLogs() {
-			if( !restrictLogCount ) {
+		[Button(ButtonSize.Medium)]
+		public void RebuildLuaCommand() {
+			if(!Application.isPlaying)
 				return;
-			}
-
-			var amountToRemove = m_logs.Count - maxLogCount;
-			if( amountToRemove <= 0 ) {
-				return;
-			}
-
-			m_logs.RemoveRange(0, amountToRemove);
-		}
-
-		public CSharpServiceManager.ServiceType ServiceType => CSharpServiceManager.ServiceType.IN_GAME_CONSOLE;
-
-		public void Initialize() {
+			BuildLuaCommand();
 		}
 
 		public void Destroy() {
-			Destroy(this);
 		}
 	}
 
 	internal struct Log {
-		public int count;
-
-		public string message;
-
-		// public string stackTrace;
 		public LogType type;
-
-		private const int maxMessageLength = 16382;
-
-		public bool Equals(Log log) {
-			return message == log.message && type == log.type;
-		}
-
-		public string GetTruncatedMessage() {
-			if( string.IsNullOrEmpty(message) ) {
-				return message;
-			}
-
-			return message.Length <= maxMessageLength ? message : message.Substring(0, maxMessageLength);
-		}
-	}
-
-	internal class ConcurrentQueue<T> {
-		readonly Queue<T> queue = new Queue<T>();
-		readonly object queueLock = new object();
-
-		public void Enqueue(T item) {
-			lock( queueLock ) {
-				queue.Enqueue(item);
-			}
-		}
-
-		public bool TryDequeue(out T result) {
-			lock( queueLock ) {
-				if( queue.Count == 0 ) {
-					result = default(T);
-					return false;
-				}
-
-				result = queue.Dequeue();
-				return true;
-			}
-		}
+		public TextMeshProUGUI text;
 	}
 }

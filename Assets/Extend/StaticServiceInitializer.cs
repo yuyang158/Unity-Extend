@@ -29,9 +29,10 @@ namespace Extend {
 			CSharpServiceManager.Register(new TickService());
 			CSharpServiceManager.Register(new NetworkService());
 
-			var service = CSharpServiceManager.Instance;
-			CSharpServiceManager.Register(service.gameObject.AddComponent<InGameConsole>());
-
+			using( var assetRef = AssetService.Get().Load("Console", typeof(GameObject)) ) {
+				var go = assetRef.Instantiate();
+				CSharpServiceManager.Register(go.GetComponent<InGameConsole>());
+			}
 			Application.targetFrameRate = 60;
 		}
 	}
