@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
@@ -6,7 +7,12 @@ using UnityEngine;
 using UnityEngine.Rendering;
 
 namespace Extend.Asset.Editor.Process {
+	[InitializeOnLoad]
 	public class ShaderVariantProcess : IBuildAssetProcess {
+		static ShaderVariantProcess() {
+			AssetCustomProcesses.RegisterProcess(new ShaderVariantProcess());
+		}
+		
 		public static readonly ShaderKeyword[] STRIP_BUILD_IN_KEYWORDS = {
 			new ShaderKeyword("FOG_EXP"),
 			new ShaderKeyword("FOG_EXP2"),
@@ -49,7 +55,7 @@ namespace Extend.Asset.Editor.Process {
 
 		private readonly List<string> userKeywordFilter = new List<string>();
 
-		public void Process(AssetImporter importer) {
+		public void Process(AssetImporter importer, TextWriter writer) {
 			var material = AssetDatabase.LoadAssetAtPath<Material>(importer.assetPath);
 			var keywords = material.shaderKeywords;
 			if( keywords.Length == 0 )
@@ -182,6 +188,8 @@ namespace Extend.Asset.Editor.Process {
 
 			var path = AssetDatabase.GetAssetPath(Selection.activeObject);
 			var importer = AssetImporter.GetAtPath(path);
+			if(!importer)
+				return;
 			Debug.Log($"Importer : {importer.GetType().FullName}");
 		}
 

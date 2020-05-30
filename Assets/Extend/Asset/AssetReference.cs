@@ -19,7 +19,15 @@ namespace Extend.Asset {
 			Asset?.IncRef();
 		}
 
-		public bool GUIDValid => !string.IsNullOrEmpty(m_assetGUID);
+		public bool GUIDValid {
+			get {
+#if UNITY_EDITOR
+				return !string.IsNullOrEmpty(UnityEditor.AssetDatabase.GUIDToAssetPath(m_assetGUID));
+#else
+				return !string.IsNullOrEmpty(m_assetGUID);
+#endif
+			}
+		}
 
 		private T GetAsset<T>() where T : Object {
 			if( Asset == null ) {
@@ -81,6 +89,7 @@ namespace Extend.Asset {
 				Asset = AssetService.Get().LoadAssetWithGUID<GameObject>(m_assetGUID);
 				Asset.IncRef();
 			}
+
 			if( !( Asset is PrefabAssetInstance prefabAsset ) ) {
 				Debug.LogError($"{Asset.AssetPath} is not a prefab!");
 				return null;
@@ -94,6 +103,7 @@ namespace Extend.Asset {
 				Asset = AssetService.Get().LoadAssetWithGUID<GameObject>(m_assetGUID);
 				Asset.IncRef();
 			}
+
 			if( !( Asset is PrefabAssetInstance prefabAsset ) ) {
 				Debug.LogError($"{Asset.AssetPath} is not a prefab!");
 				return null;
@@ -107,7 +117,7 @@ namespace Extend.Asset {
 				Debug.LogError($"{Asset.AssetPath} is not a prefab!");
 				return;
 			}
-			
+
 			prefabAsset.InitPool(name, prefer, max);
 		}
 

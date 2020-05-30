@@ -31,5 +31,16 @@ namespace Extend.Common.Editor {
 				return m_buttonSelectedStyle;
 			}
 		}
+
+		public static string RecursiveNodePath(Transform node) {
+			var path = node.name;
+			var parent = node.parent;
+			while( parent ) {
+				path = parent.name + path;
+				parent = parent.parent;
+			}
+
+			return path;
+		}
 	}
 }
