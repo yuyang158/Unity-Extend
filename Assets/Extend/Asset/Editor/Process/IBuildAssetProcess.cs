@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Extend.Asset.Editor.Process {
 	public interface IBuildAssetProcess {
-		string ProcessType { get; }
+		Type ProcessType { get; }
 
 		void Process(AssetImporter importer, TextWriter writer);
 
@@ -15,7 +15,7 @@ namespace Extend.Asset.Editor.Process {
 	}
 
 	public static class AssetCustomProcesses {
-		private static readonly Dictionary<string, List<IBuildAssetProcess>> extensionProcessesMap = new Dictionary<string, List<IBuildAssetProcess>>();
+		private static readonly Dictionary<Type, List<IBuildAssetProcess>> extensionProcessesMap = new Dictionary<Type, List<IBuildAssetProcess>>();
 		private static TextWriter m_processWriter;
 
 		public static void Init() {
@@ -32,7 +32,7 @@ namespace Extend.Asset.Editor.Process {
 
 		public static void Process(AssetImporter importer) {
 			var extension = Path.GetExtension(importer.assetPath);
-			if( !extensionProcessesMap.TryGetValue(extension, out var processes) ) {
+			if( !extensionProcessesMap.TryGetValue(importer.GetType(), out var processes) ) {
 				return;
 			}
 

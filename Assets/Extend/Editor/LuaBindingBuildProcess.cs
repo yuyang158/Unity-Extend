@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using Extend.Asset.Editor.Process;
 using Extend.Common.Editor;
 using UnityEditor;
@@ -7,9 +8,12 @@ using UnityEngine;
 namespace Extend.Editor {
 	[InitializeOnLoad]
 	public class LuaBindingBuildProcess : IBuildAssetProcess {
-		public string ProcessType => ".prefab";
+		public Type ProcessType => typeof(AssetImporter);
 
 		public void Process(AssetImporter importer, TextWriter writer) {
+			if(Path.GetExtension(importer.assetPath) != ".prefab")
+				return;
+			
 			var go = AssetDatabase.LoadAssetAtPath<GameObject>(importer.assetPath);
 			var bindings = go.GetComponentsInParent<LuaBinding>();
 
@@ -19,7 +23,7 @@ namespace Extend.Editor {
 						continue;
 					}
 					
-					writer.WriteLine($"{importer.assetPath}:{UIEditorUtil.RecursiveNodePath(binding.transform)} Lua Binding Asset Reference is missing");
+					writer.WriteLine($"ERROR\t{importer.assetPath}:{UIEditorUtil.RecursiveNodePath(binding.transform)} Lua Binding Asset Reference is missing");
 				}
 			}
 		}

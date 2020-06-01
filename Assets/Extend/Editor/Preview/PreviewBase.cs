@@ -63,10 +63,10 @@ namespace Extend.Editor.Preview {
 		private Mesh m_FloorPlane;
 		private Texture2D m_FloorTexture;
 		private Material m_FloorMaterial;
-		private float m_AvatarScale = 1f;
+		protected float m_AvatarScale = 1f;
 		private float m_ZoomFactor = 1f;
 		private Vector3 m_PivotPositionOffset = Vector3.zero;
-		private float m_BoundingVolumeScale;
+		protected float m_BoundingVolumeScale;
 		protected ViewTool m_ViewTool;
 		private bool m_ShowReference;
 		private bool m_Loaded;
@@ -359,13 +359,13 @@ namespace Extend.Editor.Preview {
 			TeardownPreviewLightingAndFx(oldFog);
 			GraphicsSettings.renderPipelineAsset = pipeline;
 		}
-
-		private void CreatePreviewInstances() {
+		
+		protected virtual void CreatePreviewInstances() {
 			DestroyPreviewInstances();
 			var gameObject = Object.Instantiate(target) as GameObject;
 			gameObject.name = target.name;
-			InitInstantiatedPreviewRecursive(gameObject);
 			AddSingleGO(gameObject);
+			InitInstantiatedPreviewRecursive(gameObject);
 			var component = gameObject.GetComponent<Animator>();
 			if( component ) {
 				component.enabled = false;
@@ -387,7 +387,7 @@ namespace Extend.Editor.Preview {
 			m_AvatarScale = ( m_ZoomFactor = m_BoundingVolumeScale / 2f );
 		}
 
-		private void DestroyPreviewInstances() {
+		protected void DestroyPreviewInstances() {
 			if( m_PreviewInstance == null ) {
 				return;
 			}
@@ -400,7 +400,7 @@ namespace Extend.Editor.Preview {
 			Object.DestroyImmediate(m_DirectionInstance);
 		}
 
-		private void AddSingleGO(GameObject go) {
+		protected void AddSingleGO(GameObject go) {
 			m_PreviewUtility.AddSingleGO(go);
 		}
 
@@ -722,7 +722,7 @@ namespace Extend.Editor.Preview {
 			}
 		}
 
-		private static void InitInstantiatedPreviewRecursive(GameObject go) {
+		protected static void InitInstantiatedPreviewRecursive(GameObject go) {
 			go.hideFlags = HideFlags.HideAndDontSave;
 			go.layer = PreviewCullingLayer;
 			foreach( Transform transform in go.transform ) {

@@ -23,11 +23,5 @@ namespace Extend.LuaMVVM {
 				option.Start();
 			}
 		}
-
-		private void Update() {
-			foreach( var option in BindingOptions.Options ) {
-				option.UpdateToSource();
-			}
-		}
 	}
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using Extend.LuaMVVM.PropertyChangeInvoke;
 using Extend.LuaUtil;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -21,7 +22,7 @@ namespace Extend.LuaMVVM {
 			ONE_TIME
 		}
 
-		public Object BindTarget;
+		public Component BindTarget;
 		public string BindTargetProp;
 
 		public BindMode Mode = BindMode.ONE_TIME;
@@ -29,12 +30,9 @@ namespace Extend.LuaMVVM {
 
 		private LuaTable m_dataSource;
 		private PropertyInfo m_propertyInfo;
-		private object m_value;
-
 		private WatchCallback watchCallback;
 		private DetachLuaProperty detach;
-
-		private Delegate m_getPropertyDel;
+		private IUnityPropertyChanged m_propertyChangeCallback;
 
 		public void Start() {
 			if( !BindTarget ) {
@@ -45,44 +43,23 @@ namespace Extend.LuaMVVM {
 			m_propertyInfo = BindTarget.GetType().GetProperty(BindTargetProp);
 			Assert.IsNotNull(m_propertyInfo, BindTargetProp);
 			watchCallback = SetPropertyValue;
-
-			if( Mode == BindMode.TWO_WAY || Mode == BindMode.ONE_WAY_TO_SOURCE ) {
-				m_getPropertyDel = Delegate.CreateDelegate(typeof(Func<object>), BindTarget, m_propertyInfo.GetMethod);
-			}
 		}
 
 		public void Destroy() {
 			TryDetach();
 		}
 
-		public void UpdateToSource() {
-			if( m_dataSource == null )
-				return;
-
-			if( m_getPropertyDel == null )
-				return;
-
-			var fieldVal = m_getPropertyDel.DynamicInvoke();
-			if( Equals(m_value, fieldVal) ) {
-				return;
-			}
-
-			m_value = fieldVal;
-			m_dataSource.SetInPath(Path, fieldVal);
-		}
-
 		private void SetPropertyValue(LuaTable _, object val) {
 			if( m_propertyInfo.PropertyType == typeof(string) ) {
-				m_value = val == null ? "" : val.ToString();
+				m_propertyInfo.SetValue(BindTarget, val == null ? "" : val.ToString());
 			}
 			else if( m_propertyInfo.PropertyType == typeof(float) ) {
-				m_value = (float)(double)val;
+				m_propertyInfo.SetValue(BindTarget, (float)(double)val);
 			}
 			else {
-				m_value = val;
+				m_propertyInfo.SetValue(BindTarget, val);
 			}
 
-			m_propertyInfo.SetValue(BindTarget, m_value);
 		}
 
 		private void TryDetach() {
@@ -99,6 +76,10 @@ namespace Extend.LuaMVVM {
 
 			if( BindTarget is LuaMVVMForEach forEach ) {
 				forEach.LuaArrayData = null;
+			}
+
+			if( m_propertyChangeCallback != null ) {
+				m_propertyChangeCallback.OnPropertyChanged -= OnPropertyChanged;
 			}
 		}
 
@@ -132,20 +113,26 @@ namespace Extend.LuaMVVM {
 						watch(dataContext, Path, watchCallback);
 						detach = dataContext.Get<DetachLuaProperty>("detach");
 						Assert.IsNotNull(detach);
+
 						if( Mode == BindMode.TWO_WAY ) {
-							m_value = val;
+							m_propertyChangeCallback = BindTarget.GetComponent<IUnityPropertyChanged>();
+							m_propertyChangeCallback.OnPropertyChanged += OnPropertyChanged;
 						}
 					}
-
 					break;
 				}
 				case BindMode.ONE_WAY_TO_SOURCE:
-					m_value = m_propertyInfo.GetValue(BindTarget);
-					dataContext.SetInPath(Path, m_value);
+					m_propertyChangeCallback = BindTarget.GetComponent<IUnityPropertyChanged>();
+					dataContext.SetInPath(Path, m_propertyChangeCallback.ProvideCurrentValue());
+					m_propertyChangeCallback.OnPropertyChanged += OnPropertyChanged;
 					break;
 				default:
 					throw new ArgumentOutOfRangeException();
 			}
+		}
+
+		private void OnPropertyChanged(Component sender, object value) {
+			m_dataSource.SetInPath(Path, value);
 		}
 	}
 }

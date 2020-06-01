@@ -36,4 +36,7 @@ namespace Extend.LuaUtil {
 
 	[CSharpCallLua]
 	public delegate void AssetEventAction(LuaTable t, PointerEventData data, AssetReference val);
+
+	[CSharpCallLua]
+	public delegate void PropertyChangedAction(Component sender, object value);
 }

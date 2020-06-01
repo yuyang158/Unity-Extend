@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -40,28 +41,36 @@ namespace Extend.Asset.Editor.Process {
 		}
 
 		private const char JOIN_SPLITTER = ';';
-		public string ProcessType => ".mat";
+		public Type ProcessType => typeof(AssetImporter);
 
 		private readonly Dictionary<string, UserKeywordMap> collectShaderUserKeywords = new Dictionary<string, UserKeywordMap>();
 		private readonly HashSet<string> keywordMap = new HashSet<string>();
 		private readonly Dictionary<string, UserKeywordMap> collectedShaderKeyword = new Dictionary<string, UserKeywordMap>();
-		private readonly ShaderVariantCollection EMPTY_COLLECTION = new ShaderVariantCollection();
+		private readonly ShaderVariantCollection EMPTY_COLLECTION;
 
 		public ShaderVariantProcess() {
 			var assembly = typeof(EditorApplication).Assembly;
 			var shaderUtilType = assembly.GetType("UnityEditor.ShaderUtil");
-			getShaderVariantEntries = shaderUtilType.GetMethod("GetShaderVariantEntries", BindingFlags.Static | BindingFlags.NonPublic);
+			getShaderVariantEntries = shaderUtilType.GetMethod("GetShaderVariantEntriesFiltered", BindingFlags.Static | BindingFlags.NonPublic);
+
+			EMPTY_COLLECTION = AssetDatabase.LoadAssetAtPath<ShaderVariantCollection>("Assets/Tools.shadervariants");
 		}
 
 		private readonly List<string> userKeywordFilter = new List<string>();
 
 		public void Process(AssetImporter importer, TextWriter writer) {
+			if(Path.GetExtension(importer.assetPath) != ".mat")
+				return;
 			var material = AssetDatabase.LoadAssetAtPath<Material>(importer.assetPath);
 			var keywords = material.shaderKeywords;
 			if( keywords.Length == 0 )
 				return;
 
+			
 			var shader = material.shader;
+			if( !EMPTY_COLLECTION.Contains(new ShaderVariantCollection.ShaderVariant(shader, PassType.Normal)) ) {
+				EMPTY_COLLECTION.Add(new ShaderVariantCollection.ShaderVariant(shader, PassType.Normal));
+			}
 			var shaderKeywordMap = GetShaderContext(shader);
 			if( shaderKeywordMap.UserDefineKeywords.Count == 0 )
 				return;
@@ -177,8 +186,6 @@ namespace Extend.Asset.Editor.Process {
 
 			AssetDatabase.SaveAssets();
 			AssetDatabase.Refresh();
-			
-			
 		}
 
 		[MenuItem("Tools/Show Importer")]
@@ -197,10 +204,12 @@ namespace Extend.Asset.Editor.Process {
 		private static MethodInfo getShaderVariantEntries;
 
 		private static void GetShaderVariantEntries(Shader shader, ShaderVariantCollection skipAlreadyInCollection, out int[] types, out string[] keywords) {
-			var parameters = new object[] {shader, skipAlreadyInCollection, null, null};
+			var filterKeywords = new string[] {};
+			types = new int[] { };
+			keywords = new string[] { };
+			var remainingKeywords = new string[] { };
+			var parameters = new object[] {shader, 256, filterKeywords,  skipAlreadyInCollection, types, keywords, remainingKeywords};
 			getShaderVariantEntries.Invoke(null, parameters);
-			types = (int[])parameters[2];
-			keywords = (string[])parameters[3];
 		}
 	}
 }

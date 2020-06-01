@@ -43,7 +43,7 @@ namespace Extend.Editor.InspectorGUI {
 				method.Invoke(preview, null);	
 			}
 			
-			DestroyImmediate(baseEditor);
+			// DestroyImmediate(baseEditor);
 		}
 
 		private bool HasParticleSystemPreview() {
