@@ -10,6 +10,7 @@ namespace Extend.Asset.Editor {
 		[MenuItem("Window/AB Builder")]
 		private static void Init() {
 			var window = (StaticAssetBundleWindow)GetWindow(typeof(StaticAssetBundleWindow));
+			window.titleContent = new GUIContent("Asset Bundle Build");
 			window.Show();
 		}
 
@@ -17,7 +18,13 @@ namespace Extend.Asset.Editor {
 		private ReorderableList otherDependencyList;
 		private static StaticABSettings settingRoot;
 		private SerializedObject serializedObject;
+		private SerializedProperty selectedSetting;
+		private List<string> selectSettingABPaths = new List<string>();
 		public const string SETTING_FILE_PATH = "Assets/Extend/Asset/Editor/settings.asset";
+		
+		private static readonly GUIContent SPECIAL_LIST_HEADER = new GUIContent("Special Folder List");
+		private static readonly GUIContent PATH_CONTENT = new GUIContent("Path");
+		private static readonly GUIContent OPERATION_CONTENT = new GUIContent("Operation");
 
 		private void OnEnable() {
 			InitializeSetting();
@@ -25,21 +32,57 @@ namespace Extend.Asset.Editor {
 			serializedObject = new SerializedObject(settingRoot);
 			var settingsProp = serializedObject.FindProperty("Settings");
 			reList = new ReorderableList(serializedObject, settingsProp);
-			reList.drawHeaderCallback += rect => { EditorGUI.LabelField(rect, "AB特殊处理列表"); };
+			reList.drawHeaderCallback += rect => { EditorGUI.LabelField(rect, SPECIAL_LIST_HEADER); };
 			reList.drawElementCallback += (rect, index, active, focused) => {
 				rect.height = EditorGUIUtility.singleLineHeight;
 				var totalWidth = position.width;
 				rect.width = totalWidth / 2;
-				
+
+				var labelWidth = EditorGUIUtility.labelWidth;
+				EditorGUIUtility.labelWidth = 70;
 				var settingProp = settingsProp.GetArrayElementAtIndex(index);
 				var pathProp = settingProp.FindPropertyRelative("FolderPath");
-				EditorGUI.PropertyField(rect, pathProp, new GUIContent("路径"));
+				EditorGUI.PropertyField(rect, pathProp, PATH_CONTENT);
 
 				rect.x += rect.width + 5;
 				rect.width = totalWidth - rect.x;
 				var opProp = settingProp.FindPropertyRelative("Op");
-				EditorGUI.PropertyField(rect, opProp);
+				EditorGUI.PropertyField(rect, opProp, OPERATION_CONTENT);
 				serializedObject.ApplyModifiedProperties();
+				EditorGUIUtility.labelWidth = labelWidth;
+			};
+
+			reList.onSelectCallback += list => {
+				if( list.index >= 0 && list.index < list.count ) {
+					selectedSetting = list.serializedProperty.GetArrayElementAtIndex(list.index);
+					var folderProp  = selectedSetting.FindPropertyRelative("FolderPath");
+					var folderPath = folderProp.objectReferenceValue ? "" : AssetDatabase.GetAssetPath(folderProp.objectReferenceValue);
+					selectSettingABPaths.Clear();
+					if( string.IsNullOrEmpty(folderPath) ) {
+						return;
+					}
+					var opEnumProp  = selectedSetting.FindPropertyRelative("Op");
+					switch( (StaticABSetting.Operation)opEnumProp.intValue ) {
+						case StaticABSetting.Operation.ALL_IN_ONE:
+							selectSettingABPaths.Add(folderPath.ToLower());
+							break;
+						case StaticABSetting.Operation.STAY_RESOURCES:
+							break;
+						case StaticABSetting.Operation.EACH_FOLDER_ONE:
+							var subDirectories = Directory.GetDirectories(folderPath);
+							
+							break;
+						case StaticABSetting.Operation.EACH_A_AB:
+							break;
+						default:
+							throw new ArgumentOutOfRangeException();
+					}
+					var loadLogicsProp = selectedSetting.FindPropertyRelative("LoadLogics");
+					
+				}
+				else {
+					selectedSetting = null;
+				}
 			};
 			
 			var otherDepend = serializedObject.FindProperty("ExtraDependencyAssets");
@@ -79,6 +122,11 @@ namespace Extend.Asset.Editor {
 
 			reList.DoLayoutList();
 			EditorGUILayout.Space();
+
+			if( selectedSetting != null ) {
+				
+				EditorGUILayout.Space();
+			}
 			
 			otherDependencyList.DoLayoutList();
 			EditorGUILayout.Space();

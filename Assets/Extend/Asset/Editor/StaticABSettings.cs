@@ -16,7 +16,22 @@ namespace Extend.Asset.Editor {
 		public DefaultAsset FolderPath;
 		public Operation Op;
 
+		public SpecialBundleLoadLogic[] LoadLogics;
+
 		public string Path => FolderPath ? AssetDatabase.GetAssetPath( FolderPath ) : string.Empty;
+	}
+
+	[Serializable]
+	public class SpecialBundleLoadLogic {
+		[Serializable]
+		public enum BundleLoadLogic {
+			None,
+			DontUnload
+		}
+		
+		public string BundleName;
+		public BundleLoadLogic LoadLogic = BundleLoadLogic.None;
+
 	}
 	
 	public class StaticABSettings : ScriptableObject {
