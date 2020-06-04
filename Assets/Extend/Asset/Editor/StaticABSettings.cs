@@ -16,29 +16,19 @@ namespace Extend.Asset.Editor {
 		public DefaultAsset FolderPath;
 		public Operation Op;
 
-		public SpecialBundleLoadLogic[] LoadLogics;
+		public SpecialBundleLoadLogic[] UnloadStrategies;
 
 		public string Path => FolderPath ? AssetDatabase.GetAssetPath( FolderPath ) : string.Empty;
 	}
 
 	[Serializable]
 	public class SpecialBundleLoadLogic {
-		[Serializable]
-		public enum BundleLoadLogic {
-			None,
-			DontUnload
-		}
-		
 		public string BundleName;
-		public BundleLoadLogic LoadLogic = BundleLoadLogic.None;
-
+		public BundleUnloadStrategy UnloadStrategy = BundleUnloadStrategy.Normal;
 	}
 	
 	public class StaticABSettings : ScriptableObject {
-		public DefaultAsset SpriteAtlasFolder;
-		
 		public StaticABSetting[] Settings;
-
 		public Object[] ExtraDependencyAssets;
 
 		public bool ContainExtraObject(Object obj) {

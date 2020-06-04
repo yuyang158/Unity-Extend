@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using Extend.Common;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace Extend.Asset.Editor {
 	public class StaticAssetBundleWindow : EditorWindow {
@@ -16,15 +18,24 @@ namespace Extend.Asset.Editor {
 
 		private ReorderableList reList;
 		private ReorderableList otherDependencyList;
+		private ReorderableList reSpecialUnloadStrategyList;
 		private static StaticABSettings settingRoot;
 		private SerializedObject serializedObject;
 		private SerializedProperty selectedSetting;
-		private List<string> selectSettingABPaths = new List<string>();
+		private readonly List<string> selectSettingABPaths = new List<string>();
 		public const string SETTING_FILE_PATH = "Assets/Extend/Asset/Editor/settings.asset";
-		
+
 		private static readonly GUIContent SPECIAL_LIST_HEADER = new GUIContent("Special Folder List");
 		private static readonly GUIContent PATH_CONTENT = new GUIContent("Path");
+		private static readonly GUIContent ASSET_BUNDLE_CONTENT = new GUIContent("AB Name");
+		private static readonly GUIContent UNLOAD_STRATEGY_CONTENT = new GUIContent("Strategy");
 		private static readonly GUIContent OPERATION_CONTENT = new GUIContent("Operation");
+
+		private void FormatAndAddSpecialSettingPath(string path) {
+			path = path.ToLower().Replace('\\', '/');
+			Assert.IsTrue(path.StartsWith("assets"));
+			selectSettingABPaths.Add(path);
+		}
 
 		private void OnEnable() {
 			InitializeSetting();
@@ -55,36 +66,91 @@ namespace Extend.Asset.Editor {
 			reList.onSelectCallback += list => {
 				if( list.index >= 0 && list.index < list.count ) {
 					selectedSetting = list.serializedProperty.GetArrayElementAtIndex(list.index);
-					var folderProp  = selectedSetting.FindPropertyRelative("FolderPath");
-					var folderPath = folderProp.objectReferenceValue ? "" : AssetDatabase.GetAssetPath(folderProp.objectReferenceValue);
+					var folderProp = selectedSetting.FindPropertyRelative("FolderPath");
+					var folderPath = folderProp.objectReferenceValue ? AssetDatabase.GetAssetPath(folderProp.objectReferenceValue) : string.Empty;
 					selectSettingABPaths.Clear();
 					if( string.IsNullOrEmpty(folderPath) ) {
+						reSpecialUnloadStrategyList = null;
 						return;
 					}
-					var opEnumProp  = selectedSetting.FindPropertyRelative("Op");
+
+					var opEnumProp = selectedSetting.FindPropertyRelative("Op");
 					switch( (StaticABSetting.Operation)opEnumProp.intValue ) {
 						case StaticABSetting.Operation.ALL_IN_ONE:
-							selectSettingABPaths.Add(folderPath.ToLower());
+							FormatAndAddSpecialSettingPath(folderPath.ToLower());
 							break;
 						case StaticABSetting.Operation.STAY_RESOURCES:
 							break;
 						case StaticABSetting.Operation.EACH_FOLDER_ONE:
 							var subDirectories = Directory.GetDirectories(folderPath);
-							
+							foreach( var subDirectory in subDirectories ) {
+								FormatAndAddSpecialSettingPath($"{folderPath}/{Path.GetDirectoryName(subDirectory)}");
+							}
 							break;
 						case StaticABSetting.Operation.EACH_A_AB:
+							var files = Directory.GetFiles(folderPath, "*", SearchOption.AllDirectories);
+							foreach( var file in files ) {
+								if( file.StartsWith(".") || Path.GetExtension(file) == ".meta" ) {
+									continue;
+								}
+								FormatAndAddSpecialSettingPath($"{folderPath}/{Path.GetFileNameWithoutExtension(file)}");
+							}
 							break;
 						default:
 							throw new ArgumentOutOfRangeException();
 					}
-					var loadLogicsProp = selectedSetting.FindPropertyRelative("LoadLogics");
+
+					var unloadStrategyProp = selectedSetting.FindPropertyRelative("UnloadStrategies");
+					for( var i = 0; i < unloadStrategyProp.arraySize; ) {
+						var elementProp = unloadStrategyProp.GetArrayElementAtIndex(i);
+						var bundleNameProp = elementProp.FindPropertyRelative("BundleName");
+						var index = selectSettingABPaths.IndexOf(bundleNameProp.stringValue);
+						if( index < 0 ) {
+							unloadStrategyProp.DeleteArrayElementAtIndex(i);
+						}
+						else {
+							selectSettingABPaths.RemoveSwapAt(index);
+							i++;
+						}
+					}
+
+					foreach( var path in selectSettingABPaths ) {
+						unloadStrategyProp.InsertArrayElementAtIndex(unloadStrategyProp.arraySize);
+						var loadProp = unloadStrategyProp.GetArrayElementAtIndex(unloadStrategyProp.arraySize - 1);
+						var bundleNameProp = loadProp.FindPropertyRelative("BundleName");
+						bundleNameProp.stringValue = path;
+					}
 					
+					reSpecialUnloadStrategyList = new ReorderableList(serializedObject, unloadStrategyProp);
+					reSpecialUnloadStrategyList.drawHeaderCallback += rect => {
+						EditorGUI.LabelField(rect, "Unload Strategy");
+					};
+					reSpecialUnloadStrategyList.drawElementCallback += (rect, index, active, focused) => {
+						var element = unloadStrategyProp.GetArrayElementAtIndex(index);
+						rect.height = EditorGUIUtility.singleLineHeight;
+						var totalWidth = position.width;
+						rect.width = totalWidth / 2;
+
+						GUI.enabled = false;
+						var labelWidth = EditorGUIUtility.labelWidth;
+						EditorGUIUtility.labelWidth = 70;
+						var pathProp = element.FindPropertyRelative("BundleName");
+						EditorGUI.PropertyField(rect, pathProp, ASSET_BUNDLE_CONTENT);
+						GUI.enabled = true;
+
+						rect.x += rect.width + 5;
+						rect.width = totalWidth - rect.x;
+						var strategyProp = element.FindPropertyRelative("UnloadStrategy");
+						EditorGUI.PropertyField(rect, strategyProp, UNLOAD_STRATEGY_CONTENT);
+						serializedObject.ApplyModifiedProperties();
+						EditorGUIUtility.labelWidth = labelWidth;
+					};
 				}
 				else {
 					selectedSetting = null;
 				}
 			};
-			
+
 			var otherDepend = serializedObject.FindProperty("ExtraDependencyAssets");
 			otherDependencyList = new ReorderableList(otherDepend.serializedObject, otherDepend);
 			otherDependencyList.drawHeaderCallback += rect => { EditorGUI.LabelField(rect, "非Resources依赖"); };
@@ -99,6 +165,7 @@ namespace Extend.Asset.Editor {
 						dependProp.objectReferenceValue = null;
 					}
 				}
+
 				serializedObject.ApplyModifiedProperties();
 			};
 		}
@@ -116,18 +183,14 @@ namespace Extend.Asset.Editor {
 		private const int BOTTOM_BUTTON_COUNT = 3;
 
 		private void OnGUI() {
-			var atlasProp = serializedObject.FindProperty("SpriteAtlasFolder");
-			EditorGUILayout.PropertyField(atlasProp, new GUIContent("Atlas Root"));
-			EditorGUILayout.Space();
-
 			reList.DoLayoutList();
 			EditorGUILayout.Space();
 
-			if( selectedSetting != null ) {
-				
+			if( selectedSetting != null && reSpecialUnloadStrategyList != null ) {
 				EditorGUILayout.Space();
+				reSpecialUnloadStrategyList.DoLayoutList();
 			}
-			
+
 			otherDependencyList.DoLayoutList();
 			EditorGUILayout.Space();
 
@@ -149,12 +212,14 @@ namespace Extend.Asset.Editor {
 			if( GUI.Button(rect, "Save Config") ) {
 				AssetDatabase.SaveAssets();
 			}
+
 			EditorGUILayout.EndHorizontal();
 			serializedObject.ApplyModifiedProperties();
 		}
 
 		private static string buildRoot;
 		private static string outputPath;
+		public static string OutputPath => outputPath;
 
 		private static string MakeOutputDirectory(BuildTarget buildTarget) {
 			buildRoot = $"{Application.streamingAssetsPath}/ABBuild";
@@ -170,17 +235,6 @@ namespace Extend.Asset.Editor {
 			return outputPath;
 		}
 
-		private static void ExportResourcesPackageConf() {
-			// generate resources file to ab map config file
-			using( var writer = new StreamWriter($"{outputPath}/package.conf") ) {
-				foreach( var resourcesNode in BuildAssetRelation.ResourcesNodes ) {
-					var guid = AssetDatabase.AssetPathToGUID(resourcesNode.AssetPath);
-					var assetPath = resourcesNode.AssetPath.ToLower();
-					writer.WriteLine($"{assetPath}|{resourcesNode.AssetBundleName}|{guid}");
-				}
-			}
-		}
-
 		public static void BuildUpdateAssetBundles(BuildTarget target, string versionFilePath = null) {
 			InitializeSetting();
 			var outputDir = MakeOutputDirectory(target);
@@ -190,13 +244,12 @@ namespace Extend.Asset.Editor {
 					return;
 			}
 
-			BuildAtlasAB();
 			BuildAssetRelation.Clear();
 			var allABs = BuildAssetRelation.BuildBaseVersionData(versionFilePath);
-			BuildAssetRelation.BuildRelation(settingRoot.Settings, spritesInAtlas, () => {
-				ExportResourcesPackageConf();
+			BuildAssetRelation.BuildRelation(settingRoot, () => {
 				var manifest = BuildPipeline.BuildAssetBundles(outputPath,
-					BuildAssetBundleOptions.DeterministicAssetBundle | BuildAssetBundleOptions.ChunkBasedCompression | BuildAssetBundleOptions.IgnoreTypeTreeChanges,
+					BuildAssetBundleOptions.DeterministicAssetBundle | BuildAssetBundleOptions.ChunkBasedCompression |
+					BuildAssetBundleOptions.IgnoreTypeTreeChanges,
 					EditorUserBuildSettings.activeBuildTarget);
 
 				versionFilePath = $"{buildRoot}/content_version.bin";
@@ -205,7 +258,7 @@ namespace Extend.Asset.Editor {
 				var needUpdateAssetBundles = new List<string>();
 				foreach( var abName in manifest.GetAllAssetBundles() ) {
 					BuildPipeline.GetCRCForAssetBundle(Path.Combine(outputPath, abName), out var currentCrc32);
-					if( allABs.TryGetValue(abName, out var crc3d) && crc3d == currentCrc32)
+					if( allABs.TryGetValue(abName, out var crc3d) && crc3d == currentCrc32 )
 						continue;
 					needUpdateAssetBundles.Add(abName);
 				}
@@ -223,38 +276,12 @@ namespace Extend.Asset.Editor {
 			});
 		}
 
-		private static readonly HashSet<string> spritesInAtlas = new HashSet<string>();
-
-		private static void BuildAtlasAB() {
-			spritesInAtlas.Clear();
-			if(!settingRoot.SpriteAtlasFolder)
-				return;
-			var atlasDirectory = AssetDatabase.GetAssetPath(settingRoot.SpriteAtlasFolder);
-			var atlases = Directory.GetFiles(atlasDirectory, "*.spriteatlas");
-			foreach( var atlas in atlases ) {
-				var directory = Path.GetDirectoryName(atlas) ?? "";
-				var abName = Path.Combine(directory, Path.GetFileNameWithoutExtension(atlas));
-				var dependencies = AssetDatabase.GetDependencies(atlas);
-				foreach( var dependency in dependencies ) {
-					var spriteImporter = AssetImporter.GetAtPath(dependency);
-					if( spriteImporter is TextureImporter ) {
-						spriteImporter.assetBundleName = abName;
-						spritesInAtlas.Add(dependency.ToLower());
-					}
-				}
-			}
-		}
-
 		public static void RebuildAllAssetBundles(BuildTarget target, Action finishCallback = null) {
 			InitializeSetting();
 			MakeOutputDirectory(target);
 			BuildAssetRelation.Clear();
-			BuildAtlasAB();
-			
-			BuildAssetRelation.BuildRelation(settingRoot.Settings, spritesInAtlas, () => {
-				ExportResourcesPackageConf();
-
-				var manifest = BuildPipeline.BuildAssetBundles(outputPath, BuildAssetBundleOptions.DeterministicAssetBundle 
+			BuildAssetRelation.BuildRelation(settingRoot, () => {
+				var manifest = BuildPipeline.BuildAssetBundles(outputPath, BuildAssetBundleOptions.DeterministicAssetBundle
 				                                                           | BuildAssetBundleOptions.ChunkBasedCompression, target);
 				finishCallback?.Invoke();
 				BuildVersionFile($"{buildRoot}/content_version.bin", manifest, outputPath);

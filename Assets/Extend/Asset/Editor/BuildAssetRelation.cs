@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Extend.Asset.Editor.Process;
 using Unity.EditorCoroutines.Editor;
 using UnityEditor;
@@ -9,8 +10,9 @@ using UnityEditor;
 namespace Extend.Asset.Editor {
 	public static class BuildAssetRelation {
 		private static readonly Dictionary<string, AssetNode> resourcesNodes = new Dictionary<string, AssetNode>();
-		private static readonly Dictionary<string, AssetNode> allAssetNodes = new Dictionary<string, AssetNode>( 40960 );
+		private static readonly Dictionary<string, AssetNode> allAssetNodes = new Dictionary<string, AssetNode>(40960);
 		private static StaticABSetting[] manualSettings;
+
 		public static readonly string[] IgnoreExtensions = {
 			".cs",
 			".meta",
@@ -18,18 +20,18 @@ namespace Extend.Asset.Editor {
 		};
 
 		public static AssetNode GetNode(string filePath) {
-			var extension = Path.GetExtension( filePath );
-			if( Array.IndexOf( IgnoreExtensions, extension ) >= 0 )
+			var extension = Path.GetExtension(filePath);
+			if( Array.IndexOf(IgnoreExtensions, extension) >= 0 )
 				return null;
 
-			var guid = AssetDatabase.AssetPathToGUID( filePath );
-			if( !allAssetNodes.TryGetValue( guid, out var dependencyNode ) ) {
-				dependencyNode = new AssetNode( filePath ) {
-					Calculated = ContainInManualSettingDirectory( filePath )
+			var guid = AssetDatabase.AssetPathToGUID(filePath);
+			if( !allAssetNodes.TryGetValue(guid, out var dependencyNode) ) {
+				dependencyNode = new AssetNode(filePath) {
+					Calculated = ContainInManualSettingDirectory(filePath)
 				};
 				if( !dependencyNode.IsValid )
 					return null;
-				allAssetNodes.Add( guid, dependencyNode );
+				allAssetNodes.Add(guid, dependencyNode);
 				dependencyNode.BuildRelation();
 			}
 
@@ -46,8 +48,8 @@ namespace Extend.Asset.Editor {
 
 		public static Dictionary<string, uint> BuildBaseVersionData(string versionConfPath) {
 			var allAssetBundles = new Dictionary<string, uint>();
-			using( var fileStream = new FileStream( versionConfPath, FileMode.Open ) ) {
-				using( var reader = new BinaryReader( fileStream ) ) {
+			using( var fileStream = new FileStream(versionConfPath, FileMode.Open) ) {
+				using( var reader = new BinaryReader(fileStream) ) {
 					while( fileStream.Position < fileStream.Length ) {
 						var abName = reader.ReadString();
 						var crc32 = reader.ReadUInt32();
@@ -59,26 +61,24 @@ namespace Extend.Asset.Editor {
 			return allAssetBundles;
 		}
 
-		private static HashSet<string> s_spritesInAtlas;
-		public static void BuildRelation(StaticABSetting[] settings, HashSet<string> spritesInAtlas, Action completeCallback) {
+		private static Dictionary<string, BundleUnloadStrategy> s_specialAB;
+
+		public static void BuildRelation(StaticABSettings abSetting, Action completeCallback) {
 			AssetCustomProcesses.Init();
-			manualSettings = settings;
-			s_spritesInAtlas = spritesInAtlas;
+			manualSettings = abSetting.Settings;
+			s_specialAB = new Dictionary<string, BundleUnloadStrategy>();
 			foreach( var setting in manualSettings ) {
-				var settingFiles = Directory.GetFiles( setting.Path, "*.*", SearchOption.AllDirectories );
+				var settingFiles = Directory.GetFiles(setting.Path, "*.*", SearchOption.AllDirectories);
 				foreach( var filePath in settingFiles ) {
-					if( Array.IndexOf( IgnoreExtensions, Path.GetExtension( filePath ) ) >= 0 )
+					if( Array.IndexOf(IgnoreExtensions, Path.GetExtension(filePath)) >= 0 )
 						continue;
 
-					var importer = AssetImporter.GetAtPath( filePath );
+					var importer = AssetImporter.GetAtPath(filePath);
 					if( !importer )
-						continue;
-					
-					if(spritesInAtlas.Contains(FormatPath(filePath.ToLower())))
 						continue;
 
 					var abName = string.Empty;
-					var directoryName = Path.GetDirectoryName( filePath ) ?? "";
+					var directoryName = Path.GetDirectoryName(filePath) ?? "";
 					switch( setting.Op ) {
 						case StaticABSetting.Operation.ALL_IN_ONE:
 							abName = setting.Path;
@@ -86,7 +86,7 @@ namespace Extend.Asset.Editor {
 						case StaticABSetting.Operation.STAY_RESOURCES:
 							break;
 						case StaticABSetting.Operation.EACH_FOLDER_ONE:
-							abName = FormatPath( directoryName );
+							abName = FormatPath(directoryName);
 							break;
 						case StaticABSetting.Operation.EACH_A_AB:
 							abName = FormatPath(Path.Combine(directoryName, Path.GetFileNameWithoutExtension(filePath)));
@@ -96,55 +96,81 @@ namespace Extend.Asset.Editor {
 					}
 
 					importer.assetBundleName = abName;
+					if( !s_specialAB.ContainsKey(abName) ) {
+						var s = Array.Find(setting.UnloadStrategies, (strategy) => strategy.BundleName == abName);
+						s_specialAB.Add(abName, s.UnloadStrategy);
+					}
 				}
 			}
 
-			var files = Directory.GetFiles( "Assets/Resources", "*", SearchOption.AllDirectories );
-			EditorUtility.DisplayProgressBar( "Process resources asset", "", 0 );
-			EditorCoroutineUtility.StartCoroutineOwnerless( RelationProcess( files, completeCallback ) );
+			var files = Directory.GetFiles("Assets/Resources", "*", SearchOption.AllDirectories);
+			var otherFiles = new string[abSetting.ExtraDependencyAssets.Length];
+			for( var i = 0; i < abSetting.ExtraDependencyAssets.Length; i++ ) {
+				var asset = abSetting.ExtraDependencyAssets[i];
+				var path = AssetDatabase.GetAssetPath(asset);
+				otherFiles[i] = path;
+			}
+
+			files = files.Concat(otherFiles).ToArray();
+			EditorUtility.DisplayProgressBar("Process resources asset", "", 0);
+			EditorCoroutineUtility.StartCoroutineOwnerless(RelationProcess(files, completeCallback));
 		}
 
 		// \\ -> /
 		private static string FormatPath(string path) {
-			return path.Replace( '\\', '/' );
+			return path.Replace('\\', '/');
 		}
 
 		private static bool ContainInManualSettingDirectory(string path) {
-			if( s_spritesInAtlas.Contains(path.ToLower()) )
+			if( s_specialAB.ContainsKey(path.ToLower()) )
 				return true;
 
 			return Array.Find(manualSettings, setting => path.Contains(setting.Path)) != null;
+		}
+		
+		private static void ExportResourcesPackageConf() {
+			// generate resources file to ab map config file
+			using( var writer = new StreamWriter($"{StaticAssetBundleWindow.OutputPath}/package.conf") ) {
+				foreach( var resourcesNode in ResourcesNodes ) {
+					var guid = AssetDatabase.AssetPathToGUID(resourcesNode.AssetPath);
+					var assetPath = resourcesNode.AssetPath.ToLower();
+
+					writer.WriteLine(s_specialAB.TryGetValue(resourcesNode.AssetBundleName, out var strategy)
+						? $"{assetPath}|{resourcesNode.AssetBundleName}|{guid}|{(int)strategy}"
+						: $"{assetPath}|{resourcesNode.AssetBundleName}|{guid}");
+				}
+			}
 		}
 
 		private static IEnumerator RelationProcess(ICollection<string> files, Action completeCallback) {
 			var progress = 0;
 			foreach( var filePath in files ) {
-				var extension = Path.GetExtension( filePath );
+				var extension = Path.GetExtension(filePath);
 				progress++;
-				if( Array.IndexOf( IgnoreExtensions, extension ) >= 0 || filePath.Contains( ".svn" ) )
+				if( Array.IndexOf(IgnoreExtensions, extension) >= 0 || filePath.Contains(".svn") )
 					continue;
 
-				var formatPath = FormatPath( filePath );
-				var guid = AssetDatabase.AssetPathToGUID( formatPath );
-				if( !allAssetNodes.ContainsKey( guid ) ) {
-					if( string.IsNullOrEmpty( guid ) ) {
+				var formatPath = FormatPath(filePath);
+				var guid = AssetDatabase.AssetPathToGUID(formatPath);
+				if( !allAssetNodes.ContainsKey(guid) ) {
+					if( string.IsNullOrEmpty(guid) ) {
 						continue;
 					}
 
-					var node = new AssetNode( formatPath ) {
-						Calculated = ContainInManualSettingDirectory( formatPath )
+					var node = new AssetNode(formatPath) {
+						Calculated = ContainInManualSettingDirectory(formatPath)
 					};
 					if( !node.IsValid )
 						continue;
-					resourcesNodes.Add( guid, node );
-					allAssetNodes.Add( guid, node );
+					resourcesNodes.Add(guid, node);
+					allAssetNodes.Add(guid, node);
 				}
 				else {
-					resourcesNodes.Add( guid, allAssetNodes[guid] );
+					resourcesNodes.Add(guid, allAssetNodes[guid]);
 				}
 
 				if( progress % 5 == 0 ) {
-					EditorUtility.DisplayProgressBar( "Process resources asset", $"{progress} / {files.Count}", progress / (float) files.Count );
+					EditorUtility.DisplayProgressBar("Process resources asset", $"{progress} / {files.Count}", progress / (float)files.Count);
 					yield return null;
 				}
 			}
@@ -155,8 +181,8 @@ namespace Extend.Asset.Editor {
 				progress++;
 				assetNode.Value.BuildRelation();
 				if( progress % 10 == 0 ) {
-					EditorUtility.DisplayProgressBar( "Calculate resources relations", $"{progress} / {resourcesNodes.Count}",
-						progress / (float) resourcesNodes.Count );
+					EditorUtility.DisplayProgressBar("Calculate resources relations", $"{progress} / {resourcesNodes.Count}",
+						progress / (float)resourcesNodes.Count);
 					yield return null;
 				}
 			}
@@ -166,7 +192,7 @@ namespace Extend.Asset.Editor {
 				progress++;
 				node.Value.RemoveShorterLink();
 				if( progress % 10 == 0 ) {
-					EditorUtility.DisplayProgressBar( "Remove shorter link", $"{progress} / {allAssetNodes.Count}", progress / (float) allAssetNodes.Count );
+					EditorUtility.DisplayProgressBar("Remove shorter link", $"{progress} / {allAssetNodes.Count}", progress / (float)allAssetNodes.Count);
 					yield return null;
 				}
 			}
@@ -177,7 +203,7 @@ namespace Extend.Asset.Editor {
 				//sb.Append( node.Value.BuildGraphviz() );
 				node.Value.CalculateABName();
 				progress++;
-				EditorUtility.DisplayProgressBar( "Assign bundle name", $"{progress} / {allAssetNodes.Count}", progress / (float) allAssetNodes.Count );
+				EditorUtility.DisplayProgressBar("Assign bundle name", $"{progress} / {allAssetNodes.Count}", progress / (float)allAssetNodes.Count);
 				yield return null;
 			}
 
@@ -186,6 +212,8 @@ namespace Extend.Asset.Editor {
 			completeCallback();
 			AssetCustomProcesses.PostProcess();
 			AssetCustomProcesses.Shutdown();
+
+			ExportResourcesPackageConf();
 		}
 	}
 }

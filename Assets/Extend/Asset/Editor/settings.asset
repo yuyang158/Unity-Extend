@@ -12,10 +12,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f0298e872d2c41c5859ce5579b59dc35, type: 3}
   m_Name: settings
   m_EditorClassIdentifier: 
-  SpriteAtlasFolder: {fileID: 102900000, guid: 2f26b1c14ce71734f900a3a777780238, type: 3}
   Settings:
   - FolderPath: {fileID: 102900000, guid: b5943f7fc0a60214991b43924cb31649, type: 3}
     Op: 0
+    UnloadStrategies:
+    - BundleName: assets/resources/config
+      UnloadStrategy: 0
   - FolderPath: {fileID: 102900000, guid: bd1e6529a8190364c952f3b0f8c6f7ca, type: 3}
     Op: 0
+    UnloadStrategies:
+    - BundleName: assets/resources/lua
+      UnloadStrategy: 1
+  - FolderPath: {fileID: 102900000, guid: 2f26b1c14ce71734f900a3a777780238, type: 3}
+    Op: 3
+    UnloadStrategies:
+    - BundleName: assets/spriteatlas/all
+      UnloadStrategy: 1
   ExtraDependencyAssets: []

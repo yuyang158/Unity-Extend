@@ -12,7 +12,7 @@ using UnityEngine.Networking;
 
 namespace Extend.Asset.AssetProvider {
 	public class AssetBundleLoadProvider : AssetLoadProvider {
-		private struct AssetBundlePath {
+		private struct AssetPath {
 			public string Path;
 			public string ABName;
 		}
@@ -20,7 +20,7 @@ namespace Extend.Asset.AssetProvider {
 		private AssetBundleManifest m_manifest;
 		private static string STREAMING_ASSET_PATH;
 		private static string PERSISTENT_DATA_PATH;
-		private readonly Dictionary<string, AssetBundlePath> m_asset2ABMap = new Dictionary<string, AssetBundlePath>();
+		private readonly Dictionary<string, AssetPath> m_asset2ABMap = new Dictionary<string, AssetPath>();
 		private readonly Dictionary<string, string> m_guid2AssetPath = new Dictionary<string, string>();
 
 		public override string FormatAssetPath(string path) {
@@ -70,17 +70,21 @@ namespace Extend.Asset.AssetProvider {
 				var line = reader.ReadLine();
 				while( !string.IsNullOrEmpty(line) ) {
 					var segments = line.Split('|');
-					Assert.AreEqual(segments.Length, 3);
+					Assert.IsTrue(segments.Length >= 3);
 					var fullPath = segments[0];
 					var extension = Path.GetExtension(fullPath);
 					fullPath = fullPath.Substring(0, fullPath.Length - extension.Length);
 					var assetPath = segments[0];
 					var assetAB = segments[1];
 					var assetGUID = segments[2];
-					var abContext = new AssetBundlePath {
+					var abContext = new AssetPath {
 						Path = string.Intern(assetPath),
-						ABName = string.Intern(assetAB)
+						ABName = string.Intern(assetAB),
 					};
+					if( segments.Length == 4 ) {
+						AssetService.Get().Container.AddAssetBundleStrategy(assetAB, (BundleUnloadStrategy)( int.Parse(segments[3]) ));
+					}
+					
 					m_asset2ABMap.Add(fullPath, abContext);
 					m_guid2AssetPath.Add(assetGUID, fullPath);
 					line = reader.ReadLine();
@@ -100,14 +104,14 @@ namespace Extend.Asset.AssetProvider {
 			var mainABInstance = loadHandle.Container.TryGetAsset(mainABHash);
 			if( mainABInstance == null ) {
 				mainABInstance = new AssetBundleInstance(abPathContext.ABName);
-				loadHandle.Container.Put(mainABInstance);
+				loadHandle.Container.PutAB((AssetBundleInstance)mainABInstance);
 				var allDependencies = m_manifest.GetAllDependencies(abPathContext.ABName);
 				if( allDependencies.Length > 0 ) {
 					foreach( var dependency in allDependencies ) {
 						var depHash = AssetBundleInstance.GenerateHash(dependency);
 						var depAsset = loadHandle.Container.TryGetAsset(depHash);
 						if( depAsset == null ) {
-							loadHandle.Container.Put(new AssetBundleInstance(dependency));
+							loadHandle.Container.PutAB(new AssetBundleInstance(dependency));
 						}
 					}
 
@@ -127,7 +131,7 @@ namespace Extend.Asset.AssetProvider {
 			op.Execute(loadHandle, typ);
 		}
 
-		private bool TryGetABContext(string path, out AssetBundlePath context) {
+		private bool TryGetABContext(string path, out AssetPath context) {
 			if( !m_asset2ABMap.TryGetValue(path, out context) ) {
 				Debug.LogError($"Can not file asset at {path}");
 				return false;
@@ -154,14 +158,14 @@ namespace Extend.Asset.AssetProvider {
 			var mainABHash = AssetBundleInstance.GenerateHash(abPathContext.ABName);
 			if( !( container.TryGetAsset(mainABHash) is AssetBundleInstance mainABInstance ) ) {
 				mainABInstance = new AssetBundleInstance(abPathContext.ABName);
-				container.Put(mainABInstance);
+				container.PutAB(mainABInstance);
 				var needLoadPaths = new List<AssetBundleInstance>();
 				var allDependencies = m_manifest.GetAllDependencies(abPathContext.ABName);
 				foreach( var dependency in allDependencies ) {
 					var depHash = AssetBundleInstance.GenerateHash(dependency);
 					if( !( container.TryGetAsset(depHash) is AssetBundleInstance depAsset ) ) {
 						depAsset = new AssetBundleInstance(dependency);
-						container.Put(depAsset);
+						container.PutAB(depAsset);
 					}
 
 					if( depAsset.IsFinished )

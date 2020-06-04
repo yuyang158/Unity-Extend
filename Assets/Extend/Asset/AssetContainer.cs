@@ -1,22 +1,56 @@
+using System;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace Extend.Asset {
+	[Serializable]
+	public enum BundleUnloadStrategy {
+		Normal,
+		DontUnload
+	}
+
 	public class AssetContainer {
 		private readonly List<AssetRefObject> m_assets = new List<AssetRefObject>(1024);
-		private readonly Dictionary<int, AssetRefObject> m_hashAssetDic = new Dictionary<int, AssetRefObject>();
+		private readonly Dictionary<int, AssetRefObject> m_hashAssetDic = new Dictionary<int, AssetRefObject>(1024);
 		private int m_tickIndex;
 		private const float MAX_ASSET_ZERO_REF_DURATION = 10;
 		private const int SINGLE_FRAME_CHECK_COUNT = 1;
+		private readonly Dictionary<string, BundleUnloadStrategy> m_abStrategy = new Dictionary<string, BundleUnloadStrategy>();
 
 		public void Put(AssetRefObject asset) {
 			m_assets.Add(asset);
-			m_hashAssetDic.Add(asset.GetHashCode(), asset);	
+			m_hashAssetDic.Add(asset.GetHashCode(), asset);
+		}
+
+		public void PutAB(AssetBundleInstance ab) {
+			if( m_abStrategy.TryGetValue(ab.ABPath, out var strategy) ) {
+				if( strategy == BundleUnloadStrategy.Normal ) {
+					m_assets.Add(ab);
+				}
+			}
+
+			m_hashAssetDic.Add(ab.GetHashCode(), ab);
+		}
+
+		public void AddAssetBundleStrategy(string path, BundleUnloadStrategy strategy) {
+			if( m_abStrategy.ContainsKey(path) )
+				return;
+
+			m_abStrategy.Add(path, strategy);
 		}
 
 		public AssetRefObject TryGetAsset(int hash) {
 			m_hashAssetDic.TryGetValue(hash, out var assetRef);
 			return assetRef;
+		}
+
+		public void DirectUnload(int hash) {
+			var asset = m_hashAssetDic[hash];
+			Assert.IsNotNull(asset);
+			asset.Destroy();
+			m_hashAssetDic.Remove(hash);
 		}
 
 		public void Collect(bool ignoreTime = false) {
@@ -41,12 +75,11 @@ namespace Extend.Asset {
 			m_tickIndex += SINGLE_FRAME_CHECK_COUNT;
 		}
 
-		public void CollectAll() {
+		public void FullCollect() {
 			m_tickIndex = 0;
 			do {
 				Collect(true);
-			} 
-			while( m_tickIndex != 0 );
+			} while( m_tickIndex != 0 );
 
 			Resources.UnloadUnusedAssets();
 		}
