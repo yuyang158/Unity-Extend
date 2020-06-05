@@ -12,7 +12,35 @@ function M:start()
 			on = true,
 			input = "Place holder",
 			red = "Sprites/red",
-			green = "Sprites/green"
+			green = "Sprites/green",
+			array = {
+				{text = "a"},
+				{text = "b"},
+				{text = "c"},
+				{text = "d"},
+				{text = "e"},
+				{text = "aa"},
+				{text = "bsd"},
+				{text = "cas"},
+				{text = "ddasas"},
+				{text = "aasdsd"},
+				{text = "bsdc"},
+				{text = "cvd"},
+				{text = "dngh"},
+				{text = "a111"},
+				{text = "b22222"},
+				{text = "c3333"},
+				{text = "d4444"},
+				{text = "e5555"},
+				{text = "aa66666"},
+				{text = "bsd7777"},
+				{text = "cas8888"},
+				{text = "ddasas9999999"},
+				{text = "aasdsd11111"},
+				{text = "bsdc22222"},
+				{text = "cvd33333"},
+				{text = "dngh4444"}
+			}
 		}
 	}
 	binding.build(self.context)

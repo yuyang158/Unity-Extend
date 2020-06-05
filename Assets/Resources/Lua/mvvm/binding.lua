@@ -134,6 +134,9 @@ local function build_data(data, path)
 		end,
 		__pairs = function()
 			return next, _data, nil
+		end,
+		__len = function()
+			return #_data
 		end
 	})
 end

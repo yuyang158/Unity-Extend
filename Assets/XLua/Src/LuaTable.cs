@@ -250,7 +250,7 @@ namespace XLua
 #endif
         }
 
-        public int Length
+        public int RawLength
         {
             get
             {
@@ -264,6 +264,27 @@ namespace XLua
                     var len = (int)LuaAPI.xlua_objlen(L, -1);
                     LuaAPI.lua_settop(L, oldTop);
                     return len;
+#if THREAD_SAFE || HOTFIX_ENABLE
+                }
+#endif
+            }
+        }
+
+        public int Length
+        {
+            get
+            {
+#if THREAD_SAFE || HOTFIX_ENABLE
+                lock (luaEnv.luaEnvLock)
+                {
+#endif
+                var L = luaEnv.L;
+                int oldTop = LuaAPI.lua_gettop(L);
+                LuaAPI.lua_getref(L, luaReference);
+                LuaAPI.lua_len(L, -1);
+                var len = LuaAPI.xlua_tointeger(L, -1);
+                LuaAPI.lua_settop(L, oldTop);
+                return len;
 #if THREAD_SAFE || HOTFIX_ENABLE
                 }
 #endif

@@ -100,6 +100,9 @@ namespace XLua.LuaDLL
 
         [DllImport(LUADLL, CallingConvention = CallingConvention.Cdecl)]
         public static extern uint xlua_objlen(IntPtr L, int stackPos);
+        
+        [DllImport(LUADLL, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void lua_len(IntPtr L, int stackPos);
 
 		[DllImport(LUADLL, CallingConvention = CallingConvention.Cdecl)]
 		public static extern void lua_createtable(IntPtr L, int narr, int nrec);//[-0, +0, m]

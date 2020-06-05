@@ -19,6 +19,8 @@ namespace Extend.UI.Scroll {
 		[Tooltip("Total count, negative means INFINITE mode")]
 		public int totalCount;
 
+		public ILoopScrollDataProvider dataSource;
+
 		protected float threshold = 0;
 
 		[Tooltip("Reverse direction for dragging")]
@@ -339,7 +341,6 @@ namespace Extend.UI.Scroll {
 				itemTypeStart = 0;
 				itemTypeEnd = 0;
 				totalCount = 0;
-				CellAsset.Dispose();
 				for( var i = content.childCount - 1; i >= 0; i-- ) {
 					AssetService.Recycle(content.GetChild(i));
 				}
@@ -430,7 +431,7 @@ namespace Extend.UI.Scroll {
 				// recycle items if we can
 				for( var i = 0; i < content.childCount; i++ ) {
 					if( itemTypeEnd < totalCount ) {
-						// dataSource.ProvideData(content.GetChild(i), itemTypeEnd);
+						dataSource.ProvideData(content.GetChild(i), itemTypeEnd);
 						itemTypeEnd++;
 					}
 					else {
@@ -642,10 +643,9 @@ namespace Extend.UI.Scroll {
 		}
 
 		private RectTransform InstantiateNextItem(int itemIdx) {
-			RectTransform nextItem = null;//prefabSource.GetObject().transform as RectTransform;
-			nextItem.transform.SetParent(content, false);
+			var nextItem = CellAsset.Instantiate(content).transform as RectTransform;
 			nextItem.gameObject.SetActive(true);
-			// dataSource.ProvideData(nextItem, itemIdx);
+			dataSource.ProvideData(nextItem, itemIdx);
 			return nextItem;
 		}
 		//==========LoopScrollRect==========
@@ -711,6 +711,11 @@ namespace Extend.UI.Scroll {
 			m_Velocity = Vector2.zero;
 			LayoutRebuilder.MarkLayoutForRebuild(rectTransform);
 			base.OnDisable();
+		}
+
+		protected override void OnDestroy() {
+			CellAsset?.Dispose();
+			base.OnDestroy();
 		}
 
 		public override bool IsActive() {
