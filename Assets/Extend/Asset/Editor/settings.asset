@@ -28,4 +28,5 @@ MonoBehaviour:
     UnloadStrategies:
     - BundleName: assets/spriteatlas/all
       UnloadStrategy: 1
-  ExtraDependencyAssets: []
+  ExtraDependencyAssets:
+  - {fileID: 4943120165877654340, guid: 41cd678664b52f149abb81e62862e1ce, type: 3}

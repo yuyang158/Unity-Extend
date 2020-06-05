@@ -21,7 +21,6 @@ namespace Extend.LuaMVVM {
 		}
 
 		public LuaTable LuaArrayData {
-			get => m_arrayData;
 			set {
 				m_arrayData?.Dispose();
 				m_arrayData = value;

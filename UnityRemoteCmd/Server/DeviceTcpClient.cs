@@ -70,6 +70,16 @@ namespace Server {
 				return Task.Run(() => e.Message);
 			}
 		}
+		
+		public void Ping() {
+			try {
+				tcpClient.GetStream().Write(BitConverter.GetBytes((short)-1));
+				tcpClient.GetStream().Flush();
+			}
+			catch( Exception e ) {
+				Disconnect();
+			}
+		}
 
 		private void Disconnect() {
 			lock( Router.Devices ) {

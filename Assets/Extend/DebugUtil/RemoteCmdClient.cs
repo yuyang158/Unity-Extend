@@ -36,6 +36,8 @@ public static class RemoteCmdClient {
 			while( true ) {
 				await tcpClient.GetStream().ReadAsync(size, 0, 2);
 				var luaSize = BitConverter.ToInt16(size, 0);
+				if(luaSize <= 0)
+					continue;
 
 				var recvCount = 0;
 				buffer = new byte[luaSize];
