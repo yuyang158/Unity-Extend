@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using Extend.Asset.Editor.Process;
@@ -22,6 +23,9 @@ namespace Extend.Asset.Editor {
 		public static AssetNode GetNode(string filePath) {
 			var extension = Path.GetExtension(filePath);
 			if( Array.IndexOf(IgnoreExtensions, extension) >= 0 )
+				return null;
+
+			if( !filePath.StartsWith("assets", true, CultureInfo.CurrentCulture) )
 				return null;
 
 			var guid = AssetDatabase.AssetPathToGUID(filePath);
@@ -95,10 +99,21 @@ namespace Extend.Asset.Editor {
 							throw new ArgumentOutOfRangeException();
 					}
 
-					importer.assetBundleName = abName;
-					if( !string.IsNullOrEmpty(abName) && !s_specialAB.ContainsKey(abName) ) {
-						var s = Array.Find(setting.UnloadStrategies, (strategy) => strategy.BundleName == abName);
-						s_specialAB.Add(importer.assetPath.ToLower(), s.UnloadStrategy);
+					var node = new AssetNode(importer.assetPath, abName);
+					var s = Array.Find(setting.UnloadStrategies, (strategy) => strategy.BundleName == abName);
+					AddNewAssetNode(node);
+					s_specialAB.Add(node.AssetName, s?.UnloadStrategy ?? BundleUnloadStrategy.Normal);
+					if( Path.GetExtension(node.AssetPath) == ".spriteatlas" ) {
+						var dependencies = AssetDatabase.GetDependencies(node.AssetPath);
+						foreach( var dependency in dependencies ) {
+							if( dependency == importer.assetPath ) {
+								continue;
+							}
+
+							var depNode = new AssetNode(dependency, abName);
+							AddNewAssetNode(depNode);
+							s_specialAB.Add(depNode.AssetName, s?.UnloadStrategy ?? BundleUnloadStrategy.Normal);
+						}
 					}
 				}
 			}
@@ -116,18 +131,24 @@ namespace Extend.Asset.Editor {
 			EditorCoroutineUtility.StartCoroutineOwnerless(RelationProcess(files, completeCallback));
 		}
 
+		private static void AddNewAssetNode(AssetNode node) {
+			var guid = AssetDatabase.AssetPathToGUID(node.AssetPath);
+			if( node.AssetPath.StartsWith("assets/resources", true, CultureInfo.CurrentCulture) ) {
+				resourcesNodes.Add(guid, node);
+			}
+
+			allAssetNodes.Add(guid, node);
+		}
+
 		// \\ -> /
 		private static string FormatPath(string path) {
 			return path.Replace('\\', '/').ToLower();
 		}
 
 		private static bool ContainInManualSettingDirectory(string path) {
-			if( s_specialAB.ContainsKey(path.ToLower()) )
-				return true;
-
-			return Array.Find(manualSettings, setting => path.Contains(setting.Path)) != null;
+			return s_specialAB.ContainsKey(path.ToLower());
 		}
-		
+
 		private static void ExportResourcesPackageConf() {
 			// generate resources file to ab map config file
 			using( var writer = new StreamWriter($"{StaticAssetBundleWindow.OutputPath}/package.conf") ) {
@@ -149,17 +170,20 @@ namespace Extend.Asset.Editor {
 				progress++;
 				if( Array.IndexOf(IgnoreExtensions, extension) >= 0 || filePath.Contains(".svn") )
 					continue;
-
+				
 				var formatPath = FormatPath(filePath);
+				var node = new AssetNode(formatPath);
+				if( s_specialAB.ContainsKey(node.AssetName) ) {
+					continue;
+				}
+
 				var guid = AssetDatabase.AssetPathToGUID(formatPath);
 				if( !allAssetNodes.ContainsKey(guid) ) {
 					if( string.IsNullOrEmpty(guid) ) {
 						continue;
 					}
 
-					var node = new AssetNode(formatPath) {
-						Calculated = ContainInManualSettingDirectory(formatPath)
-					};
+					node.Calculated = ContainInManualSettingDirectory(node.AssetName);
 					if( !node.IsValid )
 						continue;
 					resourcesNodes.Add(guid, node);

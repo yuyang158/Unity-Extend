@@ -1,21 +1,23 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
 using Extend.Asset.Editor.Process;
 using UnityEditor;
+using UnityEngine;
 using UnityEngine.Assertions;
 
 namespace Extend.Asset.Editor {
 	public class AssetNode {
 		public string AssetPath => importer.assetPath;
 
-		private string AssetName {
+		public string AssetName {
 			get {
 				var assetName = Path.GetDirectoryName(importer.assetPath) + "/" + Path.GetFileNameWithoutExtension(importer.assetPath);
 				assetName = assetName.Replace('\\', '/');
-				return assetName;
+				return assetName.ToLower();
 			}
 		}
 
@@ -28,6 +30,7 @@ namespace Extend.Asset.Editor {
 				if( importer.assetBundleName == abName )
 					return;
 				importer.assetBundleName = abName;
+				Debug.Log($"{Path.GetFileName(importer.assetPath)} --> {abName}");
 			}
 		}
 
@@ -38,9 +41,13 @@ namespace Extend.Asset.Editor {
 
 		public bool Calculated { private get; set; }
 
-		public AssetNode(string path) {
+		public AssetNode(string path, string abName = "") {
+			Assert.IsTrue(path.StartsWith("assets", true, CultureInfo.CurrentCulture));
 			importer = AssetImporter.GetAtPath(path);
 			AssetCustomProcesses.Process(importer);
+			if( !string.IsNullOrEmpty(abName) ) {
+				AssetBundleName = abName;
+			}
 		}
 
 		public bool IsValid => importer != null;
