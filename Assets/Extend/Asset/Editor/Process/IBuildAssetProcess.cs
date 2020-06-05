@@ -19,7 +19,7 @@ namespace Extend.Asset.Editor.Process {
 		private static TextWriter m_processWriter;
 
 		public static void Init() {
-			m_processWriter = new StreamWriter($"{Application.dataPath}/../asset_build.txt");
+			m_processWriter = new StreamWriter($"{Application.dataPath}/../asset_build_{DateTime.Now.ToLongTimeString().Replace(':', '_')}.txt");
 		}
 
 		public static void RegisterProcess(IBuildAssetProcess process) {

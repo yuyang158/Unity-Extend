@@ -81,7 +81,7 @@ namespace Extend.Asset.Editor {
 					var directoryName = Path.GetDirectoryName(filePath) ?? "";
 					switch( setting.Op ) {
 						case StaticABSetting.Operation.ALL_IN_ONE:
-							abName = setting.Path;
+							abName = FormatPath(setting.Path);
 							break;
 						case StaticABSetting.Operation.STAY_RESOURCES:
 							break;
@@ -96,9 +96,9 @@ namespace Extend.Asset.Editor {
 					}
 
 					importer.assetBundleName = abName;
-					if( !s_specialAB.ContainsKey(abName) ) {
+					if( !string.IsNullOrEmpty(abName) && !s_specialAB.ContainsKey(abName) ) {
 						var s = Array.Find(setting.UnloadStrategies, (strategy) => strategy.BundleName == abName);
-						s_specialAB.Add(abName, s.UnloadStrategy);
+						s_specialAB.Add(importer.assetPath.ToLower(), s.UnloadStrategy);
 					}
 				}
 			}
@@ -118,7 +118,7 @@ namespace Extend.Asset.Editor {
 
 		// \\ -> /
 		private static string FormatPath(string path) {
-			return path.Replace('\\', '/');
+			return path.Replace('\\', '/').ToLower();
 		}
 
 		private static bool ContainInManualSettingDirectory(string path) {
