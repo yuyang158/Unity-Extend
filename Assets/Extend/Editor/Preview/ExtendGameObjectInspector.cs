@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 
 namespace Extend.Editor.InspectorGUI {
-	[CustomEditor(typeof(GameObject), true), CanEditMultipleObjects]
+	// [CustomEditor(typeof(GameObject), true), CanEditMultipleObjects]
 	public class ExtendGameObjectInspector : OverrideEditor {
 		private bool m_ShowParticlePreview;
 

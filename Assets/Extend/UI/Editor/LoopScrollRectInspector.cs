@@ -41,7 +41,7 @@ namespace Extend.UI.Scroll.Editor {
 			index = EditorGUILayout.IntField("Index", index, GUILayout.Width(w));
 			speed = EditorGUILayout.FloatField("Speed", speed, GUILayout.Width(w));
 			if( GUILayout.Button("Scroll", GUILayout.Width(45)) ) {
-				scroll.SrollToCell(index, speed);
+				scroll.ScrollToCell(index, speed);
 			}
 
 			EditorGUILayout.EndHorizontal();

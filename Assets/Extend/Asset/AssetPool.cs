@@ -27,7 +27,6 @@ namespace Extend.Asset {
 
 		public void Cache(GameObject go) {
 			StatService.Get().Increase(StatService.StatName.IN_USE_GO, -1);
-			m_assetInstance.Release();
 			if( m_cached.Count == 0 ) {
 				m_cacheStart = Time.time;
 			}

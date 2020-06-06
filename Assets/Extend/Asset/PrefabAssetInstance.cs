@@ -36,9 +36,12 @@ namespace Extend.Asset {
 				go = Object.Instantiate(UnityObject, parent, stayWorldPosition) as GameObject;
 				var direct = go.AddComponent<DirectDestroyGO>();
 				direct.PrefabAsset = this;
+				direct.Instantiated();
 			}
 			else {
 				go = m_pool.Get(parent, stayWorldPosition);
+				var cached = go.GetComponent<PoolCacheGO>();
+				cached.Instantiated();
 			}
 			StatService.Get().Increase(StatService.StatName.IN_USE_GO, 1);
 			return go;
@@ -50,9 +53,12 @@ namespace Extend.Asset {
 				go = Object.Instantiate(UnityObject, position, quaternion, parent) as GameObject;
 				var direct = go.AddComponent<DirectDestroyGO>();
 				direct.PrefabAsset = this;
+				direct.Instantiated();
 			}
 			else {
 				go = m_pool.Get(position, quaternion, parent);
+				var cached = go.GetComponent<PoolCacheGO>();
+				cached.Instantiated();
 			}
 			StatService.Get().Increase(StatService.StatName.IN_USE_GO, 1);
 			return go;

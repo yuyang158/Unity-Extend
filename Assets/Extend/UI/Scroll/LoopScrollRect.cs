@@ -348,7 +348,7 @@ namespace Extend.UI.Scroll {
 			}
 		}
 
-		public void SrollToCell(int index, float speed) {
+		public void ScrollToCell(int index, float speed) {
 			if( totalCount >= 0 && ( index < 0 || index >= totalCount ) ) {
 				Debug.LogWarningFormat("invalid index {0}", index);
 				return;

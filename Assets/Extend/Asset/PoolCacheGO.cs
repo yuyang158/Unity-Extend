@@ -14,7 +14,7 @@ namespace Extend.Asset {
 
 		public AssetPool SharedPool { private get; set; }
 
-		public override void Recycle() {
+		internal override void Recycle() {
 			SharedPool.Cache(gameObject);
 			base.Recycle();
 		}

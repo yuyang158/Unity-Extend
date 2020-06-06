@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace Extend.Asset {
 	public abstract class AssetRefObject {
@@ -42,6 +43,10 @@ namespace Extend.Asset {
 			m_refCount--;
 			if( m_refCount <= 0 ) {
 				ZeroRefTimeStart = Time.time;
+			}
+
+			if( m_refCount < 0 ) {
+				Debug.Log("");
 			}
 			return m_refCount;
 		}

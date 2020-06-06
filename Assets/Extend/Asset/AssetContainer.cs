@@ -30,6 +30,9 @@ namespace Extend.Asset {
 					m_assets.Add(ab);
 				}
 			}
+			else {
+				m_assets.Add(ab);
+			}
 
 			m_hashAssetDic.Add(ab.GetHashCode(), ab);
 		}

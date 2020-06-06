@@ -12,11 +12,18 @@ namespace Extend.Asset {
 
 		public AssetRefObject.AssetStatus AssetStatus => Asset?.Status ?? AssetRefObject.AssetStatus.NONE;
 		public bool IsFinished => Asset?.IsFinished ?? false;
-		public AssetInstance Asset { get; private set; }
+		private AssetInstance m_asset;
+		public AssetInstance Asset {
+			get => m_asset;
+			private set {
+				m_asset?.Release();
+				m_asset = value;
+				m_asset?.IncRef();
+			}
+		}
 
 		public AssetReference(AssetInstance instance) {
 			Asset = instance;
-			Asset?.IncRef();
 		}
 
 		public bool GUIDValid {
@@ -32,7 +39,6 @@ namespace Extend.Asset {
 		private T GetAsset<T>() where T : Object {
 			if( Asset == null ) {
 				Asset = AssetService.Get().LoadAssetWithGUID<T>(m_assetGUID);
-				Asset.IncRef();
 			}
 
 			Assert.AreEqual(Asset.Status, AssetRefObject.AssetStatus.DONE, Asset.Status.ToString());
@@ -87,7 +93,6 @@ namespace Extend.Asset {
 		public GameObject Instantiate(Transform parent = null, bool stayWorldPosition = false) {
 			if( Asset == null ) {
 				Asset = AssetService.Get().LoadAssetWithGUID<GameObject>(m_assetGUID);
-				Asset.IncRef();
 			}
 
 			if( !( Asset is PrefabAssetInstance prefabAsset ) ) {
@@ -101,7 +106,6 @@ namespace Extend.Asset {
 		public GameObject Instantiate(Vector3 position, Quaternion quaternion, Transform parent = null) {
 			if( Asset == null ) {
 				Asset = AssetService.Get().LoadAssetWithGUID<GameObject>(m_assetGUID);
-				Asset.IncRef();
 			}
 
 			if( !( Asset is PrefabAssetInstance prefabAsset ) ) {
@@ -126,9 +130,7 @@ namespace Extend.Asset {
 		}
 
 		public void Dispose() {
-			if( Asset?.Release() == 0 ) {
-				Asset = null;
-			}
+			Asset = null;
 		}
 	}
 }

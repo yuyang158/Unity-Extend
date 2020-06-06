@@ -245,7 +245,7 @@ namespace Extend.DebugUtil {
 				StatService.Get().Output(builder);
 			}
 
-			m_txtStat.gameObject.SetActive(builder.Length > 0);
+			m_statGO.SetActive(builder.Length > 0);
 			if( builder.Length > 0 )
 				m_txtStat.text = builder.ToString();
 
