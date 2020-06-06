@@ -11,8 +11,8 @@ namespace Extend.Common.Editor.InspectorGUI {
 			var types = typeof(ExtendEditorGUI).Assembly.GetTypes();
 			foreach( var type in types ) {
 				if( type.IsSubclassOf(typeof(ExtendAttributeProcess)) ) {
-					var process = Activator.CreateInstance(type);
-					m_processors.Add(type, process as ExtendAttributeProcess);
+					var process = Activator.CreateInstance(type) as ExtendAttributeProcess;
+					m_processors.Add(process.TargetAttributeType, process);
 				}
 			}
 		}

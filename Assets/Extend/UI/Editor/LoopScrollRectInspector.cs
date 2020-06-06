@@ -1,10 +1,11 @@
-﻿using UnityEngine;
+﻿using Extend.Common.Editor.InspectorGUI;
+using UnityEngine;
 using UnityEditor;
 
 
 namespace Extend.UI.Scroll.Editor {
 	[CustomEditor(typeof(LoopScrollRect), true)]
-	public class LoopScrollRectInspector : UnityEditor.Editor {
+	public class LoopScrollRectInspector : ExtendInspector {
 		int index = 0;
 		float speed = 1000;
 

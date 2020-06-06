@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using Extend.Asset;
 using Extend.Asset.Attribute;
+using Extend.Common;
 using UnityEngine.UI;
 
 namespace Extend.UI.Scroll {
@@ -149,7 +150,7 @@ namespace Extend.UI.Scroll {
 			set => m_MovementType = value;
 		}
 
-		[SerializeField]
+		[SerializeField, HideIf("m_MovementType", MovementType.Unrestricted)]
 		private float m_Elasticity = 0.1f; // Only used for MovementType.Elastic
 
 		public float elasticity {
