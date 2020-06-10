@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-using UnityEngine.Assertions;
 
 namespace Extend.Asset {
 	public abstract class AssetRefObject {
@@ -18,10 +17,6 @@ namespace Extend.Asset {
 			set {
 				m_status = value;
 				OnStatusChanged?.Invoke(this);
-
-				if( Status == AssetStatus.DONE ) {
-					// Debug.LogError("Load asset fail");
-				}
 			}
 		}
 

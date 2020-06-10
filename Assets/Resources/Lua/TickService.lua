@@ -16,7 +16,7 @@ end
 function M.Tick(deltaTime)
     for func, packed in pairs(tickers) do
         if next(packed) then
-            func(table.unpack(packed), deltaTime)
+            func(deltaTime, table.unpack(packed))
         else
             func(deltaTime)
         end

@@ -45,9 +45,9 @@ namespace Extend.Common {
 			return m_stats[(int)name];
 		}
 
-		public async Task LogStat(string type, string key, object value) {
+		public void LogStat(string type, string key, object value) {
 			var line = string.Join("\t", type, key, value);
-			await m_writer.WriteLineAsync(line);
+			m_writer.WriteLine(line);
 		}
 		
 		public void Initialize() {

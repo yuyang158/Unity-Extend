@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Extend.Common;
 using UnityEngine;
 using UnityEngine.Assertions;
 
@@ -85,6 +86,13 @@ namespace Extend.Asset {
 			} while( m_tickIndex != 0 );
 
 			Resources.UnloadUnusedAssets();
+		}
+		
+		
+		public void Dump() {
+			foreach( var asset in m_hashAssetDic.Values ) {
+				StatService.Get().LogStat("AssetDump", asset.ToString(), "");
+			}
 		}
 	}
 }

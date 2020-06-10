@@ -32,6 +32,10 @@ namespace Extend.Asset {
 			return CSharpServiceManager.Get<AssetService>(CSharpServiceManager.ServiceType.ASSET_SERVICE);
 		}
 
+		public void Dump() {
+			Container.Dump();
+		}
+
 		[BlackList]
 		public void Initialize() {
 			if( Application.isEditor && m_forceAssetBundleMode == false ) {

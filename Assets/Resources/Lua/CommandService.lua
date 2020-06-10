@@ -23,4 +23,9 @@ end
 function M.test_2(a, b)
 	print("test 2", a, b)
 end
+
+function M.AssetDump()
+	CS.Extend.Asset.AssetService.Get():Dump()
+end
+
 return M

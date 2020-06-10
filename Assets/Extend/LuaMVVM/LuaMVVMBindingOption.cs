@@ -97,7 +97,6 @@ namespace Extend.LuaMVVM {
 				return;
 			}
 
-			var watch = dataContext.GetInPath<WatchLuaProperty>("watch");
 			var val = dataContext.GetInPath<object>(Path);
 			if( val == null ) {
 				Debug.LogWarning($"Not found value in path {Path}");
@@ -110,6 +109,7 @@ namespace Extend.LuaMVVM {
 				case BindMode.ONE_TIME: {
 					SetPropertyValue(dataContext, val);
 					if( Mode == BindMode.ONE_WAY || Mode == BindMode.TWO_WAY ) {
+						var watch = dataContext.GetInPath<WatchLuaProperty>("watch");
 						watch(dataContext, Path, watchCallback);
 						detach = dataContext.Get<DetachLuaProperty>("detach");
 						Assert.IsNotNull(detach);
