@@ -69,10 +69,15 @@ namespace Extend.Common {
 				throw new Exception($"Service {service.ServiceType} exist.");
 			}
 
-			services[(int)service.ServiceType] = service;
-			service.Initialize();
-			if( service is IServiceUpdate update ) {
-				updateableServices.Add(update);
+			try {
+				services[(int)service.ServiceType] = service;
+				service.Initialize();
+				if( service is IServiceUpdate update ) {
+					updateableServices.Add(update);
+				}
+			}
+			catch( Exception e ) {
+				Debug.LogException(e);
 			}
 		}
 
@@ -86,9 +91,6 @@ namespace Extend.Common {
 			else {
 				throw new Exception($"Service {type} not exist");
 			}
-		}
-
-		public void SceneLoaded() {
 		}
 
 		public static T Get<T>(ServiceType typ) where T : class {

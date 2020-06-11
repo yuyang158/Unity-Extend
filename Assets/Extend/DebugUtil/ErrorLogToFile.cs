@@ -40,6 +40,8 @@ namespace Extend.DebugUtil {
 		private void WriteThread() {
 			while( true ) {
 				m_autoEvent.WaitOne();
+				if(m_writer == null)
+					return;
 				lock( m_writer ) {
 					if( m_exit ) {
 						m_writer.Close();

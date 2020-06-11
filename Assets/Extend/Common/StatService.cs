@@ -10,7 +10,7 @@ namespace Extend.Common {
 		public static StatService Get() {
 			return CSharpServiceManager.Get<StatService>(CSharpServiceManager.ServiceType.STAT);
 		}
-		
+
 		public enum StatName {
 			TCP_RECEIVED,
 			TCP_SENT,
@@ -45,14 +45,17 @@ namespace Extend.Common {
 			return m_stats[(int)name];
 		}
 
-		public void LogStat(string type, string key, object value) {
-			var line = string.Join("\t", type, key, value);
+		public void LogStat(string category, string key, object value) {
+			if( m_writer == null )
+				return;
+
+			var line = string.Join("\t", category, key, value);
 			m_writer.WriteLine(line);
 		}
-		
+
 		public void Initialize() {
 			var statFilePath = Application.persistentDataPath + "/stat.log";
-			m_writer = new StreamWriter(statFilePath, false); 
+			m_writer = new StreamWriter(statFilePath, false);
 		}
 
 		public void Destroy() {
@@ -60,6 +63,7 @@ namespace Extend.Common {
 				var type = (StatName)i;
 				LogStat("Stat", type.ToString(), m_stats[i].ToString());
 			}
+
 			m_writer.Close();
 		}
 
