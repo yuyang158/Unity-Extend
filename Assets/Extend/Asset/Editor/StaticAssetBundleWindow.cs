@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using Extend.Common;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.Assertions;
+using CompressionLevel = System.IO.Compression.CompressionLevel;
 
 namespace Extend.Asset.Editor {
 	public class StaticAssetBundleWindow : EditorWindow {
@@ -86,6 +88,7 @@ namespace Extend.Asset.Editor {
 							foreach( var subDirectory in subDirectories ) {
 								FormatAndAddSpecialSettingPath($"{folderPath}/{Path.GetDirectoryName(subDirectory)}");
 							}
+
 							break;
 						case StaticABSetting.Operation.EACH_A_AB:
 							var files = Directory.GetFiles(folderPath, "*", SearchOption.AllDirectories);
@@ -93,8 +96,10 @@ namespace Extend.Asset.Editor {
 								if( file.StartsWith(".") || Path.GetExtension(file) == ".meta" ) {
 									continue;
 								}
+
 								FormatAndAddSpecialSettingPath($"{folderPath}/{Path.GetFileNameWithoutExtension(file)}");
 							}
+
 							break;
 						default:
 							throw new ArgumentOutOfRangeException();
@@ -120,11 +125,9 @@ namespace Extend.Asset.Editor {
 						var bundleNameProp = loadProp.FindPropertyRelative("BundleName");
 						bundleNameProp.stringValue = path;
 					}
-					
+
 					reSpecialUnloadStrategyList = new ReorderableList(serializedObject, unloadStrategyProp);
-					reSpecialUnloadStrategyList.drawHeaderCallback += rect => {
-						EditorGUI.LabelField(rect, "Unload Strategy");
-					};
+					reSpecialUnloadStrategyList.drawHeaderCallback += rect => { EditorGUI.LabelField(rect, "Unload Strategy"); };
 					reSpecialUnloadStrategyList.drawElementCallback += (rect, index, active, focused) => {
 						var element = unloadStrategyProp.GetArrayElementAtIndex(index);
 						rect.height = EditorGUIUtility.singleLineHeight;
@@ -263,16 +266,19 @@ namespace Extend.Asset.Editor {
 					needUpdateAssetBundles.Add(abName);
 				}
 
-				var date = DateTime.Now;
-				var localTime = date.ToLocalTime();
-				var dateString = $"{localTime.Year}-{localTime.Month}-{localTime.Day}_{localTime.Hour}-{localTime.Minute}-{localTime.Second}";
-				outputDir += $"/update_{dateString}.txt";
-				using( var writer = new StreamWriter(outputDir) ) {
-					foreach( var needUpdateABName in needUpdateAssetBundles ) {
-						var fileInfo = new FileInfo(Path.Combine(outputPath, needUpdateABName));
-						writer.WriteLine($"{needUpdateABName}:{fileInfo.Length}");
-					}
+				if(needUpdateAssetBundles.Count == 0)
+					return;
+
+				var updateFolderPath = $"{Application.dataPath}/../UpdateAssets";
+				Directory.Delete(updateFolderPath, true);
+				Directory.CreateDirectory(updateFolderPath);
+				foreach( var needUpdateABName in needUpdateAssetBundles ) {
+					var fileInfo = new FileInfo(Path.Combine(outputPath, needUpdateABName));
+					fileInfo.MoveTo(Path.Combine(updateFolderPath, needUpdateABName));
 				}
+
+				ZipFile.CreateFromDirectory(updateFolderPath, $"{updateFolderPath}/{DateTime.Now.ToLongDateString()}.zip", 
+					CompressionLevel.NoCompression, false);
 			});
 		}
 
