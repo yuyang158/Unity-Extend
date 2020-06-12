@@ -7,6 +7,7 @@ using System.Linq;
 using Extend.Asset.Editor.Process;
 using Unity.EditorCoroutines.Editor;
 using UnityEditor;
+using UnityEngine;
 
 namespace Extend.Asset.Editor {
 	public static class BuildAssetRelation {
@@ -52,16 +53,15 @@ namespace Extend.Asset.Editor {
 
 		public static Dictionary<string, uint> BuildBaseVersionData(string versionConfPath) {
 			var allAssetBundles = new Dictionary<string, uint>();
-			using( var fileStream = new FileStream(versionConfPath, FileMode.Open) ) {
-				using( var reader = new BinaryReader(fileStream) ) {
-					while( fileStream.Position < fileStream.Length ) {
-						var abName = reader.ReadString();
-						var crc32 = reader.ReadUInt32();
-						allAssetBundles.Add(abName, crc32);
-					}
+			using( var reader = new StreamReader(File.OpenRead(versionConfPath)) ) {
+				while( true ) {
+					var combined = reader.ReadLine();
+					if(string.IsNullOrEmpty(combined))
+						break;
+					var abNameAndCrc32 = combined.Split('|');
+					allAssetBundles.Add(abNameAndCrc32[0], uint.Parse(abNameAndCrc32[1]));
 				}
 			}
-
 			return allAssetBundles;
 		}
 
@@ -170,7 +170,7 @@ namespace Extend.Asset.Editor {
 				progress++;
 				if( Array.IndexOf(IgnoreExtensions, extension) >= 0 || filePath.Contains(".svn") )
 					continue;
-				
+
 				var formatPath = FormatPath(filePath);
 				var node = new AssetNode(formatPath);
 				if( s_specialAB.ContainsKey(node.AssetName) ) {

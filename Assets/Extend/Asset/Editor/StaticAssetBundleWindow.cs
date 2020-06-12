@@ -270,14 +270,18 @@ namespace Extend.Asset.Editor {
 					return;
 
 				var updateFolderPath = $"{Application.dataPath}/../UpdateAssets";
-				Directory.Delete(updateFolderPath, true);
+				if( Directory.Exists(updateFolderPath) ) {
+					Directory.Delete(updateFolderPath, true);
+				}
 				Directory.CreateDirectory(updateFolderPath);
 				foreach( var needUpdateABName in needUpdateAssetBundles ) {
 					var fileInfo = new FileInfo(Path.Combine(outputPath, needUpdateABName));
-					fileInfo.MoveTo(Path.Combine(updateFolderPath, needUpdateABName));
+					var destInfo = new FileInfo(Path.Combine(updateFolderPath, needUpdateABName));
+					destInfo.Directory.Create();
+					fileInfo.CopyTo(destInfo.FullName, true);
 				}
 
-				ZipFile.CreateFromDirectory(updateFolderPath, $"{updateFolderPath}/{DateTime.Now.ToLongDateString()}.zip", 
+				ZipFile.CreateFromDirectory(updateFolderPath, $"{updateFolderPath}/../{DateTime.Now.ToLongDateString()}.zip", 
 					CompressionLevel.NoCompression, false);
 			});
 		}
@@ -296,13 +300,12 @@ namespace Extend.Asset.Editor {
 
 		private static void BuildVersionFile(string versionFilePath, AssetBundleManifest manifest, string abOutputPath) {
 			using( var fileStream = new FileStream(versionFilePath, FileMode.OpenOrCreate, FileAccess.Write) ) {
-				using( var writer = new BinaryWriter(fileStream) ) {
+				using( var writer = new StreamWriter(fileStream) ) {
 					var assetBundles = manifest.GetAllAssetBundles();
 					foreach( var abName in assetBundles ) {
-						writer.Write(abName);
 						var abPath = Path.Combine(abOutputPath, abName);
 						BuildPipeline.GetCRCForAssetBundle(abPath, out var crc32);
-						writer.Write(crc32);
+						writer.WriteLine($"{abName}|{crc32}");
 					}
 				}
 			}
