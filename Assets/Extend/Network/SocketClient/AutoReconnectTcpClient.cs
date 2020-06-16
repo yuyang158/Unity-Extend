@@ -1,6 +1,7 @@
 using System;
 using System.Net.Sockets;
 using Extend.Common;
+using Extend.LuaUtil;
 using UnityEngine;
 using XLua;
 
@@ -27,8 +28,8 @@ namespace Extend.Network.SocketClient {
 		private int m_reconnectTime;
 		
 		private readonly LuaTable m_callback;
-		private readonly Action<LuaTable, Status> m_statusChangedCallback;
-		private readonly Action<LuaTable, byte[]> m_receivePackageCallback;
+		private readonly OnSocketStatusChanged m_statusChangedCallback;
+		private readonly OnRecvData m_receivePackageCallback;
 		
 		[CSharpCallLua]
 		public delegate void LuaUpdate(LuaTable owner);
@@ -72,8 +73,8 @@ namespace Extend.Network.SocketClient {
 			};
 			m_connectionContext = new ConnectionContext();
 			m_callback = luaCallback;
-			m_statusChangedCallback = m_callback.Get<Action<LuaTable, Status>>("OnStatusChanged");
-			m_receivePackageCallback = m_callback.Get<Action<LuaTable, byte[]>>("OnRecvPackage");
+			m_statusChangedCallback = m_callback.Get<OnSocketStatusChanged>("OnStatusChanged");
+			m_receivePackageCallback = m_callback.Get<OnRecvData>("OnRecvPackage");
 			updateCallback = m_callback.Get<LuaUpdate>("OnUpdate");
 
 			var service = CSharpServiceManager.Get<NetworkService>(CSharpServiceManager.ServiceType.NETWORK_SERVICE);

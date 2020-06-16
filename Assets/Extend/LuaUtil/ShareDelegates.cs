@@ -1,4 +1,5 @@
 ﻿using Extend.Asset;
+using Extend.Network.SocketClient;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using XLua;
@@ -39,4 +40,10 @@ namespace Extend.LuaUtil {
 
 	[CSharpCallLua]
 	public delegate void PropertyChangedAction(Component sender, object value);
+
+	[CSharpCallLua]
+	public delegate void OnSocketStatusChanged(LuaTable self, AutoReconnectTcpClient.Status status);
+	
+	[CSharpCallLua]
+	public delegate void OnRecvData(LuaTable self, byte[] data);
 }

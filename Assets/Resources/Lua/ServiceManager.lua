@@ -5,7 +5,8 @@ M.SERVICE_TYPE = {
     CONFIG = 1,
     TICK = 2,
     CONSOLE_COMMAND = 3,
-    UI = 4
+    UI = 4,
+    GLOBAL_VM = 5
 }
 
 function M.GetService(typ)

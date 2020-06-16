@@ -60,9 +60,7 @@ end
 
 local function load_config_data(filename)
 	local textData = ConfigUtil.LoadConfigFile(filename)
-	local config = {
-		keymap = {}
-	}
+	local config = configs[filename] or {keymap = {}}
 
 	for i, v in ipairs(textData.keys) do
 		config.keymap[v] = i
@@ -96,6 +94,10 @@ function M.Init()
 	load_config_data("excel2")
 
 	i18n = configs.i18n
+end
+
+function M.Reload(name)
+	load_config_data(name)
 end
 
 ---@param name string

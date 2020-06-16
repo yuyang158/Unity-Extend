@@ -621,7 +621,7 @@ namespace XLua
                     }
                     s += LuaAPI.lua_tostring(L, -1);
 
-                    if (i != n) s += "\t";
+                    if (i != n) s += "    ";
 
                     LuaAPI.lua_pop(L, 1);  /* pop result */
                 }

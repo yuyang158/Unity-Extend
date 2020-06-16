@@ -1,11 +1,16 @@
----@class SocketClient
-local M = class()
+---@class SocketClient : EventDispatcher
+local M = class(require("base.EventDispatcher"))
 local AutoReconnectTcpClient = CS.Extend.Network.SocketClient.AutoReconnectTcpClient
 local sproto = require 'sproto.sproto'
 local tunpack, tpack, next, spack, assert = table.unpack, table.pack, next, string.pack, assert
+
+M.Event = {
+	StatusChanged = "StatusChanged"
+}
+
 function M:ctor(c2sPath, s2cPath)
 	self.client = AutoReconnectTcpClient(self)
-	local assetService = CS.Extend.AssetService.AssetService.Get()
+	local assetService = CS.Extend.Asset.AssetService.Get()
 	local textAssetType = typeof(CS.UnityEngine.TextAsset)
 	local proto = {
 		c2s = assetService:Load(c2sPath, textAssetType):GetTextAsset(),
@@ -97,6 +102,7 @@ function M:OnStatusChanged(status)
 		self.wait4Responses = {}
 		self.session = 1
 	end
+	self:DispatchEvent(M.Event.StatusChanged, status)
 end
 
 function M:OnRecvPackage(buffer)
@@ -119,7 +125,7 @@ function M:OnRecvPackage(buffer)
 		end
 
 		local commonContext = self.responseCommonCallback[response.name]
-		if response.callback ~= commonContext.callback then
+		if commonContext and response.callback ~= commonContext.callback then
 			if commonContext.params.n == 0 then
 				commonContext.callback(args)
 			else
@@ -143,8 +149,8 @@ function M:OnUpdate()
 	for _, wait4Response in pairs(self.wait4Responses) do
 		wait4Response.time = wait4Response.time + 0.1
 		if wait4Response.time > self.callbackTimeout then
-			print_w("WAIT FOR RESPONSE TIMEOUT:", wait4Response.name)
-			-- self.client.TcpStatus = AutoReconnectTcpClient.Status.DISCONNECT
+			warn("WAIT FOR RESPONSE TIMEOUT:", wait4Response.name)
+			self.client.TcpStatus = AutoReconnectTcpClient.Status.DISCONNECT
 		end
 	end
 end

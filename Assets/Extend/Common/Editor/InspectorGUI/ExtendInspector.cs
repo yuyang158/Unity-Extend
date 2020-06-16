@@ -8,7 +8,7 @@ using Object = UnityEngine.Object;
 
 namespace Extend.Common.Editor.InspectorGUI {
 	[CanEditMultipleObjects]
-	// [CustomEditor(typeof(Object), true)]
+	[CustomEditor(typeof(Object), true)]
 	public class ExtendInspector : UnityEditor.Editor {
 		private readonly List<SerializedProperty> m_serializedProperties = new List<SerializedProperty>();
 

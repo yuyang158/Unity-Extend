@@ -57,7 +57,7 @@ function M.hotfix_module(module_name)
     M.log_debug("Hot fix module: " .. module_name)
 
 
-    local assetService = CS.Extend.AssetService.AssetService.Get()
+    local assetService = CS.Extend.Asset.AssetService.Get()
     local textAssetType = typeof(CS.UnityEngine.TextAsset)
     local filePath = string.replace(module_name, ".", "/")
     local asset = assetService:Load("Lua/" .. filePath, textAssetType)

@@ -6,6 +6,7 @@ namespace Extend.Network {
 	public class NetworkService : IService, IServiceUpdate {
 		public CSharpServiceManager.ServiceType ServiceType => CSharpServiceManager.ServiceType.NETWORK_SERVICE;
 		private readonly List<AutoReconnectTcpClient> m_clients = new List<AutoReconnectTcpClient>();
+
 		public void RegisterTcpClient(AutoReconnectTcpClient client) {
 			m_clients.Add(client);
 		}
@@ -13,9 +14,8 @@ namespace Extend.Network {
 		public void UnregisterTcpClient(AutoReconnectTcpClient client) {
 			m_clients.Remove(client);
 		}
-		
+
 		public void Initialize() {
-			
 		}
 
 		public void Destroy() {

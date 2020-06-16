@@ -1,62 +1,33 @@
 ﻿---@class Test.UILogin
 local M = class()
 local binding = require("mvvm.binding")
+local SprotoClient = require("sproto.SprotoClient")
+local SM = require "ServiceManager"
 
 function M:start()
 	local LuaMVVMBindingType = typeof(CS.Extend.LuaMVVM.LuaMVVMBinding)
 	self.mvvmBinding = self.__CSBinding:GetComponent(LuaMVVMBindingType)
 	self.context = {
-		data = {
-			title = "TITLE",
-			progress = 0.5,
-			on = true,
-			input = "Place holder",
-			red = "Sprites/red",
-			green = "Sprites/green",
-			array = {
-				{text = "a"},
-				{text = "b"},
-				{text = "c"},
-				{text = "d"},
-				{text = "e"},
-				{text = "aa"},
-				{text = "bsd"},
-				{text = "cas"},
-				{text = "ddasas"},
-				{text = "aasdsd"},
-				{text = "bsdc"},
-				{text = "cvd"},
-				{text = "dngh"},
-				{text = "a111"},
-				{text = "b22222"},
-				{text = "c3333"},
-				{text = "d4444"},
-				{text = "e5555"},
-				{text = "aa66666"},
-				{text = "bsd7777"},
-				{text = "cas8888"},
-				{text = "ddasas9999999"},
-				{text = "aasdsd11111"},
-				{text = "bsdc22222"},
-				{text = "cvd33333"},
-				{text = "dngh4444"}
-			}
-		}
+		data = {username = ""}
 	}
 	binding.build(self.context)
 	self.mvvmBinding:SetDataContext(self.context)
+	self.tcpClient = SprotoClient.new("Config/c2s", "Config/s2c")
+	self.tcpClient:AddEventListener(SprotoClient.Event.StatusChanged, function(status)
+		if status == CS.Extend.Network.SocketClient.AutoReconnectTcpClient.Status.CONNECTED then
+			self.tcpClient:Send("login", {username = self.context.username}, function(response)
+				---@type GlobalVMService
+				local globalVM = SM.GetService(SM.SERVICE_TYPE.GLOBAL_VM)
+				globalVM.Register("user", response)
+			end)
+		end
+	end)
 end
 
-function M:OnMessageButtonClicked()
-	--[[local uiService = SM.GetService(SM.SERVICE_TYPE.UI)
-	uiService.Show("SingleMessageBox", function()
-	end)]]
-
-	self.context.red = "Sprites/green"
-	self.context.green = "Sprites/red"
-
-	self.context.progress = math.random()
-	self.context.on = not self.context.on
-	assert(false)
+function M:OnLoginClicked()
+	local system = CS.Extend.GameSystem.Get()
+	local host = system.SystemSetting:GetString("GAME", "ServerHost")
+	local port = system.SystemSetting:GetInt("GAME", "ServerPort")
+	self.tcpClient:Connect(host, port)
 end
 return M

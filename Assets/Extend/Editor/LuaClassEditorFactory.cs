@@ -104,6 +104,7 @@ namespace Extend.Editor {
 		private static readonly Dictionary<string, LuaClassDescriptor> descriptors = new Dictionary<string, LuaClassDescriptor>();
 
 		public static LuaClassDescriptor GetDescriptor(string className) {
+			className = className.Replace('.', '/');
 			if( descriptors.TryGetValue(className, out var descriptor) ) {
 				return descriptor;
 			}

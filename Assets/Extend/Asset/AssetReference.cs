@@ -41,7 +41,9 @@ namespace Extend.Asset {
 				Asset = AssetService.Get().LoadAssetWithGUID<T>(m_assetGUID);
 			}
 
-			Assert.AreEqual(Asset.Status, AssetRefObject.AssetStatus.DONE, Asset.Status.ToString());
+			if( Asset.Status != AssetRefObject.AssetStatus.DONE ) {
+				Debug.LogError($"Load failed : {Asset.AssetPath}");
+			}
 			return Asset.UnityObject as T;
 		}
 
