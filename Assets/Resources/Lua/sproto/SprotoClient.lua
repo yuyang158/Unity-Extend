@@ -87,6 +87,11 @@ function M:Send(name, args, callback, ...)
 			time = 0
 		}
 	end
+	return self.session
+end
+
+function M:CancelResponseWaiting(session)
+	self.wait4Responses[session] = nil
 end
 
 function M:DirectSend(buffer)
