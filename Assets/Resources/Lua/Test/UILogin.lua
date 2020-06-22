@@ -1,4 +1,9 @@
 ﻿---@class Test.UILogin
+---@field allowEmptyUsername boolean
+---@field image CS.UnityEngine.UI.Image
+---@field go CS.UnityEngine.GameObject
+---@field button CS.UnityEngine.UI.Button
+---@field lobbyName string
 local M = class()
 local binding = require("mvvm.binding")
 local SprotoClient = require("sproto.SprotoClient")

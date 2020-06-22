@@ -148,7 +148,7 @@ namespace Extend.Editor {
 			serializedObject.ApplyModifiedProperties();
 			if( GUILayout.Button("重新加载Lua文件") ) {
 				if( descriptor == null ) return;
-				descriptor = LuaClassEditorFactory.ReloadDescriptor(descriptor.ClassName);
+				descriptor = LuaClassEditorFactory.ReloadDescriptor(descriptor.ClassName.Replace('.', '/'));
 			}
 		}
 	}

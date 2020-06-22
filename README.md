@@ -5,19 +5,18 @@
 
 1. 通过分析注释内容(emmylua)反射lua变量，Unity组件（单个、数组）、string、number、integer、boolean，相关文件：
 
+![alt text](https://github.com/yuyang158/Unity-Extend/raw/master/ReadMeImage/LuaBinding.png "")
 * LuaBinding.cs
 * Resources/Lua/UI/TestPanel.lua
 * Resources/Lua/UI/ItemSlot.lua
 
-2. Unity UI与Lua Table的绑定
-
+2. Unity UI与Lua Table的绑定,整体参考vue
 * LuaMVVMBinding.cs LuaMVVMForEach.cs
 * mvvm.lua
 * BindingDemo场景中MVVM开头相关节点
 
 3. 配置文件读取
-
-* 读取以\t为分隔符的csv文件
+* 读取以\t为分隔符的tsv文件
 * 格式：第一行为Key，第二行为该列类型，第三行为列描述
 * 支持类型 int number string json link boolean
 * link类型为外链id，可以在lua中直接访问对应链接表
@@ -32,7 +31,21 @@
 5. 网络模块
 * 接入sproto协议
 * 支持rpc
-* 示例中连接到测试skynet服务器
+* 支持断线自动重连
+* 示例中连接到测试skynet服务器，服务器为Server文件夹
+
+6. 通过Attribute扩展Editor编辑功能
+![alt text](https://github.com/yuyang158/Unity-Extend/raw/master/ReadMeImage/AttributeExample.png "示例图片，详情参考AttributeExmple.cs")
+* HideIf (可以设置某个变量为某个值时隐藏该属性)
+* ShowIf (可以设置某个变量为某个值时显示该属性)
+* LabelText (覆盖变量的DisplayLable)
+* ReorderList (针对数组、List型变量优化为ReorderableList编辑，如上图D)
+* Require (变量不可为空)
+* AssetOnly (可快捷编辑上图E右侧画笔)
+* AssetReferenceAssetType (Asset系统资源通过GUID连接)
+* EnumToggleButtons (将枚举值并列为几个按钮，如上图Enum Value)
+* Button (Method Attribute，可以在Inspector中生成一个该函数的按钮)
+
 
 ## Demo查看方法
 

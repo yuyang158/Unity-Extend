@@ -1053,10 +1053,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   LuaFile: Test/UILogin
   IntData: []
-  BoolData: []
+  BoolData:
+  - FieldName: allowEmptyUsername
+    Data: 1
   NumData: []
-  StrData: []
-  UOData: []
+  StrData:
+  - FieldName: lobbyName
+    Data: lobby
+  UOData:
+  - FieldName: image
+    Data: {fileID: 3715248655395333634}
+  - FieldName: go
+    Data: {fileID: 691686489757730031}
+  - FieldName: button
+    Data: {fileID: 1852524346060185193}
   AssetReferenceData: []
   UOArrayData: []
 --- !u!114 &5876566745371186752
