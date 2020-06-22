@@ -54,7 +54,7 @@ namespace Extend.LuaUtil {
 					dataIndex++;
 				}
 
-				Resources.UnloadAsset( asset );
+				assetRef.Dispose();
 				return LuaTable;
 			}
 		}

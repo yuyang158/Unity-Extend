@@ -6,13 +6,6 @@ local math, tonumber, table, ipairs, setmetatable, assert, string = math, tonumb
 local json = require "json"
 local i18n
 
-local configRowMetaTable = {
-	__index = function(t, k)
-		local index = assert(t.source.keymap[k], k)
-		return t.values[index]
-	end
-}
-
 local linkTypeMetaTable = {
 	__index = function(t, k)
 		local record = M.GetConfigRow(t.configName, t.id)
@@ -60,10 +53,11 @@ end
 
 local function load_config_data(filename)
 	local textData = ConfigUtil.LoadConfigFile(filename)
-	local config = configs[filename] or {keymap = {}}
+	local config = configs[filename] or {}
 
+	local keymap = {}
 	for i, v in ipairs(textData.keys) do
-		config.keymap[v] = i
+		keymap[v] = i
 	end
 
 	for _, row in ipairs(textData.rows) do
@@ -74,15 +68,19 @@ local function load_config_data(filename)
 			local key = textData.keys[i]
 
 			if typ == "translate" then
-				local i18nConf = M.GetConfigRow("i18n", string.format("%s:%s:%s", filename, id, key))
+				local i18nConf = i18n[string.format("%s:%s:%s", filename, id, key)]
 				table.insert(convertedRow, assert(i18nConf[M.currentLanguage]))
 			else
 				table.insert(convertedRow, convert_column_data(row[i], typ, key))
 			end
 		end
 
-		local parsedData = { source = config, values = convertedRow }
-		config[id] = setmetatable(parsedData, configRowMetaTable)
+		config[id] = setmetatable(convertedRow, {
+			__index = function(t, k)
+				local index = assert(keymap[k], k)
+				return t[index]
+			end
+		})
 	end
 
 	configs[filename] = config
@@ -90,10 +88,9 @@ end
 
 function M.Init()
 	load_config_data("i18n")
+	i18n = configs.i18n
 	load_config_data("excel1")
 	load_config_data("excel2")
-
-	i18n = configs.i18n
 end
 
 function M.Reload(name)

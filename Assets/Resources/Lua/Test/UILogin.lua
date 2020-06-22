@@ -18,7 +18,7 @@ function M:start()
 			self.tcpClient:Send("login", {username = self.context.username}, function(response)
 				---@type GlobalVMService
 				local globalVM = SM.GetService(SM.SERVICE_TYPE.GLOBAL_VM)
-				globalVM.Register("user", response)
+				globalVM.Register("user", {data = response})
 			end)
 		end
 	end)

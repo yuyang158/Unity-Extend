@@ -129,7 +129,6 @@ namespace Extend.Network.SocketClient {
 						recvCount = await stream.ReadAsync(m_receiveBuffer, m_receiveOffset, m_receiveBuffer.Length - m_receiveOffset);
 					}
 					catch( Exception e ) {
-						Debug.LogWarning($"Socket receive exception : {e}");
 						TcpStatus = Status.DISCONNECTED;
 						return;
 					}
