@@ -1,12 +1,15 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
+using Extend.Asset;
+using Extend.Asset.Attribute;
+using Extend.LuaBindingEvent.AnimationEvent;
 using Extend.LuaUtil;
+using UnityEngine;
 using XLua;
 
 namespace Extend.LuaBindingEvent {
 	[CSharpCallLua]
-	public static class LuaGlobalEvent {
-		private static Dictionary<EventInstance, GlobalEventCallback> m_eventCallbacks = new Dictionary<EventInstance, GlobalEventCallback>();
+	public class LuaGlobalEvent : MonoBehaviour {
+		private static readonly Dictionary<EventInstance, GlobalEventCallback> m_eventCallbacks = new Dictionary<EventInstance, GlobalEventCallback>();
 		public static void Register(EventInstance e, GlobalEventCallback callback) {
 			m_eventCallbacks.Add(e, callback);
 		}
@@ -16,7 +19,15 @@ namespace Extend.LuaBindingEvent {
 				return;
 			}
 
-			cb.Invoke();
-		} 
+			cb.Invoke(e);
+		}
+
+		[AssetReferenceAssetType(AssetType = typeof(EventInstance)), BlackList]
+		public AssetReference Event;
+
+		[BlackList]
+		public void Dispatch() {
+			Trigger(Event.GetScriptableObject<EventInstance>());
+		}
 	}
 }

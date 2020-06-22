@@ -1,4 +1,5 @@
 ﻿using Extend.Asset;
+using Extend.LuaBindingEvent.AnimationEvent;
 using Extend.Network.SocketClient;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -48,5 +49,5 @@ namespace Extend.LuaUtil {
 	public delegate void OnRecvData(LuaTable self, byte[] data);
 
 	[CSharpCallLua]
-	public delegate void GlobalEventCallback();
+	public delegate void GlobalEventCallback(EventInstance e);
 }

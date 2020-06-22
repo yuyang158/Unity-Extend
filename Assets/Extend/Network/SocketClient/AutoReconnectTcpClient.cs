@@ -128,7 +128,7 @@ namespace Extend.Network.SocketClient {
 					try {
 						recvCount = await stream.ReadAsync(m_receiveBuffer, m_receiveOffset, m_receiveBuffer.Length - m_receiveOffset);
 					}
-					catch( Exception e ) {
+					catch( Exception ) {
 						TcpStatus = Status.DISCONNECTED;
 						return;
 					}
