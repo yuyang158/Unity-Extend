@@ -7,8 +7,6 @@
 
 ![alt text](https://github.com/yuyang158/Unity-Extend/raw/master/ReadMeImage/LuaBinding.png "")
 * LuaBinding.cs
-* Resources/Lua/UI/TestPanel.lua
-* Resources/Lua/UI/ItemSlot.lua
 
 2. Unity UI与Lua Table的绑定,整体参考vue
 * LuaMVVMBinding.cs LuaMVVMForEach.cs
