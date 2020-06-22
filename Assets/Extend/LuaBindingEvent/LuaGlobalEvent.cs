@@ -29,5 +29,9 @@ namespace Extend.LuaBindingEvent {
 		public void Dispatch() {
 			Trigger(Event.GetScriptableObject<EventInstance>());
 		}
+
+		private void OnDestroy() {
+			Event.Dispose();
+		}
 	}
 }
