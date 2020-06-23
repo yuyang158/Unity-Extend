@@ -6,7 +6,7 @@ using Object = UnityEngine.Object;
 
 namespace Extend.Asset {
 	[Serializable, LuaCallCSharp]
-	public class AssetReference : IDisposable {
+	public class AssetReference : IDisposable, ICloneable {
 		[SerializeField, HideInInspector]
 		private string m_assetGUID;
 
@@ -129,6 +129,12 @@ namespace Extend.Asset {
 
 		public override string ToString() {
 			return Asset == null || !Asset.UnityObject ? "Not loaded" : Asset.UnityObject.name;
+		}
+
+		public object Clone() {
+			return new AssetReference(Asset) {
+				m_assetGUID = m_assetGUID
+			};
 		}
 
 		public void Dispose() {
