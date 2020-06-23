@@ -69,7 +69,7 @@ local function load_config_data(filename)
 
 			if typ == "translate" then
 				local i18nConf = i18n[string.format("%s:%s:%s", filename, id, key)]
-				table.insert(convertedRow, assert(i18nConf[M.currentLanguage]))
+				table.insert(convertedRow, i18nConf and assert(i18nConf[M.currentLanguage]) or "")
 			else
 				table.insert(convertedRow, convert_column_data(row[i], typ, key))
 			end
