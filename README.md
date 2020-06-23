@@ -1,40 +1,45 @@
+- [功能](#功能)
+  - [通过分析注释内容(emmylua)反射lua变量，Unity组件（单个、数组）、string、number、integer、boolean，相关文件：](#通过分析注释内容emmylua反射lua变量unity组件单个数组stringnumberintegerboolean相关文件)
+  - [Unity UI与Lua Table的绑定,整体参考vue](#unity-ui与lua-table的绑定整体参考vue)
+  - [配置文件读取](#配置文件读取)
+  - [AssetBundle打包](#assetbundle打包)
+  - [网络模块](#网络模块)
+  - [通过Attribute扩展Editor编辑功能](#通过attribute扩展editor编辑功能)
 
-# Unity-Extend
+# 功能
 
-## 功能
-
-1. 通过分析注释内容(emmylua)反射lua变量，Unity组件（单个、数组）、string、number、integer、boolean，相关文件：
+## 通过分析注释内容(emmylua)反射lua变量，Unity组件（单个、数组）、string、number、integer、boolean，相关文件：
 
 ![alt text](https://github.com/yuyang158/Unity-Extend/raw/master/ReadMeImage/LuaBinding.png "")
 * LuaBinding.cs
 * Resources/Lua/UI/TestPanel.lua
 * Resources/Lua/UI/ItemSlot.lua
 
-2. Unity UI与Lua Table的绑定,整体参考vue
+## Unity UI与Lua Table的绑定,整体参考vue
 * LuaMVVMBinding.cs LuaMVVMForEach.cs
 * mvvm.lua
 * BindingDemo场景中MVVM开头相关节点
 
-3. 配置文件读取
+## 配置文件读取
 * 读取以\t为分隔符的tsv文件
 * 格式：第一行为Key，第二行为该列类型，第三行为列描述
 * 支持类型 int number string json link boolean
 * link类型为外链id，可以在lua中直接访问对应链接表
 * 相关实现代码为Example/Resources/Lua/ConfigService.lua
 
-4. AssetBundle打包
+## AssetBundle打包
 * 手动强制指定文件夹AssetBundleName
 * 自动分析资源依赖，去除依赖短链
 * 自动生成文件位置描述
 * 自动生成更新描述文件
 
-5. 网络模块
+## 网络模块
 * 接入sproto协议
 * 支持rpc
 * 支持断线自动重连
 * 示例中连接到测试skynet服务器，服务器为Server文件夹
 
-6. 通过Attribute扩展Editor编辑功能
+## 通过Attribute扩展Editor编辑功能
 ![alt text](https://github.com/yuyang158/Unity-Extend/raw/master/ReadMeImage/AttributeExample.png "示例图片，详情参考AttributeExmple.cs")
 * HideIf (可以设置某个变量为某个值时隐藏该属性)
 * ShowIf (可以设置某个变量为某个值时显示该属性)
@@ -46,7 +51,3 @@
 * EnumToggleButtons (将枚举值并列为几个按钮，如上图Enum Value)
 * Button (Method Attribute，可以在Inspector中生成一个该函数的按钮)
 
-
-## Demo查看方法
-
-将Extend目录拷贝到xLua\Assets目录即可
