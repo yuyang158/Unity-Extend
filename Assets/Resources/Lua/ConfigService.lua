@@ -51,13 +51,17 @@ local function convert_column_data(data, columnType, colName)
 	return assert(columnDataConverter[columnType], columnType)(data, colName)
 end
 
-local function load_config_data(filename)
+local function load_config_data(filename, base)
+	local baseConf
+	if base then
+		baseConf = assert(configs[base], base)
+	end
+
 	local textData = ConfigUtil.LoadConfigFile(filename)
 	local config = configs[filename] or {}
-
 	local keymap = {}
-	for i, v in ipairs(textData.keys) do
-		keymap[v] = i
+	for i, key in ipairs(textData.keys) do
+		keymap[key] = i
 	end
 
 	for _, row in ipairs(textData.rows) do
@@ -77,8 +81,16 @@ local function load_config_data(filename)
 
 		config[id] = setmetatable(convertedRow, {
 			__index = function(t, k)
-				local index = assert(keymap[k], k)
-				return t[index]
+				local index = keymap[k]
+				if not index then
+					if baseConf then
+						return baseConf[k]
+					else
+						warn("Not found key : ", k, "in table", filename)
+					end
+				else
+					return t[index]
+				end
 			end
 		})
 	end
