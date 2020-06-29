@@ -9,7 +9,7 @@ namespace Extend.LuaBindingEvent.Editor {
 		[Serializable]
 		public class Context {
 			public EventInstance Event;
-			public string Description;			
+			public string Description;
 		}
 
 		[ReorderList]
