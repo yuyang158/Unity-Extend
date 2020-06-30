@@ -55,3 +55,4 @@ Assets/XLua/Gen.meta
 Assets/Editor/EmmyLuaService.cs.meta
 Assets/Editor/EmmyLuaService.cs
 Assets/Extend/Editor/LuaCheckSetting.asset
+Packages/packages-lock.json
