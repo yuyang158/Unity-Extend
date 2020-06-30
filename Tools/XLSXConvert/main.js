@@ -55,6 +55,9 @@ const specialTypeProcess = {
 
 const wb = XLSX.readFile( './test_excel.xlsx' );
 wb.SheetNames.forEach(sheetName => {
+    if(sheetName.startsWith("ignore")) {
+        return;
+    }
     const sheet = wb.Sheets[sheetName];
     for (const prefix of prefixLetters) {
         for (const letter of letters) {
@@ -94,8 +97,8 @@ wb.SheetNames.forEach(sheetName => {
     regex = /"\t/gi;
     csvData = csvData.replace(regex, '\t');
     
-    if(!fs.existsSync('./config')) {
-        fs.mkdirSync('./config')
+    if(!fs.existsSync('./export')) {
+        fs.mkdirSync('./export')
     }
-    fs.writeFileSync(`./config/${sheetName}.tsv`, csvData)
+    fs.writeFileSync(`./export/${sheetName}.tsv`, csvData)
 });
