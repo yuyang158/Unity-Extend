@@ -69,14 +69,19 @@ export default {
       window.open(`http://127.0.0.1:3000/${row.path}`, '_blank')
     },
     fetchData() {
-
       this.listLoading = true
-      getList().then(response => {
-        for (const row of response.results) {
-          row.time = new Date(Date.parse(row.time)).toLocaleString()
+      getMaxId().then(response => {
+        const maxCount = response.count
+        if (maxCount < this.pageIndex * 50) {
+          this.pageIndex = Math.floor(Math.max(0, maxCount - 1) / 50)
         }
-        this.list = response.results
-        this.listLoading = false
+        getList(this.pageIndex).then(response => {
+          for (const row of response.results) {
+            row.time = new Date(Date.parse(row.time)).toLocaleString()
+          }
+          this.list = response.results
+          this.listLoading = false
+        })
       })
     }
   }

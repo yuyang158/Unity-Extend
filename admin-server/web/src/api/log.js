@@ -1,17 +1,16 @@
 import request from '@/utils/request'
 
-export function getList(params) {
-  params = { min: 0, max: 50 }
+export function getList(pageIndex) {
   return request({
     url: 'file/query/log',
     method: 'get',
-    params
+    params: { index: pageIndex }
   })
 }
 
 export function getMaxId() {
   return request({
-    url: 'file/max/log',
-    method: 'get',
+    url: 'file/count/log',
+    method: 'get'
   })
 }
