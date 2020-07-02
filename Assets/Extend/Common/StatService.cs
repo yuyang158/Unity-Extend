@@ -1,6 +1,6 @@
-﻿using System.IO;
+﻿using System.Collections.Specialized;
+using System.IO;
 using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Extend.Common {
@@ -49,7 +49,7 @@ namespace Extend.Common {
 			if( m_writer == null )
 				return;
 
-			var line = string.Join("\t", category, key, value);
+			var line = string.Join("\t", Time.frameCount, category, key, value);
 			m_writer.WriteLine(line);
 		}
 
@@ -71,6 +71,13 @@ namespace Extend.Common {
 			for( var i = 0; i < (int)StatName.COUNT; i++ ) {
 				builder.AppendLine($"{STAT_DESCRIPTIONS[i]} : {m_stats[i].ToString()}");
 			}
+		}
+		
+		public static void Upload() {
+			var qs = new NameValueCollection {
+				{"device", SystemInfo.deviceName}, {"os", SystemInfo.operatingSystem}, {"version", Application.version}, {"other", "debug"}
+			};
+			Utility.HttpFileUpload("http://127.0.0.1:3000/file/upload/stat", qs, Application.persistentDataPath + "/stat.log");
 		}
 	}
 }

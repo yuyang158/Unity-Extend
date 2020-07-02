@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Specialized;
 using System.IO;
+using System.Net;
+using System.Text;
 using System.Threading;
 using Extend.Common;
 using UnityEngine;
@@ -26,7 +29,8 @@ namespace Extend.DebugUtil {
 				}
 			}
 			finally {
-				m_writer = new StreamWriter(errorLogPath);
+				var stream = new FileStream(errorLogPath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.ReadWrite);
+				m_writer = new StreamWriter(stream);
 				Application.logMessageReceivedThreaded += HandleLogThreaded;
 			}
 
@@ -69,6 +73,21 @@ namespace Extend.DebugUtil {
 				}
 				m_autoEvent.Set();
 			}
+		}
+
+		public static void Upload(bool currentLog) {
+			string filePath;
+			if( currentLog ) {
+				filePath = Application.persistentDataPath + "/error.log";
+			}
+			else {
+				filePath = Application.persistentDataPath + "/last-error.log";
+			}
+
+			var qs = new NameValueCollection {
+				{"device", SystemInfo.deviceName}, {"os", SystemInfo.operatingSystem}, {"version", Application.version}, {"other", "debug"}
+			};
+			Utility.HttpFileUpload("http://127.0.0.1:3000/file/upload/log", qs, filePath);
 		}
 
 		public void Destroy() {

@@ -43,6 +43,9 @@ namespace Extend.DebugUtil {
 		private GameObject m_logGO;
 
 		[SerializeField]
+		private GameObject m_shortcut;
+
+		[SerializeField]
 		private TMP_InputField m_cmdInput;
 
 		private static readonly Dictionary<LogType, Color> logTypeColors = new Dictionary<LogType, Color> {
@@ -70,6 +73,7 @@ namespace Extend.DebugUtil {
 				m_logScrollVisible = value;
 				m_logGO.SetActive(value);
 				m_statGO.SetActive(!value);
+				m_shortcut.SetActive(value);
 			}
 		}
 
@@ -319,6 +323,14 @@ namespace Extend.DebugUtil {
 			if( !Application.isPlaying )
 				return;
 			BuildLuaCommand();
+		}
+
+		public void UploadLog(bool current) {
+			ErrorLogToFile.Upload(current);
+		}
+
+		public void UploadStat() {
+			StatService.Upload();
 		}
 
 		public void Destroy() {

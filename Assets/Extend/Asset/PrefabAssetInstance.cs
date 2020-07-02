@@ -64,7 +64,7 @@ namespace Extend.Asset {
 
 			StatService.Get().Increase(StatService.StatName.IN_USE_GO, 1);
 #if UNITY_EDITOR
-			StatService.Get().LogStat("Instantiate", $"{Time.frameCount}:{UnityObject.name}", m_transformCount);
+			StatService.Get().LogStat("Instantiate", UnityObject.name, m_transformCount);
 #endif
 			return go;
 		}
@@ -85,7 +85,7 @@ namespace Extend.Asset {
 
 			StatService.Get().Increase(StatService.StatName.IN_USE_GO, 1);
 #if UNITY_EDITOR
-			StatService.Get().LogStat("Instantiate", $"{Time.frameCount}:{UnityObject.name}", m_transformCount);
+			StatService.Get().LogStat("Instantiate", UnityObject.name, m_transformCount);
 #endif
 			return go;
 		}

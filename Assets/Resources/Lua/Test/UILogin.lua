@@ -50,6 +50,8 @@ function M:OnLoginClicked()
 	local host = system.SystemSetting:GetString("GAME", "ServerHost")
 	local port = system.SystemSetting:GetInt("GAME", "ServerPort")
 	self.tcpClient:Connect(host, port)]]
+	
+	warn("CLICK ...")
 
 	if #self.context.values > 5 then
 		table.remove(self.context.values)

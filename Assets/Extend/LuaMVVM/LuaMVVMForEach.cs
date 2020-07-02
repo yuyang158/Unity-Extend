@@ -5,7 +5,7 @@ using UnityEngine;
 using XLua;
 
 namespace Extend.LuaMVVM {
-	public class LuaMVVMForEach : MonoBehaviour {
+	public class LuaMVVMForEach : MonoBehaviour, ILuaMVVM {
 		[SerializeField]
 		private bool m_syncLoad;
 		[AssetReferenceAssetType(AssetType = typeof(GameObject))]
@@ -26,14 +26,33 @@ namespace Extend.LuaMVVM {
 				m_arrayData = value;
 				if(m_arrayData == null)
 					return;
-				if( !Asset.IsFinished && !m_syncLoad ) {
-					var handle = Asset.LoadAsync(typeof(GameObject));
-					handle.OnComplete += loadHandle => {
-						DoGenerate();
-					};
+
+				if( Asset == null || !Asset.GUIDValid ) {
+					var dataCount = m_arrayData.Length;
+					if( dataCount > transform.childCount ) {
+						Debug.LogError($"Data count greater then children count. {dataCount} < {transform.childCount}");
+					}
+					for( var i = 0; i < transform.childCount; i++ ) {
+						var child = transform.GetChild(i);
+						if( i >= dataCount ) {
+							child.gameObject.SetActive(false);
+						}
+						else {
+							var mvvm = child.GetComponent<LuaMVVMBinding>();
+							mvvm.SetDataContext(m_arrayData.Get<int, LuaTable>(i + 1));
+						}
+					}
 				}
 				else {
-					DoGenerate();
+					if( !Asset.IsFinished && !m_syncLoad ) {
+						var handle = Asset.LoadAsync(typeof(GameObject));
+						handle.OnComplete += loadHandle => {
+							DoGenerate();
+						};
+					}
+					else {
+						DoGenerate();
+					}
 				}
 			}
 		}
@@ -65,7 +84,7 @@ namespace Extend.LuaMVVM {
 					m_generatedAsset.Add(go);
 				}
 				
-				var mvvmBinding = go.GetComponent<LuaMVVMBinding>();
+				var mvvmBinding = go.GetComponent<ILuaMVVM>();
 				mvvmBinding.SetDataContext(dataContext);
 			}
 
@@ -74,6 +93,10 @@ namespace Extend.LuaMVVM {
 				Destroy(go);
 				m_generatedAsset.RemoveAt(m_generatedAsset.Count - 1);
 			}
+		}
+
+		public void SetDataContext(LuaTable dataSource) {
+			LuaArrayData = dataSource;
 		}
 	}
 }

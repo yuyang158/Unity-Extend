@@ -2,7 +2,7 @@ using UnityEngine;
 using XLua;
 
 namespace Extend.LuaMVVM {
-	public class LuaMVVMBinding : MonoBehaviour {
+	public class LuaMVVMBinding : MonoBehaviour, ILuaMVVM {
 		[LuaMVVMBindOptions]
 		public LuaMVVMBindingOptions BindingOptions;
 
