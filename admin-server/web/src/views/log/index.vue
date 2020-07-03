@@ -37,28 +37,25 @@
         </template>
       </el-table-column>
     </el-table>
+    <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="fetchData" />
   </div>
 </template>
 
 <script>
 import { getList, getMaxId } from '@/api/log'
+import Pagination from '@/components/Pagination'
 
 export default {
-  filters: {
-    statusFilter(status) {
-      const statusMap = {
-        published: 'success',
-        draft: 'gray',
-        deleted: 'danger'
-      }
-      return statusMap[status]
-    }
-  },
+  components: { Pagination },
   data() {
     return {
       list: null,
       listLoading: true,
-      pageIndex: 0
+      total: 0,
+      listQuery: {
+        page: 1,
+        limit: 20
+      }
     }
   },
   created() {
@@ -72,10 +69,11 @@ export default {
       this.listLoading = true
       getMaxId().then(response => {
         const maxCount = response.count
-        if (maxCount < this.pageIndex * 50) {
-          this.pageIndex = Math.floor(Math.max(0, maxCount - 1) / 50)
+        if (maxCount < (this.listQuery.page - 1) * 50) {
+          this.listQuery.page = Math.floor(Math.max(0, maxCount - 1) / 50) + 1
         }
-        getList(this.pageIndex).then(response => {
+        this.total = maxCount
+        getList(this.listQuery.page - 1).then(response => {
           for (const row of response.results) {
             row.time = new Date(Date.parse(row.time)).toLocaleString()
           }
@@ -83,6 +81,9 @@ export default {
           this.listLoading = false
         })
       })
+      setTimeout(() => {
+        this.listLoading = false
+      }, 5000)
     }
   }
 }
