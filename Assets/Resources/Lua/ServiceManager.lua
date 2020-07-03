@@ -6,7 +6,8 @@ M.SERVICE_TYPE = {
     TICK = 2,
     CONSOLE_COMMAND = 3,
     UI = 4,
-    GLOBAL_VM = 5
+    GLOBAL_VM = 5,
+    MOCK = 6
 }
 
 function M.GetService(typ)
@@ -22,6 +23,16 @@ function M.RegisterService(typ, service)
     service.Init()
     services[typ] = service
 end
+
+function M.Shutdown()
+    for _, typ in ipairs(M.SERVICE_TYPE) do
+        local service = services[typ]
+        if service.clear then
+            service.clear()
+        end
+    end
+end
+
 _ServiceManager = M
 
 return M

@@ -1,8 +1,11 @@
----@class SocketClient : EventDispatcher
+---@class SprotoClient : EventDispatcher
 local M = class(require("base.EventDispatcher"))
 local AutoReconnectTcpClient = CS.Extend.Network.SocketClient.AutoReconnectTcpClient
 local sproto = require 'sproto.sproto'
 local tunpack, tpack, next, spack, assert = table.unpack, table.pack, next, string.pack, assert
+local SM = require "ServiceManager"
+---@type MockService
+local MockService = SM.GetService(SM.SERVICE_TYPE.MOCK)
 
 M.Event = {
 	StatusChanged = "StatusChanged"
@@ -69,10 +72,15 @@ end
 
 function M:Send(name, args, callback, ...)
 	if self.clientStatus ~= AutoReconnectTcpClient.Status.CONNECTED then
+		warn("SOCKET NOT CONNECTED")
 		return
 	end
 
 	self.session = self.session + 1
+	if MockService.OnClientRequest(name, self, self.session) then
+		return
+	end
+
 	local req = self.request(name, args, self.session)
 	local package = spack(">s2", req)
 	self.client:Send(package)
@@ -96,6 +104,7 @@ end
 
 function M:DirectSend(buffer)
 	if self.clientStatus ~= AutoReconnectTcpClient.Status.CONNECTED then
+		warn("SOCKET NOT CONNECTED")
 		return
 	end
 	self.client:Send(buffer)
@@ -110,40 +119,50 @@ function M:OnStatusChanged(status)
 	self:DispatchEvent(M.Event.StatusChanged, status)
 end
 
+function M:_OnServerRequest(name, args)
+	local serverReq = self.serverRequest[name]
+	if not serverReq then
+		warn("UNHANDLED SERVER REQUEST", name)
+		return
+	end
+	if serverReq.params.n == 0 then
+		serverReq.callback(args)
+	else
+		serverReq.callback(tunpack(serverReq.params), args)
+	end
+end
+
 function M:OnRecvPackage(buffer)
 	local t, name, args = self.host:dispatch(buffer)
 	if t == "REQUEST" then
-		local serverReq = self.serverRequest[name]
-		if not serverReq then
-			print_w("UNHANDLED SERVER REQUEST", name)
-			return
-		end
-		if serverReq.params.n == 0 then
-			serverReq.callback(args)
-		else
-			serverReq.callback(tunpack(serverReq.params), args)
-		end
+		self:_OnServerRequest(name, args)
 	elseif t == "RESPONSE" then
-		local response = self.wait4Responses[name]
-		if not response then
-			return
-		end
+		self:_OnResponse(name, args)
+	end
+end
 
-		local commonContext = self.responseCommonCallback[response.name]
-		if commonContext and response.callback ~= commonContext.callback then
-			if commonContext.params.n == 0 then
-				commonContext.callback(args)
-			else
-				commonContext.callback(tunpack(commonContext.params), args)
-			end
-		end
-		self.wait4Responses[name] = nil
-		if response.params.n == 0 then
-			response.callback(args)
+function M:_OnResponse(name, args)
+	local response = self.wait4Responses[name]
+	if not response then
+		return
+	end
+
+	local commonContext = self.responseCommonCallback[response.name]
+	if commonContext and response.callback ~= commonContext.callback then
+		if commonContext.params.n == 0 then
+			commonContext.callback(args)
 		else
-			response.callback(tunpack(response.params), args)
+			commonContext.callback(tunpack(commonContext.params), args)
 		end
 	end
+	self.wait4Responses[name] = nil
+	if response.params.n == 0 then
+		response.callback(args)
+	else
+		response.callback(tunpack(response.params), args)
+	end
+
+	MockService.OnServerResponse(response.name, self)
 end
 
 function M:OnUpdate()
