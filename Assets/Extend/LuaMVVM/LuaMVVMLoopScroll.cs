@@ -1,5 +1,4 @@
-﻿using System;
-using Extend.UI.Scroll;
+﻿using Extend.UI.Scroll;
 using UnityEngine;
 using XLua;
 

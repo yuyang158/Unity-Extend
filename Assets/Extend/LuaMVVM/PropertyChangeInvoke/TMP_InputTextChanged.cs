@@ -13,7 +13,7 @@ namespace Extend.LuaMVVM.PropertyChangeInvoke {
 
 		private void Awake() {
 			m_inputField = GetComponent<TMP_InputField>();
-			m_inputField.onValueChanged.AddListener((string val) => {
+			m_inputField.onValueChanged.AddListener(val => {
 				OnPropertyChanged?.Invoke(m_inputField, val);
 			});
 		}

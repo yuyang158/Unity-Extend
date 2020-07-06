@@ -51,7 +51,7 @@ namespace Extend {
 				return assetRef.GetTextAsset().bytes;
 			});
 
-			LoadFileAtPath("class");
+			LoadFileAtPath("base.class");
 			OnDestroy = LoadFileAtPath("PreRequest")[0] as LuaFunction;
 #if UNITY_EDITOR
 			if( reportLeakMark )

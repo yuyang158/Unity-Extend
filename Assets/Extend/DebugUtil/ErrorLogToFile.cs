@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Specialized;
 using System.IO;
-using System.Net;
-using System.Text;
 using System.Threading;
 using Extend.Common;
 using UnityEngine;
@@ -38,8 +36,8 @@ namespace Extend.DebugUtil {
 			m_writeThread.Start();
 		}
 
-		private string log;
-		private string _stackTrace;
+		private string m_log;
+		private string m_stackTrace;
 
 		private void WriteThread() {
 			while( true ) {
@@ -51,8 +49,8 @@ namespace Extend.DebugUtil {
 						m_writer.Close();
 						break;
 					}
-					m_writer.WriteLine(log);
-					m_writer.Write(_stackTrace);
+					m_writer.WriteLine(m_log);
+					m_writer.Write(m_stackTrace);
 					m_writer.Flush();
 				}
 			}
@@ -63,12 +61,12 @@ namespace Extend.DebugUtil {
 				var now = DateTime.Now;
 				var typeStr = type.ToString().ToUpper();
 				lock( m_writer ) {
-					log = $"[{now.ToShortDateString()} {now.ToLongTimeString()}] [{typeStr}]: {message}";
+					m_log = $"[{now.ToShortDateString()} {now.ToLongTimeString()}] [{typeStr}]: {message}";
 					if( type == LogType.Assert || type == LogType.Exception || type == LogType.Error ) {
-						_stackTrace = stackTrace;
+						m_stackTrace = stackTrace;
 					}
 					else {
-						_stackTrace = string.Empty;
+						m_stackTrace = string.Empty;
 					}
 				}
 				m_autoEvent.Set();

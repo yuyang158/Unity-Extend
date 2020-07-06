@@ -22,16 +22,16 @@ namespace Extend.UI.Scroll {
 
 		public ILoopScrollDataProvider dataSource;
 
-		protected float threshold = 0;
+		protected float threshold;
 
 		[Tooltip("Reverse direction for dragging")]
-		public bool reverseDirection = false;
+		public bool reverseDirection;
 
 		[Tooltip("Rubber scale for outside")]
 		public float rubberScale = 1;
 
-		protected int itemTypeStart = 0;
-		protected int itemTypeEnd = 0;
+		protected int itemTypeStart;
+		protected int itemTypeEnd;
 
 		protected abstract float GetSize(RectTransform item);
 		protected abstract float GetDimension(Vector2 vector);
@@ -39,7 +39,7 @@ namespace Extend.UI.Scroll {
 		protected int directionSign = 0;
 
 		private float m_ContentSpacing = -1;
-		protected GridLayoutGroup m_GridLayout = null;
+		protected GridLayoutGroup m_GridLayout;
 
 		protected float contentSpacing {
 			get {
@@ -64,7 +64,7 @@ namespace Extend.UI.Scroll {
 			}
 		}
 
-		private int m_ContentConstraintCount = 0;
+		private int m_ContentConstraintCount;
 
 		protected int contentConstraintCount {
 			get {
@@ -308,14 +308,14 @@ namespace Extend.UI.Scroll {
 		private Bounds m_PrevViewBounds;
 
 		[NonSerialized]
-		private bool m_HasRebuiltLayout = false;
+		private bool m_HasRebuiltLayout;
 
 		private bool m_HSliderExpand;
 		private bool m_VSliderExpand;
 		private float m_HSliderHeight;
 		private float m_VSliderWidth;
 
-		[System.NonSerialized]
+		[NonSerialized]
 		private RectTransform m_Rect;
 
 		private RectTransform rectTransform {
@@ -427,7 +427,7 @@ namespace Extend.UI.Scroll {
 		}
 
 		public void RefreshCells() {
-			if( Application.isPlaying && this.isActiveAndEnabled ) {
+			if( Application.isPlaying && isActiveAndEnabled ) {
 				itemTypeEnd = itemTypeStart;
 				// recycle items if we can
 				for( var i = 0; i < content.childCount; i++ ) {

@@ -6,8 +6,8 @@ using UnityEditor;
 namespace Extend.UI.Scroll.Editor {
 	[CustomEditor(typeof(LoopScrollRect), true)]
 	public class LoopScrollRectInspector : ExtendInspector {
-		int index = 0;
-		float speed = 1000;
+		private int index;
+		private float speed = 1000;
 
 		public override void OnInspectorGUI() {
 			base.OnInspectorGUI();

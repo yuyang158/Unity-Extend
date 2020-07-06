@@ -7,7 +7,6 @@ using System.Linq;
 using Extend.Asset.Editor.Process;
 using Unity.EditorCoroutines.Editor;
 using UnityEditor;
-using UnityEngine;
 
 namespace Extend.Asset.Editor {
 	public static class BuildAssetRelation {

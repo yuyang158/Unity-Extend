@@ -33,7 +33,6 @@ SM.RegisterService(SM.SERVICE_TYPE.GLOBAL_VM, GlobalVMService)
 SM.RegisterService(SM.SERVICE_TYPE.MOCK, MockService)
 
 UIService.Show("Login", function()
-	
 end)
 
 return function()
