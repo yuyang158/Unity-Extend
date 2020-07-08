@@ -77,7 +77,7 @@ function M:Send(name, args, callback, ...)
 	end
 
 	self.session = self.session + 1
-	if MockService.OnClientRequest(name, self, self.session) then
+	if MockService.OnClientRequest(name, self, self.session, args) then
 		return
 	end
 
@@ -130,6 +130,7 @@ function M:_OnServerRequest(name, args)
 	else
 		serverReq.callback(tunpack(serverReq.params), args)
 	end
+	MockService.OnServerRequest(name, self, args)
 end
 
 function M:OnRecvPackage(buffer)
@@ -162,7 +163,7 @@ function M:_OnResponse(name, args)
 		response.callback(tunpack(response.params), args)
 	end
 
-	MockService.OnServerResponse(response.name, self)
+	MockService.OnServerResponse(response.name, self, args)
 end
 
 function M:OnUpdate()
