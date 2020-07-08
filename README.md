@@ -72,7 +72,7 @@
   
 ## 远程Lua指令执行
 
-* 通过Http将需要执行的Lua代码上传到服务器
+* 通过Http将需要执行的Lua代码上传到服务器（服务器代码目录：UnityRemoteCmd）
   1. http://127.0.0.1/?cmd=devices 获取所有在线设备
   2. http://127.0.0.1/?cmd=lua&device=604
        * Method: POST
