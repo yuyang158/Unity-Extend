@@ -7,6 +7,7 @@
   - [通过Attribute扩展Editor编辑功能](#通过attribute扩展editor编辑功能)
   - [基于ScriptableObject的事件功能](#基于scriptableobject的事件功能)
   - [In Game Console功能](#in-game-console功能)
+  - [远程Lua指令执行](#远程lua指令执行)
 
 # 功能
 
@@ -67,3 +68,15 @@
 * 在游戏客户端内接收Unity Log回掉，显示Log输出，方便在非编辑器状态下查看Log
 * Error级Log自动弹出
 * 指令输入功能
+* 通过键盘上的上下键查看最近10次的输入记录
+  
+## 远程Lua指令执行
+
+* 通过Http将需要执行的Lua代码上传到服务器
+  1. http://127.0.0.1/?cmd=devices 获取所有在线设备
+  2. http://127.0.0.1/?cmd=lua&device=604
+       * Method: POST
+       * Body: lua代码
+       * Content-Type: text/plain
+  3. http服务器将代码发送到客户端RemoteCmdClient执行
+  4. 客户端调用Lua全局函数Global_DebugFunction处理发过来的代码
