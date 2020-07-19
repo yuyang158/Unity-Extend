@@ -117,5 +117,15 @@ namespace Extend {
 				}
 			}
 		}
+
+		[Button(ButtonSize.Small)]
+		public void Sync() {
+			if(!Application.isPlaying)
+				return;
+			if( BindingContainer == null ) return;
+			foreach( var binding in BindingContainer ) {
+				binding.ApplyToLuaInstance(LuaInstance);
+			}
+		}
 	}
 }
