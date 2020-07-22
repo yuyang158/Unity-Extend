@@ -21,12 +21,12 @@ namespace Extend {
 			CSharpServiceManager.Register(new GameSystem());
 			CSharpServiceManager.Register(new SpriteAssetService());
 			CSharpServiceManager.Register(new I18nService());
+			CSharpServiceManager.Register(new LuaVM());
+			CSharpServiceManager.Register(new TickService());
 		}
 
 		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
 		private static void OnSceneLoaded() {
-			CSharpServiceManager.Register(new LuaVM());
-			CSharpServiceManager.Register(new TickService());
 			CSharpServiceManager.Register(new NetworkService());
 
 			var mode = GameSystem.Get().SystemSetting.GetString("GAME", "Mode");
@@ -36,7 +36,10 @@ namespace Extend {
 					CSharpServiceManager.Register(go.GetComponent<InGameConsole>());
 				}
 			}
-			Application.targetFrameRate = 60;
+			Application.targetFrameRate = 30;
+
+			var lua = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
+			lua.StartUp();
 		}
 	}
 }

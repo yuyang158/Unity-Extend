@@ -11,7 +11,7 @@ using XLua;
 using Debug = UnityEngine.Debug;
 
 namespace Extend.Editor {
-	[ScriptedImporter(1, "lua")]
+	[ScriptedImporter(1, "lua"), InitializeOnLoad]
 	public class LuaScriptImporter : ScriptedImporter {
 		[MenuItem("XLua/hotfix")]
 		private static void Hotfix() {
@@ -32,6 +32,20 @@ namespace Extend.Editor {
 
 		static LuaScriptImporter() {
 			Application.quitting += () => { modifiedModules.Clear(); };
+
+			var watcher = new FileSystemWatcher($"{Environment.CurrentDirectory}/Lua", "*.lua");
+			watcher.IncludeSubdirectories = true;
+			watcher.Changed += (sender, args) => {
+				if( !Application.isPlaying )
+					return;
+				var path = args.FullPath;
+				var start = path.IndexOf("Lua", StringComparison.CurrentCulture) + 4;
+				var module = path.Substring(start).Replace('/', '.');
+				modifiedModules.Add(module);
+			};
+
+
+			watcher.EnableRaisingEvents = true;
 		}
 
 		public override void OnImportAsset(AssetImportContext ctx) {
@@ -42,7 +56,7 @@ namespace Extend.Editor {
 			}
 
 			var setting = LuaCheckSetting.GetOrCreateSettings();
-			if( !string.IsNullOrEmpty(setting.LuaCheckExecPath) && File.Exists(setting.LuaCheckExecPath) ) {
+			if( setting.Active && !string.IsNullOrEmpty(setting.LuaCheckExecPath) && File.Exists(setting.LuaCheckExecPath) ) {
 				var proc = new Process {
 					StartInfo = new ProcessStartInfo {
 						FileName = setting.LuaCheckExecPath,
@@ -58,6 +72,7 @@ namespace Extend.Editor {
 					var line = proc.StandardOutput.ReadLine();
 					builder.AppendLine(line);
 				}
+
 				Debug.Log(builder.ToString());
 			}
 

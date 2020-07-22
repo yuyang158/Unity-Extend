@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.IO;
 using Extend.Asset;
 using Extend.Common;
@@ -11,6 +12,7 @@ namespace Extend {
 		private LuaMemoryLeakChecker.Data leakData;
 		private static readonly string LUA_DEBUG_DIRECTORY = Application.persistentDataPath + "/Lua/";
 		private LuaFunction OnDestroy;
+		private LuaFunction OnInit;
 		private LuaEnv Default { get; set; }
 		public LuaTable Global => Default.Global;
 
@@ -37,6 +39,13 @@ namespace Extend {
 			Default = new LuaEnv();
 			Default.AddLoader((ref string filename) => {
 				filename = filename.Replace('.', '/');
+#if UNITY_EDITOR
+				var path = $"{Application.dataPath}/../Lua/{filename}.lua";
+				if( File.Exists(path) ) {
+					return File.ReadAllBytes(path);
+				}
+				return null;
+#else
 				var hotfix = $"{LUA_DEBUG_DIRECTORY}{filename}.lua";
 				if( File.Exists(hotfix) ) {
 					filename += ".lua";
@@ -49,14 +58,21 @@ namespace Extend {
 					return null;
 				filename += ".lua";
 				return assetRef.GetTextAsset().bytes;
+#endif
 			});
 
 			LoadFileAtPath("base.class");
-			OnDestroy = LoadFileAtPath("PreRequest")[0] as LuaFunction;
+			var ret = LoadFileAtPath("PreRequest")[0] as LuaTable;
+			OnInit = ret.Get<LuaFunction>("init");
+			OnDestroy = ret.Get<LuaFunction>("shutdown");
 #if UNITY_EDITOR
 			if( reportLeakMark )
 				leakData = Default.StartMemoryLeakCheck();
 #endif
+		}
+
+		public void StartUp() {
+			OnInit.Call();
 		}
 
 		public void LogCallStack() {
@@ -99,7 +115,7 @@ namespace Extend {
 				UnityEditor.EditorUtility.DisplayDialog("ERROR", "Change report status before start play", "OK");
 				return;
 			}
-			
+
 			reportLeakMark = !reportLeakMark;
 			UnityEditor.EditorPrefs.SetBool(PERF_KEY, reportLeakMark);
 		}

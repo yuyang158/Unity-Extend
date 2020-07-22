@@ -8,8 +8,12 @@ namespace Extend.Editor {
 		[SerializeField]
 		private string m_luaCheckExecPath;
 
+		[SerializeField]
+		private bool m_active;
 		public string LuaCheckExecPath => m_luaCheckExecPath;
 
+		public bool Active => m_active;
+		
 		[SerializeField, Range(100, 250)]
 		private int m_maxLineLength = 140;
 

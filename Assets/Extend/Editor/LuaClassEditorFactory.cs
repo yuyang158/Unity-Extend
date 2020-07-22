@@ -101,6 +101,11 @@ namespace Extend.Editor {
 	}
 
 	public static class LuaClassEditorFactory {
+		public static string LoadLuaTextFile(string path) {
+			path = path.Replace('.', '/') + ".lua";
+			return File.Exists(path) ? File.ReadAllText(path) : null;
+		}
+
 		private static readonly Dictionary<string, LuaClassDescriptor> descriptors = new Dictionary<string, LuaClassDescriptor>();
 
 		public static LuaClassDescriptor GetDescriptor(string className) {
@@ -109,16 +114,15 @@ namespace Extend.Editor {
 				return descriptor;
 			}
 
-			var path = className.Replace('.', '/');
-			var asset = Resources.Load<TextAsset>("Lua/" + path);
-			if( !asset )
+			var text = LoadLuaTextFile("Lua/" + className);
+			if( text == null )
 				return null;
 
-			if( !asset.text.Contains("---@class") ) {
+			if( !text.Contains("---@class") ) {
 				return null;
 			}
 
-			using( var reader = new StringReader(asset.text) ) {
+			using( var reader = new StringReader(text) ) {
 				descriptor = new LuaClassDescriptor(reader);
 				descriptors.Add(className, descriptor);
 				return descriptor;
@@ -126,10 +130,10 @@ namespace Extend.Editor {
 		}
 
 		public static LuaClassDescriptor GetDescriptorWithFilePath(string path) {
-			var asset = Resources.Load<TextAsset>("Lua/" + path);
-			if( !asset )
+			var text = LoadLuaTextFile("Lua/" + path);
+			if( text == null )
 				return null;
-			using( var reader = new StringReader(asset.text) ) {
+			using( var reader = new StringReader(text) ) {
 				while( true ) {
 					var line = reader.ReadLine();
 					if( string.IsNullOrEmpty(line) )
@@ -152,13 +156,13 @@ namespace Extend.Editor {
 		public static LuaClassDescriptor ReloadDescriptor(string className) {
 			var path = className.Replace('.', '/');
 			if( descriptors.TryGetValue(className, out var descriptor) ) {
-				var asset = Resources.Load<TextAsset>("Lua/" + path);
+				var text = LoadLuaTextFile("Lua/" + path);
 
-				if( !asset ) {
+				if( text == null ) {
 					return null;
 				}
 
-				using( var reader = new StringReader(asset.text) ) {
+				using( var reader = new StringReader(text) ) {
 					descriptor.Reload(reader);
 					return descriptor;
 				}

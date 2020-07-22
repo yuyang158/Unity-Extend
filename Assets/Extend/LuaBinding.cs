@@ -10,7 +10,7 @@ using XLua;
 namespace Extend {
 	[CSharpCallLua, LuaCallCSharp]
 	public class LuaBinding : MonoBehaviour, ISerializationCallbackReceiver {
-		[AssetPath(AssetType = typeof(TextAsset), RootDir = "Assets/Resources/Lua", Extension = ".lua"), BlackList]
+		[LuaFileAttribute, BlackList]
 		public string LuaFile;
 		public LuaTable LuaInstance { get; private set; }
 
@@ -115,6 +115,16 @@ namespace Extend {
 				foreach( var element in arr ) {
 					BindingContainer.Add(element as LuaBindingDataBase);
 				}
+			}
+		}
+
+		[Button(ButtonSize.Small)]
+		public void Sync() {
+			if(!Application.isPlaying)
+				return;
+			if( BindingContainer == null ) return;
+			foreach( var binding in BindingContainer ) {
+				binding.ApplyToLuaInstance(LuaInstance);
 			}
 		}
 	}
