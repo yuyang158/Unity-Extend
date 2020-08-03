@@ -1,24 +1,36 @@
 ﻿---@class MockService
 local M = {}
 
+---@class MockContext
+---@field data table @fake data
+---@field filter function @whether trigger fake data by received package
+---@field dataGen function @fake data provide function
+---@field name string @server request name
+
+---@type table<string, MockContext>
 local responseMocks = {}
+---@type table<string, MockContext>
 local requestMocksAfterResponse = {}
+---@type table<string, MockContext>
 local requestMocksAfterRequest = {}
 
 function M.Init()
 end
 
-function M.MockClientRequestResponse(requestName, data, filter)
+---@param context MockContext
+function M.MockClientRequestResponse(requestName, context)
 	assert(not responseMocks[requestName])
-	responseMocks[requestName] = {data = data, filter = filter}
+	responseMocks[requestName] = context
 end
 
-function M.MockServerRequestAfterResponse(requestName, data, filter)
-	requestMocksAfterResponse[requestName] = {data = data, filter = filter}
+---@param context MockContext
+function M.MockServerRequestAfterResponse(requestName, context)
+	requestMocksAfterResponse[requestName] = context
 end
 
-function M.MockServerRequestAfterRequest(requestName, data, filter)
-	requestMocksAfterRequest[requestName] = {data = data, filter = filter}
+---@param context MockContext
+function M.MockServerRequestAfterRequest(requestName, context)
+	requestMocksAfterRequest[requestName] = context
 end
 
 ---@param client SprotoClient
@@ -28,7 +40,12 @@ function M.OnClientRequest(requestName, client, session, args)
 		if context.filter and not context.filter(args) then
 			return
 		end
-		client:_OnResponse(session, context.data)
+		assert(context.data ~= nil or context.dataGen ~= nil)
+		if context.data then
+			client:_OnResponse(session, context.data)
+		else
+			client:_OnResponse(session, context.dataGen(args))
+		end
 		return true
 	end
 end
@@ -40,8 +57,13 @@ function M.OnServerResponse(requestName, client, args)
 		if context.filter and not context.filter(args) then
 			return
 		end
-		assert(context.data.name)
-		client:_OnServerRequest(context.data.name, context.data.args)
+
+		assert(context.data ~= nil or context.dataGen ~= nil)
+		if context.data then
+			client:_OnServerRequest(context.name, context.data)
+		else
+			client:_OnServerRequest(context.name, context.dataGen(args))
+		end
 	end
 end
 
@@ -52,8 +74,12 @@ function M.OnServerRequest(requestName, client, args)
 		if context.filter and not context.filter(args) then
 			return
 		end
-		assert(context.data.name)
-		client:_OnServerRequest(context.data.name, context.data.args)
+		assert(context.data ~= nil or context.dataGen ~= nil)
+		if context.data then
+			client:_OnServerRequest(context.name, context.data)
+		else
+			client:_OnServerRequest(context.name, context.dataGen(args))
+		end
 	end
 end
 

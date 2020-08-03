@@ -80,3 +80,11 @@
        * Content-Type: text/plain
   3. http服务器将代码发送到客户端RemoteCmdClient执行
   4. 客户端调用Lua全局函数Global_DebugFunction处理发过来的代码
+
+## Mock功能
+* 通过拦截、分析客户端发送及收到的协议数据生成伪数据
+* 功能代码文件：Assets/Resources/Lua/base/MockService.lua
+
+## LuaCheck集成
+* 选中Assets/Extend/Editor/LuaCheckSetting.asset 设置LuaCheck.exe的路径
+* 在Lua文件保存时，自动执行LuaCheck指令，并将结果输出到Console
