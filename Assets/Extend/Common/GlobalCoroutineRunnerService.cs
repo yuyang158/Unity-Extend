@@ -33,9 +33,13 @@ namespace Extend.Common {
 			callback();
 		}
 
-		public void WaitSecond(float second, Action callback) {
+		public Coroutine WaitSecond(float second, Action callback) {
 			var wait = new WaitForSeconds(second);
-			StartCoroutine(WaitSecond(wait, callback));
+			return StartCoroutine(WaitSecond(wait, callback));
+		}
+
+		public void StopCoroutineLua(Coroutine co) {
+			StopCoroutine(co);
 		}
 
 		[BlackList]

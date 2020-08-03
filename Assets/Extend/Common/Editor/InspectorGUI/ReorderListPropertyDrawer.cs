@@ -33,6 +33,7 @@ namespace Extend.Common.Editor.InspectorGUI {
 						if( element.propertyType == SerializedPropertyType.Generic ) {
 							var target = element.GetPropertyObject();
 							var fields = target.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+							rect.height = EditorGUIUtility.singleLineHeight;
 							foreach( var field in fields ) {
 								var prop = element.FindPropertyRelative(field.Name);
 								if( prop == null )

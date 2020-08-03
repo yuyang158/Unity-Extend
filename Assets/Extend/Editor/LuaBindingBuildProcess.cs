@@ -6,7 +6,6 @@ using UnityEditor;
 using UnityEngine;
 
 namespace Extend.Editor {
-	[InitializeOnLoad]
 	public class LuaBindingBuildProcess : IBuildAssetProcess {
 		public Type ProcessType => typeof(AssetImporter);
 

@@ -139,14 +139,15 @@ public static class XLuaGenConfig {
 			var namespaces = new List<string>() // 在这里添加名字空间
 			{
 				"UnityEngine",
-				"UnityEngine.UI"
+				"UnityEngine.UI",
+				"UnityEngine.AI"
 			};
-			var unityTypes = ( from assembly in AppDomain.CurrentDomain.GetAssemblies()
+			var unityTypes = from assembly in AppDomain.CurrentDomain.GetAssemblies()
 				where !( assembly.ManifestModule is System.Reflection.Emit.ModuleBuilder )
 				from type in assembly.GetExportedTypes()
 				where type.Namespace != null && namespaces.Contains(type.Namespace) && !isExcluded(type)
 				      && type.BaseType != typeof(MulticastDelegate) && !type.IsInterface && !type.IsEnum && !type.IsValueType
-				select type );
+				select type;
 			
 			var basicMathValueType = new[] {
 				typeof(Vector2),

@@ -47,6 +47,10 @@ namespace Extend.Asset {
 			return Asset.UnityObject as T;
 		}
 
+		public Object GetObject() {
+			return GetAsset<Object>();
+		}
+
 		public Sprite GetSprite() {
 			return GetAsset<Sprite>();
 		}
@@ -103,6 +107,10 @@ namespace Extend.Asset {
 			}
 
 			return prefabAsset.Instantiate(parent, stayWorldPosition);
+		}
+
+		public GameObject Instantiate(Vector3 position) {
+			return Instantiate(position, Quaternion.identity);
 		}
 
 		public GameObject Instantiate(Vector3 position, Quaternion quaternion, Transform parent = null) {

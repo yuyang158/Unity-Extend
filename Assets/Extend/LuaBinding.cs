@@ -10,8 +10,9 @@ using XLua;
 namespace Extend {
 	[CSharpCallLua, LuaCallCSharp]
 	public class LuaBinding : MonoBehaviour, ISerializationCallbackReceiver {
-		[AssetPath(AssetType = typeof(TextAsset), RootDir = "Assets/Resources/Lua", Extension = ".lua"), BlackList]
+		[LuaFileAttribute, BlackList]
 		public string LuaFile;
+
 		public LuaTable LuaInstance { get; private set; }
 
 		private void Awake() {
@@ -46,7 +47,7 @@ namespace Extend {
 
 		[BlackList, NonSerialized]
 		public List<LuaBindingDataBase> BindingContainer;
-		
+
 		public void Bind(LuaTable instance) {
 			LuaInstance = instance;
 			LuaInstance.SetInPath("__CSBinding", this);
@@ -58,16 +59,22 @@ namespace Extend {
 
 		[HideInInspector, BlackList]
 		public LuaBindingIntegerData[] IntData;
+
 		[HideInInspector, BlackList]
 		public LuaBindingBooleanData[] BoolData;
+
 		[HideInInspector, BlackList]
 		public LuaBindingNumberData[] NumData;
+
 		[HideInInspector, BlackList]
 		public LuaBindingStringData[] StrData;
+
 		[HideInInspector, BlackList]
 		public LuaBindingUOData[] UOData;
+
 		[HideInInspector, BlackList]
 		public LuaBindingAssetReferenceData[] AssetReferenceData;
+
 		[HideInInspector, BlackList]
 		public LuaBindingUOArrayData[] UOArrayData;
 
@@ -80,6 +87,7 @@ namespace Extend {
 						info.SetValue(this, null);
 					}
 				}
+
 				return;
 			}
 
@@ -94,6 +102,7 @@ namespace Extend {
 						arr.SetValue(bind, index);
 						index++;
 					}
+
 					fieldInfo.SetValue(this, arr);
 				}
 				else {
@@ -110,9 +119,11 @@ namespace Extend {
 				if( !fieldInfo.FieldType.IsArray ) continue;
 
 				var arr = fieldInfo.GetValue(this) as Array;
-				if(arr == null || arr.Length == 0)
+				if( arr == null || arr.Length == 0 || !fieldInfo.FieldType.GetElementType().IsSubclassOf(typeof(LuaBindingDataBase)) )
 					continue;
 				foreach( var element in arr ) {
+					if( element == null )
+						continue;
 					BindingContainer.Add(element as LuaBindingDataBase);
 				}
 			}
@@ -120,7 +131,7 @@ namespace Extend {
 
 		[Button(ButtonSize.Small)]
 		public void Sync() {
-			if(!Application.isPlaying)
+			if( !Application.isPlaying )
 				return;
 			if( BindingContainer == null ) return;
 			foreach( var binding in BindingContainer ) {

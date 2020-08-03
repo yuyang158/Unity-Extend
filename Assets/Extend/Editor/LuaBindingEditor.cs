@@ -10,7 +10,7 @@ using UnityEngine;
 using XLua;
 
 namespace Extend.Editor {
-	[CustomEditor(typeof(LuaBinding))]
+	[CustomEditor(typeof(LuaBinding), true)]
 	public class LuaBindingEditor : ExtendInspector {
 		private LuaBinding binding;
 		private static readonly string[] basicTypes = {"string", "number", "boolean", "integer"};
@@ -60,7 +60,6 @@ namespace Extend.Editor {
 		}
 
 		public override void OnInspectorGUI() {
-			base.OnInspectorGUI();
 			var luaPathProp = serializedObject.FindProperty("LuaFile");
 			if( string.IsNullOrEmpty(luaPathProp.stringValue) ) {
 				EditorGUILayout.HelpBox("需要设置Lua文件！", MessageType.Error);
@@ -144,8 +143,8 @@ namespace Extend.Editor {
 					}
 				}
 			}
-
 			serializedObject.ApplyModifiedProperties();
+			base.OnInspectorGUI();
 			if( GUILayout.Button("重新加载Lua文件") ) {
 				if( descriptor == null ) return;
 				descriptor = LuaClassEditorFactory.ReloadDescriptor(descriptor.ClassName.Replace('.', '/'));
