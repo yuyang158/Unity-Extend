@@ -38,9 +38,9 @@ namespace Extend {
 		public void Initialize() {
 			Default = new LuaEnv();
 			Default.AddLoader((ref string filename) => {
-				filename = filename.Replace('.', '/');
+				filename = filename.Replace('.', '/') + ".lua";
 #if UNITY_EDITOR
-				var path = $"{Application.dataPath}/../Lua/{filename}.lua";
+				var path = $"{Application.dataPath}/../Lua/{filename}";
 				if( File.Exists(path) ) {
 					return File.ReadAllBytes(path);
 				}

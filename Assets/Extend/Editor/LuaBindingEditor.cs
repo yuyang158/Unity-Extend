@@ -62,6 +62,7 @@ namespace Extend.Editor {
 		public override void OnInspectorGUI() {
 			var luaPathProp = serializedObject.FindProperty("LuaFile");
 			if( string.IsNullOrEmpty(luaPathProp.stringValue) ) {
+				base.OnInspectorGUI();
 				EditorGUILayout.HelpBox("需要设置Lua文件！", MessageType.Error);
 				return;
 			}

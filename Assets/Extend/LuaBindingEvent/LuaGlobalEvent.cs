@@ -9,8 +9,8 @@ using XLua;
 namespace Extend.LuaBindingEvent {
 	[CSharpCallLua]
 	public class LuaGlobalEvent : MonoBehaviour {
-		private static readonly Dictionary<EventInstance, GlobalEventCallback> m_eventCallbacks = new Dictionary<EventInstance, GlobalEventCallback>();
-		public static void Register(EventInstance e, GlobalEventCallback callback) {
+		private static readonly Dictionary<EventInstance, LuaEventCallback> m_eventCallbacks = new Dictionary<EventInstance, LuaEventCallback>();
+		public static void Register(EventInstance e, LuaEventCallback callback) {
 			m_eventCallbacks.Add(e, callback);
 		}
 

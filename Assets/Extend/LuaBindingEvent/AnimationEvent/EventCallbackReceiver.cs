@@ -16,7 +16,9 @@ namespace Extend.LuaBindingEvent.AnimationEvent {
 
 		[SerializeField, ReorderList]
 		private EventInstanceEmmyFunction[] Callbacks; 
-		
+		private readonly List<LuaEventCallback> m_removed = new List<LuaEventCallback>();
+		private bool m_dispatching;
+
 		public void OnEvent(EventInstance instance) {
 			foreach( var callback in Callbacks ) {
 				if(callback.Event != instance)
@@ -28,21 +30,37 @@ namespace Extend.LuaBindingEvent.AnimationEvent {
 			if(m_luaCallbacks == null)
 				return;
 
-			foreach( var luaCallback in m_luaCallbacks ) {
-				luaCallback(instance);
+			m_dispatching = true;
+			m_removed.Clear();
+			var count = m_luaCallbacks.Count;
+			for( var i = 0; i < count; i++ ) {
+				var luaCallback = m_luaCallbacks[i];
+				if( luaCallback(instance) ) {
+					m_removed.Add(luaCallback);
+				}
+			}
+
+			m_dispatching = false;
+			foreach( var remove in m_removed ) {
+				m_luaCallbacks.Remove(remove);
 			}
 		}
 
-		private List<GlobalEventCallback> m_luaCallbacks;
-		public void AddLuaCallback(GlobalEventCallback callback) {
+		private List<LuaEventCallback> m_luaCallbacks;
+		public void AddLuaCallback(LuaEventCallback callback) {
 			if( m_luaCallbacks == null ) {
-				m_luaCallbacks = new List<GlobalEventCallback>();
+				m_luaCallbacks = new List<LuaEventCallback>();
 			}
 			m_luaCallbacks.Add(callback);
 		}
 
-		public void RemoveLuaCallback(GlobalEventCallback callback) {
-			m_luaCallbacks.Remove(callback);
+		public void RemoveLuaCallback(LuaEventCallback callback) {
+			if( m_dispatching ) {
+				m_removed.Add(callback);
+			}
+			else {
+				m_luaCallbacks.Remove(callback);
+			}
 		}
 	}
 }

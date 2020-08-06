@@ -49,5 +49,5 @@ namespace Extend.LuaUtil {
 	public delegate void OnRecvData(LuaTable self, byte[] data);
 
 	[CSharpCallLua]
-	public delegate void GlobalEventCallback(EventInstance e);
+	public delegate bool LuaEventCallback(EventInstance e);
 }
