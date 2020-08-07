@@ -1,6 +1,5 @@
 local M = {}
-local tinsert = table.insert
-local setmetatable = setmetatable
+local tinsert, ipairs, setmetatable = table.insert, ipairs, setmetatable
 
 function M.new(key)
 	local meta = {

@@ -77,40 +77,45 @@ local function build_data(data, path)
 		watch = function(_, p, cb)
 			local keys = util.parse_path(p)
 			if #keys == 1 then
-				data.__watch(p, cb)
-				return
+				return data.__watch(p, cb)
 			end
 			local last = data
 			for index, key in ipairs(keys) do
 				if index == #keys then
-					last.__watch(key, cb)
-					return
+					return last.__watch(key, cb)
 				end
 				last = last[key]
+				if not last then return false end
 			end
 		end,
 		__watch = function(k, cb)
-			local cbs = callbacks[k] or {}
+			if not _data[k] then return false end
+			local cbs = callbacks[k]
+			if not cbs then
+				cbs = {}
+				callbacks[k] = cbs
+			end
 			tinsert(cbs, cb)
-			callbacks[k] = cbs
+			return true
 		end,
 		detach = function(_, k, cb)
 			local cbs = callbacks[k]
 			if not cbs then
-				return
+				return false
 			end
 			for i, v in ipairs(cbs) do
 				if v == cb then
 					tremove(cbs, i)
-					break
+					return true
 				end
 			end
 		end,
 		__get = function(_, k)
-			if currentdep then
+			local val = _data[k]
+			if currentdep and val then
 				currentdep:record(append_key(path, k))
 			end
-			return _data[k]
+			return val
 		end,
 		__set = function(_, k, v)
 			assert(currentdep == nil, append_key(path, k))
@@ -152,9 +157,11 @@ function M.build(source)
 
 	local data = build_data(source.data, '')
 	local computed = build_computed(source.computed, source)
+	local mixins = source.mixins
 
 	source.data = nil
 	source.computed = nil
+	source.mixins = nil
 
 	local computedmeta = getmetatable(computed)
 	local computed_cbs = {}
@@ -164,21 +171,31 @@ function M.build(source)
 				local cbs = computed_cbs[path] or {}
 				tinsert(cbs, cb)
 				computed_cbs[path] = cbs
-				return
+			else
+				if not data:watch(path, cb) and mixins then
+					for _, v in ipairs(mixins) do
+						if v:watch(path, cb) then break end
+					end
+				end
 			end
-			data:watch(path, cb)
 		end,
 		detach = function(_, path, cb)
 			if computed and computedmeta.__getters[path] then
-				local cbs = computed_cbs[path] or {}
+				local cbs = computed_cbs[path]
+				if not cbs then return end
 				for i, v in ipairs(cbs) do
 					if v == cb then
 						tremove(cbs, i)
+						break
 					end
 				end
-				return
+			else
+				if not data:detach(path, cb) and mixins then
+					for _, v in ipairs(mixins) do
+						v:detach(path, cb)
+					end
+				end
 			end
-			data:detach(path, cb)
 		end,
 		computed_trigger = function(_, key)
 			local val = computed[key]
@@ -193,7 +210,14 @@ function M.build(source)
 				local val = computed[k]
 				if val then return val end
 			end
-			return data:__get(k)
+			local val = data:__get(k)
+			if not val and mixins then
+				for _, mixin in ipairs(mixins) do
+					val = mixin[k]
+					if val then return val end
+				end
+			end
+			return val
 		end,
 		set = function(_, k, v)
 			if computedmeta and computedmeta.__setters[k] then
