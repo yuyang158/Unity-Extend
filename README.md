@@ -8,6 +8,8 @@
   - [基于ScriptableObject的事件功能](#基于scriptableobject的事件功能)
   - [In Game Console功能](#in-game-console功能)
   - [远程Lua指令执行](#远程lua指令执行)
+  - [Mock功能](#mock功能)
+  - [LuaCheck集成](#luacheck集成)
 
 # 功能
 
@@ -20,8 +22,32 @@
 ## Unity UI与Lua Table的绑定,整体参考vue
 
 * LuaMVVMBinding.cs LuaMVVMForEach.cs
-* mvvm.lua
 * BindingDemo场景中MVVM开头相关节点
+```lua
+local binding = require("mvvm.binding")
+local a = binding.build({
+	data = {
+		a1 = 1,
+		a2 = 2,
+		a3 = "3"
+	},
+	computed = {
+		c1 = function(this)
+			return this.a1 + this.a2
+		end
+	}
+})
+
+local b = binding.build({
+	mixins = {a},
+	data = {
+		b1 = 1,
+		b2 = 2,
+		b3 = "3"
+	}
+})
+print(b.c1, b.b1)
+```
 
 ## 配置文件读取
 
