@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.IO;
+using System.Text;
 using Extend.Asset;
 using Extend.Common;
 using UnityEngine;
@@ -42,7 +43,8 @@ namespace Extend {
 #if UNITY_EDITOR
 				var path = $"{Application.dataPath}/../Lua/{filename}";
 				if( File.Exists(path) ) {
-					return File.ReadAllBytes(path);
+					var text = File.ReadAllText(path);
+					return Encoding.UTF8.GetBytes(text);
 				}
 				return null;
 #else

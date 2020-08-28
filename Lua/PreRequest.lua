@@ -35,6 +35,11 @@ SM.RegisterService(SM.SERVICE_TYPE.MOCK, MockService)
 UIService.Show("Login", function()
 end)
 
-return function()
-	SM.Shutdown()
-end
+return {
+	init = function()
+		
+	end,
+	shutdown = function()
+		SM.Shutdown()
+	end
+}
