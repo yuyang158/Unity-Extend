@@ -1,6 +1,7 @@
 ---@class ConfigService
 local M = {}
 local ConfigUtil = CS.Extend.LuaUtil.ConfigUtil
+local AssetReference = CS.Extend.Asset.AssetReference
 local configs = {}
 local math, tonumber, table, ipairs, setmetatable, assert, string = math, tonumber, table, ipairs, setmetatable, assert, string
 local json = require "json"
@@ -39,6 +40,9 @@ local columnDataConverter = {
 	end,
 	["translate"] = function()
 
+	end,
+	["asset"] = function(data)
+		return AssetReference(data)
 	end
 }
 
@@ -80,6 +84,7 @@ local function load_config_data(filename, base)
 		end
 
 		config[id] = setmetatable(convertedRow, {
+			__keymap = keymap,
 			__index = function(t, k)
 				local index = keymap[k]
 				if not index then
@@ -101,8 +106,6 @@ end
 function M.Init()
 	load_config_data("i18n")
 	i18n = configs.i18n
-	load_config_data("excel1")
-	load_config_data("excel2")
 end
 
 function M.Reload(name)
@@ -111,13 +114,16 @@ end
 
 ---@param name string
 function M.GetConfig(name)
+	if not configs[name] then
+		load_config_data(name)
+	end
 	return assert(configs[name], name)
 end
 
 ---@param name string
 ---@param id string
 function M.GetConfigRow(name, id)
-	local config = assert(configs[name], name)
+	local config = assert(M.GetConfig(name))
 	return config[id]
 end
 

@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.Assertions;
 using XLua;
+using Debug = UnityEngine.Debug;
 using Object = UnityEngine.Object;
 
 namespace Extend.Asset {
@@ -10,9 +11,13 @@ namespace Extend.Asset {
 		[SerializeField, HideInInspector]
 		private string m_assetGUID;
 
+#if UNITY_EDITOR
+		public string AssetGUID => m_assetGUID;
+#endif
 		public AssetRefObject.AssetStatus AssetStatus => Asset?.Status ?? AssetRefObject.AssetStatus.NONE;
 		public bool IsFinished => Asset?.IsFinished ?? false;
 		private AssetInstance m_asset;
+
 		public AssetInstance Asset {
 			get => m_asset;
 			private set {
@@ -24,6 +29,16 @@ namespace Extend.Asset {
 
 		public AssetReference(AssetInstance instance) {
 			Asset = instance;
+		}
+
+		public AssetReference(string assetGUID) {
+			m_assetGUID = assetGUID;
+#if UNITY_EDITOR
+			var path = UnityEditor.AssetDatabase.GUIDToAssetPath(assetGUID);
+			if( string.IsNullOrEmpty(path) ) {
+				Debug.LogError($"GUID is not valid {assetGUID}");
+			}
+#endif
 		}
 
 		public bool GUIDValid {
@@ -44,6 +59,7 @@ namespace Extend.Asset {
 			if( Asset.Status != AssetRefObject.AssetStatus.DONE ) {
 				Debug.LogError($"Load failed : {Asset.AssetPath}");
 			}
+
 			return Asset.UnityObject as T;
 		}
 
