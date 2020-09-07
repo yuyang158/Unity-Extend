@@ -53,9 +53,10 @@ print(b.c1, b.b1)
 
 * 读取以\t为分隔符的tsv文件
 * 格式：第一行为Key，第二行为该列类型，第三行为列描述
-* 支持类型 int number string json link boolean
+* 支持类型 int number string json link boolean asset
 * link类型为外链id，可以在lua中直接访问对应链接表
-* 相关实现代码为Example/Resources/Lua/ConfigService.lua
+* asset类型实际为Unity中资源的GUID，可通过Tools/Excel Asset Tool编辑
+* 相关实现代码为 Lua/ConfigService.lua
 
 ## AssetBundle打包
 
