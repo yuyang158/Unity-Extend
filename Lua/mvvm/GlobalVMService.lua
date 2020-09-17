@@ -2,6 +2,7 @@
 ---@class GlobalVMService
 local M = {}
 local binding = require("mvvm.binding")
+local util = require("util")
 
 local vms = {}
 function M.Init()
@@ -14,8 +15,13 @@ function M.Register(name, context)
 	return vm
 end
 
-function M.GetVM(name)
-	return vms[name]
+function M.GetVM(path)
+	local paths = util.parse_path(path)
+	local current = vms
+	for _, v in ipairs(paths) do
+		current = assert(current[v], v)
+	end
+	return current
 end
 
 function M.Clear()

@@ -44,10 +44,13 @@ namespace Extend.LuaUtil {
 
 	[CSharpCallLua]
 	public delegate void OnSocketStatusChanged(LuaTable self, AutoReconnectTcpClient.Status status);
-	
+
 	[CSharpCallLua]
 	public delegate void OnRecvData(LuaTable self, byte[] data);
 
 	[CSharpCallLua]
 	public delegate bool LuaEventCallback(EventInstance e);
+
+	[CSharpCallLua]
+	public delegate object GetGlobalVM(string path);
 }

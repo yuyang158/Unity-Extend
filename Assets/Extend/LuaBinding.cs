@@ -1,5 +1,4 @@
-﻿using System;
-using Extend.Common;
+﻿using Extend.Common;
 using Extend.LuaBindingData;
 using Extend.LuaUtil;
 using UnityEngine;

@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections;
 using System.IO;
 using System.Text;
-using Extend.Asset;
 using Extend.Common;
+using Extend.LuaUtil;
 using UnityEngine;
 using XLua;
 using Debug = UnityEngine.Debug;
@@ -75,6 +74,17 @@ namespace Extend {
 
 		public void StartUp() {
 			OnInit.Call();
+		}
+
+		private GetGlobalVM m_getGlobalVMFunc;
+		public object GetGlobalVM(string path) {
+			if( m_getGlobalVMFunc == null ) {
+				var getLuaService = Default.Global.GetInPath<GetLuaService>("_ServiceManager.GetService");
+				var globalVMTable = getLuaService(5);
+				m_getGlobalVMFunc = globalVMTable.GetInPath<GetGlobalVM>("GetVM");
+			}
+
+			return m_getGlobalVMFunc(path);
 		}
 
 		public void LogCallStack() {

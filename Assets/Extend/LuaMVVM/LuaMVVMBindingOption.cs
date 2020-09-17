@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using Extend.Common;
 using Extend.LuaMVVM.PropertyChangeInvoke;
 using Extend.LuaUtil;
 using UnityEngine;
@@ -26,6 +27,7 @@ namespace Extend.LuaMVVM {
 
 		public BindMode Mode = BindMode.ONE_TIME;
 		public string Path;
+		public bool Global;
 
 		private LuaTable m_dataSource;
 		private PropertyInfo m_propertyInfo;
@@ -91,13 +93,26 @@ namespace Extend.LuaMVVM {
 				TryDetach();
 			}
 
-			m_dataSource = dataContext;
-			if( m_dataSource == null ) {
-				return;
+			object bindingValue = null;
+			try {
+				if( Global ) {
+					var luaVM = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
+					bindingValue = luaVM.GetGlobalVM(Path);
+				}
+				else {
+					m_dataSource = dataContext;
+					if( m_dataSource == null ) {
+						return;
+					}
+					bindingValue = dataContext.GetInPath<object>(Path);
+				}
 			}
+			catch( Exception e ) {
+				Debug.LogException(e);
+			}
+			
 
-			var val = dataContext.GetInPath<object>(Path);
-			if( val == null ) {
+			if( bindingValue == null ) {
 				Debug.LogWarning($"Not found value in path {Path}");
 				return;
 			}
@@ -106,7 +121,7 @@ namespace Extend.LuaMVVM {
 				case BindMode.ONE_WAY:
 				case BindMode.TWO_WAY:
 				case BindMode.ONE_TIME: {
-					SetPropertyValue(dataContext, val);
+					SetPropertyValue(dataContext, bindingValue);
 					if( Mode == BindMode.ONE_WAY || Mode == BindMode.TWO_WAY ) {
 						var watch = dataContext.GetInPath<WatchLuaProperty>("watch");
 						watch(dataContext, Path, watchCallback);
