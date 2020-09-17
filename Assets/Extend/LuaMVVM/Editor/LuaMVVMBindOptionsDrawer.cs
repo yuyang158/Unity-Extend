@@ -16,7 +16,7 @@ namespace Extend.LuaMVVM.Editor {
 		}
 		
 		private static Rect[] GetRowRects(Rect rect) {
-			var rects = new Rect[4];
+			var rects = new Rect[5];
 
 			rect.height = EditorGUIUtility.singleLineHeight;
 			rect.y += 2;
@@ -32,11 +32,17 @@ namespace Extend.LuaMVVM.Editor {
 
 			var argRect = functionRect;
 			argRect.y += UIEditorUtil.LINE_HEIGHT;
+			argRect.xMax -= 20;
+
+			var globalRect = argRect;
+			globalRect.xMin = argRect.xMax + 5;
+			globalRect.xMax = functionRect.xMax;
 
 			rects[0] = enabledRect;
 			rects[1] = goRect;
 			rects[2] = functionRect;
 			rects[3] = argRect;
+			rects[4] = globalRect;
 			return rects;
 		}
 
@@ -58,7 +64,8 @@ namespace Extend.LuaMVVM.Editor {
 				var functionRect = subRects[1];
 				var goRect = subRects[2];
 				var argRect = subRects[3];
-				
+				var globalRect = subRects[4];
+
 				var prop = property.GetArrayElementAtIndex(index);
 				var bindTargetProp = prop.FindPropertyRelative("BindTarget");
 				EditorGUI.PropertyField(enabledRect, bindTargetProp, GUIContent.none);
@@ -87,6 +94,9 @@ namespace Extend.LuaMVVM.Editor {
 				EditorGUI.PropertyField(functionRect, bindModeProp, GUIContent.none);
 				var bindPathProp = prop.FindPropertyRelative("Path");
 				EditorGUI.PropertyField(argRect, bindPathProp, GUIContent.none);
+				
+				var globalProp = prop.FindPropertyRelative("Global");
+				EditorGUI.PropertyField(globalRect, globalProp, GUIContent.none);
 			};
 		}
 	}
