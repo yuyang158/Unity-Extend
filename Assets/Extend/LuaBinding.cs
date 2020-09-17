@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using Extend.Common;
 using Extend.LuaBindingData;
 using Extend.LuaUtil;
@@ -9,7 +7,7 @@ using XLua;
 
 namespace Extend {
 	[CSharpCallLua, LuaCallCSharp]
-	public class LuaBinding : MonoBehaviour, ISerializationCallbackReceiver {
+	public class LuaBinding : MonoBehaviour {
 		[LuaFileAttribute, BlackList]
 		public string LuaFile;
 
@@ -40,101 +38,27 @@ namespace Extend {
 			LuaInstance?.Dispose();
 			LuaInstance = null;
 
-			foreach( var binding in BindingContainer ) {
+			foreach( var binding in LuaData ) {
 				binding.Destroy();
 			}
 		}
 
-		[BlackList, NonSerialized]
-		public List<LuaBindingDataBase> BindingContainer;
-
 		public void Bind(LuaTable instance) {
 			LuaInstance = instance;
 			LuaInstance.SetInPath("__CSBinding", this);
-			if( BindingContainer == null ) return;
-			foreach( var binding in BindingContainer ) {
+			foreach( var binding in LuaData ) {
 				binding.ApplyToLuaInstance(instance);
 			}
 		}
 
-		[HideInInspector, BlackList]
-		public LuaBindingIntegerData[] IntData;
-
-		[HideInInspector, BlackList]
-		public LuaBindingBooleanData[] BoolData;
-
-		[HideInInspector, BlackList]
-		public LuaBindingNumberData[] NumData;
-
-		[HideInInspector, BlackList]
-		public LuaBindingStringData[] StrData;
-
-		[HideInInspector, BlackList]
-		public LuaBindingUOData[] UOData;
-
-		[HideInInspector, BlackList]
-		public LuaBindingAssetReferenceData[] AssetReferenceData;
-
-		[HideInInspector, BlackList]
-		public LuaBindingUOArrayData[] UOArrayData;
-
-		[BlackList]
-		public void OnBeforeSerialize() {
-			var fieldInfos = GetType().GetFields();
-			if( BindingContainer == null || BindingContainer.Count == 0 ) {
-				foreach( var info in fieldInfos ) {
-					if( info.FieldType.IsArray && info.FieldType.GetElementType().IsSubclassOf(typeof(LuaBindingDataBase)) ) {
-						info.SetValue(this, null);
-					}
-				}
-
-				return;
-			}
-
-			foreach( var fieldInfo in fieldInfos ) {
-				if( !fieldInfo.FieldType.IsArray || !fieldInfo.FieldType.GetElementType().IsSubclassOf(typeof(LuaBindingDataBase)) ) continue;
-				var count = BindingContainer.Count(bind => bind.GetType() == fieldInfo.FieldType.GetElementType());
-
-				if( count > 0 ) {
-					var arr = Array.CreateInstance(fieldInfo.FieldType.GetElementType() ?? throw new Exception(), count);
-					var index = 0;
-					foreach( var bind in BindingContainer.Where(bind => bind.GetType() == fieldInfo.FieldType.GetElementType()) ) {
-						arr.SetValue(bind, index);
-						index++;
-					}
-
-					fieldInfo.SetValue(this, arr);
-				}
-				else {
-					fieldInfo.SetValue(this, null);
-				}
-			}
-		}
-
-		[BlackList]
-		public void OnAfterDeserialize() {
-			var fieldInfos = GetType().GetFields();
-			BindingContainer = new List<LuaBindingDataBase>();
-			foreach( var fieldInfo in fieldInfos ) {
-				if( !fieldInfo.FieldType.IsArray ) continue;
-
-				var arr = fieldInfo.GetValue(this) as Array;
-				if( arr == null || arr.Length == 0 || !fieldInfo.FieldType.GetElementType().IsSubclassOf(typeof(LuaBindingDataBase)) )
-					continue;
-				foreach( var element in arr ) {
-					if( element == null )
-						continue;
-					BindingContainer.Add(element as LuaBindingDataBase);
-				}
-			}
-		}
+		[BlackList, SerializeReference, HideInInspector]
+		public LuaBindingDataBase[] LuaData;
 
 		[Button(ButtonSize.Small)]
 		public void Sync() {
 			if( !Application.isPlaying )
 				return;
-			if( BindingContainer == null ) return;
-			foreach( var binding in BindingContainer ) {
+			foreach( var binding in LuaData ) {
 				binding.ApplyToLuaInstance(LuaInstance);
 			}
 		}

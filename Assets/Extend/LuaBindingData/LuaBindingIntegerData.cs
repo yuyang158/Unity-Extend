@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 using XLua;
 
 namespace Extend.LuaBindingData {

@@ -37,7 +37,8 @@ namespace Extend.Editor {
 
 		private LuaBindingDataBase CheckBinding(LuaClassField field, Type dataBindType) {
 			LuaBindingDataBase matched = null;
-			foreach( var bind in binding.BindingContainer ) {
+
+			foreach( var bind in binding.LuaData ) {
 				if( bind.FieldName != field.FieldName ) continue;
 				if( bind.GetType() != dataBindType ) continue;
 				matched = bind;
@@ -47,7 +48,7 @@ namespace Extend.Editor {
 			if( matched == null ) {
 				matched = Activator.CreateInstance(dataBindType) as LuaBindingDataBase;
 				matched.FieldName = field.FieldName;
-				binding.BindingContainer.Add(matched);
+				ArrayUtility.Add(ref binding.LuaData, matched);
 			}
 
 			isUsedBinding.Add(matched);
@@ -60,6 +61,9 @@ namespace Extend.Editor {
 		}
 
 		public override void OnInspectorGUI() {
+			if( binding.LuaData == null ) {
+				binding.LuaData = new LuaBindingDataBase[0];
+			}
 			var luaPathProp = serializedObject.FindProperty("LuaFile");
 			if( string.IsNullOrEmpty(luaPathProp.stringValue) ) {
 				base.OnInspectorGUI();
@@ -71,10 +75,6 @@ namespace Extend.Editor {
 				EditorGUILayout.HelpBox("需要设置Lua文件！", MessageType.Error);
 				descriptor = LuaClassEditorFactory.GetDescriptorWithFilePath(luaPathProp.stringValue);
 				return;
-			}
-
-			if( binding.BindingContainer == null ) {
-				binding.BindingContainer = new List<LuaBindingDataBase>();
 			}
 
 			isUsedBinding.Clear();
@@ -112,28 +112,23 @@ namespace Extend.Editor {
 				}
 			}
 
-			if( binding.BindingContainer.Count != isUsedBinding.Count ) {
-				binding.BindingContainer.Clear();
-				binding.BindingContainer.AddRange(isUsedBinding);
+			for( var i = 0; i < binding.LuaData.Length; ) {
+				var bindingData = binding.LuaData[i];
+				if( isUsedBinding.Contains(bindingData) ) {
+					i++;
+				}
+				else {
+					ArrayUtility.RemoveAt(ref binding.LuaData, i);
+				}
 			}
 
 			serializedObject.UpdateIfRequiredOrScript();
-			var fields = target.GetType().GetFields();
-			foreach( var fieldInfo in fields ) {
-				if( !fieldInfo.IsPublic || !fieldInfo.FieldType.IsArray || 
-				    !fieldInfo.FieldType.GetElementType().IsSubclassOf(typeof(LuaBindingDataBase)) )
-					continue;
-				var prop = serializedObject.FindProperty(fieldInfo.Name);
-				if( prop == null || prop.isArray == false )
-					continue;
-
-				var arr = fieldInfo.GetValue(target) as Array;
-				for( var i = 0; i < prop.arraySize; i++ ) {
-					var arrElem = arr.GetValue(i) as LuaBindingDataBase;
-					var elementProp = prop.GetArrayElementAtIndex(i);
-					var dataProp = elementProp.FindPropertyRelative("Data");
-					arrElem.OnPropertyDrawer(dataProp);
-				}
+			var luaDataProp = serializedObject.FindProperty("LuaData");
+			for( var i = 0; i < binding.LuaData.Length; i++ ) {
+				var arrElem = binding.LuaData[i];
+				var elementProp = luaDataProp.GetArrayElementAtIndex(i);
+				var dataProp = elementProp.FindPropertyRelative("Data");
+				arrElem.OnPropertyDrawer(dataProp);
 			}
 
 			if( Application.isPlaying ) {
@@ -144,6 +139,7 @@ namespace Extend.Editor {
 					}
 				}
 			}
+
 			serializedObject.ApplyModifiedProperties();
 			base.OnInspectorGUI();
 			if( GUILayout.Button("重新加载Lua文件") ) {

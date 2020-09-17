@@ -2,6 +2,7 @@
 using System.IO;
 using Extend.Asset.Editor.Process;
 using Extend.Common.Editor;
+using Extend.LuaBindingData;
 using UnityEditor;
 using UnityEngine;
 
@@ -17,8 +18,8 @@ namespace Extend.Editor {
 			var bindings = go.GetComponentsInParent<LuaBinding>();
 
 			foreach( var binding in bindings ) {
-				foreach( var refData in binding.AssetReferenceData ) {
-					if( refData.Data.GUIDValid ) {
+				foreach( var data in binding.LuaData ) {
+					if( !( data is LuaBindingAssetReferenceData refData ) || refData.Data.GUIDValid ) {
 						continue;
 					}
 					
