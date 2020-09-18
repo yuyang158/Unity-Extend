@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Extend.Asset {
 	public abstract class AssetRefObject {
-		public enum AssetStatus {
+		public enum AssetStatus : byte {
 			NONE,
 			ASYNC_LOADING,
 			DONE,

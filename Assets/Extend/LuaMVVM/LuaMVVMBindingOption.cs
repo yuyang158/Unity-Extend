@@ -15,7 +15,7 @@ namespace Extend.LuaMVVM {
 
 	[Serializable]
 	public class LuaMVVMBindingOption {
-		public enum BindMode {
+		public enum BindMode : byte {
 			ONE_WAY,
 			TWO_WAY,
 			ONE_WAY_TO_SOURCE,

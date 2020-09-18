@@ -53,4 +53,7 @@ namespace Extend.LuaUtil {
 
 	[CSharpCallLua]
 	public delegate object GetGlobalVM(string path);
+	
+	[CSharpCallLua]
+	public delegate void SetupLuaNewClassCallback(LuaTable classMeta, LuaTable parentClassMeta);
 }

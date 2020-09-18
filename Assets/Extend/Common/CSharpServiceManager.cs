@@ -19,7 +19,7 @@ namespace Extend.Common {
 	public delegate void LuaCommandDelegate(string[] param);
 
 	public class CSharpServiceManager : MonoBehaviour {
-		public enum ServiceType {
+		public enum ServiceType : byte {
 			ERROR_LOG_TO_FILE,
 			STAT,
 			ASSET_SERVICE,

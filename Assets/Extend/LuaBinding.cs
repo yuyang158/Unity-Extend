@@ -11,6 +11,7 @@ namespace Extend {
 		public string LuaFile;
 
 		public LuaTable LuaInstance { get; private set; }
+		public LuaTable LuaClass { get; private set; }
 
 		private void Awake() {
 			if( string.IsNullOrEmpty(LuaFile) )
@@ -18,6 +19,7 @@ namespace Extend {
 			var ret = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE).LoadFileAtPath(LuaFile);
 			if( !( ret[0] is LuaTable luaClass ) )
 				return;
+			LuaClass = luaClass;
 			var constructor = luaClass.Get<LuaBindingClassNew>("new");
 			var luaInstance = constructor?.Invoke(gameObject);
 			Bind(luaInstance);

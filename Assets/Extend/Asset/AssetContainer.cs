@@ -6,7 +6,7 @@ using UnityEngine.Assertions;
 
 namespace Extend.Asset {
 	[Serializable]
-	public enum BundleUnloadStrategy {
+	public enum BundleUnloadStrategy : byte {
 		Normal,
 		DontUnload
 	}

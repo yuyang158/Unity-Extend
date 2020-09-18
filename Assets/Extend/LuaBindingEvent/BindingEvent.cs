@@ -6,7 +6,7 @@ using XLua;
 namespace Extend.LuaBindingEvent {
 	[Serializable]
 	public class EventParam {
-		public enum ParamType {
+		public enum ParamType : byte {
 			None,
 			Int,
 			Float,

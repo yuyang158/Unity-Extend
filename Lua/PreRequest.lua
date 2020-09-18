@@ -32,12 +32,11 @@ SM.RegisterService(SM.SERVICE_TYPE.UI, UIService)
 SM.RegisterService(SM.SERVICE_TYPE.GLOBAL_VM, GlobalVMService)
 SM.RegisterService(SM.SERVICE_TYPE.MOCK, MockService)
 
-UIService.Show("Login", function()
-end)
 
 return {
 	init = function()
-		
+		UIService.Show("Login", function()
+		end)
 	end,
 	shutdown = function()
 		SM.Shutdown()

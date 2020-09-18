@@ -1,4 +1,6 @@
 ---@class integer
+
+local newClassCallback;
 function class(super)
 	local class_type = {}
 	class_type.ctor = false
@@ -6,10 +8,7 @@ function class(super)
 	class_type.new = function(...)
 		local obj = {}
 		setmetatable(obj, {
-			__index = class_type,
-			__gc = function()
-				print("RELEASE", obj)
-			end
+			__index = class_type
 		})
 		do
 			local create
@@ -35,5 +34,10 @@ function class(super)
 		end })
 	end
 
+	newClassCallback(class_type, super)
 	return class_type
+end
+
+return function(callback)
+	newClassCallback = callback
 end

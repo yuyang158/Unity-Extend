@@ -34,9 +34,18 @@ namespace Extend {
 		}
 
 		public CSharpServiceManager.ServiceType ServiceType => CSharpServiceManager.ServiceType.LUA_SERVICE;
+		private SetupLuaNewClassCallback m_newClassCallback;
+
+		private void OnLuaNewClass(LuaTable classMeta, LuaTable parentClassMeta) {
+			LuaClassCache.Register(classMeta, parentClassMeta);
+		}
+
+		public LuaClassCache LuaClassCache { get; private set; }
 
 		public void Initialize() {
 			Default = new LuaEnv();
+			LuaClassCache = new LuaClassCache();
+			m_newClassCallback = OnLuaNewClass;
 			Default.AddLoader((ref string filename) => {
 				filename = filename.Replace('.', '/') + ".lua";
 #if UNITY_EDITOR
@@ -45,6 +54,7 @@ namespace Extend {
 					var text = File.ReadAllText(path);
 					return Encoding.UTF8.GetBytes(text);
 				}
+
 				return null;
 #else
 				var hotfix = $"{LUA_DEBUG_DIRECTORY}{filename}.lua";
@@ -62,7 +72,9 @@ namespace Extend {
 #endif
 			});
 
-			LoadFileAtPath("base.class");
+			var setupNewCallback = LoadFileAtPath("base.class")[0] as LuaFunction;
+			setupNewCallback.Call(m_newClassCallback);
+
 			var ret = LoadFileAtPath("PreRequest")[0] as LuaTable;
 			OnInit = ret.Get<LuaFunction>("init");
 			OnDestroy = ret.Get<LuaFunction>("shutdown");
@@ -77,6 +89,7 @@ namespace Extend {
 		}
 
 		private GetGlobalVM m_getGlobalVMFunc;
+
 		public object GetGlobalVM(string path) {
 			if( m_getGlobalVMFunc == null ) {
 				var getLuaService = Default.Global.GetInPath<GetLuaService>("_ServiceManager.GetService");

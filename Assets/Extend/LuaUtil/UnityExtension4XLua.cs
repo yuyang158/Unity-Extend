@@ -7,46 +7,46 @@ using XLua;
 namespace Extend.LuaUtil {
 	[LuaCallCSharp]
 	public static class UnityExtension4XLua {
-		public static LuaTable GetLuaBinding(this GameObject go, string type) {
+		public static LuaTable GetLuaBinding(this GameObject go, LuaTable classMeta) {
 			var bindings = go.GetComponents<LuaBinding>();
-			return FindInLuaBinding(type, bindings);
+			return FindInLuaBinding(classMeta, bindings);
 		}
 
-		public static LuaTable GetLuaBinding(this Component component, string type) {
+		public static LuaTable GetLuaBinding(this Component component, LuaTable classMeta) {
 			var bindings = component.GetComponents<LuaBinding>();
-			return FindInLuaBinding(type, bindings);
+			return FindInLuaBinding(classMeta, bindings);
 		}
 		
 		public static T AddComponent<T>(this Component component) where T : Component {
 			return component.gameObject.AddComponent<T>();
 		}
 		
-		public static LuaTable GetLuaBindingsInChildren(this Component component, string type) {
+		public static LuaTable GetLuaBindingsInChildren(this Component component, LuaTable classMeta) {
 			var bindings = component.GetComponentsInChildren<LuaBinding>();
-			return FindInComponents(type, bindings);
+			return FindInComponents(classMeta, bindings);
 		}
 
-		public static LuaTable GetLuaBindings(this Component component, string type) {
+		public static LuaTable GetLuaBindings(this Component component, LuaTable classMeta) {
 			var bindings = component.GetComponents<LuaBinding>();
-			return FindInComponents(type, bindings);
+			return FindInComponents(classMeta, bindings);
 		}
 		
-		public static LuaTable GetLuaBindingsInChildren(this GameObject go, string type) {
+		public static LuaTable GetLuaBindingsInChildren(this GameObject go, LuaTable classMeta) {
 			var bindings = go.GetComponentsInChildren<LuaBinding>();
-			return FindInComponents(type, bindings);
+			return FindInComponents(classMeta, bindings);
 		}
 
-		public static LuaTable GetLuaBindings(this GameObject go, string type) {
+		public static LuaTable GetLuaBindings(this GameObject go, LuaTable classMeta) {
 			var bindings = go.GetComponents<LuaBinding>();
-			return FindInComponents(type, bindings);
+			return FindInComponents(classMeta, bindings);
 		}
 
-		private static LuaTable FindInComponents(string type, LuaBinding[] bindings) {
+		private static LuaTable FindInComponents(LuaTable classMeta, LuaBinding[] bindings) {
 			var luaVm = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
 			var t = luaVm.NewTable();
 			var index = 1;
 			foreach( var binding in bindings ) {
-				if( binding.LuaFile == type ) {
+				if( Equals(binding.LuaClass, classMeta) || luaVm.LuaClassCache.IsSubClassOf(binding.LuaClass, classMeta) ) {
 					t.Set(index, binding.LuaInstance);
 					++index;
 				}
@@ -55,10 +55,11 @@ namespace Extend.LuaUtil {
 			return t;
 		}
 
-		private static LuaTable FindInLuaBinding(string type, IEnumerable<LuaBinding> bindings) {
+		private static LuaTable FindInLuaBinding(LuaTable classMeta, IEnumerable<LuaBinding> bindings) {
+			var luaVm = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
 			// ReSharper disable once LoopCanBeConvertedToQuery
 			foreach( var binding in bindings ) {
-				if( binding.LuaFile.StartsWith(type) ) {
+				if( Equals(classMeta, binding.LuaClass) || luaVm.LuaClassCache.IsSubClassOf(binding.LuaClass, classMeta) ) {
 					return binding.LuaInstance;
 				}
 			}
