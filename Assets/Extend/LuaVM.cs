@@ -24,7 +24,16 @@ namespace Extend {
 		public int LuaMapCount => Default.translator.objects.Count;
 
 		public object[] LoadFileAtPath(string luaFileName) {
-			luaFileName = luaFileName.Replace('/', '.');
+			#if UNITY_EDITOR
+			if( luaFileName.Contains("/") ) {
+				Debug.LogError("Use . as a path separator");
+				return null;
+			}
+			if( luaFileName.Contains("\\") ) {
+				Debug.LogError("Use . as a path separator");
+				return null;
+			}
+			#endif
 			var ret = Default.DoString($"return require '{luaFileName}'");
 			return ret;
 		}
