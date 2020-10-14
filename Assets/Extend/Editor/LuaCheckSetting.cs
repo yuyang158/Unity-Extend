@@ -10,10 +10,11 @@ namespace Extend.Editor {
 
 		[SerializeField]
 		private bool m_active;
+
 		public string LuaCheckExecPath => m_luaCheckExecPath;
 
 		public bool Active => m_active;
-		
+
 		[SerializeField, Range(100, 250)]
 		private int m_maxLineLength = 140;
 
@@ -22,20 +23,20 @@ namespace Extend.Editor {
 		internal static LuaCheckSetting GetOrCreateSettings() {
 			var settings = AssetDatabase.LoadAssetAtPath<LuaCheckSetting>(SETTING_PATH);
 			if( !settings ) {
-				settings = ScriptableObject.CreateInstance<LuaCheckSetting>();
+				settings = CreateInstance<LuaCheckSetting>();
 				AssetDatabase.CreateAsset(settings, SETTING_PATH);
 				AssetDatabase.SaveAssets();
 			}
 
 			return settings;
 		}
-		internal static SerializedObject GetSerializedSettings()
-		{
+
+		internal static SerializedObject GetSerializedSettings() {
 			return new SerializedObject(GetOrCreateSettings());
 		}
 	}
 
-	static class LuaCheckSettingIMGUIRegister {
+	internal static class LuaCheckSettingIMGUIRegister {
 		[SettingsProvider]
 		public static SettingsProvider CreateLuaCheckSettingProvider() {
 			var provider = new SettingsProvider("Project/LuaCheckSetting", SettingsScope.Project) {
@@ -50,6 +51,7 @@ namespace Extend.Editor {
 						var selected = EditorUtility.OpenFilePanel("Select LuaCheck.exe", "", "exe");
 						execPathProp.stringValue = selected;
 					}
+
 					EditorGUILayout.PropertyField(settings.FindProperty("m_maxLineLength"));
 					settings.ApplyModifiedProperties();
 				}

@@ -58,3 +58,5 @@ Assets/Extend/Editor/LuaCheckSetting.asset
 Packages/packages-lock.json
 admin-server/log/*
 admin-server/package-lock.json
+Assets/Editor/ExcelFileList.asset
+Assets/Editor/ExcelFileList.asset.meta

@@ -25,12 +25,8 @@ namespace Extend {
 
 		public object[] LoadFileAtPath(string luaFileName) {
 			#if UNITY_EDITOR
-			if( luaFileName.Contains("/") ) {
-				Debug.LogError("Use . as a path separator");
-				return null;
-			}
-			if( luaFileName.Contains("\\") ) {
-				Debug.LogError("Use . as a path separator");
+			if( luaFileName.Contains("/") || luaFileName.Contains("\\") ) {
+				Debug.LogError("Use . as a path separator : " + luaFileName);
 				return null;
 			}
 			#endif

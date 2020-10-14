@@ -35,6 +35,10 @@ namespace Extend.LuaMVVM {
 		private DetachLuaProperty detach;
 		private IUnityPropertyChanged m_propertyChangeCallback;
 
+#if UNITY_EDITOR
+		public static Action<GameObject> DebugCheckCallback;
+#endif
+
 		public void Start() {
 			if( !BindTarget ) {
 				Debug.LogError($"Binding target is null, Path : {Path} Property : {BindTargetProp}");
@@ -51,6 +55,12 @@ namespace Extend.LuaMVVM {
 		}
 
 		private void SetPropertyValue(LuaTable _, object val) {
+#if UNITY_EDITOR
+			if( BindTarget ) {
+				DebugCheckCallback(BindTarget.gameObject);
+			}
+#endif
+
 			if( m_propertyInfo.PropertyType == typeof(string) ) {
 				m_propertyInfo.SetValue(BindTarget, val == null ? "" : val.ToString());
 			}
@@ -60,7 +70,6 @@ namespace Extend.LuaMVVM {
 			else {
 				m_propertyInfo.SetValue(BindTarget, val);
 			}
-
 		}
 
 		private void TryDetach() {
@@ -104,13 +113,14 @@ namespace Extend.LuaMVVM {
 					if( m_dataSource == null ) {
 						return;
 					}
+
 					bindingValue = dataContext.GetInPath<object>(Path);
 				}
 			}
 			catch( Exception e ) {
 				Debug.LogException(e);
 			}
-			
+
 
 			if( bindingValue == null ) {
 				Debug.LogWarning($"Not found value in path {Path}");
@@ -133,6 +143,7 @@ namespace Extend.LuaMVVM {
 							m_propertyChangeCallback.OnPropertyChanged += OnPropertyChanged;
 						}
 					}
+
 					break;
 				}
 				case BindMode.ONE_WAY_TO_SOURCE:
