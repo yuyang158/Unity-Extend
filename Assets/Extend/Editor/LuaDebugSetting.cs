@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Extend.Common;
-using Extend.Common.Editor.InspectorGUI;
 using Extend.LuaMVVM;
 using UnityEditor;
 using UnityEditorInternal;
@@ -93,7 +92,7 @@ namespace Extend.Editor {
 
 				m_debuggerConnected = false;
 				var luaVm = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
-				var tbl = luaVm.LoadFileAtPath("EmmyDebugger")[0] as LuaTable;
+				var tbl = luaVm.LoadFileAtPath("EmmyDebuggerBridge")[0] as LuaTable;
 				var initFunc = tbl.Get<LuaFunction>("init");
 				var connectFunc = tbl.Get<LuaFunction>("connect");
 				var listenFunc = tbl.Get<LuaFunction>("listen");
