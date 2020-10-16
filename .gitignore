@@ -60,3 +60,5 @@ admin-server/log/*
 admin-server/package-lock.json
 Assets/Editor/ExcelFileList.asset
 Assets/Editor/ExcelFileList.asset.meta
+Assets/Extend/Editor/LuaDebugSetting.asset
+Assets/Extend/Editor/LuaDebugSetting.asset.meta

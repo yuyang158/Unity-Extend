@@ -13,7 +13,8 @@ local function append_key(path, key)
 	if type(key) ~= 'number' and type(key) ~= 'string' then error('not support key type' .. type(key)) end
 	return (type(key) == 'number') and (path .. '[' .. key .. ']') or (path .. '.' .. key)
 end
-
+local parent
+local parent_key
 local currentdep
 local function build_computed(computed, source)
 	if not computed then
@@ -111,6 +112,7 @@ local function build_data(data, path)
 			end
 		end,
 		__get = function(_, k)
+			parent_key = k
 			local val = _data[k]
 			if currentdep and val then
 				currentdep:record(append_key(path, k))
@@ -119,10 +121,20 @@ local function build_data(data, path)
 		end,
 		__set = function(_, k, v)
 			assert(currentdep == nil, append_key(path, k))
-			if _data[k] == v then
+			local oldVal = _data[k]
+			if oldVal == v then
 				return
 			end
+			
 			_data[k] = type(v) == "table" and build_data(v, append_key(path, k)) or v
+			local cbs = callbacks[k]
+			if not cbs then return oldVal == nil or v == nil end
+			for _, cb in ipairs(cbs) do
+				cb(data, v)
+			end
+			return oldVal == nil or v == nil
+		end,
+		__notify = function(k, v)
 			local cbs = callbacks[k]
 			if not cbs then return end
 			for _, cb in ipairs(cbs) do
@@ -132,10 +144,14 @@ local function build_data(data, path)
 	}
 	return setmetatable(data, {
 		__index = function(_, k)
+			parent = data
 			return methods[k] or methods.__get(data, k)
 		end,
 		__newindex = function(_, k, v)
-			return methods.__set(data, k, v)
+			if methods.__set(data, k, v) then
+				local val = parent:__get(parent_key)
+				parent.__notify(parent_key, val)
+			end
 		end,
 		__pairs = function()
 			return next, _data, nil
@@ -155,7 +171,7 @@ function M.build(source)
 	local meta = getmetatable(source)
 	if meta and meta.__mark == mark then return end
 
-	local data = build_data(source.data, '')
+	local data = build_data(source.data, "")
 	local computed = build_computed(source.computed, source)
 	local mixins = source.mixins
 

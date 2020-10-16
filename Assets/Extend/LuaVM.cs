@@ -24,12 +24,12 @@ namespace Extend {
 		public int LuaMapCount => Default.translator.objects.Count;
 
 		public object[] LoadFileAtPath(string luaFileName) {
-			#if UNITY_EDITOR
+#if UNITY_EDITOR
 			if( luaFileName.Contains("/") || luaFileName.Contains("\\") ) {
 				Debug.LogError("Use . as a path separator : " + luaFileName);
 				return null;
 			}
-			#endif
+#endif
 			var ret = Default.DoString($"return require '{luaFileName}'");
 			return ret;
 		}
@@ -46,6 +46,7 @@ namespace Extend {
 		}
 
 		public LuaClassCache LuaClassCache { get; private set; }
+		public static Action OnVMCreated;
 
 		public void Initialize() {
 			Default = new LuaEnv();
@@ -79,6 +80,7 @@ namespace Extend {
 
 			var setupNewCallback = LoadFileAtPath("base.class")[0] as LuaFunction;
 			setupNewCallback.Call(m_newClassCallback);
+			OnVMCreated?.Invoke();
 
 			var ret = LoadFileAtPath("PreRequest")[0] as LuaTable;
 			OnInit = ret.Get<LuaFunction>("init");
