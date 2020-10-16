@@ -38,11 +38,6 @@ namespace Extend.Editor {
 
 		public int DebugPort => m_debugPort;
 
-		[SerializeField]
-		private GameObject[] m_watchedGOs;
-
-		public GameObject[] WatchedGOs => m_watchedGOs;
-
 		public static LuaDebugSetting GetOrCreateSettings() {
 			var settings = AssetDatabase.LoadAssetAtPath<LuaDebugSetting>(SETTING_PATH);
 			if( !settings ) {
@@ -71,8 +66,7 @@ namespace Extend.Editor {
 				var settingObj = LuaDebugSetting.GetOrCreateSettings();
 				if( mode == PlayModeStateChange.EnteredPlayMode ) {
 					LuaMVVMBindingOption.DebugCheckCallback += go => {
-						if( settingObj.MvvmBreakEnabled && m_debuggerConnected &&
-						    ArrayUtility.IndexOf(settingObj.WatchedGOs, go) >= 0 ) {
+						if( settingObj.MvvmBreakEnabled && m_debuggerConnected && m_mvvmWatchGOs.Contains(go) ) {
 							m_debugFunc.Call();
 						}
 					};
