@@ -133,6 +133,7 @@ namespace Extend.Editor {
 			var provider = new SettingsProvider("Project/Lua Debug", SettingsScope.Project) {
 				label = "Setup Lua Debug",
 				guiHandler = search => {
+					EditorGUI.indentLevel = 1;
 					var settings = LuaDebugSetting.GetSerializedSettings();
 					var debuggerConnectionModeProp = settings.FindProperty("m_connectionMode");
 					EditorGUILayout.PropertyField(debuggerConnectionModeProp);
