@@ -52,7 +52,7 @@ namespace Extend {
 			}
 		}
 
-		[BlackList, SerializeReference, HideInInspector]
+		[BlackList, SerializeReference]
 		public LuaBindingDataBase[] LuaData;
 
 		[Button(ButtonSize.Small)]
