@@ -15,42 +15,43 @@ local function append_key(path, key)
 end
 local parent
 local parent_key
-local currentdep
+local current_dep
 local function build_computed(computed, source)
-	if not computed then
-		return
-	end
-
 	local _computed = {
 		__getters = {},
 		__setters = {},
 		__deps = {}
 	}
 
-	for k, v in pairs(computed) do
-		assert(type(k) == "string" or type(k) == "number", k)
-		if type(v) == "function" then
-			_computed.__getters[k] = v
-		elseif type(v) == "table" then
-			_computed.__getters[k] = v.getter
-			_computed.__setters[k] = v.setter
-		else
-			error("only support value type : function, table")
+	if computed then
+		for k, v in pairs(computed) do
+			assert(type(k) == "string" or type(k) == "number", k)
+			if type(v) == "function" then
+				_computed.__getters[k] = v
+			elseif type(v) == "table" then
+				_computed.__getters[k] = v.getter
+				_computed.__setters[k] = v.setter
+			else
+				error("only support value type : function, table")
+			end
+			_computed.__deps[k] = dep.new(k)
+			computed[k] = nil
 		end
-		_computed.__deps[k] = dep.new(k)
-		computed[k] = nil
+	else
+		computed = {}
 	end
 
 	return setmetatable(computed, {
 		__getters = _computed.__getters,
 		__setters = _computed.__setters,
+		__deps = _computed.__deps,
 		__index = function(_, k)
 			local getter = _computed.__getters[k]
 			if not getter then return end
-			currentdep = _computed.__deps[k]
+			current_dep = _computed.__deps[k]
 			local ret = getter(source)
-			local tmp = currentdep
-			currentdep = nil
+			local tmp = current_dep
+			current_dep = nil
 			tmp:fetch(source)
 			return ret
 		end,
@@ -114,13 +115,13 @@ local function build_data(data, path)
 		__get = function(_, k)
 			parent_key = k
 			local val = _data[k]
-			if currentdep and val then
-				currentdep:record(append_key(path, k))
+			if current_dep and val then
+				current_dep:record(append_key(path, k))
 			end
 			return val
 		end,
 		__set = function(_, k, v)
-			assert(currentdep == nil, append_key(path, k))
+			assert(current_dep == nil, append_key(path, k))
 			local oldVal = _data[k]
 			if oldVal == v then
 				return
@@ -179,11 +180,11 @@ function M.build(source)
 	source.computed = nil
 	source.mixins = nil
 
-	local computedmeta = getmetatable(computed)
+	local compute_meta = getmetatable(computed)
 	local computed_cbs = {}
 	local index = {
 		watch = function(_, path, cb)
-			if computed and computedmeta.__getters[path] then
+			if compute_meta.__getters[path] then
 				local cbs = computed_cbs[path] or {}
 				tinsert(cbs, cb)
 				computed_cbs[path] = cbs
@@ -196,7 +197,7 @@ function M.build(source)
 			end
 		end,
 		detach = function(_, path, cb)
-			if computed and computedmeta.__getters[path] then
+			if compute_meta.__getters[path] then
 				local cbs = computed_cbs[path]
 				if not cbs then return end
 				for i, v in ipairs(cbs) do
@@ -236,11 +237,18 @@ function M.build(source)
 			return val
 		end,
 		set = function(_, k, v)
-			if computedmeta and computedmeta.__setters[k] then
+			if compute_meta.__setters[k] then
 				computed[k] = v
 				return
 			end
 			data:__set(k, v)
+		end,
+		setup_temp_getter = function(key, func)
+			assert(type(func) == "function")
+			local getter = compute_meta.__getters[key]
+			if getter then return end
+			compute_meta.__getters[key] = func
+			compute_meta.__deps[key] = dep.new(key)
 		end
 	}
 	return setmetatable(source, {

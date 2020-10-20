@@ -95,8 +95,8 @@ namespace Extend.LuaMVVM.Editor {
 				var bindPathProp = prop.FindPropertyRelative("Path");
 				EditorGUI.PropertyField(argRect, bindPathProp, GUIContent.none);
 				
-				var globalProp = prop.FindPropertyRelative("Global");
-				EditorGUI.PropertyField(globalRect, globalProp, GUIContent.none);
+				var expressionProp = prop.FindPropertyRelative("m_expression");
+				EditorGUI.PropertyField(globalRect, expressionProp, GUIContent.none);
 			};
 		}
 	}

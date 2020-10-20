@@ -1,6 +1,5 @@
 using System;
 using System.Reflection;
-using Extend.Common;
 using Extend.LuaMVVM.PropertyChangeInvoke;
 using Extend.LuaUtil;
 using UnityEngine;
@@ -27,7 +26,9 @@ namespace Extend.LuaMVVM {
 
 		public BindMode Mode = BindMode.ONE_TIME;
 		public string Path;
-		public bool Global;
+		
+		[SerializeField]
+		private bool m_expression;
 
 		private LuaTable m_dataSource;
 		private PropertyInfo m_propertyInfo;
@@ -77,7 +78,12 @@ namespace Extend.LuaMVVM {
 				return;
 
 			if( Mode == BindMode.ONE_WAY || Mode == BindMode.TWO_WAY ) {
-				detach(m_dataSource, Path, watchCallback);
+				if( m_expression ) {
+					detach(m_dataSource, Path.GetHashCode().ToString(), watchCallback);
+				}
+				else {
+					detach(m_dataSource, Path, watchCallback);
+				}
 				detach = null;
 			}
 
@@ -104,12 +110,15 @@ namespace Extend.LuaMVVM {
 
 			object bindingValue = null;
 			try {
-				if( Global ) {
-					var luaVM = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
-					bindingValue = luaVM.GetGlobalVM(Path);
+				m_dataSource = dataContext;
+				if( m_expression ) {
+					var function = TempBindingExpressCache.GenerateTempFunction(ref Path);
+					var setupTempFunc = m_dataSource.GetInPath<LuaFunction>("setup_temp_getter");
+					var key = Path.GetHashCode().ToString();
+					setupTempFunc.Call(key, function);
+					bindingValue = dataContext.GetInPath<object>(key);
 				}
 				else {
-					m_dataSource = dataContext;
 					if( m_dataSource == null ) {
 						return;
 					}
@@ -134,7 +143,12 @@ namespace Extend.LuaMVVM {
 					SetPropertyValue(dataContext, bindingValue);
 					if( Mode == BindMode.ONE_WAY || Mode == BindMode.TWO_WAY ) {
 						var watch = dataContext.GetInPath<WatchLuaProperty>("watch");
-						watch(dataContext, Path, watchCallback);
+						if( m_expression ) {
+							watch(dataContext, Path, watchCallback);
+						}
+						else {
+							watch(dataContext, Path.GetHashCode().ToString(), watchCallback);
+						}
 						detach = dataContext.Get<DetachLuaProperty>("detach");
 						Assert.IsNotNull(detach);
 
@@ -147,6 +161,9 @@ namespace Extend.LuaMVVM {
 					break;
 				}
 				case BindMode.ONE_WAY_TO_SOURCE:
+					if( m_expression ) {
+						Debug.LogError("express type can not to source");
+					}
 					m_propertyChangeCallback = BindTarget.GetComponent<IUnityPropertyChanged>();
 					dataContext.SetInPath(Path, m_propertyChangeCallback.ProvideCurrentValue());
 					m_propertyChangeCallback.OnPropertyChanged += OnPropertyChanged;

@@ -8,9 +8,9 @@ local M = class()
 local binding = require("mvvm.binding")
 local SprotoClient = require("sproto.SprotoClient")
 local SM = require "ServiceManager"
+local LuaMVVMBindingType = typeof(CS.Extend.LuaMVVM.LuaMVVMBinding)
 
 function M:start()
-	local LuaMVVMBindingType = typeof(CS.Extend.LuaMVVM.LuaMVVMBinding)
 	self.mvvmBinding = self.__CSBinding:GetComponent(LuaMVVMBindingType)
 	self.context = {
 		data = {
@@ -58,5 +58,31 @@ function M:OnLoginClicked()
 	else
 		table.insert(self.context.values, math.random(1, 10))
 	end
+	
+	local go = CS.UnityEngine.GameObject.Find("CharacterView")
+	local vm = {
+		data = {
+			name = "Jack",
+			id = math.random(100000),
+			level = math.random(100),
+			title = (math.random(100) % 2 == 0) and "None" or "ASDF",
+			guildName = "Top 1",
+			camp = "123123123",
+			friend = "Test",
+			exp = 300,
+			levelExp = 900,
+			power = math.random(123123),
+			equipLevel = math.random(999),
+			basicProp = {
+				value1 = math.random(999),
+				value2 = math.random(999),
+				value3 = math.random(999),
+				value4 = math.random(999)
+			}
+		}
+	}
+	binding.build(vm)
+	local b = go:GetComponent(LuaMVVMBindingType)
+	b:SetDataContext(vm)
 end
 return M

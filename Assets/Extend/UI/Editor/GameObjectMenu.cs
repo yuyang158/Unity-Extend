@@ -43,18 +43,17 @@ namespace Extend.UI.Editor {
 		[MenuItem("GameObject/Extend UI/UI View(DoTween)", false, 0)]
 		private static void CreateUIViewRoot() {
 			var active = Selection.activeObject as GameObject;
-			if( !active )
-				return;
-
 			var rootGO = new GameObject("View");
 			rootGO.AddComponent<Canvas>();
 			rootGO.AddComponent<CanvasGroup>();
 			rootGO.AddComponent<UIViewDoTween>();
 
-			var root = active.transform;
-			var go = DefaultControls.CreatePanel(GetStandardResources());
-			go.transform.SetParent(rootGO.transform);
-			rootGO.transform.SetParent(root);
+			if( active ) {
+				var root = active.transform;
+				var go = DefaultControls.CreatePanel(GetStandardResources());
+				go.transform.SetParent(rootGO.transform);
+				rootGO.transform.SetParent(root);
+			}
 		}
 	}
 }
