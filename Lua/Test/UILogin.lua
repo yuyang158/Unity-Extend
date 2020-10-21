@@ -1,9 +1,4 @@
 ﻿---@class Test.UILogin
----@field allowEmptyUsername boolean
----@field image CS.UnityEngine.UI.Image
----@field go CS.UnityEngine.GameObject
----@field button CS.UnityEngine.UI.Button
----@field lobbyName string
 local M = class()
 local binding = require("mvvm.binding")
 local SprotoClient = require("sproto.SprotoClient")
@@ -59,30 +54,10 @@ function M:OnLoginClicked()
 		table.insert(self.context.values, math.random(1, 10))
 	end
 	
-	local go = CS.UnityEngine.GameObject.Find("CharacterView")
-	local vm = {
-		data = {
-			name = "Jack",
-			id = math.random(100000),
-			level = math.random(100),
-			title = (math.random(100) % 2 == 0) and "None" or "ASDF",
-			guildName = "Top 1",
-			camp = "123123123",
-			friend = "Test",
-			exp = 300,
-			levelExp = 900,
-			power = math.random(123123),
-			equipLevel = math.random(999),
-			basicProp = {
-				value1 = math.random(999),
-				value2 = math.random(999),
-				value3 = math.random(999),
-				value4 = math.random(999)
-			}
-		}
-	}
-	binding.build(vm)
-	local b = go:GetComponent(LuaMVVMBindingType)
-	b:SetDataContext(vm)
+	---@type UI.UIService
+	local uiService = SM.GetService(SM.SERVICE_TYPE.UI)
+	uiService.Show("CharacterView", function(view)
+		print(view)
+	end)
 end
 return M

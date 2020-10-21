@@ -1,4 +1,5 @@
-﻿local M = {}
+﻿---@class UI.UIService
+local M = {}
 local layers = {}
 local table, assert, typeof, pairs, ipairs = table, assert, typeof, pairs, ipairs
 local AssetService = CS.Extend.Asset.AssetService

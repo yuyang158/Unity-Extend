@@ -66,14 +66,17 @@ namespace Extend.Editor {
 			}
 			var luaPathProp = serializedObject.FindProperty("LuaFile");
 			if( string.IsNullOrEmpty(luaPathProp.stringValue) ) {
-				base.OnInspectorGUI();
+				EditorGUILayout.PropertyField(luaPathProp);
 				EditorGUILayout.HelpBox("需要设置Lua文件！", MessageType.Error);
+				serializedObject.ApplyModifiedProperties();
 				return;
 			}
 
 			if( descriptor == null ) {
+				EditorGUILayout.PropertyField(luaPathProp);
 				EditorGUILayout.HelpBox("需要设置Lua文件！", MessageType.Error);
 				descriptor = LuaClassEditorFactory.GetDescriptorWithFilePath(luaPathProp.stringValue);
+				serializedObject.ApplyModifiedProperties();
 				return;
 			}
 

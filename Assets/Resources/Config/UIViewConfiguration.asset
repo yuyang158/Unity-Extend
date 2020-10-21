@@ -31,3 +31,12 @@ MonoBehaviour:
     Transition:
       m_assetGUID: 
     AttachLayer: 2
+  - Name: CharacterView
+    UIView:
+      m_assetGUID: 1eb9ac09e47d12e4e843ce3aac6074ce
+    BackgroundFx:
+      m_assetGUID: 
+    FullScreen: 1
+    Transition:
+      m_assetGUID: 97ee0a42a6af00e499568c5adc34e04d
+    AttachLayer: 1

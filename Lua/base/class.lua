@@ -1,4 +1,6 @@
 ---@class integer
+---@class LuaBinding
+---@field __CSBinding CS.Extend.LuaBinding
 
 local newClassCallback;
 function class(super)
