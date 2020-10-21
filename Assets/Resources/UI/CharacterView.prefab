@@ -3130,7 +3130,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowAnimation:
     Mode: 1
-    m_enabled: 1
+    m_enabled: 0
     m_state:
       Move:
         m_delay: 0

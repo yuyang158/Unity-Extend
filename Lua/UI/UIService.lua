@@ -82,6 +82,7 @@ function M._RemoveElement(element)
 		if v == element then
 			table.remove(sortedElements, i)
 			index = i
+			break
 		end
 	end
 	assert(index)
@@ -129,6 +130,7 @@ function M.Show(viewName, callback)
 	end
 
 	local layer = layers[configuration.AttachLayer]
+	table.insert(layer.elements, context)
 	behaviour:instantiate(configuration.UIView, layer.transform, function(go)
 		local view = go:GetComponent(UIViewBaseType)
 		view.Canvas.overrideSorting = true
@@ -151,7 +153,7 @@ function M.Show(viewName, callback)
 				bg.Canvas.sortingOrder = context.view.Canvas.sortingOrder - 1
 				context.bg = bg
 				return bg
-			end):view_show(context.bg)
+			end)
 		end
 	end
 	behaviour:start()
@@ -159,6 +161,14 @@ function M.Show(viewName, callback)
 end
 
 function M.Hide(context)
+	local layer = layers[context.configuration.AttachLayer]
+	for i, v in ipairs(layer.elements) do
+		if v == context then
+			table.remove(layer.elements, i)
+			break
+		end
+	end
+
 	context.view:Hide()
 	if context.bg then
 		context.bg:Hide()
