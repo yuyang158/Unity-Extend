@@ -56,4 +56,5 @@ namespace Extend.LuaUtil {
 	
 	[CSharpCallLua]
 	public delegate void SetupLuaNewClassCallback(LuaTable classMeta, LuaTable parentClassMeta);
+
 }

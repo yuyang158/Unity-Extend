@@ -6,6 +6,9 @@ using Debug = UnityEngine.Debug;
 using Object = UnityEngine.Object;
 
 namespace Extend.Asset {
+	[CSharpCallLua]
+	public delegate void OnInstantiateComplete(GameObject go);
+
 	[Serializable, LuaCallCSharp]
 	public class AssetReference : IDisposable, ICloneable {
 		[SerializeField, HideInInspector]
@@ -110,8 +113,6 @@ namespace Extend.Asset {
 			return handle;
 		}
 
-		private GameObject m_go;
-
 		public GameObject Instantiate(Transform parent = null, bool stayWorldPosition = false) {
 			if( Asset == null ) {
 				Asset = AssetService.Get().LoadAssetWithGUID<GameObject>(m_assetGUID);
@@ -129,7 +130,7 @@ namespace Extend.Asset {
 			return Instantiate(position, Quaternion.identity);
 		}
 
-		public GameObject Instantiate(Vector3 position, Quaternion quaternion, Transform parent = null) {
+		public GameObject Instantiate(Vector3 position, Quaternion rotation, Transform parent = null) {
 			if( Asset == null ) {
 				Asset = AssetService.Get().LoadAssetWithGUID<GameObject>(m_assetGUID);
 			}
@@ -139,7 +140,59 @@ namespace Extend.Asset {
 				return null;
 			}
 
-			return prefabAsset.Instantiate(position, quaternion, parent);
+			return prefabAsset.Instantiate(position, rotation, parent);
+		}
+
+		[LuaCallCSharp]
+		public class InstantiateAsyncContext {
+			public AssetReference Ref;
+			public OnInstantiateComplete Callback;
+			public bool Cancel;
+
+			public Transform Parent;
+			public bool StayWorldPosition;
+			public Vector3 Position;
+			public Quaternion Rotation;
+
+			private int m_ctorType;
+
+			public InstantiateAsyncContext(Transform parent, bool stayWorldPosition) {
+				Parent = parent;
+				StayWorldPosition = stayWorldPosition;
+				m_ctorType = 1;
+			}
+
+			public InstantiateAsyncContext(Vector3 position, Quaternion rotation, Transform parent) {
+				m_ctorType = 2;
+				Parent = parent;
+				Position = position;
+				Rotation = rotation;
+			}
+
+			public void Instantiate() {
+				if( Cancel )
+					return;
+				if( !( Ref.Asset is PrefabAssetInstance prefabAsset ) ) {
+					Debug.LogError($"{Ref.Asset.AssetPath} is not a prefab!");
+					return;
+				}
+
+				var go = m_ctorType == 1 ? prefabAsset.Instantiate(Parent, StayWorldPosition) : 
+					prefabAsset.Instantiate(Position, Rotation, Parent);
+				Callback(go);
+			}
+		}
+
+		public InstantiateAsyncContext InstantiateAsync(Transform parent = null, bool stayWorldPosition = false) {
+			return new InstantiateAsyncContext(parent, stayWorldPosition);
+		}
+
+		public InstantiateAsyncContext InstantiateAsync(Vector3 position) {
+			return new InstantiateAsyncContext(position, Quaternion.identity, null);
+		}
+
+		public InstantiateAsyncContext InstantiateAsync(Vector3 position, Quaternion rotation, Transform parent = null) {
+			return new InstantiateAsyncContext(position, rotation, parent);
 		}
 
 		public void InitPool(string name, int prefer, int max) {

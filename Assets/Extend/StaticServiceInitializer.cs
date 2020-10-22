@@ -37,7 +37,8 @@ namespace Extend {
 				}
 			}
 			Application.targetFrameRate = 30;
-
+			var maxInstantiateDuration = GameSystem.Get().GetValue("MaxInstantiateDuration");
+			AssetService.Get().AfterSceneLoaded(float.Parse(maxInstantiateDuration));
 			var lua = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
 			lua.StartUp();
 		}

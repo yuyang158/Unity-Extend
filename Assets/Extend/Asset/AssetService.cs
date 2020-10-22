@@ -17,12 +17,15 @@ namespace Extend.Asset {
 		public AssetContainer Container { get; } = new AssetContainer();
 
 		private AssetLoadProvider m_provider;
-		private Stopwatch m_stopwatch;
-		private readonly List<AssetPool> m_pools = new List<AssetPool>();
+		private Stopwatch m_stopwatch = new Stopwatch();
+		private readonly Stopwatch m_instantiateStopwatch = new Stopwatch();
 		private int m_poolUpdateIndex;
 		private Transform m_poolRootNode;
+		private readonly List<AssetPool> m_pools = new List<AssetPool>();
+		private readonly List<AssetReference.InstantiateAsyncContext> m_deferInstantiates = new List<AssetReference.InstantiateAsyncContext>();
 
 		private readonly bool m_forceAssetBundleMode;
+		private float m_singleFrameMaxInstantiateDuration;
 
 		public AssetService(bool forceABMode = false) {
 			m_forceAssetBundleMode = forceABMode;
@@ -34,6 +37,11 @@ namespace Extend.Asset {
 
 		public void Dump() {
 			Container.Dump();
+		}
+
+		[BlackList]
+		public void AfterSceneLoaded(float maxInstantiateDuration) {
+			m_singleFrameMaxInstantiateDuration = maxInstantiateDuration;
 		}
 
 		[BlackList]
@@ -69,6 +77,19 @@ namespace Extend.Asset {
 			if( m_poolUpdateIndex >= m_pools.Count ) {
 				m_poolUpdateIndex = 0;
 			}
+
+			if( m_deferInstantiates.Count > 0 ) {
+				m_instantiateStopwatch.Restart();
+				for( var i = 0; i < m_deferInstantiates.Count; i++ ) {
+					var context = m_deferInstantiates[i];
+					context.Instantiate();
+					if( m_singleFrameMaxInstantiateDuration < m_instantiateStopwatch.Elapsed.TotalSeconds ) {
+						m_deferInstantiates.RemoveRange(0, i + 1);
+						break;
+					}
+				}
+					
+			}
 			// m_pools[m_poolUpdateIndex]
 		}
 
@@ -101,7 +122,11 @@ namespace Extend.Asset {
 		internal void AddPool(AssetPool pool) {
 			m_pools.Add(pool);
 			pool.PoolNode.SetParent(m_poolRootNode, false);
-		} 
+		}
+
+		internal void AddDeferInstantiateContext(AssetReference.InstantiateAsyncContext context) {
+			m_deferInstantiates.Add(context);
+		}
 
 		internal AssetInstance LoadAssetWithGUID<T>(string guid) where T : Object {
 #if UNITY_DEBUG

@@ -69,16 +69,16 @@ namespace Extend.Asset {
 			return go;
 		}
 
-		public GameObject Instantiate(Vector3 position, Quaternion quaternion, Transform parent) {
+		public GameObject Instantiate(Vector3 position, Quaternion rotation, Transform parent) {
 			GameObject go;
 			if( m_pool == null ) {
-				go = Object.Instantiate(UnityObject, position, quaternion, parent) as GameObject;
+				go = Object.Instantiate(UnityObject, position, rotation, parent) as GameObject;
 				var direct = go.AddComponent<DirectDestroyGO>();
 				direct.PrefabAsset = this;
 				direct.Instantiated();
 			}
 			else {
-				go = m_pool.Get(position, quaternion, parent);
+				go = m_pool.Get(position, rotation, parent);
 				var cached = go.GetComponent<PoolCacheGO>();
 				cached.Instantiated();
 			}
