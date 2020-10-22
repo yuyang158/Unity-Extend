@@ -20,7 +20,7 @@ namespace Extend.UI.Animation {
 			get => m_moveInDirection;
 			set {
 				m_moveInDirection = value;
-				dirty = true;
+				m_dirty = true;
 			}
 		}
 

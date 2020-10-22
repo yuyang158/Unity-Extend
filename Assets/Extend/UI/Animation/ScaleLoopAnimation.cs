@@ -10,7 +10,7 @@ namespace Extend.UI.Animation {
 		public Vector3 ScaleFrom {
 			get => m_scaleFrom;
 			set {
-				dirty = true;
+				m_dirty = true;
 				m_scaleFrom = value;
 			}
 		}
@@ -21,7 +21,7 @@ namespace Extend.UI.Animation {
 			get => m_scaleTo;
 			set {
 				m_scaleFrom = value;
-				dirty = true;
+				m_dirty = true;
 			}
 		}
 

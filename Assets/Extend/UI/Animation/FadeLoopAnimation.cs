@@ -10,7 +10,7 @@ namespace Extend.UI.Animation {
 		public float From {
 			get => m_from;
 			set {
-				dirty = true;
+				m_dirty = true;
 				m_from = value;
 			}
 		}
@@ -21,7 +21,7 @@ namespace Extend.UI.Animation {
 			get => m_to;
 			set {
 				m_to = value;
-				dirty = true;
+				m_dirty = true;
 			}
 		}
 

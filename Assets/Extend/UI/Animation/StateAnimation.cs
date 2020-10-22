@@ -10,7 +10,7 @@ namespace Extend.UI.Animation {
 		public float Delay {
 			get => m_delay;
 			set {
-				dirty = true;
+				m_dirty = true;
 				m_delay = value;
 			}
 		}
@@ -20,7 +20,7 @@ namespace Extend.UI.Animation {
 		public float Duration {
 			get => m_duration;
 			set {
-				dirty = true;
+				m_dirty = true;
 				m_duration = value;
 			}
 		}
@@ -30,7 +30,7 @@ namespace Extend.UI.Animation {
 		public Ease Ease {
 			get => m_ease;
 			set {
-				dirty = true;
+				m_dirty = true;
 				m_ease = value;
 			}
 		}
@@ -42,23 +42,27 @@ namespace Extend.UI.Animation {
 		public bool IsActive {
 			get => m_active;
 			set {
-				dirty = true;
+				m_dirty = true;
 				m_active = value;
 			}
 		}
-		protected bool dirty = true;
-		protected Tween cachedTween;
+		protected bool m_dirty = true;
+		protected Tween m_cachedTween;
 		
 		public Tween Active(RectTransform t, Vector3 start) {
 			if( !IsActive ) {
 				return null;
 			}
-			if( cachedTween == null || dirty || !Application.isPlaying ) {
-				cachedTween = DoGenerateTween(t, start);
-				dirty = false;
+			if( m_cachedTween == null || m_dirty || !Application.isPlaying ) {
+				m_cachedTween = DoGenerateTween(t, start);
+				m_cachedTween.SetAutoKill(false);
+				m_dirty = false;
+			}
+			else {
+				m_cachedTween.Restart();
 			}
 
-			return cachedTween;
+			return m_cachedTween;
 		}
 
 		

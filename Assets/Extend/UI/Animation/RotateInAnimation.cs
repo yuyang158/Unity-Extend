@@ -12,7 +12,7 @@ namespace Extend.UI.Animation {
 			get => m_rotateFrom;
 			set {
 				m_rotateFrom = value;
-				dirty = true;
+				m_dirty = true;
 			}
 		}
 
@@ -23,7 +23,7 @@ namespace Extend.UI.Animation {
 			get => m_rotateMode;
 			set {
 				m_rotateMode = value;
-				dirty = true;
+				m_dirty = true;
 			}
 		}
 

@@ -10,7 +10,7 @@ namespace Extend.UI.Animation {
 		public Vector3 Move {
 			get => m_move;
 			set {
-				dirty = true;
+				m_dirty = true;
 				m_move = value;
 			}
 		}

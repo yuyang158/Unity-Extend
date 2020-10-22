@@ -10,7 +10,7 @@ namespace Extend.UI.Animation {
 		public Vector3 Scale {
 			get => m_scale;
 			set {
-				dirty = true;
+				m_dirty = true;
 				m_scale = value;
 			}
 		}

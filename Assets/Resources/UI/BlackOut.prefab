@@ -110,7 +110,7 @@ MonoBehaviour:
         m_scaleFrom: {x: 0, y: 0, z: 0}
       Fade:
         m_delay: 0
-        m_duration: 2
+        m_duration: 0.85
         m_ease: 5
         m_active: 1
         m_fadeFrom: 0
@@ -236,8 +236,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d1b42963f95041229bbaf6ee5d81ca32, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_preferCount: 0
-  m_maxCount: 0
+  m_preferCount: 1
+  m_maxCount: 1
 --- !u!1 &7346159984798755565
 GameObject:
   m_ObjectHideFlags: 0

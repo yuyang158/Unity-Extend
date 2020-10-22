@@ -11,7 +11,7 @@ namespace Extend.UI.Animation {
 		public float FadeFrom {
 			get => m_fadeFrom;
 			set {
-				dirty = true;
+				m_dirty = true;
 				m_fadeFrom = value;
 			}
 		}

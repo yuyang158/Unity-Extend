@@ -10,7 +10,7 @@ namespace Extend.UI.Animation {
 		public float Fade {
 			get => m_fade;
 			set {
-				dirty = true;
+				m_dirty = true;
 				m_fade = value;
 			}
 		}

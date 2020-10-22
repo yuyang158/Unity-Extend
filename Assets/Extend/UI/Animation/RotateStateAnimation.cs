@@ -10,7 +10,7 @@ namespace Extend.UI.Animation {
 		public Vector3 Rotate {
 			get => m_rotate;
 			set {
-				dirty = true;
+				m_dirty = true;
 				m_rotate = value;
 			}
 		}

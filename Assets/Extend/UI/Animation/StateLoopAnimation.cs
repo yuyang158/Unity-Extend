@@ -11,7 +11,7 @@ namespace Extend.UI.Animation {
 			get => m_loops;
 			set {
 				m_loops = value;
-				dirty = true;
+				m_dirty = true;
 			}
 		}
 
@@ -21,7 +21,7 @@ namespace Extend.UI.Animation {
 			get => m_loopType;
 			set {
 				m_loopType = value;
-				dirty = true;
+				m_dirty = true;
 			} 
 		}
 	}

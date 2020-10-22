@@ -66,7 +66,11 @@ namespace Extend.UI.Animation {
 				return null;
 			if( m_cachedTween == null || m_dirty || !Application.isPlaying ) {
 				m_cachedTween = DoGenerateTween(t);
+				m_cachedTween.SetAutoKill(false);
 				m_dirty = false;
+			}
+			else {
+				m_cachedTween.Restart();
 			}
 
 			return m_cachedTween;

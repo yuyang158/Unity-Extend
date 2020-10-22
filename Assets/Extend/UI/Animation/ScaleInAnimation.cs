@@ -12,7 +12,7 @@ namespace Extend.UI.Animation {
 			get => m_scaleFrom;
 			set {
 				m_scaleFrom = value;
-				dirty = true;
+				m_dirty = true;
 			}
 		}
 
