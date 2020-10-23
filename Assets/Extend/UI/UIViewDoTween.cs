@@ -70,7 +70,7 @@ namespace Extend.UI {
 				return;
 			}
 
-			if( CurrentTweens.Any(tween => tween != null && tween.active) ) {
+			if( CurrentTweens.Any(tween => tween != null && !tween.IsComplete()) ) {
 				return;
 			}
 
