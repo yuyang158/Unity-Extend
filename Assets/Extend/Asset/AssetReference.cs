@@ -150,11 +150,11 @@ namespace Extend.Asset {
 			public bool Cancel;
 
 			public Transform Parent;
-			public bool StayWorldPosition;
+			public readonly bool StayWorldPosition;
 			public Vector3 Position;
 			public Quaternion Rotation;
 
-			private int m_ctorType;
+			private readonly int m_ctorType;
 
 			public InstantiateAsyncContext(Transform parent, bool stayWorldPosition) {
 				Parent = parent;

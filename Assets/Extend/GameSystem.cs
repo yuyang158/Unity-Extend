@@ -28,6 +28,7 @@ namespace Extend {
 			return string.Empty;
 		}
 		
+		[BlackList]
 		public void Initialize() {
 			const string fileName = "SystemSetting";
 			if( Application.isMobilePlatform ) {
@@ -50,6 +51,7 @@ namespace Extend {
 			}
 		}
 
+		[BlackList]
 		public void Destroy() {
 		}
 	}
