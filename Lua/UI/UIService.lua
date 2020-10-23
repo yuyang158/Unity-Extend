@@ -40,6 +40,9 @@ function M.Init()
 		layers[layerEnum] = layer
 	end
 
+end
+
+function M.AfterSceneLoaded()
 	M.SetUICamera(CS.UnityEngine.Camera.main)
 end
 

@@ -35,6 +35,7 @@ SM.RegisterService(SM.SERVICE_TYPE.MOCK, MockService)
 
 return {
 	init = function()
+		UIService.AfterSceneLoaded()
 		UIService.Show("Login", function()
 		end)
 	end,
