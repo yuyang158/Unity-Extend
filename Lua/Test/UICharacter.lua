@@ -2,6 +2,7 @@
 local M = class()
 local LuaMVVMBindingType = typeof(CS.Extend.LuaMVVM.LuaMVVMBinding)
 local binding = require("mvvm.binding")
+local SM = require "ServiceManager"
 
 function M:awake()
 	local vm = {
@@ -29,6 +30,41 @@ function M:awake()
 	binding.build(vm)
 	local b = self.__CSBinding:GetComponent(LuaMVVMBindingType)
 	b:SetDataContext(vm)
+end
+
+function M:ShowHeroView()
+	local uiService = SM.GetService(SM.SERVICE_TYPE.UI)
+	uiService.Show("HeroView", function(viewGO)
+		local mvvmBinding = viewGO:GetComponent(LuaMVVMBindingType)
+		local vm = {
+			data = {
+				heroes = {
+					{name = "aaaa", icon = "Sprites/red"},
+					{name = "bbb", icon = "Sprites/green"},
+					{name = "cccc", icon = "Sprites/red"},
+					{name = "ddddd", icon = "Sprites/red"},
+					{name = "eeeee", icon = "Sprites/green"},
+					{name = "fff", icon = "Sprites/red"},
+					{name = "ggg", icon = "Sprites/green"},
+					{name = "h", icon = "Sprites/green"},
+					{name = "ii", icon = "Sprites/red"},
+					{name = "jjjjj", icon = "Sprites/red"},
+					{name = "jjjjj", icon = "Sprites/red"},
+					{name = "jjjjj", icon = "Sprites/red"},
+					{name = "jjjjj", icon = "Sprites/red"},
+					{name = "jjjjj", icon = "Sprites/red"},
+					{name = "jjjjj", icon = "Sprites/red"},
+					{name = "jjjjj", icon = "Sprites/red"},
+					{name = "jjjjj", icon = "Sprites/red"},
+					{name = "jjjjj", icon = "Sprites/red"},
+					{name = "jjjjj", icon = "Sprites/red"},
+					{name = "jjjjj", icon = "Sprites/red"}
+				}
+			}
+		}
+		binding.build(vm)
+		mvvmBinding:SetDataContext(vm)
+	end)
 end
 
 return M

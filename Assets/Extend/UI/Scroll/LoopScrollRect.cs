@@ -73,9 +73,9 @@ namespace Extend.UI.Scroll {
 				}
 
 				m_ContentConstraintCount = 1;
-				if( content != null ) {
+				if( content ) {
 					var layout2 = content.GetComponent<GridLayoutGroup>();
-					if( layout2 != null ) {
+					if( layout2 ) {
 						if( layout2.constraint == GridLayoutGroup.Constraint.Flexible ) {
 							Debug.LogWarning("[LoopScrollRect] Flexible not supported yet");
 						}

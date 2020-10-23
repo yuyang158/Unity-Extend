@@ -86,7 +86,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -100,7 +100,7 @@ MonoBehaviour:
   m_fontStyle: 0
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 256
-  m_textAlignment: 257
+  m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0
   m_lineSpacing: 0
@@ -405,7 +405,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -417,9 +417,9 @@ MonoBehaviour:
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
-  m_HorizontalAlignment: 1
+  m_HorizontalAlignment: 2
   m_VerticalAlignment: 256
-  m_textAlignment: 258
+  m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0
   m_lineSpacing: 0
@@ -538,7 +538,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -550,9 +550,9 @@ MonoBehaviour:
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
-  m_HorizontalAlignment: 1
-  m_VerticalAlignment: 256
-  m_textAlignment: 514
+  m_HorizontalAlignment: 2
+  m_VerticalAlignment: 512
+  m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0
   m_lineSpacing: 0
@@ -814,7 +814,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -828,7 +828,7 @@ MonoBehaviour:
   m_fontStyle: 2
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 256
-  m_textAlignment: 257
+  m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0
   m_lineSpacing: 0
@@ -947,7 +947,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -959,9 +959,9 @@ MonoBehaviour:
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
-  m_HorizontalAlignment: 1
+  m_HorizontalAlignment: 2
   m_VerticalAlignment: 256
-  m_textAlignment: 258
+  m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0
   m_lineSpacing: 0
@@ -1003,9 +1003,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8694791660466165681}
-  - component: {fileID: 8694791660466165682}
+  - component: {fileID: 8218286277371561022}
+  - component: {fileID: 517523026856253230}
   - component: {fileID: 8694791660466165683}
-  - component: {fileID: 7964972842930380667}
   - component: {fileID: 8694791660466165680}
   - component: {fileID: 7189537287185346221}
   - component: {fileID: 5876566745371186752}
@@ -1036,7 +1036,7 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!223 &8694791660466165682
+--- !u!223 &8218286277371561022
 Canvas:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1045,7 +1045,7 @@ Canvas:
   m_GameObject: {fileID: 8694791660466165694}
   m_Enabled: 1
   serializedVersion: 3
-  m_RenderMode: 0
+  m_RenderMode: 2
   m_Camera: {fileID: 0}
   m_PlaneDistance: 100
   m_PixelPerfect: 0
@@ -1053,23 +1053,11 @@ Canvas:
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
-  m_AdditionalShaderChannelsFlag: 25
+  m_AdditionalShaderChannelsFlag: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
---- !u!225 &8694791660466165683
-CanvasGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8694791660466165694}
-  m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 0
-  m_BlocksRaycasts: 1
-  m_IgnoreParentGroups: 0
---- !u!114 &7964972842930380667
+--- !u!114 &517523026856253230
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1086,6 +1074,18 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!225 &8694791660466165683
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8694791660466165694}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 0
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!114 &8694791660466165680
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1250,39 +1250,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   LuaFile: Test.UILogin
-  LuaData:
-  - id: 0
-  - id: 1
-  - id: 2
-  - id: 3
-  - id: 4
+  LuaData: []
   references:
     version: 1
-    00000000:
-      type: {class: LuaBindingBooleanData, ns: Extend.LuaBindingData, asm: Assembly-CSharp}
-      data:
-        FieldName: allowEmptyUsername
-        Data: 0
-    00000001:
-      type: {class: LuaBindingUOData, ns: Extend.LuaBindingData, asm: Assembly-CSharp}
-      data:
-        FieldName: image
-        Data: {fileID: 0}
-    00000002:
-      type: {class: LuaBindingUOData, ns: Extend.LuaBindingData, asm: Assembly-CSharp}
-      data:
-        FieldName: go
-        Data: {fileID: 0}
-    00000003:
-      type: {class: LuaBindingUOData, ns: Extend.LuaBindingData, asm: Assembly-CSharp}
-      data:
-        FieldName: button
-        Data: {fileID: 0}
-    00000004:
-      type: {class: LuaBindingStringData, ns: Extend.LuaBindingData, asm: Assembly-CSharp}
-      data:
-        FieldName: lobbyName
-        Data: 
 --- !u!114 &5876566745371186752
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1301,17 +1271,17 @@ MonoBehaviour:
       BindTargetProp: text
       Mode: 2
       Path: username
-      Global: 0
+      m_expression: 0
     - BindTarget: {fileID: 3487671296030918790}
       BindTargetProp: text
       Mode: 0
       Path: network.status
-      Global: 0
+      m_expression: 0
     - BindTarget: {fileID: 8463763690768425058}
       BindTargetProp: text
       Mode: 0
       Path: sum
-      Global: 0
+      m_expression: 0
 --- !u!1 &8694791660483093027
 GameObject:
   m_ObjectHideFlags: 0

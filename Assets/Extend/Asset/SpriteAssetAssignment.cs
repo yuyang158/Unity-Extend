@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 using XLua;
@@ -15,6 +16,7 @@ namespace Extend.Asset {
 				if( m_spriteKey == value )
 					return;
 				var img = GetComponent<Image>();
+				img.sprite = null;
 				ApplyNewKey(value, img, null);
 			}
 		}
@@ -25,6 +27,7 @@ namespace Extend.Asset {
 				if( m_spriteKey == value )
 					return;
 				var spriteRenderer = GetComponent<SpriteRenderer>();
+				spriteRenderer.sprite = null;
 				ApplyNewKey(value, null, spriteRenderer);
 			}
 		}

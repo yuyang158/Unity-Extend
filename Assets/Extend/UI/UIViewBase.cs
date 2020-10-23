@@ -21,7 +21,8 @@ namespace Extend.UI {
 		protected virtual void Awake() {
 			CanvasGroup = GetComponent<CanvasGroup>();
 			Canvas = GetComponent<Canvas>();
-			Canvas.additionalShaderChannels = AdditionalCanvasShaderChannels.None;
+			if( Canvas )
+				Canvas.additionalShaderChannels = AdditionalCanvasShaderChannels.None;
 		}
 
 		public Canvas Canvas { get; private set; }
@@ -52,7 +53,7 @@ namespace Extend.UI {
 		}
 
 		public void SetVisible(bool visible) {
-			Canvas.enabled = visible;
+			CanvasGroup.alpha = visible ? 1 : 0;
 			CanvasGroup.blocksRaycasts = visible;
 		}
 

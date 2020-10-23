@@ -13,7 +13,7 @@ namespace Extend.UI.Scroll.Editor {
 			base.OnInspectorGUI();
 			EditorGUILayout.Space();
 
-			LoopScrollRect scroll = (LoopScrollRect)target;
+			var scroll = (LoopScrollRect)target;
 			GUI.enabled = Application.isPlaying;
 
 			EditorGUILayout.BeginHorizontal();

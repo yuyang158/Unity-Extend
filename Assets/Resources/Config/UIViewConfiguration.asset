@@ -24,7 +24,7 @@ MonoBehaviour:
     AttachLayer: 1
   - Name: SingleMessageBox
     UIView:
-      m_assetGUID: 
+      m_assetGUID: c626bc8e0e4e70e458956c6afe808f9e
     BackgroundFx:
       m_assetGUID: 
     FullScreen: 0
@@ -40,3 +40,12 @@ MonoBehaviour:
     Transition:
       m_assetGUID: 97ee0a42a6af00e499568c5adc34e04d
     AttachLayer: 1
+  - Name: HeroView
+    UIView:
+      m_assetGUID: a3462a7fdd7331f47821ce339e5b9b7b
+    BackgroundFx:
+      m_assetGUID: 97ee0a42a6af00e499568c5adc34e04d
+    FullScreen: 0
+    Transition:
+      m_assetGUID: 97ee0a42a6af00e499568c5adc34e04d
+    AttachLayer: 2
