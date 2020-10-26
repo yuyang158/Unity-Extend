@@ -42,13 +42,14 @@ namespace Extend.DebugUtil {
 		private void WriteThread() {
 			while( true ) {
 				m_autoEvent.WaitOne();
-				if(m_writer == null)
+				if( m_writer == null )
 					return;
 				lock( m_writer ) {
 					if( m_exit ) {
 						m_writer.Close();
 						break;
 					}
+
 					m_writer.WriteLine(m_log);
 					m_writer.Write(m_stackTrace);
 					m_writer.Flush();
@@ -69,6 +70,7 @@ namespace Extend.DebugUtil {
 						m_stackTrace = string.Empty;
 					}
 				}
+
 				m_autoEvent.Set();
 			}
 		}
@@ -82,10 +84,14 @@ namespace Extend.DebugUtil {
 				filePath = Application.persistentDataPath + "/last-error.log";
 			}
 
+			var releaseType = IniRead.SystemSetting.GetString("GAME", "Mode");
 			var qs = new NameValueCollection {
-				{"device", SystemInfo.deviceName}, {"os", SystemInfo.operatingSystem}, {"version", Application.version}, {"other", "debug"}
+				{"device", SystemInfo.deviceName},
+				{"os", SystemInfo.operatingSystem},
+				{"version", Application.version}, {"other", releaseType}
 			};
-			Utility.HttpFileUpload("http://127.0.0.1:3000/file/upload/log", qs, filePath);
+			var url = IniRead.SystemSetting.GetString("DEBUG", "LogUploadUrl");
+			Utility.HttpFileUpload(url, qs, filePath);
 		}
 
 		public void Destroy() {

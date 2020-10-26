@@ -73,5 +73,7 @@ namespace Extend.Common {
 
 		private IniRead() {
 		}
+		
+		public static IniRead SystemSetting { get; set; }
 	}
 }

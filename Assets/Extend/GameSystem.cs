@@ -49,6 +49,8 @@ namespace Extend {
 					}
 				}
 			}
+
+			IniRead.SystemSetting = SystemSetting;
 		}
 
 		[BlackList]

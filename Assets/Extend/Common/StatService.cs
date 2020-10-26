@@ -1,6 +1,7 @@
 ﻿using System.Collections.Specialized;
 using System.IO;
 using System.Text;
+using DG.Tweening;
 using UnityEngine;
 
 namespace Extend.Common {
@@ -18,16 +19,18 @@ namespace Extend.Common {
 			ASSET_COUNT,
 			IN_USE_GO,
 			IN_POOL_GO,
+			ACTIVE_TWEEN,
 			COUNT
 		}
 
-		private static readonly string[] STAT_DESCRIPTIONS = new[] {
+		private static readonly string[] STAT_DESCRIPTIONS = {
 			"Tcp Received",
 			"Tcp Sent",
 			"Asset Bundle",
 			"Asset",
 			"In Used GO",
-			"In Pool GO"
+			"In Pool GO",
+			"Active Tween Count"
 		};
 
 		private readonly long[] m_stats = new long[(int)StatName.COUNT];
@@ -68,16 +71,19 @@ namespace Extend.Common {
 		}
 
 		public void Output(StringBuilder builder) {
+			Set(StatName.ACTIVE_TWEEN, DOTween.TotalPlayingTweens());
 			for( var i = 0; i < (int)StatName.COUNT; i++ ) {
 				builder.AppendLine($"{STAT_DESCRIPTIONS[i]} : {m_stats[i].ToString()}");
 			}
 		}
 		
 		public static void Upload() {
+			var releaseType = IniRead.SystemSetting.GetString("GAME", "Mode");
 			var qs = new NameValueCollection {
-				{"device", SystemInfo.deviceName}, {"os", SystemInfo.operatingSystem}, {"version", Application.version}, {"other", "debug"}
+				{"device", SystemInfo.deviceName}, {"os", SystemInfo.operatingSystem}, {"version", Application.version}, {"other", releaseType}
 			};
-			Utility.HttpFileUpload("http://127.0.0.1:3000/file/upload/stat", qs, Application.persistentDataPath + "/stat.log");
+			var url = IniRead.SystemSetting.GetString("DEBUG", "LogUploadUrl");
+			Utility.HttpFileUpload(url, qs, Application.persistentDataPath + "/stat.log");
 		}
 	}
 }

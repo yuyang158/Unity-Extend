@@ -14,7 +14,7 @@ namespace Extend.UI {
 			set {
 				if( CurrentTweens != null ) {
 					foreach( var tween in CurrentTweens ) {
-						tween.Complete();
+						tween.Kill(true);
 					}
 				}
 

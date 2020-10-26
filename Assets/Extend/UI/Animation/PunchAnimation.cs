@@ -64,7 +64,7 @@ namespace Extend.UI.Animation {
 		public Tween Active(Transform t) {
 			if( !m_active )
 				return null;
-			if( m_cachedTween == null || m_dirty || !Application.isPlaying ) {
+			if( m_cachedTween == null || !m_cachedTween.IsActive() || m_dirty || !Application.isPlaying ) {
 				m_cachedTween = DoGenerateTween(t);
 				m_cachedTween.SetAutoKill(false);
 				m_dirty = false;
