@@ -36,7 +36,7 @@ namespace Extend.UI.Editor {
 
 			var root = active.transform;
 			var go = DefaultControls.CreateButton(GetStandardResources());
-			go.AddComponent<UIButton>();
+			go.AddComponent<UIButtonDoTween>();
 			go.transform.SetParent(root);
 		}
 
