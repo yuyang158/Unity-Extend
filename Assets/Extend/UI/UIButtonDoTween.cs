@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 namespace Extend.UI {
 	[RequireComponent(typeof(Button))]
-	public class UIButton : MonoBehaviour, IPointerDownHandler, IPointerClickHandler, IPointerUpHandler {
+	public class UIButtonDoTween : MonoBehaviour, IPointerDownHandler, IPointerClickHandler, IPointerUpHandler {
 		public UIAnimation PointerDown;
 		public UIAnimation PointerClick;
 		public UIAnimation PointerUp;
