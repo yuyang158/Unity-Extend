@@ -138,7 +138,10 @@ namespace Extend.UI.Editor {
 			var transform = PreviewComponent(property, out var animation);
 			DOTweenEditorPreview.Stop();
 			var previewGO = GameObject.Find("-[ DOTween Preview ► ]-");
-			Object.DestroyImmediate(previewGO);
+			if( previewGO ) {
+				Object.DestroyImmediate(previewGO);
+				animation.Editor_Recovery(transform);
+			}
 			
 			animation.CacheStartValue(transform);
 			var allTween = animation.CollectPreviewTween(transform);

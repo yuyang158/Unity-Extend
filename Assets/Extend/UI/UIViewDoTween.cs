@@ -4,7 +4,7 @@ using DG.Tweening;
 namespace Extend.UI {
 	public class UIViewDoTween : UIViewBase {
 		public UIViewInAnimation ShowAnimation;
-		public UIAnimation HideAnimation;
+		public UIViewOutAnimation HideAnimation;
 		public UIViewLoopAnimation LoopAnimation;
 
 		private Tween[] m_currentTweens;

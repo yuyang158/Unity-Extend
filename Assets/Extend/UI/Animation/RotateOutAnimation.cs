@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Extend.UI.Animation {
 	[Serializable]
-	public class RotateInAnimation : StateAnimation {
+	public class RotateOutAnimation : StateAnimation {
 		[SerializeField]
 		private bool m_customFromTo;
 		
@@ -35,7 +35,7 @@ namespace Extend.UI.Animation {
 
 		protected override Tween DoGenerateTween(RectTransform t, Vector3 start) {
 			return m_customFromTo ? t.DOLocalRotate(m_rotateTo, Duration, RotateMode).SetDelay(Delay).SetEase(Ease).ChangeStartValue(RotateFrom) : 
-				t.DOLocalRotate(start, Duration, RotateMode).SetDelay(Delay).SetEase(Ease).ChangeStartValue(RotateFrom);
+				t.DOLocalRotate(m_rotateTo, Duration, RotateMode).SetDelay(Delay).SetEase(Ease);
 		}
 	}
 }

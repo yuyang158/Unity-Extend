@@ -58,7 +58,7 @@ namespace Extend.LuaMVVM {
 		private void SetPropertyValue(LuaTable _, object val) {
 #if UNITY_EDITOR
 			if( BindTarget ) {
-				DebugCheckCallback(BindTarget.gameObject);
+				DebugCheckCallback?.Invoke(BindTarget.gameObject);
 			}
 #endif
 
@@ -78,12 +78,7 @@ namespace Extend.LuaMVVM {
 				return;
 
 			if( Mode == BindMode.ONE_WAY || Mode == BindMode.TWO_WAY ) {
-				if( m_expression ) {
-					detach(m_dataSource, Path.GetHashCode().ToString(), watchCallback);
-				}
-				else {
-					detach(m_dataSource, Path, watchCallback);
-				}
+				detach(m_dataSource, m_expression ? Path.GetHashCode().ToString() : Path, watchCallback);
 				detach = null;
 			}
 
@@ -143,12 +138,7 @@ namespace Extend.LuaMVVM {
 					SetPropertyValue(dataContext, bindingValue);
 					if( Mode == BindMode.ONE_WAY || Mode == BindMode.TWO_WAY ) {
 						var watch = dataContext.GetInPath<WatchLuaProperty>("watch");
-						if( m_expression ) {
-							watch(dataContext, Path, watchCallback);
-						}
-						else {
-							watch(dataContext, Path.GetHashCode().ToString(), watchCallback);
-						}
+						watch(dataContext, m_expression ? Path.GetHashCode().ToString() : Path, watchCallback);
 						detach = dataContext.Get<DetachLuaProperty>("detach");
 						Assert.IsNotNull(detach);
 

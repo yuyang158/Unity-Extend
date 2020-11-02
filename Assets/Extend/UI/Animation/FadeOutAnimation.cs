@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Extend.UI.Animation {
 	[Serializable]
-	public class FadeInAnimation : StateAnimation {
+	public class FadeOutAnimation : StateAnimation {
 		[SerializeField, LabelText("Fade From Alpha Value(0-1)")]
 		private float m_fadeFrom;
 
@@ -34,7 +34,7 @@ namespace Extend.UI.Animation {
 
 			return m_customFromTo
 				? m_canvasGroup.DOFade(m_fadeTo, Duration).SetDelay(Delay).SetEase(Ease).ChangeStartValue(FadeFrom)
-				: m_canvasGroup.DOFade(start.x, Duration).SetDelay(Delay).SetEase(Ease).ChangeStartValue(FadeFrom);
+				: m_canvasGroup.DOFade(m_fadeTo, Duration).SetDelay(Delay).SetEase(Ease);
 		}
 	}
 }

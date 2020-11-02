@@ -138,6 +138,8 @@ namespace Extend.Asset.Editor {
 						var labelWidth = EditorGUIUtility.labelWidth;
 						EditorGUIUtility.labelWidth = 70;
 						var pathProp = element.FindPropertyRelative("BundleName");
+						if(pathProp == null)
+							return;
 						EditorGUI.PropertyField(rect, pathProp, ASSET_BUNDLE_CONTENT);
 						GUI.enabled = true;
 

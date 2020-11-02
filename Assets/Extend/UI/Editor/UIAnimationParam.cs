@@ -10,17 +10,36 @@ namespace Extend.UI.Editor {
 			public string FieldName;
 			public float WidthInPercent;
 			public GUIContent Label;
+			public float LabelPercent = 0.5f;
 		}
 
 		private readonly List<Param> m_parameters = new List<Param>();
+		private string m_conditionField;
+		private bool m_fieldValue;
 
-		public UIAnimationInlineParam Add(string fieldName, float percent, string displayName = "") {
+		public UIAnimationInlineParam Add(string fieldName, float percent, string displayName = "", float labelPercent = 0.5f) {
 			m_parameters.Add(new Param {
 				FieldName = fieldName,
 				WidthInPercent = percent,
-				Label = new GUIContent(displayName)
+				Label = new GUIContent(displayName),
+				LabelPercent = labelPercent
 			});
 			return this;
+		}
+
+		public UIAnimationInlineParam Condition(string fieldName, bool value) {
+			m_conditionField = fieldName;
+			m_fieldValue = value;
+			return this;
+		}
+
+		public bool GetVisible(SerializedProperty property) {
+			if( string.IsNullOrEmpty(m_conditionField) ) {
+				return true;
+			}
+
+			var fieldProp = property.FindPropertyRelative(m_conditionField);
+			return fieldProp.boolValue == m_fieldValue;
 		}
 
 		public void OnGUI(Rect position, SerializedProperty property) {
@@ -36,7 +55,7 @@ namespace Extend.UI.Editor {
 					rect.width *= parameter.WidthInPercent;
 					if( i < m_parameters.Count - 1 )
 						rect.xMax -= 5;
-					EditorGUIUtility.labelWidth = rect.width * 0.5f;
+					EditorGUIUtility.labelWidth = rect.width * parameter.LabelPercent;
 					DrawGUI(rect, parameter, property);
 					position.x = rect.xMax + 5;
 				}
@@ -78,19 +97,23 @@ namespace Extend.UI.Editor {
 			return m_params[index];
 		}
 
+		private int m_activeParamCount;
 		public Rect OnGUI(Rect position, SerializedProperty property) {
 			var bgColor = GUI.backgroundColor;
 			GUI.backgroundColor = UIEditorUtil.UI_ANIMATION_COLORS[m_modeIndex];
 			var bgRect = position;
-			bgRect.height = UIEditorUtil.LINE_HEIGHT * m_params.Length;
+			bgRect.height = UIEditorUtil.LINE_HEIGHT * m_activeParamCount;
 			bgRect.x = 0;
 			bgRect.xMax = EditorGUIUtility.currentViewWidth;
 			EditorGUI.DrawRect(bgRect, GUI.backgroundColor);
+			m_activeParamCount = 0;
 			foreach( var inlineParam in m_params ) {
+				if(!inlineParam.GetVisible(property))
+					continue;
 				inlineParam.OnGUI(position, property);
 				position.y += UIEditorUtil.LINE_HEIGHT;
+				m_activeParamCount++;
 			}
-
 			GUI.backgroundColor = bgColor;
 			return position;
 		}

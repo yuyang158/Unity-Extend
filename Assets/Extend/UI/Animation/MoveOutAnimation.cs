@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Extend.UI.Animation {
 	[Serializable]
-	public class MoveInAnimation : StateAnimation {
+	public class MoveOutAnimation : StateAnimation {
 		public enum Direction {
 			Left,
 			Top,
@@ -23,12 +23,12 @@ namespace Extend.UI.Animation {
 		private Vector3 m_moveFrom;
 
 		[SerializeField, LabelText("Move From")]
-		private Direction m_moveInDirection = Direction.Left;
+		private Direction m_moveOutDirection = Direction.Left;
 
-		public Direction MoveInDirection {
-			get => m_moveInDirection;
+		public Direction MoveOutDirection {
+			get => m_moveOutDirection;
 			set {
-				m_moveInDirection = value;
+				m_moveOutDirection = value;
 				m_dirty = true;
 			}
 		}
@@ -38,27 +38,26 @@ namespace Extend.UI.Animation {
 				return t.DOAnchorPos3D(start + m_moveTo, Duration).SetEase(Ease).SetDelay(Delay).ChangeStartValue(start + m_moveFrom);
 			}
 
-			Vector2 startPosition = start;
+			Vector2 endPosition = start;
 			var size = t.rect.size;
-			Vector2 position = start;
-			switch( MoveInDirection ) {
+			switch( MoveOutDirection ) {
 				case Direction.Left:
-					startPosition.x -= size.x;
+					endPosition.x -= size.x;
 					break;
 				case Direction.Top:
-					startPosition.y += size.y;
+					endPosition.y += size.y;
 					break;
 				case Direction.Right:
-					startPosition.x += size.x;
+					endPosition.x += size.x;
 					break;
 				case Direction.Bottom:
-					startPosition.y -= size.y;
+					endPosition.y -= size.y;
 					break;
 				default:
 					throw new ArgumentOutOfRangeException();
 			}
 
-			return t.DOAnchorPos(position, Duration).SetDelay(Delay).SetEase(Ease).ChangeStartValue(startPosition);
+			return t.DOAnchorPos(endPosition, Duration).SetDelay(Delay).SetEase(Ease);
 		}
 	}
 }

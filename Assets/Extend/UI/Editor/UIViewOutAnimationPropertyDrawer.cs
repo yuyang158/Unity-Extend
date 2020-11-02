@@ -2,8 +2,8 @@ using Extend.Common.Editor;
 using UnityEditor;
 
 namespace Extend.UI.Editor {
-	[CustomPropertyDrawer(typeof(UIViewInAnimation))]
-	public class UIViewInAnimationPropertyDrawer : UIAnimationPropertyBaseDrawer {
+	[CustomPropertyDrawer(typeof(UIViewOutAnimation))]
+	public class UIViewOutAnimationPropertyDrawer : UIAnimationPropertyBaseDrawer {
 		private static UIAnimationParamCombine[] stateParamGUIs;
 
 		protected override float SingleDoTweenHeight => UIEditorUtil.LINE_HEIGHT * 3;
@@ -17,7 +17,7 @@ namespace Extend.UI.Editor {
 					var moveParamGUI = new UIAnimationParamCombine(4, 0);
 					moveParamGUI.GetRow(0).Add("m_duration", 0.35f).Add("m_delay", 0.35f).
 						Add("m_customFromTo", 0.3f, "", 0.9f);
-					moveParamGUI.GetRow(1).Add("m_moveInDirection", 1).Condition("m_customFromTo", false);
+					moveParamGUI.GetRow(1).Add("m_moveOutDirection", 1).Condition("m_customFromTo", false);
 					moveParamGUI.GetRow(2).Add("m_moveFrom", 0.5f).
 						Add("m_moveTo", 0.5f).Condition("m_customFromTo", true);
 					moveParamGUI.GetRow(3).Add("m_ease", 1);
@@ -26,7 +26,7 @@ namespace Extend.UI.Editor {
 					var rotateParamGUI = new UIAnimationParamCombine(4, 1);
 					rotateParamGUI.GetRow(0).Add("m_duration", 0.35f).Add("m_delay", 0.35f).
 						Add("m_customFromTo", 0.3f, "", 0.9f);
-					rotateParamGUI.GetRow(1).Add("m_rotateFrom", 1).Condition("m_customFromTo", false);
+					rotateParamGUI.GetRow(1).Add("m_rotateTo", 1).Condition("m_customFromTo", false);
 					rotateParamGUI.GetRow(2).Add("m_rotateFrom", 0.5f).
 						Add("m_rotateTo", 0.5f).Condition("m_customFromTo", true);
 					rotateParamGUI.GetRow(3).Add("m_ease", 0.5f).Add("m_rotateMode", 0.5f);
@@ -35,7 +35,7 @@ namespace Extend.UI.Editor {
 					var scaleParamGUI = new UIAnimationParamCombine(4, 2);
 					scaleParamGUI.GetRow(0).Add("m_duration", 0.35f).Add("m_delay", 0.35f).
 						Add("m_customFromTo", 0.3f, "", 0.9f);
-					scaleParamGUI.GetRow(1).Add("m_scaleFrom", 1).Condition("m_customFromTo", false);
+					scaleParamGUI.GetRow(1).Add("m_scaleTo", 1).Condition("m_customFromTo", false);
 					scaleParamGUI.GetRow(2).Add("m_scaleFrom", 0.5f).
 						Add("m_scaleTo", 0.5f).Condition("m_customFromTo", true);
 					scaleParamGUI.GetRow(3).Add("m_ease", 1);
@@ -44,7 +44,7 @@ namespace Extend.UI.Editor {
 					var fadeParamGUI = new UIAnimationParamCombine(4, 3);
 					fadeParamGUI.GetRow(0).Add("m_duration", 0.35f).Add("m_delay", 0.35f).
 						Add("m_customFromTo", 0.3f, "", 0.9f);
-					fadeParamGUI.GetRow(1).Add("m_fadeFrom", 1).Condition("m_customFromTo", false);
+					fadeParamGUI.GetRow(1).Add("m_fadeTo", 1).Condition("m_customFromTo", false);
 					fadeParamGUI.GetRow(2).Add("m_fadeFrom", 0.5f).
 						Add("m_fadeTo", 0.5f).Condition("m_customFromTo", true);
 					fadeParamGUI.GetRow(3).Add("m_ease", 1);

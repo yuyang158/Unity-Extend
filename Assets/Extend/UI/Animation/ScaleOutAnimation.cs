@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Extend.UI.Animation {
 	[Serializable]
-	public class ScaleInAnimation : StateAnimation {
+	public class ScaleOutAnimation : StateAnimation {
 		[SerializeField]
 		private Vector3 m_scaleFrom;
 
@@ -25,7 +25,7 @@ namespace Extend.UI.Animation {
 		protected override Tween DoGenerateTween(RectTransform t, Vector3 start) {
 			return m_customFromTo
 				? t.DOScale(m_scaleTo, Duration).SetDelay(Delay).SetEase(Ease).ChangeStartValue(ScaleFrom)
-				: t.DOScale(start, Duration).SetDelay(Delay).SetEase(Ease).ChangeStartValue(ScaleFrom);
+				: t.DOScale(m_scaleTo, Duration).SetDelay(Delay).SetEase(Ease);
 		}
 	}
 }

@@ -10,6 +10,10 @@ namespace Extend.UI.Animation {
 	}
 	
 	[Serializable]
+	public class ViewOutStateCombine : StateAnimationTemplate<MoveOutAnimation, RotateOutAnimation, ScaleOutAnimation, FadeOutAnimation> {
+	}
+	
+	[Serializable]
 	public class ViewLoopStateCombine : StateAnimationTemplate<MoveLoopAnimation, RotateLoopAnimation, ScaleLoopAnimation, FadeLoopAnimation> {
 	}
 
