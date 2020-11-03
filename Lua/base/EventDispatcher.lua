@@ -1,6 +1,6 @@
 local tpack, tunpack, tinsert, tremove, ipairs, assert = table.pack, table.unpack, table.insert, table.remove, ipairs, assert
 
----@class EventDispatcher
+---@class base.EventDispatcher
 local M = class()
 
 function M:ctor()
@@ -41,6 +41,7 @@ function M._InsertNewListener(listeners, func, packed, priority)
 			break
 		end
 	end
+	assert(func and type(func) == "function")
 	tinsert(listeners, index, {func = func, packed = packed, priority = priority})
 end
 
