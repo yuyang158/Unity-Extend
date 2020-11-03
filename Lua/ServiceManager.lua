@@ -7,7 +7,8 @@ M.SERVICE_TYPE = {
     CONSOLE_COMMAND = 3,
     UI = 4,
     GLOBAL_VM = 5,
-    MOCK = 6
+    MOCK = 6,
+    GLOBAL_EVENT = 7
 }
 
 function M.GetService(typ)

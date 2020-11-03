@@ -1,5 +1,5 @@
 local setmetatable, getmetatable, rawset, rawget, pairs, type, ipairs = setmetatable, getmetatable, rawset, rawget, pairs, type, ipairs
-local insert, concat = table.insert, table.concat
+local insert, concat, remove = table.insert, table.concat, table.remove
 local find, format, sub, gsub = string.find, string.format, string.sub, string.gsub
 local tonumber, tostring = tonumber, tostring
 local next = next
@@ -70,6 +70,14 @@ function table.index_of_predict(t, func)
 		end
 	end
 	return -1
+end
+
+function table.swap_remove(t, index)
+	if not index then
+		index = 1
+	end
+	t[index] = t[#t]
+	return remove(t, #t)
 end
 
 local function dump(t)
