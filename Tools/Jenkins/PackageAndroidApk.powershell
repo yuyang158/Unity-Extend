@@ -1,0 +1,61 @@
+if (${env:SkipUnityBuild} -eq "true") {
+  Write-Host "Skip unity build"
+  Break Script
+}
+
+# temp remove op, using submodule or external link 
+Remove-Item -Force -Confirm:$false -Recurse -Path .\Assets\Resources\
+
+$ExtraParam=""
+if (${env:DevelopBuild} -eq "true") {
+  Write-Output "DevelopBuild Active"
+  $ExtraParam=$ExtraParam+"dev "
+}
+
+if (${env:AllowDebugging} -eq "true") {
+  Write-Output "AllowDebugging Active"
+  $ExtraParam=$ExtraParam+"debug "
+}
+
+if (${env:RebuildScriptOnly} -eq "true") {
+  Write-Output "RebuildScriptOnly Active"
+  $ExtraParam=$ExtraParam+"scriptOnly "
+}
+
+if (${env:Compress} -eq "true") {
+  Write-Output "Compress Active"
+  $ExtraParam=$ExtraParam+"compress "
+}
+
+if (${env:DeepProfiling} -eq "true") {
+  Write-Output "DeepProfiling Active"
+  $ExtraParam=$ExtraParam+"deep "
+}
+
+if (${env:StrictMode} -eq "true") {
+  Write-Output "StrictMode Active"
+  $ExtraParam=$ExtraParam+"strict "
+}
+
+Write-Output $ExtraParam
+Write-Output "Copy Streaming Assets"
+Copy-Item -Path "..\Meerkat_Android_Build_Asset_Bundle\Assets\StreamingAssets" -Destination ".\Assets\" -Recurse -Force
+
+python RedirectUnityOut.py `
+"C:/Program Files/Unity/Hub/Editor/2019.4.13f1c1/Editor/Unity.exe" `
+-batchmode `
+-username "357299512@qq.com" `
+-password "Jjaacckk-_1987" `
+-projectPath "./" `
+-executeMethod Extend.Editor.ExtendEditorUtility.ExportAndroid `
+-serial "SC-4KV5-GXEP-3FMY-FUNJ-HZT7" `
+$ExtraParam
+
+
+cd AndroidPlayer
+.\gradlew.bat clean
+$BUILD_TYPE="Release"
+if (${env:DevelopBuild} -eq "true") {
+  $BUILD_TYPE="Debug"
+}
+.\gradlew.bat assemble${BUILD_TYPE} -DVersionName="${env:VersionName}" -DApplicationId="${env:ApplicationId}" -DVersionCode="${env:BUILD_NUMBER}" --warning-mode all

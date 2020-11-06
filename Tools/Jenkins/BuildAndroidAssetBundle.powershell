@@ -1,0 +1,1 @@
+python RedirectUnityOut.py "C:/Program Files/Unity/Hub/Editor/2019.4.13f1c1/Editor/Unity.exe" -batchmode -username "357299512@qq.com" -password "Jjaacckk-_1987" -projectPath ./ -executeMethod Extend.Editor.ExtendEditorUtility.RebuildAllABAndroid -serial "SC-4KV5-GXEP-3FMY-FUNJ-HZT7" -quit
