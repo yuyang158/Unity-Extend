@@ -15,6 +15,7 @@ namespace Extend.Asset {
 		private string m_assetGUID;
 
 #if UNITY_EDITOR
+		[BlackList]
 		public string AssetGUID => m_assetGUID;
 #endif
 		public AssetRefObject.AssetStatus AssetStatus => Asset?.Status ?? AssetRefObject.AssetStatus.NONE;

@@ -112,6 +112,7 @@ namespace Extend.UI.Editor {
 			}
 
 			window = GetWindow<UIViewEditorWindow>();
+			window.titleContent = new GUIContent("UI View List");
 			window.Show();
 		}
 

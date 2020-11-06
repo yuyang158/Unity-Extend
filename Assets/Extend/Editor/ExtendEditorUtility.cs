@@ -15,19 +15,26 @@ namespace Extend.Editor {
 			EditorUtility.RevealInFinder(Application.persistentDataPath);
 		}
 
-		private static IEnumerator RebuildAllABForPlatform(BuildTarget target) {
-			Directory.Delete($"{Application.streamingAssetsPath}/ABBuild", true);
-			
-			var finish = false;
+		private static void RebuildAllABForPlatform(BuildTarget target) {
 			Debug.LogWarning($"Rebuild all ab for platform {target}");
-			StaticAssetBundleWindow.RebuildAllAssetBundles(target, () => {
+			StaticAssetBundleWindow.RebuildAllAssetBundles(target, true, () => {
 				Debug.LogWarning($"Rebuild all ab for platform {target} success");
-				finish = true;
 			});
+		}
 
-			while( !finish ) {
-				yield return null;
-			}
+		[MenuItem("Tools/CI/Rebuild Android Asset Bundle")]
+		private static void RebuildAllABAndroid() {
+			RebuildAllABForPlatform(BuildTarget.Android);
+		}
+
+		[MenuItem("Tools/CI/Rebuild iOS Asset Bundle")]
+		private static void RebuildAllABiOS() {
+			RebuildAllABForPlatform(BuildTarget.iOS);
+		}
+
+		[MenuItem("Tools/CI/Rebuild Windows Asset Bundle")]
+		private static void RebuildAllABWindows() {
+			RebuildAllABForPlatform(BuildTarget.StandaloneWindows64);
 		}
 
 		private static void GenerateXLua() {
@@ -35,73 +42,59 @@ namespace Extend.Editor {
 			Generator.GenAll();
 		}
 
-		private static IEnumerator RebuildAll(BuildTarget target) {
-			yield return RebuildAllABForPlatform(target);
+		private static void CheckMatchParam(ref BuildOptions options, string argToMatch, BuildOptions enumValue) {
+			if( Array.IndexOf(Environment.GetCommandLineArgs(), argToMatch) != -1 ) {
+				options |= enumValue;
+				Debug.Log($"Add Build Option {enumValue}");
+			}
+		}
+
+		private static BuildOptions AnalyseCommandLineArgs() {
+			var options = BuildOptions.None;
+			CheckMatchParam(ref options, "dev", BuildOptions.Development);
+			CheckMatchParam(ref options, "debug", BuildOptions.AllowDebugging);
+			CheckMatchParam(ref options, "scriptOnly", BuildOptions.BuildScriptsOnly);
+			CheckMatchParam(ref options, "compress", BuildOptions.CompressWithLz4);
+			CheckMatchParam(ref options, "deep", BuildOptions.EnableDeepProfilingSupport);
+			CheckMatchParam(ref options, "strict", BuildOptions.StrictMode);
+			return options;
+		}
+
+		private static void ExportPlayerPrepare() {
+			Debug.LogWarning($"Command Line : {Environment.CommandLine}");
+			Debug.LogWarning($"Current Platform : {EditorUserBuildSettings.activeBuildTarget}");
+		}
+
+		[MenuItem("Tools/CI/Build Android Player")]
+		private static void ExportAndroid() {
+			Debug.Log("Start Export Android Project");
+			ExportPlayerPrepare();
+			if( EditorUserBuildSettings.activeBuildTarget != BuildTarget.Android ) {
+				EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Android, BuildTarget.Android);
+			}
+
+			EditorUserBuildSettings.androidBuildSystem = AndroidBuildSystem.Gradle;
+			EditorUserBuildSettings.exportAsGoogleAndroidProject = true;
+
+			var buildPath = Application.dataPath + "/../AndroidPlayer";
+			if( !Directory.Exists(buildPath) ) {
+				Directory.CreateDirectory(buildPath);
+			}
+
+			var buildOptions = new BuildPlayerOptions() {
+				options = AnalyseCommandLineArgs(),
+				target = BuildTarget.Android,
+				locationPathName = buildPath
+			};
+			Debug.Log("Gen XLUA Wrap");
 			GenerateXLua();
+			Debug.Log($"Start Build Player To : {buildPath}");
+			BuildPipeline.BuildPlayer(buildOptions);
+			Debug.Log("Build Player Finished");
 
-			Debug.LogWarning("Generate xlua wrap success");
-			Directory.Delete(Application.dataPath + "/Resources", true);
-			Debug.LogWarning("Delete resources folder");
-
-			var buildPlayerOptions = new BuildPlayerOptions();
-			var scenes = new string[EditorBuildSettings.scenes.Length];
-			for( var i = 0; i < scenes.Length; i++ ) {
-				scenes[i] = EditorBuildSettings.scenes[i].path;
+			if( Application.isBatchMode ) {
+				EditorApplication.Exit(0);
 			}
-			buildPlayerOptions.scenes = scenes;
-			var platform = GetABDirectory(target);
-			
-			buildPlayerOptions.assetBundleManifestPath = $"{Application.persistentDataPath}/ABBuild/{platform}.manifest";
-			buildPlayerOptions.locationPathName = $"{platform}Build";
-			buildPlayerOptions.target = target;
-			buildPlayerOptions.options = BuildOptions.Development | BuildOptions.AcceptExternalModificationsToPlayer;
-			Debug.LogWarning($"Start build play {target}");
-
-			var report = BuildPipeline.BuildPlayer(buildPlayerOptions);
-			var summary = report.summary;
-			if( summary.result == BuildResult.Succeeded ) {
-				Debug.Log("Build succeeded: " + summary.totalSize + " bytes");
-			}
-
-			if( summary.result == BuildResult.Failed ) {
-				Debug.Log("Build failed");
-			}
-
-			Debug.LogWarning("Compiling finished");
-			if( Environment.CurrentDirectory.Contains("Jenkins") ) {
-				Debug.LogWarning($"GRAPHICS DEVICE NAME : {SystemInfo.graphicsDeviceName}");
-				EditorApplication.Exit(summary.result == BuildResult.Succeeded ? 0 : 1);
-			}
-		}
-
-		private static string GetABDirectory(BuildTarget target) {
-			string platform;
-			if( target == BuildTarget.Android ) {
-				platform = "Android";
-			}
-			else if( target == BuildTarget.iOS ) {
-				platform = "iOS";
-			}
-			else {
-				platform = "StandaloneWindows";
-			}
-
-			return platform;
-		}
-
-		[MenuItem("Tools/CI/Rebuild Android")]
-		private static void RebuildAllAndroid() {
-			EditorCoroutineUtility.StartCoroutineOwnerless(RebuildAll(BuildTarget.Android));
-		}
-
-		[MenuItem("Tools/CI/Rebuild iOS")]
-		private static void RebuildAllABiOS() {
-			EditorCoroutineUtility.StartCoroutineOwnerless(RebuildAll(BuildTarget.iOS));
-		}
-
-		[MenuItem("Tools/CI/Rebuild AB Windows")]
-		private static void RebuildAllABWindows() {
-			EditorCoroutineUtility.StartCoroutineOwnerless(RebuildAll(BuildTarget.StandaloneWindows64));
 		}
 	}
 }

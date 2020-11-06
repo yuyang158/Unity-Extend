@@ -14,13 +14,14 @@ namespace Extend.Asset {
 		public PrefabAssetInstance(string assetPath) : base(assetPath) {
 		}
 
-		[Conditional("UNITY_EDITOR")]
+#if UNITY_EDITOR
 		private void ChildCountRecursive(Transform t) {
 			m_transformCount += t.childCount;
 			for( var i = 0; i < t.childCount; i++ ) {
 				ChildCountRecursive(t.GetChild(i));
 			}
 		}
+#endif
 
 		public override void SetAsset(Object unityObj, AssetBundleInstance refAssetBundle) {
 			base.SetAsset(unityObj, refAssetBundle);

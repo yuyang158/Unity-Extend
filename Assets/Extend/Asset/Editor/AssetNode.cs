@@ -11,8 +11,9 @@ using UnityEngine.Assertions;
 
 namespace Extend.Asset.Editor {
 	public class AssetNode {
+		private const string AB_EXTENSION = ".ab";
+		
 		public string AssetPath => importer.assetPath;
-
 		public string AssetName {
 			get {
 				var assetName = Path.GetDirectoryName(importer.assetPath) + "/" + Path.GetFileNameWithoutExtension(importer.assetPath);
@@ -21,16 +22,17 @@ namespace Extend.Asset.Editor {
 			}
 		}
 
+		private string m_assetBundleName;
 		public string AssetBundleName {
-			get => importer.assetBundleName;
+			get => m_assetBundleName;
 			private set {
 				Assert.IsFalse(Calculated);
 				Calculated = true;
-				var abName = value.ToLower();
+				var abName = value.ToLower() + AB_EXTENSION;
+				m_assetBundleName = abName;
 				if( importer.assetBundleName == abName )
 					return;
 				importer.assetBundleName = abName;
-				Debug.Log($"{Path.GetFileName(importer.assetPath)} --> {abName}");
 			}
 		}
 
@@ -123,23 +125,21 @@ namespace Extend.Asset.Editor {
 			if( Calculated )
 				return;
 
-			if( OuterLink ) {
-				if( referenceNodes.Count > 0 ) {
-					var abName = "";
-					foreach( var referenceNode in referenceNodes ) {
-						referenceNode.CalculateABName();
-						if( string.IsNullOrEmpty(abName) ) {
-							abName = referenceNode.AssetBundleName;
-						}
-						else if( abName != referenceNode.AssetBundleName ) {
-							abName = AssetName;
-							break;
-						}
+			if( OuterLink && referenceNodes.Count > 0 ) {
+				var abName = "";
+				foreach( var referenceNode in referenceNodes ) {
+					referenceNode.CalculateABName();
+					if( string.IsNullOrEmpty(abName) ) {
+						abName = referenceNode.AssetBundleName;
 					}
-
-					AssetBundleName = abName;
-					return;
+					else if( abName != referenceNode.AssetBundleName ) {
+						abName = AssetName;
+						break;
+					}
 				}
+
+				AssetBundleName = abName;
+				return;
 			}
 
 			AssetBundleName = AssetName;

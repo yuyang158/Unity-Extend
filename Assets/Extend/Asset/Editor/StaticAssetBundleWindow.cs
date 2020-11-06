@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using Extend.Common;
+using Unity.EditorCoroutines.Editor;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
@@ -18,9 +20,9 @@ namespace Extend.Asset.Editor {
 			window.Show();
 		}
 
-		private ReorderableList reList;
-		private ReorderableList otherDependencyList;
-		private ReorderableList reSpecialUnloadStrategyList;
+		private ReorderableList m_reList;
+		private ReorderableList m_otherDependencyList;
+		private ReorderableList m_reSpecialUnloadStrategyList;
 		private static StaticABSettings settingRoot;
 		private SerializedObject serializedObject;
 		private SerializedProperty selectedSetting;
@@ -44,9 +46,9 @@ namespace Extend.Asset.Editor {
 
 			serializedObject = new SerializedObject(settingRoot);
 			var settingsProp = serializedObject.FindProperty("Settings");
-			reList = new ReorderableList(serializedObject, settingsProp);
-			reList.drawHeaderCallback += rect => { EditorGUI.LabelField(rect, SPECIAL_LIST_HEADER); };
-			reList.drawElementCallback += (rect, index, active, focused) => {
+			m_reList = new ReorderableList(serializedObject, settingsProp);
+			m_reList.drawHeaderCallback += rect => { EditorGUI.LabelField(rect, SPECIAL_LIST_HEADER); };
+			m_reList.drawElementCallback += (rect, index, active, focused) => {
 				rect.height = EditorGUIUtility.singleLineHeight;
 				var totalWidth = position.width;
 				rect.width = totalWidth / 2;
@@ -65,14 +67,14 @@ namespace Extend.Asset.Editor {
 				EditorGUIUtility.labelWidth = labelWidth;
 			};
 
-			reList.onSelectCallback += list => {
+			m_reList.onSelectCallback += list => {
 				if( list.index >= 0 && list.index < list.count ) {
 					selectedSetting = list.serializedProperty.GetArrayElementAtIndex(list.index);
 					var folderProp = selectedSetting.FindPropertyRelative("FolderPath");
 					var folderPath = folderProp.objectReferenceValue ? AssetDatabase.GetAssetPath(folderProp.objectReferenceValue) : string.Empty;
 					selectSettingABPaths.Clear();
 					if( string.IsNullOrEmpty(folderPath) ) {
-						reSpecialUnloadStrategyList = null;
+						m_reSpecialUnloadStrategyList = null;
 						return;
 					}
 
@@ -126,9 +128,9 @@ namespace Extend.Asset.Editor {
 						bundleNameProp.stringValue = path;
 					}
 
-					reSpecialUnloadStrategyList = new ReorderableList(serializedObject, unloadStrategyProp);
-					reSpecialUnloadStrategyList.drawHeaderCallback += rect => { EditorGUI.LabelField(rect, "Unload Strategy"); };
-					reSpecialUnloadStrategyList.drawElementCallback += (rect, index, active, focused) => {
+					m_reSpecialUnloadStrategyList = new ReorderableList(serializedObject, unloadStrategyProp);
+					m_reSpecialUnloadStrategyList.drawHeaderCallback += rect => { EditorGUI.LabelField(rect, "Unload Strategy"); };
+					m_reSpecialUnloadStrategyList.drawElementCallback += (rect, index, active, focused) => {
 						var element = unloadStrategyProp.GetArrayElementAtIndex(index);
 						rect.height = EditorGUIUtility.singleLineHeight;
 						var totalWidth = position.width;
@@ -138,7 +140,7 @@ namespace Extend.Asset.Editor {
 						var labelWidth = EditorGUIUtility.labelWidth;
 						EditorGUIUtility.labelWidth = 70;
 						var pathProp = element.FindPropertyRelative("BundleName");
-						if(pathProp == null)
+						if( pathProp == null )
 							return;
 						EditorGUI.PropertyField(rect, pathProp, ASSET_BUNDLE_CONTENT);
 						GUI.enabled = true;
@@ -157,11 +159,11 @@ namespace Extend.Asset.Editor {
 			};
 
 			var otherDepend = serializedObject.FindProperty("ExtraDependencyAssets");
-			otherDependencyList = new ReorderableList(otherDepend.serializedObject, otherDepend);
-			otherDependencyList.drawHeaderCallback += rect => { EditorGUI.LabelField(rect, "非Resources依赖"); };
-			otherDependencyList.drawElementCallback += (rect, index, active, focused) => {
+			m_otherDependencyList = new ReorderableList(otherDepend.serializedObject, otherDepend);
+			m_otherDependencyList.drawHeaderCallback += rect => { EditorGUI.LabelField(rect, "非Resources依赖"); };
+			m_otherDependencyList.drawElementCallback += (rect, index, active, focused) => {
 				rect.height = EditorGUIUtility.singleLineHeight;
-				var dependProp = otherDependencyList.serializedProperty.GetArrayElementAtIndex(index);
+				var dependProp = m_otherDependencyList.serializedProperty.GetArrayElementAtIndex(index);
 				EditorGUI.BeginChangeCheck();
 				EditorGUI.PropertyField(rect, dependProp);
 				if( EditorGUI.EndChangeCheck() && dependProp.objectReferenceValue != null ) {
@@ -188,15 +190,15 @@ namespace Extend.Asset.Editor {
 		private const int BOTTOM_BUTTON_COUNT = 3;
 
 		private void OnGUI() {
-			reList.DoLayoutList();
+			m_reList.DoLayoutList();
 			EditorGUILayout.Space();
 
-			if( selectedSetting != null && reSpecialUnloadStrategyList != null ) {
+			if( selectedSetting != null && m_reSpecialUnloadStrategyList != null ) {
 				EditorGUILayout.Space();
-				reSpecialUnloadStrategyList.DoLayoutList();
+				m_reSpecialUnloadStrategyList.DoLayoutList();
 			}
 
-			otherDependencyList.DoLayoutList();
+			m_otherDependencyList.DoLayoutList();
 			EditorGUILayout.Space();
 
 			var rect = EditorGUILayout.BeginHorizontal();
@@ -205,12 +207,7 @@ namespace Extend.Asset.Editor {
 			rect.x = 5;
 			rect.width = segmentWidth - 10;
 			if( GUI.Button(rect, "Rebuild All AB") ) {
-				RebuildAllAssetBundles(EditorUserBuildSettings.activeBuildTarget);
-			}
-
-			rect.x += segmentWidth;
-			if( GUI.Button(rect, "Build Update AB") ) {
-				BuildUpdateAssetBundles(EditorUserBuildSettings.activeBuildTarget);
+				RebuildAllAssetBundles(EditorUserBuildSettings.activeBuildTarget, true);
 			}
 
 			rect.x += segmentWidth;
@@ -224,9 +221,16 @@ namespace Extend.Asset.Editor {
 
 		private static string buildRoot;
 		private static string outputPath;
-		public static string OutputPath => outputPath;
+		public static string OutputPath {
+			get {
+				if(string.IsNullOrEmpty(outputPath)) {
+					MakeOutputDirectory(m_currentBuildTarget);
+				}
+				return outputPath;
+			}
+		}
 
-		private static string MakeOutputDirectory(BuildTarget buildTarget) {
+		private static void MakeOutputDirectory(BuildTarget buildTarget) {
 			buildRoot = $"{Application.streamingAssetsPath}/ABBuild";
 			if( !Directory.Exists(buildRoot) ) {
 				Directory.CreateDirectory(buildRoot);
@@ -236,81 +240,83 @@ namespace Extend.Asset.Editor {
 			if( !Directory.Exists(outputPath) ) {
 				Directory.CreateDirectory(outputPath);
 			}
-
-			return outputPath;
 		}
 
-		public static void BuildUpdateAssetBundles(BuildTarget target, string versionFilePath = null) {
-			InitializeSetting();
-			var outputDir = MakeOutputDirectory(target);
-			if( string.IsNullOrEmpty(versionFilePath) ) {
-				versionFilePath = EditorUtility.OpenFilePanel("Open version file", buildRoot, "bin");
-				if( string.IsNullOrEmpty(versionFilePath) )
-					return;
+		private static void DirectoryCopy(string sourceDirName, string destDirName, bool copySubDirs) {
+			// Get the subdirectories for the specified directory.
+			var dir = new DirectoryInfo(sourceDirName);
+			DirectoryInfo[] dirs = dir.GetDirectories();
+
+			if( !dir.Exists ) {
+				throw new DirectoryNotFoundException(
+					"Source directory does not exist or could not be found: "
+					+ sourceDirName);
 			}
 
-			BuildAssetRelation.Clear();
-			var allABs = BuildAssetRelation.BuildBaseVersionData(versionFilePath);
-			BuildAssetRelation.BuildRelation(settingRoot, () => {
-				var manifest = BuildPipeline.BuildAssetBundles(outputPath,
-					BuildAssetBundleOptions.DeterministicAssetBundle | BuildAssetBundleOptions.ChunkBasedCompression |
-					BuildAssetBundleOptions.IgnoreTypeTreeChanges,
-					EditorUserBuildSettings.activeBuildTarget);
+			// If the destination directory doesn't exist, create it.
+			if( !Directory.Exists(destDirName) ) {
+				Directory.CreateDirectory(destDirName);
+			}
 
-				versionFilePath = $"{buildRoot}/content_version.bin";
-				BuildVersionFile(versionFilePath, manifest, outputPath);
+			// Get the files in the directory and copy them to the new location.
+			FileInfo[] files = dir.GetFiles();
+			foreach( var file in files ) {
+				string tempPath = Path.Combine(destDirName, file.Name);
+				file.CopyTo(tempPath, true);
+			}
 
-				var needUpdateAssetBundles = new List<string>();
-				foreach( var abName in manifest.GetAllAssetBundles() ) {
-					BuildPipeline.GetCRCForAssetBundle(Path.Combine(outputPath, abName), out var currentCrc32);
-					if( allABs.TryGetValue(abName, out var crc3d) && crc3d == currentCrc32 )
-						continue;
-					needUpdateAssetBundles.Add(abName);
+			// If copying subdirectories, copy them and their contents to new location.
+			if( copySubDirs ) {
+				foreach( var subdir in dirs ) {
+					string tempPath = Path.Combine(destDirName, subdir.Name);
+					DirectoryCopy(subdir.FullName, tempPath, true);
 				}
-
-				if(needUpdateAssetBundles.Count == 0)
-					return;
-
-				var updateFolderPath = $"{Application.dataPath}/../UpdateAssets";
-				if( Directory.Exists(updateFolderPath) ) {
-					Directory.Delete(updateFolderPath, true);
-				}
-				Directory.CreateDirectory(updateFolderPath);
-				foreach( var needUpdateABName in needUpdateAssetBundles ) {
-					var fileInfo = new FileInfo(Path.Combine(outputPath, needUpdateABName));
-					var destInfo = new FileInfo(Path.Combine(updateFolderPath, needUpdateABName));
-					destInfo.Directory.Create();
-					fileInfo.CopyTo(destInfo.FullName, true);
-				}
-
-				ZipFile.CreateFromDirectory(updateFolderPath, $"{updateFolderPath}/../{DateTime.Now.ToLongDateString()}.zip", 
-					CompressionLevel.NoCompression, false);
-			});
+			}
 		}
 
-		public static void RebuildAllAssetBundles(BuildTarget target, Action finishCallback = null) {
+		private static BuildTarget m_currentBuildTarget;
+		public static void RebuildAllAssetBundles(BuildTarget target, bool appendLuaDir, Action finishCallback = null) {
+			m_currentBuildTarget = target;
 			InitializeSetting();
-			MakeOutputDirectory(target);
 			BuildAssetRelation.Clear();
-			BuildAssetRelation.BuildRelation(settingRoot, () => {
-				var manifest = BuildPipeline.BuildAssetBundles(outputPath, BuildAssetBundleOptions.DeterministicAssetBundle
-				                                                           | BuildAssetBundleOptions.ChunkBasedCompression, target);
+			var settings = settingRoot;
+			if( appendLuaDir ) {
+				DirectoryCopy($"{Application.dataPath}/../Lua", $"{Application.dataPath}/Resources/Lua", true);
+				AssetDatabase.Refresh();
+				var luaFiles = Directory.GetFiles($"{Application.dataPath}/Resources/Lua", "*.lua", SearchOption.AllDirectories);
+				foreach( var luaFile in luaFiles ) {
+					var index = luaFile.IndexOf("Assets", StringComparison.InvariantCulture);
+					var f = luaFile.Substring(index);
+					var importer = AssetImporter.GetAtPath(f);
+					importer.assetBundleName = "lua";
+				}
+
+				settings = CreateInstance<StaticABSettings>();
+				settings.ExtraDependencyAssets = settingRoot.ExtraDependencyAssets;
+				settings.Settings = new StaticABSetting[settingRoot.Settings.Length + 1];
+				Array.Copy(settingRoot.Settings, settings.Settings, settingRoot.Settings.Length);
+				settings.Settings[settingRoot.Settings.Length] = new StaticABSetting() {
+					FolderPath = AssetDatabase.LoadAssetAtPath<DefaultAsset>("Assets/Resources/Lua"),
+					Op = StaticABSetting.Operation.ALL_IN_ONE,
+					UnloadStrategies = new SpecialBundleLoadLogic[0]
+				};
+			}
+
+			BuildAssetRelation.BuildRelation(settings, () => {
+				Directory.Delete($"{Application.dataPath}/Resources/Lua", true);
+				Debug.Log($"Start AB Build Output : {OutputPath}");
+				BuildPipeline.BuildAssetBundles(OutputPath, BuildAssetBundleOptions.DeterministicAssetBundle
+				                                            | BuildAssetBundleOptions.ChunkBasedCompression, target);
+				var manifestFiles = Directory.GetFiles(OutputPath, "*.manifest", SearchOption.AllDirectories);
+				foreach( var manifestFile in manifestFiles ) {
+					File.Delete(manifestFile);
+				}
 				finishCallback?.Invoke();
-				BuildVersionFile($"{buildRoot}/content_version.bin", manifest, outputPath);
-			});
-		}
 
-		private static void BuildVersionFile(string versionFilePath, AssetBundleManifest manifest, string abOutputPath) {
-			using( var fileStream = new FileStream(versionFilePath, FileMode.OpenOrCreate, FileAccess.Write) ) {
-				using( var writer = new StreamWriter(fileStream) ) {
-					var assetBundles = manifest.GetAllAssetBundles();
-					foreach( var abName in assetBundles ) {
-						var abPath = Path.Combine(abOutputPath, abName);
-						BuildPipeline.GetCRCForAssetBundle(abPath, out var crc32);
-						writer.WriteLine($"{abName}|{crc32}");
-					}
+				if( Application.isBatchMode ) {
+					EditorApplication.Exit(0);
 				}
-			}
+			});
 		}
 	}
 }

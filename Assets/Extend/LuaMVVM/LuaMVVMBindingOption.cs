@@ -143,6 +143,10 @@ namespace Extend.LuaMVVM {
 						Assert.IsNotNull(detach);
 
 						if( Mode == BindMode.TWO_WAY ) {
+							if( m_expression ) {
+								Debug.LogError("express type can not to source");
+								return;
+							}
 							m_propertyChangeCallback = BindTarget.GetComponent<IUnityPropertyChanged>();
 							m_propertyChangeCallback.OnPropertyChanged += OnPropertyChanged;
 						}
@@ -153,6 +157,7 @@ namespace Extend.LuaMVVM {
 				case BindMode.ONE_WAY_TO_SOURCE:
 					if( m_expression ) {
 						Debug.LogError("express type can not to source");
+						return;
 					}
 					m_propertyChangeCallback = BindTarget.GetComponent<IUnityPropertyChanged>();
 					dataContext.SetInPath(Path, m_propertyChangeCallback.ProvideCurrentValue());

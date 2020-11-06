@@ -43,33 +43,17 @@ namespace Extend.Asset.Editor {
 		}
 
 		public static IEnumerable<AssetNode> ResourcesNodes => resourcesNodes.Values;
-		public static IEnumerable<AssetNode> AllNodes => allAssetNodes.Values;
-
 		public static void Clear() {
 			resourcesNodes.Clear();
 			allAssetNodes.Clear();
 		}
 
-		public static Dictionary<string, uint> BuildBaseVersionData(string versionConfPath) {
-			var allAssetBundles = new Dictionary<string, uint>();
-			using( var reader = new StreamReader(File.OpenRead(versionConfPath)) ) {
-				while( true ) {
-					var combined = reader.ReadLine();
-					if(string.IsNullOrEmpty(combined))
-						break;
-					var abNameAndCrc32 = combined.Split('|');
-					allAssetBundles.Add(abNameAndCrc32[0], uint.Parse(abNameAndCrc32[1]));
-				}
-			}
-			return allAssetBundles;
-		}
-
-		private static Dictionary<string, BundleUnloadStrategy> m_specialAB;
+		private static Dictionary<string, BundleUnloadStrategy> s_specialAB;
 
 		public static void BuildRelation(StaticABSettings abSetting, Action completeCallback) {
 			AssetCustomProcesses.Init();
 			manualSettings = abSetting.Settings;
-			m_specialAB = new Dictionary<string, BundleUnloadStrategy>();
+			s_specialAB = new Dictionary<string, BundleUnloadStrategy>();
 			foreach( var setting in manualSettings ) {
 				var settingFiles = Directory.GetFiles(setting.Path, "*.*", SearchOption.AllDirectories);
 				foreach( var filePath in settingFiles ) {
@@ -101,7 +85,7 @@ namespace Extend.Asset.Editor {
 					var node = new AssetNode(importer.assetPath, abName);
 					var s = Array.Find(setting.UnloadStrategies, (strategy) => strategy.BundleName == abName);
 					AddNewAssetNode(node);
-					m_specialAB.Add(node.AssetName, s?.UnloadStrategy ?? BundleUnloadStrategy.Normal);
+					s_specialAB.Add(node.AssetName, s?.UnloadStrategy ?? BundleUnloadStrategy.Normal);
 					if( Path.GetExtension(node.AssetPath) == ".spriteatlas" ) {
 						var dependencies = AssetDatabase.GetDependencies(node.AssetPath);
 						foreach( var dependency in dependencies ) {
@@ -111,7 +95,7 @@ namespace Extend.Asset.Editor {
 
 							var depNode = new AssetNode(dependency, abName);
 							AddNewAssetNode(depNode);
-							m_specialAB.Add(depNode.AssetName, s?.UnloadStrategy ?? BundleUnloadStrategy.Normal);
+							s_specialAB.Add(depNode.AssetName, s?.UnloadStrategy ?? BundleUnloadStrategy.Normal);
 						}
 					}
 				}
@@ -145,7 +129,7 @@ namespace Extend.Asset.Editor {
 		}
 
 		private static bool ContainInManualSettingDirectory(string path) {
-			return m_specialAB.ContainsKey(path.ToLower());
+			return s_specialAB.ContainsKey(path.ToLower());
 		}
 
 		private static void ExportResourcesPackageConf() {
@@ -155,7 +139,7 @@ namespace Extend.Asset.Editor {
 					var guid = AssetDatabase.AssetPathToGUID(resourcesNode.AssetPath);
 					var assetPath = resourcesNode.AssetPath.ToLower();
 
-					writer.WriteLine(m_specialAB.TryGetValue(resourcesNode.AssetBundleName, out var strategy)
+					writer.WriteLine(s_specialAB.TryGetValue(resourcesNode.AssetBundleName, out var strategy)
 						? $"{assetPath}|{resourcesNode.AssetBundleName}|{guid}|{(int)strategy}"
 						: $"{assetPath}|{resourcesNode.AssetBundleName}|{guid}");
 				}
@@ -172,7 +156,7 @@ namespace Extend.Asset.Editor {
 
 				var formatPath = FormatPath(filePath);
 				var node = new AssetNode(formatPath);
-				if( m_specialAB.ContainsKey(node.AssetName) ) {
+				if( s_specialAB.ContainsKey(node.AssetName) ) {
 					continue;
 				}
 
@@ -232,11 +216,10 @@ namespace Extend.Asset.Editor {
 
 			//Debug.Log( sb.ToString() );
 			EditorUtility.ClearProgressBar();
+			ExportResourcesPackageConf();
 			completeCallback();
 			AssetCustomProcesses.PostProcess();
 			AssetCustomProcesses.Shutdown();
-
-			ExportResourcesPackageConf();
 		}
 	}
 }

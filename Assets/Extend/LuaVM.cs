@@ -6,7 +6,9 @@ using Extend.LuaUtil;
 using UnityEngine;
 using XLua;
 using Debug = UnityEngine.Debug;
-
+#if !UNITY_EDITOR
+using Extend.Asset;
+#endif
 namespace Extend {
 	public class LuaVM : IService, IServiceUpdate, IDisposable {
 		private LuaMemoryLeakChecker.Data leakData;
