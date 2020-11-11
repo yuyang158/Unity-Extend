@@ -55,8 +55,8 @@ namespace Extend {
 			LuaClassCache = new LuaClassCache();
 			m_newClassCallback = OnLuaNewClass;
 			Default.AddLoader((ref string filename) => {
-				filename = filename.Replace('.', '/') + ".lua";
 #if UNITY_EDITOR
+				filename = filename.Replace('.', '/') + ".lua";
 				var path = $"{Application.dataPath}/../Lua/{filename}";
 				if( File.Exists(path) ) {
 					var text = File.ReadAllText(path);
@@ -65,10 +65,11 @@ namespace Extend {
 
 				return null;
 #else
+				filename = filename.Replace('.', '/');
 				var hotfix = $"{LUA_DEBUG_DIRECTORY}{filename}.lua";
 				if( File.Exists(hotfix) ) {
 					filename += ".lua";
-					return File.ReadAllBytes(hotfix);
+					return Encoding.UTF8.GetBytes(File.ReadAllText(hotfix));
 				}
 				
 				var service = CSharpServiceManager.Get<AssetService>(CSharpServiceManager.ServiceType.ASSET_SERVICE);

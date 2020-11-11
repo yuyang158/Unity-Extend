@@ -84,7 +84,6 @@ namespace Extend.Asset.AssetProvider {
 					if( segments.Length == 4 ) {
 						AssetService.Get().Container.AddAssetBundleStrategy(assetAB, (BundleUnloadStrategy)( int.Parse(segments[3]) ));
 					}
-					
 					m_asset2ABMap.Add(fullPath, abContext);
 					m_guid2AssetPath.Add(assetGUID, fullPath);
 					line = reader.ReadLine();
@@ -133,7 +132,7 @@ namespace Extend.Asset.AssetProvider {
 
 		private bool TryGetABContext(string path, out AssetPath context) {
 			if( !m_asset2ABMap.TryGetValue(path, out context) ) {
-				Debug.LogError($"Can not file asset at {path}");
+				Debug.LogError($"Can not file asset : {path}");
 				return false;
 			}
 
@@ -150,7 +149,7 @@ namespace Extend.Asset.AssetProvider {
 				return null;
 			}
 
-			if( !( container.TryGetAsset(AssetBundleInstance.GenerateHash(path)) is AssetInstance asset ) ) {
+			if( !( container.TryGetAsset(path.GetHashCode()) is AssetInstance asset ) ) {
 				asset = typ == typeof(GameObject) ? new PrefabAssetInstance(path) : new AssetInstance(path);
 				container.Put(asset);
 			}

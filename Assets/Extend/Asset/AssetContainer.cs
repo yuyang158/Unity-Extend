@@ -21,6 +21,11 @@ namespace Extend.Asset {
 
 		public void Put(AssetRefObject asset) {
 			m_assets.Add(asset);
+
+			if( m_hashAssetDic.ContainsKey(asset.GetHashCode()) ) {
+				Debug.LogError("An asset with same hash code has already been add.");
+				return;
+			}
 			m_hashAssetDic.Add(asset.GetHashCode(), asset);
 		}
 

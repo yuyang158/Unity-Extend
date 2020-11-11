@@ -60,6 +60,16 @@ namespace Extend.Editor {
 			return options;
 		}
 
+		private static string[] CollectScenesPath() {
+			var scenesName = new string[EditorBuildSettings.scenes.Length];
+			for( int i = 0; i < EditorBuildSettings.scenes.Length; i++ ) {
+				var scene = EditorBuildSettings.scenes[i];
+				scenesName[i] = scene.path;
+			}
+
+			return scenesName;
+		}
+
 		private static void ExportPlayerPrepare() {
 			Debug.LogWarning($"Command Line : {Environment.CommandLine}");
 			Debug.LogWarning($"Current Platform : {EditorUserBuildSettings.activeBuildTarget}");
@@ -84,7 +94,8 @@ namespace Extend.Editor {
 			var buildOptions = new BuildPlayerOptions() {
 				options = AnalyseCommandLineArgs(),
 				target = BuildTarget.Android,
-				locationPathName = buildPath
+				locationPathName = buildPath,
+				scenes = CollectScenesPath()
 			};
 			Debug.Log("Gen XLUA Wrap");
 			GenerateXLua();
