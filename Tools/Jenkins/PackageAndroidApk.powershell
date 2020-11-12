@@ -40,9 +40,10 @@ if (${env:StrictMode} -eq "true") {
 Write-Output $ExtraParam
 Write-Output "Copy Streaming Assets"
 Copy-Item -Path "..\Meerkat_Android_Build_Asset_Bundle\Assets\StreamingAssets" -Destination ".\Assets\" -Recurse -Force
+Remove-Item -Path "Assets\XLua\Gen" -Recurse -Force
 
 python RedirectUnityOut.py `
-"C:/Program Files/Unity/Hub/Editor/2019.4.13f1c1/Editor/Unity.exe" `
+"C:/Program Files/Unity/Hub/Editor/2019.4.14f1c1/Editor/Unity.exe" `
 -batchmode `
 -username "357299512@qq.com" `
 -password "Jjaacckk-_1987" `
