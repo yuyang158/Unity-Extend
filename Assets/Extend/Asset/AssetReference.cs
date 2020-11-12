@@ -146,28 +146,33 @@ namespace Extend.Asset {
 
 		[LuaCallCSharp]
 		public class InstantiateAsyncContext {
-			public AssetReference Ref;
+			[BlackList]
+			public readonly AssetReference Ref;
 			public OnInstantiateComplete Callback;
 			public bool Cancel;
 
-			public Transform Parent;
-			public readonly bool StayWorldPosition;
-			public Vector3 Position;
-			public Quaternion Rotation;
+			private readonly Transform m_parent;
+			private readonly bool m_stayWorldPosition;
+			private readonly Vector3 m_position;
+			private readonly Quaternion m_rotation;
 
 			private readonly int m_ctorType;
 
-			public InstantiateAsyncContext(Transform parent, bool stayWorldPosition) {
-				Parent = parent;
-				StayWorldPosition = stayWorldPosition;
+			public InstantiateAsyncContext(AssetReference reference, Transform parent, bool stayWorldPosition) {
 				m_ctorType = 1;
+				m_parent = parent;
+				Ref = reference;
+				m_stayWorldPosition = stayWorldPosition;
+				AssetService.Get().AddDeferInstantiateContext(this);
 			}
 
-			public InstantiateAsyncContext(Vector3 position, Quaternion rotation, Transform parent) {
+			public InstantiateAsyncContext(AssetReference reference, Vector3 position, Quaternion rotation, Transform parent) {
 				m_ctorType = 2;
-				Parent = parent;
-				Position = position;
-				Rotation = rotation;
+				m_parent = parent;
+				Ref = reference;
+				m_position = position;
+				m_rotation = rotation;
+				AssetService.Get().AddDeferInstantiateContext(this);
 			}
 
 			public void Instantiate() {
@@ -178,22 +183,22 @@ namespace Extend.Asset {
 					return;
 				}
 
-				var go = m_ctorType == 1 ? prefabAsset.Instantiate(Parent, StayWorldPosition) : 
-					prefabAsset.Instantiate(Position, Rotation, Parent);
-				Callback(go);
+				var go = m_ctorType == 1 ? prefabAsset.Instantiate(m_parent, m_stayWorldPosition) : 
+					prefabAsset.Instantiate(m_position, m_rotation, m_parent);
+				Callback?.Invoke(go);
 			}
 		}
 
 		public InstantiateAsyncContext InstantiateAsync(Transform parent = null, bool stayWorldPosition = false) {
-			return new InstantiateAsyncContext(parent, stayWorldPosition);
+			return new InstantiateAsyncContext(this, parent, stayWorldPosition);
 		}
 
 		public InstantiateAsyncContext InstantiateAsync(Vector3 position) {
-			return new InstantiateAsyncContext(position, Quaternion.identity, null);
+			return new InstantiateAsyncContext(this, position, Quaternion.identity, null);
 		}
 
 		public InstantiateAsyncContext InstantiateAsync(Vector3 position, Quaternion rotation, Transform parent = null) {
-			return new InstantiateAsyncContext(position, rotation, parent);
+			return new InstantiateAsyncContext(this, position, rotation, parent);
 		}
 
 		public void InitPool(string name, int prefer, int max) {

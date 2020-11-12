@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using Extend.Asset.AssetProvider;
 using Extend.Common;
 using UnityEngine;
 using XLua;
+using Debug = UnityEngine.Debug;
 using Object = UnityEngine.Object;
 
 namespace Extend.Asset {
@@ -70,25 +72,26 @@ namespace Extend.Asset {
 		[BlackList]
 		public void Update() {
 			Container.Collect();
-			
+
+			if( m_deferInstantiates.Count > 0 ) {
+				m_instantiateStopwatch.Restart();
+				int instantiatedIndex = 0;
+				for( var i = 0; i < m_deferInstantiates.Count; i++ ) {
+					var context = m_deferInstantiates[i];
+					context.Instantiate();
+					instantiatedIndex = i;
+					if( m_singleFrameMaxInstantiateDuration < m_instantiateStopwatch.Elapsed.TotalSeconds ) {
+						break;
+					}
+
+				}
+				m_deferInstantiates.RemoveRange(0, instantiatedIndex + 1);
+			}
 			if(m_pools.Count == 0)
 				return;
 
 			if( m_poolUpdateIndex >= m_pools.Count ) {
 				m_poolUpdateIndex = 0;
-			}
-
-			if( m_deferInstantiates.Count > 0 ) {
-				m_instantiateStopwatch.Restart();
-				for( var i = 0; i < m_deferInstantiates.Count; i++ ) {
-					var context = m_deferInstantiates[i];
-					context.Instantiate();
-					if( m_singleFrameMaxInstantiateDuration < m_instantiateStopwatch.Elapsed.TotalSeconds ) {
-						m_deferInstantiates.RemoveRange(0, i + 1);
-						break;
-					}
-				}
-					
 			}
 			// m_pools[m_poolUpdateIndex]
 		}
