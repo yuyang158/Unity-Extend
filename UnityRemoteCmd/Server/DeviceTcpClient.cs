@@ -76,7 +76,7 @@ namespace Server {
 				tcpClient.GetStream().Write(BitConverter.GetBytes((short)-1));
 				tcpClient.GetStream().Flush();
 			}
-			catch( Exception e ) {
+			catch( Exception ) {
 				Disconnect();
 			}
 		}

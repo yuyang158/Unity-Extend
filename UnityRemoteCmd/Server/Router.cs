@@ -32,6 +32,8 @@ namespace Server {
 			});
 			
 			server.RegisterRouter("lua", (context, body) => {
+				if(string.IsNullOrEmpty(body))
+					return string.Empty;
 				var device = context.Request.QueryString["device"];
 				// ReSharper disable once InconsistentlySynchronizedField
 				var client = Devices.Find(c => c.Guid == device);
