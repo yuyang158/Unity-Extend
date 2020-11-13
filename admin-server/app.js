@@ -4,6 +4,8 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const fileUpload = require('express-fileupload');
 const fileUploadRouter = require('./routes/log-file');
+const luaRemoteCmd = require('./routes/lua-remote-cmd');
+
 const cors = require('cors');
 
 const app = express();
@@ -23,5 +25,6 @@ app.use(fileUpload({
 }));
 
 app.use('/file', fileUploadRouter);
+app.use(luaRemoteCmd);
 
 module.exports = app;

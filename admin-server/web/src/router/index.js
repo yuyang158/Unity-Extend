@@ -76,6 +76,18 @@ export const constantRoutes = [
       }
     ]
   },
+  {
+    path: '/lua',
+    component: Layout,
+    children: [
+      {
+        path: 'lua',
+        name: 'Lua',
+        component: () => import('@/views/lua-remote-cmd/index'),
+        meta: { title: 'Lua', icon: 'table' }
+      }
+    ]
+  },
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }
 ]
