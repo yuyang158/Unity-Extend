@@ -25,7 +25,7 @@ Router.post('/upload/log', (req, res) => {
     for(const k of Object.keys(req.files)) {
         const file = req.files[k];
         const guid = uuid.generate();
-        const filename = `${device}-${os}-${version}-${other}-${guid}.log`;
+        const filename = `${device}-${os}-${version}-${other}-${guid}.log`.replace(/[/\\?%*:|"<>]/g, ' ');
         file.mv(`./log/${filename}`);
 
         sqlConnection.query('INSERT INTO `log` (`path`) VALUES (?);', [filename], (err, result) => {

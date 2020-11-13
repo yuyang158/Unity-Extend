@@ -15,7 +15,7 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'web/dist')));
 app.use(express.static(path.join(__dirname, 'log')));
 
 app.use(fileUpload({
@@ -26,5 +26,7 @@ app.use(fileUpload({
 
 app.use('/file', fileUploadRouter);
 app.use(luaRemoteCmd);
+
+console.log('Server started')
 
 module.exports = app;

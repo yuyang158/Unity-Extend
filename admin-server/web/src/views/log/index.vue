@@ -63,7 +63,7 @@ export default {
   },
   methods: {
     download(row) {
-      window.open(`http://127.0.0.1:3000/${row.path}`, '_blank')
+      window.open(`http://private-tunnel.site:4888/${row.path}`, '_blank')
     },
     fetchData() {
       this.listLoading = true

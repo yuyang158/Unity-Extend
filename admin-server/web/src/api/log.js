@@ -2,7 +2,7 @@ import request from '@/utils/request'
 
 export function getList(pageIndex) {
   return request({
-    url: 'file/query/log',
+    url: '/file/query/log',
     method: 'get',
     params: { index: pageIndex }
   })
@@ -10,7 +10,7 @@ export function getList(pageIndex) {
 
 export function getMaxId() {
   return request({
-    url: 'file/count/log',
+    url: '/file/count/log',
     method: 'get'
   })
 }
