@@ -58,13 +58,15 @@ print(b.c1, b.b1)
 * AssetReference类型实际为Unity中资源的GUID，可通过Tools/Excel Asset Tool编辑
 * 相关实现代码为 Lua/ConfigService.lua
 
-## AssetBundle打包
+## 资源加载
 
 * 手动强制指定文件夹AssetBundleName
 * 自动分析资源依赖，去除依赖短链
 * 自动生成文件位置描述
 * 自动生成更新描述文件
 * CI：https://github.com/yuyang158/Unity-Extend/tree/master/Tools/Jenkins
+* Lua、配置不放在Unity工程，增加迭代速度
+* Editor使用AssetDatabase，Runtime使用AssetBundle自动切换
 
 ## 网络模块
 
