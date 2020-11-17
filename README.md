@@ -53,17 +53,21 @@ print(b.c1, b.b1)
 
 * 读取以\t为分隔符的tsv文件
 * 格式：第一行为Key，第二行为该列类型，第三行为列描述
-* 支持类型 int number string json link boolean asset
+* 支持类型 int number string json link boolean AssetReference
 * link类型为外链id，可以在lua中直接访问对应链接表
-* asset类型实际为Unity中资源的GUID，可通过Tools/Excel Asset Tool编辑
+* AssetReference类型实际为Unity中资源的GUID，可通过Tools/Excel Asset Tool编辑
 * 相关实现代码为 Lua/ConfigService.lua
 
-## AssetBundle打包
+## 资源加载
 
 * 手动强制指定文件夹AssetBundleName
 * 自动分析资源依赖，去除依赖短链
 * 自动生成文件位置描述
 * 自动生成更新描述文件
+* CI：https://github.com/yuyang158/Unity-Extend/tree/master/Tools/Jenkins
+* Lua、配置不放在Unity工程，增加迭代速度
+* Editor使用AssetDatabase，Runtime使用AssetBundle自动切换
+* 异步加载，加载流量控制
 
 ## 网络模块
 
@@ -107,6 +111,7 @@ print(b.c1, b.b1)
        * Content-Type: text/plain
   3. http服务器将代码发送到客户端RemoteCmdClient执行
   4. 客户端调用Lua全局函数Global_DebugFunction处理发过来的代码
+  5. 预览地址：http://private-tunnel.site:4888/index.html#/lua/lua
 
 ## Mock功能
 * 通过拦截、分析客户端发送及收到的协议数据生成伪数据
