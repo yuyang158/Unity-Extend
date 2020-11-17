@@ -23,7 +23,7 @@ public static class RemoteCmdClient {
 		try {
 			if(!Debug.isDebugBuild || Application.isEditor)
 				return;
-			await tcpClient.ConnectAsync("192.144.187.92", 4101);
+			await tcpClient.ConnectAsync("private-tunnel.site", 4101);
 
 			var id = $"{SystemInfo.deviceName} - {SystemInfo.deviceModel}";
 			var protocol = new byte[] {1};
