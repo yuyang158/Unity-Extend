@@ -94,13 +94,18 @@ MonoBehaviour:
         m_duration: 1
         m_ease: 1
         m_active: 0
+        m_customFromTo: 0
+        m_moveTo: {x: 0, y: 0, z: 0}
+        m_moveFrom: {x: 0, y: 0, z: 0}
         m_moveInDirection: 0
       Rotate:
         m_delay: 0
         m_duration: 1
         m_ease: 1
         m_active: 0
+        m_customFromTo: 0
         m_rotateFrom: {x: 0, y: 0, z: 0}
+        m_rotateTo: {x: 0, y: 0, z: 0}
         m_rotateMode: 0
       Scale:
         m_delay: 0
@@ -108,12 +113,16 @@ MonoBehaviour:
         m_ease: 1
         m_active: 0
         m_scaleFrom: {x: 0, y: 0, z: 0}
+        m_customFromTo: 0
+        m_scaleTo: {x: 0, y: 0, z: 0}
       Fade:
         m_delay: 0
         m_duration: 0.85
         m_ease: 5
         m_active: 1
         m_fadeFrom: 0
+        m_customFromTo: 0
+        m_fadeTo: 0
     m_processor:
       ani: {fileID: 0}
       m_paramValue:
@@ -122,55 +131,43 @@ MonoBehaviour:
         iV: 0
         bV: 0
   HideAnimation:
-    Mode: 2
+    Mode: 1
     m_enabled: 1
-    m_punch:
-      Move:
-        m_punch: {x: 0, y: 0, z: 0}
-        m_duration: 1
-        m_vibrato: 10
-        m_elasticity: 1
-        m_delay: 0
-        m_active: 0
-      Rotate:
-        m_punch: {x: 0, y: 0, z: 0}
-        m_duration: 1
-        m_vibrato: 10
-        m_elasticity: 1
-        m_delay: 0
-        m_active: 0
-      Scale:
-        m_punch: {x: 0, y: 0, z: 0}
-        m_duration: 1
-        m_vibrato: 10
-        m_elasticity: 1
-        m_delay: 0
-        m_active: 0
     m_state:
       Move:
         m_delay: 0
         m_duration: 1
         m_ease: 1
         m_active: 0
-        m_move: {x: 0, y: 0, z: 0}
+        m_customFromTo: 0
+        m_moveTo: {x: 0, y: 0, z: 0}
+        m_moveFrom: {x: 0, y: 0, z: 0}
+        m_moveOutDirection: 0
       Rotate:
         m_delay: 0
         m_duration: 1
         m_ease: 1
         m_active: 0
-        m_rotate: {x: 0, y: 0, z: 0}
+        m_customFromTo: 0
+        m_rotateFrom: {x: 0, y: 0, z: 0}
+        m_rotateTo: {x: 0, y: 0, z: 0}
+        m_rotateMode: 0
       Scale:
         m_delay: 0
         m_duration: 1
         m_ease: 1
         m_active: 0
-        m_scale: {x: 1, y: 1, z: 1}
+        m_scaleFrom: {x: 0, y: 0, z: 0}
+        m_customFromTo: 0
+        m_scaleTo: {x: 0, y: 0, z: 0}
       Fade:
         m_delay: 0
         m_duration: 0.4
         m_ease: 6
         m_active: 1
-        m_fade: 0
+        m_fadeFrom: 0
+        m_customFromTo: 0
+        m_fadeTo: 0
     m_processor:
       ani: {fileID: 0}
       m_paramValue:
