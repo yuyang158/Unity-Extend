@@ -67,6 +67,7 @@ print(b.c1, b.b1)
 * CI：https://github.com/yuyang158/Unity-Extend/tree/master/Tools/Jenkins
 * Lua、配置不放在Unity工程，增加迭代速度
 * Editor使用AssetDatabase，Runtime使用AssetBundle自动切换
+* 异步加载，加载流量控制
 
 ## 网络模块
 
