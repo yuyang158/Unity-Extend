@@ -21,21 +21,27 @@ namespace Extend.Editor {
 
 		public string EmmyCoreLuaSearchPath => m_emmyCoreLuaSearchPath;
 
-		public enum ConnectionMode {
+		public enum DebugMode {
 			None,
 			ConnectIDE,
-			ListenAndWait
+			ListenAndWait,
+			CoverageMode
 		}
 
 		[SerializeField]
-		private ConnectionMode m_connectionMode;
+		private DebugMode m_debugMode;
 
-		public ConnectionMode DebugConnectionMode => m_connectionMode;
+		public DebugMode Mode => m_debugMode;
 
 		[SerializeField]
 		private int m_debugPort = 10000;
 
 		public int DebugPort => m_debugPort;
+
+		[SerializeField, ReorderList]
+		private string[] m_coverageCheckFiles;
+
+		public string[] CoverageCheckFiles => m_coverageCheckFiles;
 
 		public static LuaDebugSetting GetOrCreateSettings() {
 			var settings = AssetDatabase.LoadAssetAtPath<LuaDebugSetting>(SETTING_PATH);
@@ -72,6 +78,16 @@ namespace Extend.Editor {
 				}
 			};
 
+			LuaVM.OnVMQuiting += () => {
+				var luaVm = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
+				var settingObj = LuaDebugSetting.GetOrCreateSettings();
+				if( settingObj.Mode == LuaDebugSetting.DebugMode.CoverageMode ) {
+					var luaCovRunner = luaVm.LoadFileAtPath("luacov.runner")[0] as LuaTable;
+					var runnerShutdownFunc = luaCovRunner.GetInPath<LuaFunction>("shutdown");
+					runnerShutdownFunc.Call();
+				}
+			};
+
 			LuaVM.OnVMCreated += () => {
 				m_mvvmWatchGOs = new List<GameObject>();
 				m_mvvmWatchGUI = new ReorderableList(m_mvvmWatchGOs, typeof(GameObject)) {
@@ -80,14 +96,12 @@ namespace Extend.Editor {
 						m_mvvmWatchGOs[index] = EditorGUI.ObjectField(rect, m_mvvmWatchGOs[index],
 							typeof(GameObject), true) as GameObject;
 					},
-					onAddCallback = list => {
-						m_mvvmWatchGOs.Add(null);
-					},
+					onAddCallback = list => { m_mvvmWatchGOs.Add(null); },
 					onRemoveCallback = list => {
-						if(list.index < 0 || list.index >= m_mvvmWatchGOs.Count)
+						if( list.index < 0 || list.index >= m_mvvmWatchGOs.Count )
 							return;
 						m_mvvmWatchGOs.RemoveAt(list.index);
-					} 
+					}
 				};
 
 				m_debuggerConnected = false;
@@ -99,18 +113,18 @@ namespace Extend.Editor {
 				m_debugFunc = tbl.Get<LuaFunction>("break");
 
 				var settingObj = LuaDebugSetting.GetOrCreateSettings();
-				switch( settingObj.DebugConnectionMode ) {
-					case LuaDebugSetting.ConnectionMode.None:
+				switch( settingObj.Mode ) {
+					case LuaDebugSetting.DebugMode.None:
 						return;
-					case LuaDebugSetting.ConnectionMode.ConnectIDE:
-					case LuaDebugSetting.ConnectionMode.ListenAndWait:
+					case LuaDebugSetting.DebugMode.ConnectIDE:
+					case LuaDebugSetting.DebugMode.ListenAndWait:
 						if( string.IsNullOrEmpty(settingObj.EmmyCoreLuaSearchPath) ) {
 							Debug.LogWarning("If you want to debug lua, set the emmy_core search path.");
 							return;
 						}
 
 						initFunc.Call(settingObj.EmmyCoreLuaSearchPath);
-						if( settingObj.DebugConnectionMode == LuaDebugSetting.ConnectionMode.ListenAndWait ) {
+						if( settingObj.Mode == LuaDebugSetting.DebugMode.ListenAndWait ) {
 							listenFunc.Call(settingObj.DebugPort);
 						}
 						else {
@@ -118,6 +132,21 @@ namespace Extend.Editor {
 						}
 
 						m_debuggerConnected = true;
+						break;
+					case LuaDebugSetting.DebugMode.CoverageMode:
+						var luaCovRunner = luaVm.LoadFileAtPath("luacov.runner")[0] as LuaTable;
+						var runnerInitFunc = luaCovRunner.GetInPath<LuaFunction>("init");
+						var configuration = luaVm.NewTable();
+						configuration.SetInPath("runreport", true);
+						var includedFiles = luaVm.NewTable();
+						for( int i = 0; i < settingObj.CoverageCheckFiles.Length; i++ ) {
+							var file = settingObj.CoverageCheckFiles[i];
+							includedFiles.Set(i + 1, file);
+						}
+
+						configuration.SetInPath("include", includedFiles);
+						configuration.SetInPath("reportfile", "D:/test.stat");
+						runnerInitFunc.Call(configuration);
 						break;
 					default:
 						throw new ArgumentOutOfRangeException();
@@ -135,25 +164,29 @@ namespace Extend.Editor {
 				guiHandler = search => {
 					EditorGUI.indentLevel = 1;
 					var settings = LuaDebugSetting.GetSerializedSettings();
-					var debuggerConnectionModeProp = settings.FindProperty("m_connectionMode");
+					var debuggerConnectionModeProp = settings.FindProperty("m_debugMode");
 					EditorGUILayout.PropertyField(debuggerConnectionModeProp);
 
-					var mode = (LuaDebugSetting.ConnectionMode)debuggerConnectionModeProp.intValue;
+					var mode = (LuaDebugSetting.DebugMode)debuggerConnectionModeProp.intValue;
 					var debugPortProp = settings.FindProperty("m_debugPort");
 					switch( mode ) {
-						case LuaDebugSetting.ConnectionMode.None:
+						case LuaDebugSetting.DebugMode.None:
 							break;
-						case LuaDebugSetting.ConnectionMode.ConnectIDE:
+						case LuaDebugSetting.DebugMode.ConnectIDE:
 							EditorGUILayout.PropertyField(debugPortProp, m_connectPortText);
 							break;
-						case LuaDebugSetting.ConnectionMode.ListenAndWait:
+						case LuaDebugSetting.DebugMode.ListenAndWait:
 							EditorGUILayout.PropertyField(debugPortProp, m_listenPortText);
+							break;
+						case LuaDebugSetting.DebugMode.CoverageMode:
+							var coverageCheckFilesProp = settings.FindProperty("m_coverageCheckFiles");
+							EditorGUILayout.PropertyField(coverageCheckFilesProp);
 							break;
 						default:
 							throw new ArgumentOutOfRangeException();
 					}
 
-					if( mode != LuaDebugSetting.ConnectionMode.None ) {
+					if( mode != LuaDebugSetting.DebugMode.None ) {
 						var emmyCoreLuaSearchPathProp = settings.FindProperty("m_emmyCoreLuaSearchPath");
 						EditorGUILayout.PropertyField(emmyCoreLuaSearchPathProp);
 					}

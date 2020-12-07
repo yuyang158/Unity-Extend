@@ -49,6 +49,7 @@ namespace Extend {
 
 		public LuaClassCache LuaClassCache { get; private set; }
 		public static Action OnVMCreated;
+		public static Action OnVMQuiting;
 
 		public void Initialize() {
 			Default = new LuaEnv();
@@ -117,6 +118,7 @@ namespace Extend {
 		}
 
 		public void Destroy() {
+			OnVMQuiting?.Invoke();
 			OnDestroy.Call();
 		}
 
