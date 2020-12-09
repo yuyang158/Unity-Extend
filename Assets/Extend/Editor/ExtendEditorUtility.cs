@@ -19,6 +19,9 @@ namespace Extend.Editor {
 			Debug.LogWarning($"Rebuild all ab for platform {target}");
 			StaticAssetBundleWindow.RebuildAllAssetBundles(target, true, () => {
 				Debug.LogWarning($"Rebuild all ab for platform {target} success");
+				if( Application.isBatchMode ) {
+					EditorApplication.Exit(0);
+				}
 			});
 		}
 
