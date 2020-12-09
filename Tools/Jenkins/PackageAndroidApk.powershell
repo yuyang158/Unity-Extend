@@ -39,19 +39,35 @@ if (${env:StrictMode} -eq "true") {
 
 Write-Output $ExtraParam
 Write-Output "Copy Streaming Assets"
-Copy-Item -Path "..\Meerkat_Android_Build_Asset_Bundle\Assets\StreamingAssets" -Destination ".\Assets\" -Recurse -Force
+Copy-Item -Path "..\XXXXXXXXXXXXXX\Assets\StreamingAssets" -Destination ".\Assets\" -Recurse -Force
 Remove-Item -Path "Assets\XLua\Gen" -Recurse -Force
 
-python RedirectUnityOut.py `
-"C:/Program Files/Unity/Hub/Editor/2019.4.14f1c1/Editor/Unity.exe" `
--batchmode `
--username "xxxx@asdas.com" `
--password "xxxxxxxxxxxxx" `
--projectPath "./" `
--executeMethod Extend.Editor.ExtendEditorUtility.ExportAndroid `
--serial "XXXXXXXXXXXXXXXXXXXXXXXX" `
-$ExtraParam
+$EditorLog=".\build.log"
+$UnityExecPath="C:\Program Files\Unity\Hub\Editor\2019.4.16f1c1\Editor\Unity.exe"
+# Start the Unity process in background thread.
+Start-Process -FilePath "$UnityExecPath" -ArgumentList @"
+  -batchmode
+  -username "XXX@XX.com"
+  -password "XXXXXXXXXXXXXXXXXXX"
+  -executeMethod "Extend.Editor.ExtendEditorUtility.ExportAndroid"
+  -logFile ".\build.log"
+  -projectPath ".\"
+  $ExtraParam
+"@
 
+# Wait for Editor.log to be created.
+while (!(Test-Path "$EditorLog")) {
+  Start-Sleep -m 10
+}
+
+# Output Editor.log until Unity is done.
+Get-Content -Path "$EditorLog" -Tail 1 -Wait | Where-Object {
+  Write-Host $_
+
+  if ($_ -match "Application will terminate with return code") {
+    exit
+  }
+}
 
 cd AndroidPlayer
 .\gradlew.bat clean
