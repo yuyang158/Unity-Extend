@@ -1,1 +1,29 @@
-python RedirectUnityOut.py "C:/Program Files/Unity/Hub/Editor/2019.4.13f1c1/Editor/Unity.exe" -batchmode -username "xxx@xxx.xxx" -password "XXXXXXXXXXXXX" -projectPath ./ -executeMethod Extend.Editor.ExtendEditorUtility.RebuildAllABAndroid -serial "XXXXXXXXXXXXXXXXXXXXXX" -quit
+$EditorLog=".\build.log"
+$UnityExecPath="C:\Program Files\Unity\Hub\Editor\2019.4.16f1c1\Editor\Unity.exe"
+
+# Remove previous Editor.log.
+Remove-Item "$EditorLog" -Recurse -ErrorAction Ignore
+
+# Start the Unity process in background thread.
+Start-Process -FilePath "$UnityExecPath" -ArgumentList @"
+  -batchmode
+  -username "XXX@XX.com"
+  -password "XXXXXXXXXXXXXXXXXXX"
+  -executeMethod "Extend.Editor.ExtendEditorUtility.RebuildAllABAndroid"
+  -logFile ".\build.log"
+  -projectPath ".\"
+"@
+
+# Wait for Editor.log to be created.
+while (!(Test-Path "$EditorLog")) {
+  Start-Sleep -m 10
+}
+
+# Output Editor.log until Unity is done.
+Get-Content -Path "$EditorLog" -Tail 1 -Wait | Where-Object {
+  Write-Host $_
+
+  if ($_ -match "Application will terminate with return code") {
+    exit
+  }
+}

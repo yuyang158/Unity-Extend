@@ -300,6 +300,7 @@ namespace Extend.Asset.Editor {
 					Op = StaticABSetting.Operation.ALL_IN_ONE,
 					UnloadStrategies = new SpecialBundleLoadLogic[0]
 				};
+				Debug.Log("Finish copy lua directory");
 			}
 
 			BuildAssetRelation.BuildRelation(settings, () => {
