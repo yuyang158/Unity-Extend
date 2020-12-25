@@ -1,32 +1,60 @@
 const express = require('express');
 const app = express();
 const mysql = require('mysql');
-const DEFAULT_LANG = 'zh-s';
+const async = require('async');
 
-const connection = mysql.createConnection({
-    'host': '127.0.0.1',
-    'user': 'root',
-    'password': '123456',
-    'database': 'translate'
-});
-connection.connect();
+const connection = mysql.createPool({
+    connectionLimit : 10,
+    host: '127.0.0.1',
+    user: 'root',
+    password: '123456',
+    database: 'translate'
+})
 
 // parse application/x-www-form-urlencoded
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: false }))
 
 // parse application/json
-app.use(express.json({limit: '1000mb'}));
-app.use(express.static('public'));
+app.use(express.json({limit: '1000mb'}))
+app.use(express.static('public'))
 app.post('/', (req, res) => {
+    const sheetName = req.body.sheetName;
     try {
-        connection.query(`INSERT INTO data (\`key\`, \`zh-s\`) VALUES ? ON DUPLICATE KEY UPDATE \`${DEFAULT_LANG}\` = VALUES(\`${DEFAULT_LANG}\`);`, [req.body], (err, response) => {
-            if(err) {
-                res.json({code: 1, err: err})
-            }
-            else {
-                connection.query('SELECT * FROM data;', (err, response) => {
+        async.waterfall([
+            cb => {
+                connection.query('CREATE TABLE IF NOT EXISTS ?? (\
+                    `id` varchar(64) NOT NULL,\
+                    `cn` text,\
+                    PRIMARY KEY (`id`)\
+                  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;', [sheetName], err => cb(err))
+            },
+            cb => {
+                async.each(req.body.data, (row, cb) => {
+                    connection.query('SELECT `cn` FROM ?? WHERE `id` = ?;', [sheetName, row[0]], (err, results) => {
+                        if(err) {
+                            cb(err)
+                        }
+                        else {
+                            if(results.length == 0) {
+                                connection.query('INSERT INTO ?? (`id`, `cn`) VALUES (?, ?)', [sheetName, row[0], row[1]], cb)
+                            }
+                            else {
+                                const val = results[0]
+                                if(val.cn == row[1]) {
+                                    cb(null)
+                                }
+                                else {
+                                    connection.query('UPDATE ?? SET `cn` = ? WHERE `id` = ?', [sheetName, row[1], row[0]], cb);
+                                }
+                            }
+                        }
+                    })                  
+                }, err => cb(err))
+            },
+            cb => {
+                connection.query(`SELECT * FROM ${sheetName};`, (err, response) => {
                     if(err) {
-                        res.json({code: 1, err: err})
+                        cb(err);
                     }
                     else {
                         let ret = '';
@@ -35,14 +63,10 @@ app.post('/', (req, res) => {
                         ret += '\r\n';
                         
                         const types = [];
-                        const descriptions = [];
                         for (let index = 0; index < keys.length; index++) {
                             types.push('string');
-                            descriptions.push('')
                         }
                         ret += types.join('\t');
-                        ret += '\r\n';
-                        ret += descriptions.join('\t');
                         ret += '\r\n';
                         for (let index = 0; index < response.length; index++) {
                             const element = response[index];
@@ -50,9 +74,16 @@ app.post('/', (req, res) => {
                             ret += values.join('\t');
                             ret += '\r\n'
                         }
-                        res.json({code: 0, ret: ret})
+                        cb(null, ret);
                     }
                 })
+            }
+        ], (err, ret) => {
+            if(err) {
+                res.json({code: 1, err: err})
+            }
+            else {
+                res.json({code: 0, tsv: ret})
             }
         })
     } 
