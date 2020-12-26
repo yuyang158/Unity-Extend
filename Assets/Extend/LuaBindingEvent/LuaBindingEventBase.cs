@@ -1,12 +1,26 @@
 using System;
 using System.Collections.Generic;
+using Extend.Common;
 using Extend.LuaUtil;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using XLua;
 
 namespace Extend.LuaBindingEvent {
+	[LuaCallCSharp]
 	public abstract class LuaBindingEventBase : MonoBehaviour {
-		protected static void TriggerPointerEvent(IEnumerable<BindingEvent> events, PointerEventData data) {
+		private static BindingEventDispatch m_dispatch;
+		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSplashScreen)]
+		private static void OnLoad() {
+			LuaVM.OnPreRequestLoaded += () => {
+				var luaVm = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
+				var getLuaService = luaVm.Global.GetInPath<GetLuaService>("_ServiceManager.GetService");
+				var eventBindingService = getLuaService(8);
+				m_dispatch = eventBindingService.GetInPath<BindingEventDispatch>("Dispatch");
+			};
+		}
+		
+		protected void TriggerPointerEvent(string eventName,  IEnumerable<BindingEvent> events, PointerEventData data) {
 			foreach( var evt in events ) {
 				var emmyFunction = evt.Function;
 				switch( evt.Param.Type ) {
@@ -34,6 +48,37 @@ namespace Extend.LuaBindingEvent {
 						throw new ArgumentOutOfRangeException();
 				}
 			}
+
+			if( m_luaEvents == null || !m_luaEvents.TryGetValue(eventName, out var eventIds) ) {
+				return;
+			}
+
+			foreach( var id in eventIds ) {
+				m_dispatch(id);
+			}
+		}
+
+		private Dictionary<string, List<int>> m_luaEvents;
+		public void AddEventListener(string eventName, int id) {
+			if( m_luaEvents == null ) {
+				m_luaEvents = new Dictionary<string, List<int>>();
+			}
+
+			if( !m_luaEvents.TryGetValue(eventName, out var ids) ) {
+				ids = new List<int> {id};
+				m_luaEvents.Add(eventName, ids);
+			}
+			else {
+				ids.Add(id);
+			}
+		}
+
+		public void RemoveEventListener(string eventName, int id) {
+			if( m_luaEvents == null || !m_luaEvents.TryGetValue(eventName, out var eventIds) ) {
+				return;
+			}
+
+			eventIds.Remove(id);
 		}
 	}
 }

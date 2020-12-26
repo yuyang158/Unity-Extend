@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Extend.Common;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -5,10 +6,10 @@ using UnityEngine.EventSystems;
 namespace Extend.LuaBindingEvent {
 	public class LuaBindingClickEvent : LuaBindingEventBase, IPointerClickHandler {
 		[ReorderList, LabelText("On Click ()"), SerializeField]
-		private BindingEvent[] m_clickEvent;
+		private List<BindingEvent> m_clickEvent;
 		
 		public void OnPointerClick(PointerEventData eventData) {
-			TriggerPointerEvent(m_clickEvent, eventData);
+			TriggerPointerEvent("OnClick", m_clickEvent, eventData);
 		}
 	}
 }

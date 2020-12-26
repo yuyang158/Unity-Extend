@@ -1,6 +1,8 @@
-﻿using Extend.Common;
+﻿using System.Collections.Generic;
+using Extend.Common;
 using Extend.LuaBindingEvent;
 using Extend.UI.Scroll;
+using JetBrains.Annotations;
 using UnityEngine;
 using XLua;
 
@@ -24,13 +26,14 @@ namespace Extend.LuaMVVM {
 			}
 		}
 		[ReorderList, LabelText("On Scroll End ()"), SerializeField]
-		private BindingEvent[] m_onScrollEndEvent;
+		[ItemCanBeNull]
+		private List<BindingEvent> m_onScrollEndEvent;
 
 		public void ProvideData(Transform t, int index) {
 			var binding = t.GetComponent<LuaMVVMBinding>();
 			binding.SetDataContext(m_arrayData.Get<int, LuaTable>(index + 1));
 			if( m_scroll.totalCount - 1 == index ) {
-				TriggerPointerEvent(m_onScrollEndEvent, null);
+				TriggerPointerEvent("OnScrollToEnd", m_onScrollEndEvent, null);
 			}
 		}
 	}

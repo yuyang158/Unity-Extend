@@ -49,6 +49,7 @@ namespace Extend {
 
 		public LuaClassCache LuaClassCache { get; private set; }
 		public static Action OnVMCreated;
+		public static Action OnPreRequestLoaded;
 		public static Action OnVMQuiting;
 
 		public void Initialize() {
@@ -93,6 +94,7 @@ namespace Extend {
 			if( reportLeakMark )
 				leakData = Default.StartMemoryLeakCheck();
 #endif
+			OnPreRequestLoaded?.Invoke();
 		}
 
 		public void StartUp() {

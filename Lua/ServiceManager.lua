@@ -8,7 +8,8 @@ M.SERVICE_TYPE = {
     UI = 4,
     GLOBAL_VM = 5,
     MOCK = 6,
-    GLOBAL_EVENT = 7
+    GLOBAL_EVENT = 7,
+    EVENT_BINDING = 8
 }
 
 function M.GetService(typ)

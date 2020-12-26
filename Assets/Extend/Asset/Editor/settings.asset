@@ -18,11 +18,6 @@ MonoBehaviour:
     UnloadStrategies:
     - BundleName: assets/resources/config
       UnloadStrategy: 0
-  - FolderPath: {fileID: 102900000, guid: bd1e6529a8190364c952f3b0f8c6f7ca, type: 3}
-    Op: 0
-    UnloadStrategies:
-    - BundleName: assets/resources/lua
-      UnloadStrategy: 1
   - FolderPath: {fileID: 102900000, guid: 2f26b1c14ce71734f900a3a777780238, type: 3}
     Op: 3
     UnloadStrategies:
