@@ -275,7 +275,7 @@ namespace Extend.Asset.Editor {
 		}
 
 		private static BuildTarget m_currentBuildTarget;
-		public static void RebuildAllAssetBundles(BuildTarget target, bool appendLuaDir, Action finishCallback = null) {
+		public static void RebuildAllAssetBundles(BuildTarget target, bool appendLuaDir, Action<bool> finishCallback = null) {
 			m_currentBuildTarget = target;
 			InitializeSetting();
 			BuildAssetRelation.Clear();
@@ -303,21 +303,24 @@ namespace Extend.Asset.Editor {
 				Debug.Log("Finish copy lua directory");
 			}
 
-			BuildAssetRelation.BuildRelation(settings, () => {
-				Directory.Delete($"{Application.dataPath}/Resources/Lua", true);
-				Debug.Log($"Start AB Build Output : {OutputPath}");
-				BuildPipeline.BuildAssetBundles(OutputPath, BuildAssetBundleOptions.DeterministicAssetBundle
-				                                            | BuildAssetBundleOptions.ChunkBasedCompression, target);
-				var manifestFiles = Directory.GetFiles(OutputPath, "*.manifest", SearchOption.AllDirectories);
-				foreach( var manifestFile in manifestFiles ) {
-					File.Delete(manifestFile);
-				}
-				finishCallback?.Invoke();
-
-				if( Application.isBatchMode ) {
-					EditorApplication.Exit(0);
-				}
-			});
+			try {
+				BuildAssetRelation.BuildRelation(settings, () => {
+					Directory.Delete($"{Application.dataPath}/Resources/Lua", true);
+					Debug.Log($"Start AB Build Output : {OutputPath}");
+					BuildPipeline.BuildAssetBundles(OutputPath, BuildAssetBundleOptions.DeterministicAssetBundle
+					                                            | BuildAssetBundleOptions.ChunkBasedCompression, target);
+					var manifestFiles = Directory.GetFiles(OutputPath, "*.manifest", SearchOption.AllDirectories);
+					foreach( var manifestFile in manifestFiles ) {
+						File.Delete(manifestFile);
+					}
+					finishCallback?.Invoke(true);
+				});
+			}
+			catch( Exception e ) {
+				Debug.LogException(e);
+				finishCallback?.Invoke(false);
+			}
+			
 		}
 	}
 }

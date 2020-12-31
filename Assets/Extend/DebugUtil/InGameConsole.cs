@@ -190,21 +190,19 @@ namespace Extend.DebugUtil {
 			Log log;
 			if( m_queuedLogs.Count > maxLogCount ) {
 				log = m_queuedLogs.Dequeue();
-				log.text.text = message;
 				log.text.color = logTypeColors[type];
 				log.text.transform.SetAsLastSibling();
 			}
 			else {
 				var text = Instantiate(m_txtLogTemplate, m_logContentRoot, false);
 				text.gameObject.SetActive(true);
-				text.text = message;
 				text.color = logTypeColors[type];
 				log = new Log() {
 					text = text,
 					type = type
 				};
 			}
-
+			log.text.text = $"{message}\n{stacktrace}";
 			m_queuedLogs.Enqueue(log);
 
 			if( m_showConsoleWhenError && ( type == LogType.Assert || type == LogType.Error || type == LogType.Exception ) ) {
@@ -262,7 +260,7 @@ namespace Extend.DebugUtil {
 
 			if( Input.GetKeyDown(KeyCode.Tab) ) {
 				if( m_matches.Count > 0 ) {
-					m_cmdInput.text = m_matches[0].Command.CommandName;
+					m_cmdInput.text = m_matches.First().Command.CommandName;
 				}
 			}
 
@@ -309,7 +307,15 @@ namespace Extend.DebugUtil {
 			luaCommands.Clear();
 			var luaVm = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
 			var getServiceFunc = luaVm.Global.GetInPath<GetLuaService>("_ServiceManager.GetService");
+			if( getServiceFunc == null ) {
+				Debug.LogError("Get service return null");
+				return;
+			}
 			var commands = getServiceFunc(3);
+			if( commands == null ) {
+				Debug.LogError("Get commands return null");
+				return;
+			}
 			commands.ForEach((string cmdName, LuaCommandDelegate cmd) => {
 				luaCommands.Add(new LuaCommand() {
 					CommandName = cmdName,

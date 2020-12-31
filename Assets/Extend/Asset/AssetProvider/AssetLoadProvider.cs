@@ -12,6 +12,10 @@ namespace Extend.Asset.AssetProvider {
 
 		public abstract AssetReference Provide(string path, AssetContainer container, Type typ);
 
+		public abstract void ProvideSceneAsync(AssetAsyncLoadHandle loadHandle);
+
+		public abstract void ProvideScene(string path, AssetContainer container);
+
 		internal abstract AssetInstance ProvideAssetWithGUID<T>(string guid, AssetContainer container, out string path);
 		internal abstract string ConvertGUID2Path(string guid);
 	}

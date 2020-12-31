@@ -3,6 +3,7 @@ using System.Collections;
 using System.Globalization;
 using Extend.Common;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
 
 namespace Extend.Asset.AssetProvider {
@@ -12,7 +13,7 @@ namespace Extend.Asset.AssetProvider {
 		private static IEnumerator SimulateDelayLoad(AssetAsyncLoadHandle loadHandle, Type typ) {
 			yield return DEBUG_WAIT;
 			Object unityObject;
-			if( loadHandle.Location.StartsWith("assets", true, CultureInfo.CurrentCulture) ) {
+			if( loadHandle.Location.StartsWith("assets", true, CultureInfo.InvariantCulture) ) {
 #if UNITY_EDITOR
 				unityObject = UnityEditor.AssetDatabase.LoadAssetAtPath(loadHandle.Location, typ);
 #else
@@ -24,6 +25,18 @@ namespace Extend.Asset.AssetProvider {
 			}
 
 			loadHandle.Asset.SetAsset(unityObject, null);
+		}
+
+		private static IEnumerator SimulateDelayLoadScene(AssetAsyncLoadHandle loadHandle)
+		{
+			yield return DEBUG_WAIT;
+#if UNITY_EDITOR
+			AsyncOperation asyncOperation = SceneManager.LoadSceneAsync(loadHandle.Location);
+			while (!asyncOperation.isDone)
+			{
+				yield return null;
+			}
+#endif
 		}
 
 		public override void Initialize() {
@@ -40,6 +53,17 @@ namespace Extend.Asset.AssetProvider {
 			return new AssetReference(asset);
 		}
 
+		public override void ProvideSceneAsync(AssetAsyncLoadHandle loadHandle)
+		{
+			var service = CSharpServiceManager.Get<GlobalCoroutineRunnerService>(CSharpServiceManager.ServiceType.COROUTINE_SERVICE);
+			service.StartCoroutine(SimulateDelayLoadScene(loadHandle));
+		}
+
+		public override void ProvideScene(string path, AssetContainer container)
+		{
+			SceneManager.LoadScene(path);
+		}
+		
 		private static AssetInstance ProvideAsset(string path, AssetContainer container, Type typ) {
 			var hash = AssetInstance.GenerateHash(path);
 			if( container.TryGetAsset(hash) is AssetInstance asset && asset.IsFinished ) {
@@ -48,7 +72,7 @@ namespace Extend.Asset.AssetProvider {
 
 			asset = typ == typeof(GameObject) ? new PrefabAssetInstance(path) : new AssetInstance(path);
 			Object unityObject;
-			if( path.StartsWith("assets", true, CultureInfo.CurrentCulture) ) {
+			if( path.StartsWith("assets", true, CultureInfo.InvariantCulture) ) {
 #if UNITY_EDITOR
 				unityObject = UnityEditor.AssetDatabase.LoadAssetAtPath(path, typ);
 #else

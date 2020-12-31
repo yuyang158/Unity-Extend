@@ -40,6 +40,9 @@ namespace Extend.Network.SocketClient {
 
 		private const float CONNECTING_TIMEOUT_DURATION = 2;
 		private const int TOTAL_RETRY_TIME = 5;
+		private const int PbLenOffsetA = 1 << 23;
+		private const int PbLenOffsetB = 1 << 15;
+		private const int PbLenOffsetC = 1 << 7;
 
 		public Status TcpStatus {
 			get => m_tcpStatus;
@@ -67,6 +70,9 @@ namespace Extend.Network.SocketClient {
 			}
 		}
 
+		public EncryptHandler encryptHandler;
+		private byte[] m_cyphertextBuffer = new byte[65536];
+		private int m_cyphertextOffset;
 		public AutoReconnectTcpClient(LuaTable luaCallback) {
 			m_client = new TcpClient(AddressFamily.InterNetwork) {
 				NoDelay = true
@@ -76,7 +82,8 @@ namespace Extend.Network.SocketClient {
 			m_statusChangedCallback = m_callback.Get<OnSocketStatusChanged>("OnStatusChanged");
 			m_receivePackageCallback = m_callback.Get<OnRecvData>("OnRecvPackage");
 			updateCallback = m_callback.Get<LuaUpdate>("OnUpdate");
-
+			encryptHandler = new EncryptNoneHandler();
+			
 			var service = CSharpServiceManager.Get<NetworkService>(CSharpServiceManager.ServiceType.NETWORK_SERVICE);
 			service.RegisterTcpClient(this);
 		}
@@ -90,6 +97,7 @@ namespace Extend.Network.SocketClient {
 
 		public async void Send(byte[] buffer) {
 			try {
+				encryptHandler.Encrypt(ref buffer);
 				StatService.Get().Increase(StatService.StatName.TCP_SENT, buffer.Length);
 				await m_client.GetStream().WriteAsync(buffer, 0, buffer.Length);
 				await m_client.GetStream().FlushAsync();
@@ -124,28 +132,36 @@ namespace Extend.Network.SocketClient {
 			var stream = m_client.GetStream();
 			while( m_client.Connected && Application.isPlaying ) {
 				if( stream.CanRead ) {
-					int recvCount;
+					int recvCyphertextCount;
+					int recvPlaintextCount;
 					try {
-						recvCount = await stream.ReadAsync(m_receiveBuffer, m_receiveOffset, m_receiveBuffer.Length - m_receiveOffset);
+						recvCyphertextCount = await stream.ReadAsync(m_cyphertextBuffer, 0, m_cyphertextBuffer.Length);
 					}
 					catch( Exception ) {
 						TcpStatus = Status.DISCONNECTED;
 						return;
 					}
-					m_receiveOffset += recvCount;
-					StatService.Get().Increase(StatService.StatName.TCP_RECEIVED, recvCount);
+					// 解密部分
+					byte[] tempCache = new byte[recvCyphertextCount];
+                    Array.Copy(m_cyphertextBuffer, tempCache, recvCyphertextCount);
+                    encryptHandler.Decrypt(ref tempCache);
+                    // 解密部分拷贝至明文buffer
+                    recvPlaintextCount = tempCache.Length;
+					Array.Copy(tempCache, 0, m_receiveBuffer, m_receiveOffset, recvPlaintextCount);
+					m_receiveOffset += recvPlaintextCount;
+					StatService.Get().Increase(StatService.StatName.TCP_RECEIVED, recvPlaintextCount);
 
 					var readOffset = 0;
 					while( true ) {
-						var packageSize = m_receiveBuffer[readOffset] * 256 + m_receiveBuffer[readOffset + 1];
-						if( packageSize + 2 > m_receiveOffset - readOffset ) {
+						var packageSize = m_receiveBuffer[readOffset] * PbLenOffsetA + m_receiveBuffer[readOffset + 1] * PbLenOffsetB + m_receiveBuffer[readOffset + 2] * PbLenOffsetC + m_receiveBuffer[readOffset + 3];
+						if( packageSize + 4 > m_receiveOffset - readOffset ) {
 							break;
 						}
 
 						var packageBuffer = new byte[packageSize];
-						Array.Copy(m_receiveBuffer, readOffset + 2, packageBuffer, 0, packageSize);
+						Array.Copy(m_receiveBuffer, readOffset + 4, packageBuffer, 0, packageSize);
 						m_receivePackageCallback(m_callback, packageBuffer);
-						readOffset += packageSize + 2;
+						readOffset += packageSize + 4;
 					}
 					if( readOffset > 0 && m_receiveOffset - readOffset >= 0 ) {
 						for( var i = readOffset; i < m_receiveOffset; i++ ) {

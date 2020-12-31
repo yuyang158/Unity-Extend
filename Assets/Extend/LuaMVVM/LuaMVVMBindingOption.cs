@@ -50,7 +50,6 @@ namespace Extend.LuaMVVM {
 			Assert.IsNotNull(m_propertyInfo, BindTargetProp);
 			watchCallback = SetPropertyValue;
 		}
-
 		public void Destroy() {
 			TryDetach();
 		}

@@ -1,63 +1,51 @@
 using System;
-using System.Collections.Generic;
+using Extend.Switcher.Action;
 using UnityEngine;
 using XLua;
 
 namespace Extend.Switcher {
 	[LuaCallCSharp]
 	public class StateSwitcher : MonoBehaviour {
-		[Serializable]
+		[Serializable, BlackList]
 		public class State {
 			public string StateName;
-			public GOActiveSwitcher[] GOActiveSwitchers;
-			public AnimatorSwitcher[] AnimatorSwitchers;
 
-			private List<ISwitcher> m_switchers;
-
-			public void Init() {
-				m_switchers = new List<ISwitcher>(GOActiveSwitchers.Length);
-				m_switchers.AddRange(GOActiveSwitchers);
-				m_switchers.AddRange(AnimatorSwitchers);
-			}
+			[SerializeReference]
+			public ISwitcherAction[] SwitcherActions;
 
 			public void Switch() {
-				foreach( var s in m_switchers ) {
+				foreach( var s in SwitcherActions ) {
 					s.ActiveSwitcher();
 				}
 			}
 		}
 
+		[BlackList]
 		public State[] States;
-		private string currentState;
+		private string m_currentState;
 
 		public string CurrentState {
-			get => currentState;
+			get => m_currentState;
 			set {
-				if(currentState == value)
+				if( m_currentState == value )
 					return;
-				currentState = value;
-				Switch(currentState);
-			}
-		}
-
-		private void Awake() {
-			foreach( var state in States ) {
-				state.Init();
+				m_currentState = value;
+				Switch(m_currentState);
 			}
 		}
 
 		public void Switch(string stateName) {
-			if(currentState == stateName)
+			if( m_currentState == stateName )
 				return;
-			
+
 			var result = Array.Find(States, state => state.StateName == stateName);
 			if( result == null ) {
 				Debug.LogError($"Can not find state {stateName}");
 				return;
 			}
-			
+
 			result.Switch();
-			currentState = stateName;
+			m_currentState = stateName;
 		}
 	}
 }

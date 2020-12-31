@@ -1,11 +1,12 @@
 ﻿using Extend.Common;
+using Extend.UI.Attributes;
 using TMPro;
 using UnityEngine;
 
 namespace Extend.UI.i18n {
 	[RequireComponent(typeof(TextMeshProUGUI))]
 	public class StaticI18nText : MonoBehaviour {
-		[SerializeField]
+		[SerializeField, StaticI18nKey]
 		private string m_key;
 		
 		private void Awake() {

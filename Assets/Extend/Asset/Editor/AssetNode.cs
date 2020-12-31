@@ -28,7 +28,13 @@ namespace Extend.Asset.Editor {
 			private set {
 				Assert.IsFalse(Calculated);
 				Calculated = true;
-				var abName = value.ToLower() + AB_EXTENSION;
+				string abName;
+				if( value.EndsWith(AB_EXTENSION) ) {
+					abName = value.ToLower();
+				}
+				else {
+					abName = value.ToLower() + AB_EXTENSION;
+				}
 				m_assetBundleName = abName;
 				if( importer.assetBundleName == abName )
 					return;
@@ -44,7 +50,7 @@ namespace Extend.Asset.Editor {
 		public bool Calculated { private get; set; }
 
 		public AssetNode(string path, string abName = "") {
-			Assert.IsTrue(path.StartsWith("assets", true, CultureInfo.CurrentCulture));
+			Assert.IsTrue(path.StartsWith("assets", true, CultureInfo.InvariantCulture));
 			importer = AssetImporter.GetAtPath(path);
 			AssetCustomProcesses.Process(importer);
 			if( !string.IsNullOrEmpty(abName) ) {

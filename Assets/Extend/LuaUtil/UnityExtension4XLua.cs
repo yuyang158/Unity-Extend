@@ -41,6 +41,28 @@ namespace Extend.LuaUtil {
 			return FindInComponents(classMeta, bindings);
 		}
 
+		public static void SetPosition(this GameObject go, float x, float y, float z) {
+			go.transform.position = new Vector3(x, y, z);
+		}
+
+		public static void GetPosition(this GameObject go, out float x, out float y, out float z) {
+			var position = go.transform.position;
+			x = position.x;
+			y = position.y;
+			z = position.z;
+		}
+
+		public static void SetPosition(this Component component, float x, float y, float z) {
+			component.transform.position = new Vector3(x, y, z);
+		}
+
+		public static void GetPosition(this Component componenet, out float x, out float y, out float z) {
+			var position = componenet.transform.position;
+			x = position.x;
+			y = position.y;
+			z = position.z;
+		}
+		
 		private static LuaTable FindInComponents(LuaTable classMeta, LuaBinding[] bindings) {
 			var luaVm = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
 			var t = luaVm.NewTable();

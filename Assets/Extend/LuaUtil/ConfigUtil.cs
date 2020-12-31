@@ -24,10 +24,11 @@ namespace Extend.LuaUtil {
 			var service = CSharpServiceManager.Get<AssetService>(CSharpServiceManager.ServiceType.ASSET_SERVICE);
 			var assetRef = service.Load( CONFIG_PATH_PREFIX + filename, typeof(TextAsset) );
 			var asset = assetRef.GetTextAsset();
+			if( asset == null )
+				return null;
 			using( var reader = new StringReader( asset.text ) ) {
 				var keys = reader.ReadLine();
 				var types = reader.ReadLine();
-				reader.ReadLine();
 
 				var luaVM = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
 				var LuaTable = luaVM.NewTable();

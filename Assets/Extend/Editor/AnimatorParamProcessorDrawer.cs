@@ -16,7 +16,7 @@ namespace Extend.Editor {
 			if( !animator ) {
 				return UIEditorUtil.LINE_HEIGHT;
 			}
-			var valueProp = property.FindPropertyRelative("paramValue");
+			var valueProp = property.FindPropertyRelative("m_paramValue");
 			var nameHashProp = valueProp.FindPropertyRelative("NameHash");
 			foreach( var param in animator.parameters ) {
 				if( param.nameHash == nameHashProp.intValue ) {
@@ -45,7 +45,7 @@ namespace Extend.Editor {
 			var animator = animatorProp.objectReferenceValue as Animator;
 			if( animator ) {
 				var paramNames = animator.parameters.Select(param => param.name).ToArray();
-				var valueProp = property.FindPropertyRelative("paramValue");
+				var valueProp = property.FindPropertyRelative("m_paramValue");
 				var nameHashProp = valueProp.FindPropertyRelative("NameHash");
 				var index = Array.FindIndex(paramNames, paramName => Animator.StringToHash(paramName) == nameHashProp.intValue);
 				index = EditorGUI.Popup(position, "Parameter", index, paramNames);

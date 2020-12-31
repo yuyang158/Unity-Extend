@@ -70,6 +70,7 @@ namespace Extend {
 				filename = filename.Replace('.', '/');
 				var hotfix = $"{LUA_DEBUG_DIRECTORY}{filename}.lua";
 				if( File.Exists(hotfix) ) {
+					Debug.LogWarning("HOTFIX FILE : " + hotfix);
 					filename += ".lua";
 					return Encoding.UTF8.GetBytes(File.ReadAllText(hotfix));
 				}
@@ -115,7 +116,7 @@ namespace Extend {
 
 		public void LogCallStack() {
 			var msg = Default.Global.GetInPath<Func<string>>("debug.traceback");
-			var str = "lua stack : " + msg;
+			var str = "lua stack : " + msg.Invoke();
 			Debug.Log(str);
 		}
 

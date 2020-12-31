@@ -7,6 +7,7 @@ using System.Linq;
 using Extend.Asset.Editor.Process;
 using Unity.EditorCoroutines.Editor;
 using UnityEditor;
+using UnityEngine;
 
 namespace Extend.Asset.Editor {
 	public static class BuildAssetRelation {
@@ -25,7 +26,7 @@ namespace Extend.Asset.Editor {
 			if( Array.IndexOf(IgnoreExtensions, extension) >= 0 )
 				return null;
 
-			if( !filePath.StartsWith("assets", true, CultureInfo.CurrentCulture) )
+			if( !filePath.StartsWith("assets", true, CultureInfo.InvariantCulture) )
 				return null;
 
 			var guid = AssetDatabase.AssetPathToGUID(filePath);
@@ -43,6 +44,7 @@ namespace Extend.Asset.Editor {
 		}
 
 		public static IEnumerable<AssetNode> ResourcesNodes => resourcesNodes.Values;
+
 		public static void Clear() {
 			resourcesNodes.Clear();
 			allAssetNodes.Clear();
@@ -85,7 +87,11 @@ namespace Extend.Asset.Editor {
 					var node = new AssetNode(importer.assetPath, abName);
 					var s = Array.Find(setting.UnloadStrategies, (strategy) => strategy.BundleName == abName);
 					AddNewAssetNode(node);
-					s_specialAB.Add(node.AssetName, s?.UnloadStrategy ?? BundleUnloadStrategy.Normal);
+					// 同名资源处理
+					if( !s_specialAB.ContainsKey(node.AssetName) ) {
+						s_specialAB.Add(node.AssetName, s?.UnloadStrategy ?? BundleUnloadStrategy.Normal);
+					}
+
 					if( Path.GetExtension(node.AssetPath) == ".spriteatlas" ) {
 						var dependencies = AssetDatabase.GetDependencies(node.AssetPath);
 						foreach( var dependency in dependencies ) {
@@ -102,6 +108,15 @@ namespace Extend.Asset.Editor {
 			}
 
 			var files = Directory.GetFiles("Assets/Resources", "*", SearchOption.AllDirectories);
+
+			foreach( var setting in abSetting.Settings ) {
+				string folderPath = AssetDatabase.GetAssetPath(setting.FolderPath);
+				if( !folderPath.StartsWith("Assets/Resources") ) {
+					var temp = Directory.GetFiles(folderPath, "*", SearchOption.AllDirectories);
+					files = files.Concat(temp).ToArray();
+				}
+			}
+
 			var otherFiles = new string[abSetting.ExtraDependencyAssets.Length];
 			for( var i = 0; i < abSetting.ExtraDependencyAssets.Length; i++ ) {
 				var asset = abSetting.ExtraDependencyAssets[i];
@@ -111,12 +126,12 @@ namespace Extend.Asset.Editor {
 
 			files = files.Concat(otherFiles).ToArray();
 			EditorUtility.DisplayProgressBar("Process resources asset", "", 0);
-			EditorCoroutineUtility.StartCoroutineOwnerless(RelationProcess(files, completeCallback));
+			RelationProcess(files, completeCallback);
 		}
 
 		private static void AddNewAssetNode(AssetNode node) {
 			var guid = AssetDatabase.AssetPathToGUID(node.AssetPath);
-			if( node.AssetPath.StartsWith("assets/resources", true, CultureInfo.CurrentCulture) ) {
+			if( node.AssetPath.StartsWith("assets/resources", true, CultureInfo.InvariantCulture) ) {
 				resourcesNodes.Add(guid, node);
 			}
 
@@ -146,7 +161,7 @@ namespace Extend.Asset.Editor {
 			}
 		}
 
-		private static IEnumerator RelationProcess(ICollection<string> files, Action completeCallback) {
+		private static void RelationProcess(ICollection<string> files, Action completeCallback) {
 			var progress = 0;
 			foreach( var filePath in files ) {
 				var extension = Path.GetExtension(filePath);
@@ -156,12 +171,12 @@ namespace Extend.Asset.Editor {
 
 				var formatPath = FormatPath(filePath);
 				var node = new AssetNode(formatPath);
-				if( s_specialAB.ContainsKey(node.AssetName) ) {
+				if( s_specialAB.ContainsKey(node.AssetName) && s_specialAB[node.AssetName] == BundleUnloadStrategy.Normal ) {
 					continue;
 				}
 
 				var guid = AssetDatabase.AssetPathToGUID(formatPath);
-				if( !allAssetNodes.ContainsKey(guid) ) {
+				if( !allAssetNodes.TryGetValue(guid, out var assetNode) ) {
 					if( string.IsNullOrEmpty(guid) ) {
 						continue;
 					}
@@ -173,12 +188,13 @@ namespace Extend.Asset.Editor {
 					allAssetNodes.Add(guid, node);
 				}
 				else {
-					resourcesNodes.Add(guid, allAssetNodes[guid]);
+					if( !resourcesNodes.ContainsKey(guid) ) {
+						resourcesNodes.Add(guid, assetNode);
+					}
 				}
 
 				if( progress % 5 == 0 ) {
 					EditorUtility.DisplayProgressBar("Process resources asset", $"{progress} / {files.Count}", progress / (float)files.Count);
-					yield return null;
 				}
 			}
 
@@ -190,7 +206,6 @@ namespace Extend.Asset.Editor {
 				if( progress % 10 == 0 ) {
 					EditorUtility.DisplayProgressBar("Calculate resources relations", $"{progress} / {resourcesNodes.Count}",
 						progress / (float)resourcesNodes.Count);
-					yield return null;
 				}
 			}
 
@@ -200,7 +215,6 @@ namespace Extend.Asset.Editor {
 				node.Value.RemoveShorterLink();
 				if( progress % 10 == 0 ) {
 					EditorUtility.DisplayProgressBar("Remove shorter link", $"{progress} / {allAssetNodes.Count}", progress / (float)allAssetNodes.Count);
-					yield return null;
 				}
 			}
 
@@ -211,7 +225,6 @@ namespace Extend.Asset.Editor {
 				node.Value.CalculateABName();
 				progress++;
 				EditorUtility.DisplayProgressBar("Assign bundle name", $"{progress} / {allAssetNodes.Count}", progress / (float)allAssetNodes.Count);
-				yield return null;
 			}
 
 			//Debug.Log( sb.ToString() );

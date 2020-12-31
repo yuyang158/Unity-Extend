@@ -4,6 +4,7 @@ using System.IO;
 using Extend.Asset.AssetOperator;
 using UnityEngine;
 using UnityEngine.Assertions;
+using UnityEngine.SceneManagement;
 
 #if UNITY_ANDROID
 using System.Threading;
@@ -37,7 +38,7 @@ namespace Extend.Asset.AssetProvider {
 #elif UNITY_ANDROID
 			const string platform = "Android";
 #else
-			const string platform = "StandaloneWindows";
+			const string platform = "StandaloneWindows64";
 #endif
 			STREAMING_ASSET_PATH = Path.Combine(Application.streamingAssetsPath, "ABBuild", platform);
 			PERSISTENT_DATA_PATH = Path.Combine(Application.persistentDataPath, "ABBuild", platform);
@@ -84,7 +85,13 @@ namespace Extend.Asset.AssetProvider {
 					if( segments.Length == 4 ) {
 						AssetService.Get().Container.AddAssetBundleStrategy(assetAB, (BundleUnloadStrategy)( int.Parse(segments[3]) ));
 					}
-					m_asset2ABMap.Add(fullPath, abContext);
+
+					if( m_asset2ABMap.TryGetValue(fullPath, out _) ) {
+						Debug.LogError($"File name duplicate {fullPath}");
+					}
+					else {
+						m_asset2ABMap.Add(fullPath, abContext);
+					}
 					m_guid2AssetPath.Add(assetGUID, fullPath);
 					line = reader.ReadLine();
 				}
@@ -142,6 +149,85 @@ namespace Extend.Asset.AssetProvider {
 		public override AssetReference Provide(string path, AssetContainer container, Type typ) {
 			var asset = ProvideAsset(path, container, typ);
 			return new AssetReference(asset);
+		}
+
+		public override void ProvideSceneAsync(AssetAsyncLoadHandle loadHandle)
+		{
+			if( !TryGetABContext(loadHandle.Location, out var abPathContext) ) {
+				loadHandle.Asset.Status = AssetRefObject.AssetStatus.FAIL;
+				loadHandle.Complete();
+				return;
+			}
+
+			var operators = new List<AssetOperatorBase>(4);
+			var mainABHash = AssetBundleInstance.GenerateHash(abPathContext.ABName);
+			var mainABInstance = loadHandle.Container.TryGetAsset(mainABHash);
+			if( mainABInstance == null ) {
+				mainABInstance = new AssetBundleInstance(abPathContext.ABName);
+				loadHandle.Container.PutAB((AssetBundleInstance)mainABInstance);
+				var allDependencies = m_manifest.GetAllDependencies(abPathContext.ABName);
+				if( allDependencies.Length > 0 ) {
+					foreach( var dependency in allDependencies ) {
+						var depHash = AssetBundleInstance.GenerateHash(dependency);
+						var depAsset = loadHandle.Container.TryGetAsset(depHash);
+						if( depAsset == null ) {
+							loadHandle.Container.PutAB(new AssetBundleInstance(dependency));
+						}
+					}
+
+					operators.Add(new AsyncABArrayOperator(allDependencies));
+				}
+			}
+
+			if( !mainABInstance.IsFinished ) {
+				operators.Add(new AsyncABArrayOperator(new[] {abPathContext.ABName}));
+			}
+
+			//operators.Add(new AsyncABAssetOperator(mainABHash, loadHandle.Asset));
+			operators.Add(new AsyncABSceneOperator(mainABHash));
+			var op = new AssetOperators {
+				Operators = operators.ToArray()
+			};
+			loadHandle.Location = abPathContext.Path;
+			op.Execute(loadHandle, null);		
+		}
+
+		public override void ProvideScene(string path, AssetContainer container)
+		{
+			if( !TryGetABContext(path, out var abPathContext) ) {
+				return;
+			}
+
+			var mainABHash = AssetBundleInstance.GenerateHash(abPathContext.ABName);
+			if( !( container.TryGetAsset(mainABHash) is AssetBundleInstance mainABInstance ) ) {
+				mainABInstance = new AssetBundleInstance(abPathContext.ABName);
+				container.PutAB(mainABInstance);
+				var needLoadPaths = new List<AssetBundleInstance>();
+				var allDependencies = m_manifest.GetAllDependencies(abPathContext.ABName);
+				foreach( var dependency in allDependencies ) {
+					var depHash = AssetBundleInstance.GenerateHash(dependency);
+					if( !( container.TryGetAsset(depHash) is AssetBundleInstance depAsset ) ) {
+						depAsset = new AssetBundleInstance(dependency);
+						container.PutAB(depAsset);
+					}
+
+					if( depAsset.IsFinished )
+						continue;
+
+					needLoadPaths.Add(depAsset);
+				}
+
+				foreach( var dependency in needLoadPaths ) {
+					var ab = AssetBundle.LoadFromFile(DetermineLocation(dependency.ABPath));
+					dependency.SetAssetBundle(ab, GetDirectDependencies(dependency.ABPath));
+				}
+			}
+
+			if( !mainABInstance.IsFinished ) {
+				var ab = AssetBundle.LoadFromFile(DetermineLocation(mainABInstance.ABPath));
+				string[] scenePaths = ab.GetAllScenePaths();
+				SceneManager.LoadScene(scenePaths[0]);
+			}
 		}
 
 		private AssetInstance ProvideAsset(string path, AssetContainer container, Type typ) {

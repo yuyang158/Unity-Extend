@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -6,21 +7,48 @@ using System.Threading;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEditor;
-using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace Extend.Common.Editor {
+#if NOTIFICATION_WHEN_COMPILE_ERROR
 	[InitializeOnLoad]
+#endif
 	public static class BuildErrorReport {
-		private const string WEIXIN_POST_URL = "";
+		private const string POST_URL = "https://open.feishu.cn/open-apis/bot/v2/hook/7edd60ad-1e5e-4c7e-b47e-f66d909833fd";
+
 		static BuildErrorReport() {
 			var t = new Thread(Run);
 			t.Start();
 
-			EditorApplication.quitting += () => { t.Abort(); };
+			var updateThread = new Thread(SVNUpdate);
+			updateThread.Start();
+
+			EditorApplication.quitting += () => {
+				t.Abort();
+				updateThread.Abort();
+			};
+		}
+
+		private static void SVNUpdate() {
+			var paths = Environment.GetEnvironmentVariable("Path");
+			var pathArray = paths.Split(';');
+			string svnDir = string.Empty;
+			foreach( var path in pathArray ) {
+				if( path.Contains("SVN") ) {
+					Debug.Log(path);
+					svnDir = path;
+					break;
+				}
+			}
+
+			while( true ) {
+				Thread.Sleep(10000);
+				Process.Start($"{svnDir}/svn.exe", "update").WaitForExit();
+			}
 		}
 
 		private static void Run() {
-			if(string.IsNullOrEmpty(WEIXIN_POST_URL))
+			if( string.IsNullOrEmpty(POST_URL) )
 				return;
 			var wh = new AutoResetEvent(false);
 #if UNITY_EDITOR_WIN
@@ -52,6 +80,7 @@ namespace Extend.Common.Editor {
 								sb.AppendLine(s);
 							}
 						}
+
 						if( s.Contains("compilationhadfailure") ) {
 							errorExist = true;
 						}
@@ -59,14 +88,14 @@ namespace Extend.Common.Editor {
 					else {
 						if( sb.Length > 0 ) {
 							var json = new JObject {
-								{"msgtype", "text"}, {
-									"text", new JObject {
-										{"content", sb.ToString()}
+								{"msg_type", "text"}, {
+									"content", new JObject {
+										{"text", sb.ToString()}
 									}
 								}
 							};
 
-							var req = WebRequest.CreateHttp(WEIXIN_POST_URL);
+							var req = WebRequest.CreateHttp(POST_URL);
 							req.Method = "POST";
 							req.ContentType = "application/json";
 							var stream = req.GetRequestStream();

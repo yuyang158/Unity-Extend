@@ -11,6 +11,7 @@ using System;
 using System.Diagnostics;
 using System.Reflection;
 using System.Linq;
+using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -130,7 +131,8 @@ public static class XLuaGenConfig {
 		typeof(Stopwatch),
 		typeof(TextMeshProUGUI),
 		typeof(TextMeshPro),
-		typeof(TMP_InputField)
+		typeof(TMP_InputField),
+		typeof(Tweener)
 	};
 
 	[LuaCallCSharp]
@@ -157,14 +159,12 @@ public static class XLuaGenConfig {
 			};
 
 			unityTypes = unityTypes.Concat(basicMathValueType);
-			var customAssemblies = new[] {
-				"Assembly-CSharp",
-			};
-			var customTypes = ( from assembly in customAssemblies.Select(s => Assembly.Load(s))
+			var customTypes = from assembly in AppDomain.CurrentDomain.GetAssemblies()
+				where !( assembly.ManifestModule is System.Reflection.Emit.ModuleBuilder )
 				from type in assembly.GetExportedTypes()
 				where type.BaseType != typeof(MulticastDelegate) && !type.IsInterface && !type.IsEnum && !isExcluded(type) &&
 				      type.GetCustomAttributes(typeof(CSharpCallLuaAttribute), true).Length > 0
-				select type );
+				select type;
 
 			var arr = customTypes.ToArray();
 			return unityTypes.Concat(arr).Concat(exportToLua);

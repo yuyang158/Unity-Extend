@@ -12,5 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa94cd9b66d34c35b4225c216ae328b6, type: 3}
   m_Name: LuaCheckSetting
   m_EditorClassIdentifier: 
-  m_luaCheckExecPath: E:/tools/luacheck.exe
+  m_luaCheckExecPath: 
+  m_active: 0
   m_maxLineLength: 170

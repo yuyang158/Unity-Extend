@@ -53,7 +53,7 @@ namespace Extend.Asset.Editor.Process {
 			var shaderUtilType = assembly.GetType("UnityEditor.ShaderUtil");
 			getShaderVariantEntries = shaderUtilType.GetMethod("GetShaderVariantEntriesFiltered", BindingFlags.Static | BindingFlags.NonPublic);
 
-			EMPTY_COLLECTION = AssetDatabase.LoadAssetAtPath<ShaderVariantCollection>("Assets/Tools.shadervariants");
+			EMPTY_COLLECTION = AssetDatabase.LoadAssetAtPath<ShaderVariantCollection>("Assets/Shaders/Tools.shadervariants");
 		}
 
 		private readonly List<string> userKeywordFilter = new List<string>();

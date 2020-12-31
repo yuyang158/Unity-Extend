@@ -23,5 +23,10 @@ MonoBehaviour:
     UnloadStrategies:
     - BundleName: assets/spriteatlas/all
       UnloadStrategy: 1
+  - FolderPath: {fileID: 102900000, guid: 916008b1f759b8e45af3a9393811b085, type: 3}
+    Op: 0
+    UnloadStrategies:
+    - BundleName: assets/shaders
+      UnloadStrategy: 1
   ExtraDependencyAssets:
   - {fileID: 4943120165877654340, guid: 41cd678664b52f149abb81e62862e1ce, type: 3}
