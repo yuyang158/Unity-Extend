@@ -17,18 +17,10 @@ namespace Extend.Editor {
 
 		private static void RebuildAllABForPlatform(BuildTarget target) {
 			Debug.LogWarning($"Rebuild all ab for platform {target}");
-<<<<<<< Updated upstream
-			StaticAssetBundleWindow.RebuildAllAssetBundles(target, true, () => {
-				Debug.Log($"Rebuild all ab for platform {target} success");
-				if( Application.isBatchMode ) {
-					Debug.Log("In batch mode prepare to exit");
-					EditorApplication.Exit(0);
-=======
 			StaticAssetBundleWindow.RebuildAllAssetBundles(target, true, success => {
 				Debug.LogWarning($"Rebuild all ab for platform {target} success");
 				if( Application.isBatchMode ) {
 					EditorApplication.Exit(success ? 0 : 1);
->>>>>>> Stashed changes
 				}
 			});
 		}
