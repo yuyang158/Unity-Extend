@@ -1,12 +1,10 @@
 using System;
 using Extend.Switcher.Action;
 using UnityEngine;
-using XLua;
 
 namespace Extend.Switcher {
-	[LuaCallCSharp]
 	public class StateSwitcher : MonoBehaviour {
-		[Serializable, BlackList]
+		[Serializable]
 		public class State {
 			public string StateName;
 
@@ -14,13 +12,16 @@ namespace Extend.Switcher {
 			public ISwitcherAction[] SwitcherActions;
 
 			public void Switch() {
-				foreach( var s in SwitcherActions ) {
-					s.ActiveSwitcher();
+				foreach( var action in SwitcherActions ) {
+					action.ActiveAction();
 				}
+			}
+
+			public override string ToString() {
+				return StateName;
 			}
 		}
 
-		[BlackList]
 		public State[] States;
 		private string m_currentState;
 

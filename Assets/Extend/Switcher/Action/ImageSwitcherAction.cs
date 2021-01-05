@@ -1,18 +1,18 @@
 ﻿using System;
-using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Extend.Switcher.Action {
 	[Serializable]
-	public class TextAssignSwitcherAction : SwitcherAction {
+	public class ImageSwitcherAction : SwitcherAction {
 		[SerializeField]
-		private TextMeshProUGUI m_textGUI;
+		private Image m_image;
 
 		[SerializeField]
-		private string m_text;
+		private Sprite m_sprite;
 		
 		public override void ActiveAction() {
-			m_textGUI.text = m_text;
+			m_image.sprite = m_sprite;
 		}
 	}
 }

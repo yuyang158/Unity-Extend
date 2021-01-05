@@ -12,31 +12,27 @@ namespace Extend.Common {
 			public bool bV;
 		}
 		
-		[SerializeField, HideInInspector]
-		private Animator ani;
+		[SerializeField]
+		private Animator m_ani;
 
-		public Animator Ani => ani;
-
-		[SerializeField, HideInInspector]
+		[SerializeField]
 		private AnimatorParameterValue m_paramValue;
 
-		public AnimatorParameterValue ParameterValue => m_paramValue;
-
 		public void Apply() {
-			foreach( var parameter in Ani.parameters ) {
+			foreach( var parameter in m_ani.parameters ) {
 				if( parameter.nameHash != m_paramValue.NameHash ) continue;
 				switch( parameter.type ) {
 					case AnimatorControllerParameterType.Float:
-						Ani.SetFloat(m_paramValue.NameHash, m_paramValue.fV);
+						m_ani.SetFloat(m_paramValue.NameHash, m_paramValue.fV);
 						break;
 					case AnimatorControllerParameterType.Int:
-						Ani.SetInteger(m_paramValue.NameHash, m_paramValue.iV);
+						m_ani.SetInteger(m_paramValue.NameHash, m_paramValue.iV);
 						break;
 					case AnimatorControllerParameterType.Bool:
-						Ani.SetBool(m_paramValue.NameHash, m_paramValue.bV);
+						m_ani.SetBool(m_paramValue.NameHash, m_paramValue.bV);
 						break;
 					case AnimatorControllerParameterType.Trigger:
-						Ani.SetTrigger(m_paramValue.NameHash);
+						m_ani.SetTrigger(m_paramValue.NameHash);
 						break;
 					default:
 						throw new ArgumentOutOfRangeException();

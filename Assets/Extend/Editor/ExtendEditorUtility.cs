@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections;
 using System.IO;
 using CSObjectWrapEditor;
 using Extend.Asset.Editor;
-using Unity.EditorCoroutines.Editor;
+using Extend.Common.Editor;
 using UnityEditor;
-using UnityEditor.Build.Reporting;
 using UnityEngine;
 
 namespace Extend.Editor {
