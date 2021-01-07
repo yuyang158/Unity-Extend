@@ -6,13 +6,50 @@ using System.Linq;
 using System.Text;
 using Extend.Asset.Editor.Process;
 using UnityEditor;
-using UnityEngine;
 using UnityEngine.Assertions;
 
 namespace Extend.Asset.Editor {
+	internal static class AssetNodeCollector {
+		private static readonly Dictionary<string, List<AssetNode>> m_sameBundleAssets = new Dictionary<string, List<AssetNode>>();
+
+		public static void Add(string assetBundleName, AssetNode assetNode) {
+			if( !m_sameBundleAssets.TryGetValue(assetBundleName, out var assetNodes) ) {
+				assetNodes = new List<AssetNode>();
+				m_sameBundleAssets.Add(assetBundleName, assetNodes);
+			}
+			assetNodes.Add(assetNode);
+		}
+		
+		public static void Clear() {
+			m_sameBundleAssets.Clear();
+		}
+
+		public static AssetBundleBuild[] Output() {
+			var builds = new AssetBundleBuild[m_sameBundleAssets.Count];
+			int index = 0;
+			foreach( var bundlePair in m_sameBundleAssets ) {
+				var assets = bundlePair.Value;
+				var build = new AssetBundleBuild() {
+					addressableNames = new string[assets.Count],
+					assetNames = new string[assets.Count],
+					assetBundleName = bundlePair.Key + ".ab"
+				};
+				for( int i = 0; i < assets.Count; i++ ) {
+					var asset = assets[i];
+					build.addressableNames[i] = asset.AssetName;
+					build.assetNames[i] = asset.AssetPath;
+				}
+				
+				builds[index] = build;
+				index++;
+			}
+			
+			return builds;
+		}
+	}
+	
 	public class AssetNode {
 		private const string AB_EXTENSION = ".ab";
-		
 		public string AssetPath => importer.assetPath;
 		public string AssetName {
 			get {
@@ -28,17 +65,8 @@ namespace Extend.Asset.Editor {
 			private set {
 				Assert.IsFalse(Calculated);
 				Calculated = true;
-				string abName;
-				if( value.EndsWith(AB_EXTENSION) ) {
-					abName = value.ToLower();
-				}
-				else {
-					abName = value.ToLower() + AB_EXTENSION;
-				}
-				m_assetBundleName = abName;
-				if( importer.assetBundleName == abName )
-					return;
-				importer.assetBundleName = abName;
+				m_assetBundleName = value;
+				AssetNodeCollector.Add(value, this);
 			}
 		}
 

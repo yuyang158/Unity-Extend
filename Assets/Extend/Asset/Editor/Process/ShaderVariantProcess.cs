@@ -179,9 +179,7 @@ namespace Extend.Asset.Editor.Process {
 				AssetDatabase.CreateAsset(collection, variantPath);
 
 				var shaderImporter = AssetImporter.GetAtPath(shaderPath);
-				var variantImporter = AssetImporter.GetAtPath(variantPath);
-				variantImporter.assetBundleName = shaderImporter.assetBundleName;
-				variantImporter.assetBundleVariant = shaderImporter.assetBundleVariant;
+				AssetNodeCollector.Add(shaderImporter.assetBundleName, new AssetNode(variantPath, shaderImporter.assetBundleName));
 			}
 
 			AssetDatabase.SaveAssets();

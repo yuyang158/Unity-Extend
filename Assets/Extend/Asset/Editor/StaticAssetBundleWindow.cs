@@ -226,6 +226,7 @@ namespace Extend.Asset.Editor {
 				if(string.IsNullOrEmpty(outputPath)) {
 					MakeOutputDirectory(m_currentBuildTarget);
 				}
+				
 				return outputPath;
 			}
 		}
@@ -253,6 +254,10 @@ namespace Extend.Asset.Editor {
 					+ sourceDirName);
 			}
 
+			if( dir.Name.StartsWith(".") ) {
+				return;
+			}
+
 			// If the destination directory doesn't exist, create it.
 			if( !Directory.Exists(destDirName) ) {
 				Directory.CreateDirectory(destDirName);
@@ -276,6 +281,7 @@ namespace Extend.Asset.Editor {
 
 		private static BuildTarget m_currentBuildTarget;
 		public static void RebuildAllAssetBundles(BuildTarget target, bool appendLuaDir, Action<bool> finishCallback = null) {
+			outputPath = null;
 			m_currentBuildTarget = target;
 			InitializeSetting();
 			BuildAssetRelation.Clear();
@@ -283,13 +289,6 @@ namespace Extend.Asset.Editor {
 			if( appendLuaDir ) {
 				DirectoryCopy($"{Application.dataPath}/../Lua", $"{Application.dataPath}/Resources/Lua", true);
 				AssetDatabase.Refresh();
-				var luaFiles = Directory.GetFiles($"{Application.dataPath}/Resources/Lua", "*.lua", SearchOption.AllDirectories);
-				foreach( var luaFile in luaFiles ) {
-					var index = luaFile.IndexOf("Assets", StringComparison.InvariantCulture);
-					var f = luaFile.Substring(index);
-					var importer = AssetImporter.GetAtPath(f);
-					importer.assetBundleName = "lua";
-				}
 
 				settings = CreateInstance<StaticABSettings>();
 				settings.ExtraDependencyAssets = settingRoot.ExtraDependencyAssets;
@@ -307,8 +306,8 @@ namespace Extend.Asset.Editor {
 				BuildAssetRelation.BuildRelation(settings, () => {
 					Directory.Delete($"{Application.dataPath}/Resources/Lua", true);
 					Debug.Log($"Start AB Build Output : {OutputPath}");
-					BuildPipeline.BuildAssetBundles(OutputPath, BuildAssetBundleOptions.DeterministicAssetBundle
-					                                            | BuildAssetBundleOptions.ChunkBasedCompression, target);
+					BuildPipeline.BuildAssetBundles(OutputPath, AssetNodeCollector.Output(), 
+						BuildAssetBundleOptions.DeterministicAssetBundle | BuildAssetBundleOptions.ChunkBasedCompression, target);
 					var manifestFiles = Directory.GetFiles(OutputPath, "*.manifest", SearchOption.AllDirectories);
 					foreach( var manifestFile in manifestFiles ) {
 						File.Delete(manifestFile);
