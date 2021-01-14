@@ -11,32 +11,38 @@ namespace Extend.Asset.AssetProvider {
 		private static readonly WaitForSeconds DEBUG_WAIT = new WaitForSeconds(0.2f);
 
 		private static IEnumerator SimulateDelayLoad(AssetAsyncLoadHandle loadHandle, Type typ) {
-			yield return DEBUG_WAIT;
-			Object unityObject;
 			if( loadHandle.Location.StartsWith("assets", true, CultureInfo.InvariantCulture) ) {
+				yield return DEBUG_WAIT;
+				Object unityObject;
 #if UNITY_EDITOR
 				unityObject = UnityEditor.AssetDatabase.LoadAssetAtPath(loadHandle.Location, typ);
 #else
 				unityObject = null;
 #endif
+				loadHandle.Asset.SetAsset(unityObject, null);
 			}
 			else {
-				unityObject = Resources.Load(loadHandle.Location, typ);
+				var req = Resources.LoadAsync(loadHandle.Location, typ);
+				req.completed += operation => {
+					if( !operation.isDone ) {
+						loadHandle.Asset.SetAsset(null, null);
+					}
+					else {
+						loadHandle.Asset.SetAsset(req.asset, null);
+					}
+				};
 			}
 
-			loadHandle.Asset.SetAsset(unityObject, null);
 		}
 
 		private static IEnumerator SimulateDelayLoadScene(AssetAsyncLoadHandle loadHandle)
 		{
 			yield return DEBUG_WAIT;
-#if UNITY_EDITOR
 			AsyncOperation asyncOperation = SceneManager.LoadSceneAsync(loadHandle.Location);
 			while (!asyncOperation.isDone)
 			{
 				yield return null;
 			}
-#endif
 		}
 
 		public override void Initialize() {
@@ -63,7 +69,23 @@ namespace Extend.Asset.AssetProvider {
 		{
 			SceneManager.LoadScene(path);
 		}
-		
+
+		public override bool Exist(string path) {
+			Object unityObject;
+			if( path.StartsWith("assets", true, CultureInfo.InvariantCulture) ) {
+#if UNITY_EDITOR
+				unityObject = UnityEditor.AssetDatabase.LoadAssetAtPath<Object>(path);
+#else
+				unityObject = null;
+#endif
+			}
+			else {
+				unityObject = Resources.Load<Object>(path);
+			}
+
+			return unityObject != null;
+		}
+
 		private static AssetInstance ProvideAsset(string path, AssetContainer container, Type typ) {
 			var hash = AssetInstance.GenerateHash(path);
 			if( container.TryGetAsset(hash) is AssetInstance asset && asset.IsFinished ) {
