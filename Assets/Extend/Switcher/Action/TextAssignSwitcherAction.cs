@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 
 namespace Extend.Switcher.Action {
-	[Serializable]
+	[Serializable, UnityEngine.Scripting.Preserve]
 	public class TextAssignSwitcherAction : SwitcherAction {
 		[SerializeField]
 		private TextMeshProUGUI m_textGUI;

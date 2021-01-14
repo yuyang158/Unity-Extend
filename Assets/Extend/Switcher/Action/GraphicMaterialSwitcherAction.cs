@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 namespace Extend.Switcher.Action {
-	[Serializable]
+	[Serializable, UnityEngine.Scripting.Preserve]
 	public class GraphicMaterialSwitcherAction : SwitcherAction {
 		[SerializeField]
 		private Graphic m_graphic;

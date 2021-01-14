@@ -6,7 +6,7 @@ namespace Extend.Switcher.Action {
 		void ActiveAction();
 	}
 
-	[Serializable]
+	[Serializable, UnityEngine.Scripting.Preserve]
 	public abstract class SwitcherAction : ISwitcherAction {
 		public abstract void ActiveAction();
 

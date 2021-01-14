@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 
 namespace Extend.Switcher.Action {
-	[Serializable]
+	[Serializable, UnityEngine.Scripting.Preserve]
 	public class GOActiveSwitcherAction : SwitcherAction {
 		[SerializeField]
 		private GameObject m_go;

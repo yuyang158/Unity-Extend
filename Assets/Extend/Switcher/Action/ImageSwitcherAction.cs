@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 namespace Extend.Switcher.Action {
-	[Serializable]
+	[Serializable, UnityEngine.Scripting.Preserve]
 	public class ImageSwitcherAction : SwitcherAction {
 		[SerializeField]
 		private Image m_image;

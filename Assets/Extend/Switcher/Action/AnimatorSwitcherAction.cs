@@ -3,7 +3,7 @@ using Extend.Common;
 using UnityEngine;
 
 namespace Extend.Switcher.Action {
-	[Serializable]
+	[Serializable, UnityEngine.Scripting.Preserve]
 	public class AnimatorSwitcherAction : SwitcherAction {
 		[SerializeField]
 		private AnimatorParamProcessor m_processor;

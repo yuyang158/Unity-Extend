@@ -49,7 +49,6 @@ namespace Extend {
 
 		public LuaClassCache LuaClassCache { get; private set; }
 		public static Action OnVMCreated;
-		public static Action OnPreRequestLoaded;
 		public static Action OnVMQuiting;
 
 		public void Initialize() {
@@ -85,7 +84,7 @@ namespace Extend {
 			});
 
 			var setupNewCallback = LoadFileAtPath("base.class")[0] as LuaFunction;
-			setupNewCallback.Call(m_newClassCallback);
+			setupNewCallback.Action(m_newClassCallback);
 			OnVMCreated?.Invoke();
 
 			var ret = LoadFileAtPath("PreRequest")[0] as LuaTable;
@@ -95,7 +94,6 @@ namespace Extend {
 			if( reportLeakMark )
 				leakData = Default.StartMemoryLeakCheck();
 #endif
-			OnPreRequestLoaded?.Invoke();
 		}
 
 		public void StartUp() {
@@ -112,6 +110,10 @@ namespace Extend {
 			}
 
 			return m_getGlobalVMFunc(path);
+		}
+
+		public LuaClassCache.LuaClass GetLuaClass(LuaTable klass) {
+			return LuaClassCache.TryGetClass(klass);
 		}
 
 		public void LogCallStack() {
