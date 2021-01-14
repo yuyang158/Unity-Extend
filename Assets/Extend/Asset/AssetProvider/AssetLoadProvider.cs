@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 
 namespace Extend.Asset.AssetProvider {
 	public abstract class AssetLoadProvider {
@@ -8,6 +9,20 @@ namespace Extend.Asset.AssetProvider {
 			return path.Replace('\\', '/');
 		}
 
+		public virtual string FormatScenePath(string path)
+		{
+			return path.Replace('\\', '/');
+		}
+		
+		public virtual bool ScenePathChecker(string path)
+		{
+			if (!path.EndsWith(".unity"))
+			{
+				Debug.LogError($"not a scene @{path}");
+				return false;
+			}
+			return true;
+		}
 		public abstract void ProvideAsync(AssetAsyncLoadHandle loadHandle, Type typ);
 
 		public abstract AssetReference Provide(string path, AssetContainer container, Type typ);
@@ -15,6 +30,8 @@ namespace Extend.Asset.AssetProvider {
 		public abstract void ProvideSceneAsync(AssetAsyncLoadHandle loadHandle);
 
 		public abstract void ProvideScene(string path, AssetContainer container);
+
+		public abstract bool Exist(string path);
 
 		internal abstract AssetInstance ProvideAssetWithGUID<T>(string guid, AssetContainer container, out string path);
 		internal abstract string ConvertGUID2Path(string guid);
