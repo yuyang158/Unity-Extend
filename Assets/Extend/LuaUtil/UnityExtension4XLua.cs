@@ -56,8 +56,8 @@ namespace Extend.LuaUtil {
 			component.transform.position = new Vector3(x, y, z);
 		}
 
-		public static void GetPosition(this Component componenet, out float x, out float y, out float z) {
-			var position = componenet.transform.position;
+		public static void GetPosition(this Component component, out float x, out float y, out float z) {
+			var position = component.transform.position;
 			x = position.x;
 			y = position.y;
 			z = position.z;
