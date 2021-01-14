@@ -22,7 +22,7 @@ namespace Extend.DebugUtil {
 		private TextMeshProUGUI m_txtStat;
 
 		[SerializeField]
-		private TextMeshProUGUI m_txtLogTemplate;
+		private Text m_txtLogTemplate;
 
 		[SerializeField]
 		private Button m_suggestTemplate;
@@ -339,12 +339,16 @@ namespace Extend.DebugUtil {
 			StatService.Upload();
 		}
 
+		public void Close() {
+			LogScrollVisible = false;
+		}
+
 		public void Destroy() {
 		}
 	}
 
 	internal struct Log {
 		public LogType type;
-		public TextMeshProUGUI text;
+		public Text text;
 	}
 }
