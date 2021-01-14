@@ -124,7 +124,7 @@ namespace Extend.Editor
             string[] lines = allContent.Split('\n');
             for (int i = 0; i < lines.Length; i++)
             {
-                if (lines[i].StartsWith("\t") && lines[i].Contains("lua"))
+                if (lines[i].Contains(".lua:"))
                 {
                     return lines[i];
                 }
@@ -135,9 +135,27 @@ namespace Extend.Editor
         private static void ParseFilepathAndLineInFirstLine(string firstLine, out string filepath, out string line)
         {
             string[] parts = firstLine.Split(':');
+            for (int i = 0; i < parts.Length; i++)
+            {
+                if (Int32.TryParse(parts[i], out int result))
+                {
+                    line = parts[i];
+                    int startIdx = 0;
+                    for (int j = parts[i - 1].Length - 1; j >= 0; j--)
+                    {
+                        if (!Char.IsLetter(parts[i - 1][j]) && !parts[i - 1][j].Equals('/') && !parts[i - 1][j].Equals('.'))
+                        {
+                            startIdx = j + 1;
+                            break;
+                        }
+                    }
 
-            filepath = Application.dataPath.Replace("Assets", "Lua/") + parts[0].Replace("\t", "");
-            line = parts[1];
+                    filepath = Application.dataPath.Replace("Assets", "Lua/") + parts[i - 1].Substring(startIdx);
+                    return;
+                }
+            }
+            filepath = string.Empty;
+            line = string.Empty;
         }
         /*
         public static string InsertHyperLink(string origin)
