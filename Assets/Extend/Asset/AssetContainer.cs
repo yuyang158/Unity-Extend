@@ -90,6 +90,7 @@ namespace Extend.Asset {
 			} while( m_tickIndex != 0 );
 
 			Resources.UnloadUnusedAssets();
+			GC.Collect();
 		}
 		
 		
