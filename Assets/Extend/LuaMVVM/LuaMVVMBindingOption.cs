@@ -65,7 +65,12 @@ namespace Extend.LuaMVVM {
 				m_propertyInfo.SetValue(BindTarget, val == null ? "" : val.ToString());
 			}
 			else if( m_propertyInfo.PropertyType == typeof(float) ) {
-				m_propertyInfo.SetValue(BindTarget, (float)(double)val);
+				if( val is long i ) {
+					m_propertyInfo.SetValue(BindTarget, (float)i);
+				}
+				else {
+					m_propertyInfo.SetValue(BindTarget, (float)(double)val);
+				}
 			}
 			else {
 				m_propertyInfo.SetValue(BindTarget, val);
