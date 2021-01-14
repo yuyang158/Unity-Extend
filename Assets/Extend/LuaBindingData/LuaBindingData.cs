@@ -2,7 +2,7 @@ using System;
 using XLua;
 
 namespace Extend.LuaBindingData {
-	[Serializable]
+	[Serializable, UnityEngine.Scripting.Preserve]
 	public abstract class LuaBindingDataBase {
 		public string FieldName;
 		[NonSerialized]

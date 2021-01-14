@@ -2,7 +2,7 @@ using System;
 using XLua;
 
 namespace Extend.LuaBindingData {
-	[Serializable]
+	[Serializable, UnityEngine.Scripting.Preserve]
 	public class LuaBindingStringData : LuaBindingDataBase {
 		public string Data;
 		public override void ApplyToLuaInstance(LuaTable instance) {

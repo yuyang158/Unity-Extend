@@ -3,7 +3,7 @@ using Extend.Common;
 using XLua;
 
 namespace Extend.LuaBindingData {
-	[Serializable]
+	[Serializable, UnityEngine.Scripting.Preserve]
 	public class LuaBindingUOArrayData : LuaBindingDataBase {
 		public UnityEngine.Object[] Data;
 

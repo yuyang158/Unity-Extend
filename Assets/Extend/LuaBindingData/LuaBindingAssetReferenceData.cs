@@ -3,7 +3,7 @@ using Extend.Asset;
 using XLua;
 
 namespace Extend.LuaBindingData {
-	[Serializable]
+	[Serializable, UnityEngine.Scripting.Preserve]
 	public class LuaBindingAssetReferenceData : LuaBindingDataBase {
 		public Type AssetType { private get; set; }
 

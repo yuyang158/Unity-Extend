@@ -3,7 +3,7 @@ using UnityEngine;
 using XLua;
 
 namespace Extend.LuaBindingData {
-	[Serializable]
+	[Serializable, UnityEngine.Scripting.Preserve]
 	public class LuaBindingIntegerData : LuaBindingDataBase {
 		public int Data;
 		public override void ApplyToLuaInstance(LuaTable instance) {

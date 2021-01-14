@@ -5,7 +5,7 @@ using XLua;
 using Object = UnityEngine.Object;
 
 namespace Extend.LuaBindingData {
-	[Serializable]
+	[Serializable, UnityEngine.Scripting.Preserve]
 	public class LuaBindingUOData : LuaBindingDataBase {
 		public Object Data;
 
