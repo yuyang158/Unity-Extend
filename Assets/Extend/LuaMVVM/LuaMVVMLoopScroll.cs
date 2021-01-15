@@ -2,7 +2,6 @@
 using Extend.Common;
 using Extend.LuaBindingEvent;
 using Extend.UI.Scroll;
-using JetBrains.Annotations;
 using UnityEngine;
 using XLua;
 
@@ -16,6 +15,7 @@ namespace Extend.LuaMVVM {
 
 		private LoopScrollRect m_scroll;
 		private LuaTable m_arrayData;
+
 		public LuaTable LuaArrayData {
 			get => m_arrayData;
 			set {
@@ -25,8 +25,8 @@ namespace Extend.LuaMVVM {
 				m_scroll.RefillCells();
 			}
 		}
+
 		[ReorderList, LabelText("On Scroll End ()"), SerializeField]
-		[ItemCanBeNull]
 		private List<BindingEvent> m_onScrollEndEvent;
 
 		public void ProvideData(Transform t, int index) {
