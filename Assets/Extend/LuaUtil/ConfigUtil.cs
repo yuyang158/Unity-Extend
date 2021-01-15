@@ -8,7 +8,7 @@ using XLua;
 namespace Extend.LuaUtil {
 	[LuaCallCSharp]
 	public static class ConfigUtil {
-		private const string CONFIG_PATH_PREFIX = "Config/";
+		private const string CONFIG_PATH_PREFIX = "Xlsx/";
 
 		private static LuaTable ConvertStringArrayToLua(string[] values) {
 			var luaVM = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
@@ -22,10 +22,11 @@ namespace Extend.LuaUtil {
 
 		public static LuaTable LoadConfigFile(string filename) {
 			var service = CSharpServiceManager.Get<AssetService>(CSharpServiceManager.ServiceType.ASSET_SERVICE);
+			var path = CONFIG_PATH_PREFIX + filename;
+			if( !service.Exist(path) )
+				return null;
 			var assetRef = service.Load( CONFIG_PATH_PREFIX + filename, typeof(TextAsset) );
 			var asset = assetRef.GetTextAsset();
-			if( asset == null )
-				return null;
 			using( var reader = new StringReader( asset.text ) ) {
 				var keys = reader.ReadLine();
 				var types = reader.ReadLine();
