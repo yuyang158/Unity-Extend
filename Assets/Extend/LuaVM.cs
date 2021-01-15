@@ -17,6 +17,7 @@ namespace Extend {
 		private LuaFunction OnInit;
 		private LuaEnv Default { get; set; }
 		public LuaTable Global => Default.Global;
+		public static event Action OnPreRequestLoaded;
 
 		public LuaTable NewTable() {
 			return Default.NewTable();
@@ -90,6 +91,8 @@ namespace Extend {
 			var ret = LoadFileAtPath("PreRequest")[0] as LuaTable;
 			OnInit = ret.Get<LuaFunction>("init");
 			OnDestroy = ret.Get<LuaFunction>("shutdown");
+			
+			OnPreRequestLoaded?.Invoke();
 #if UNITY_EDITOR
 			if( reportLeakMark )
 				leakData = Default.StartMemoryLeakCheck();
