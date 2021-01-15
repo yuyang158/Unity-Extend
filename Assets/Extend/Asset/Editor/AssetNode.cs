@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using Extend.Asset.Editor.Process;
 using UnityEditor;
+using UnityEngine;
 using UnityEngine.Assertions;
 
 namespace Extend.Asset.Editor {
@@ -49,7 +50,7 @@ namespace Extend.Asset.Editor {
 	}
 	
 	public class AssetNode {
-		private const string AB_EXTENSION = ".ab";
+		public const string AB_EXTENSION = ".ab";
 		public string AssetPath => importer.assetPath;
 		public string AssetName {
 			get {
@@ -78,8 +79,11 @@ namespace Extend.Asset.Editor {
 		public bool Calculated { private get; set; }
 
 		public AssetNode(string path, string abName = "") {
-			Assert.IsTrue(path.StartsWith("assets", true, CultureInfo.InvariantCulture));
+			Assert.IsTrue(path.StartsWith("assets", true, CultureInfo.InvariantCulture), path);
 			importer = AssetImporter.GetAtPath(path);
+			if( !importer ) {
+				throw new Exception("Path is not valid : " + path);
+			}
 			AssetCustomProcesses.Process(importer);
 			if( !string.IsNullOrEmpty(abName) ) {
 				AssetBundleName = abName;

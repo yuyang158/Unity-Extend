@@ -203,7 +203,9 @@ public static class XLuaGenConfig {
 				new[] {
 					typeof(Action),
 					typeof(Action<float>),
-					typeof(Action<bool>)
+					typeof(Action<bool>),
+					typeof(WaitForSeconds),
+					typeof(System.Collections.IEnumerator)
 				});
 			return list;
 		}

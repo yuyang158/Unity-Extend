@@ -41,13 +41,13 @@ namespace Extend.Asset.Editor.Process {
 		}
 
 		public static void PostProcess() {
-			m_processWriter.Close();
 			foreach( var process in extensionProcessesMap.Values.SelectMany(processes => processes) ) {
 				process.PostProcess();
 			}
 		}
 
 		public static void Shutdown() {
+			m_processWriter.Close();
 			extensionProcessesMap.Clear();
 		}
 	}

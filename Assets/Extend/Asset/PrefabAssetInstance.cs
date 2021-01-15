@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using Extend.Common;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 using Object = UnityEngine.Object;
 
 namespace Extend.Asset {

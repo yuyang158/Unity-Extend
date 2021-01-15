@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Extend.Common {
 	public static class Utility {
-		public static void HttpFileUpload(string url, NameValueCollection qs, string filePath) {
+		public static void       HttpFileUpload(string url, NameValueCollection qs, string filePath) {
 			var target = Application.persistentDataPath + "/upload.log";
 			File.Copy(filePath, target, true);
 
@@ -17,10 +17,10 @@ namespace Extend.Common {
 					var client = new WebClient {QueryString = qs};
 					var response = client.UploadFile(url, "POST", target);
 					var resText = Encoding.UTF8.GetString(response);
-					Console.WriteLine(resText);
+					Debug.Log(resText);
 				}
 				catch( Exception e ) {
-					Console.WriteLine(e);
+					Debug.LogError(e);
 				}
 				finally {
 					File.Delete(target);

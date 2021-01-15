@@ -9,6 +9,7 @@ using XLua;
 [LuaCallCSharp]
 public static class RemoteCmdClient {
 	private static readonly TcpClient tcpClient = new TcpClient {NoDelay = true};
+
 	public static void Restart() {
 		try {
 			tcpClient.Close();
@@ -17,11 +18,11 @@ public static class RemoteCmdClient {
 			Start();
 		}
 	}
-	
+
 	[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
 	private static async void Start() {
 		try {
-			if(!Debug.isDebugBuild || Application.isEditor)
+			if( !Debug.isDebugBuild || Application.isEditor )
 				return;
 			await tcpClient.ConnectAsync("private-tunnel.site", 4101);
 
@@ -36,14 +37,14 @@ public static class RemoteCmdClient {
 			while( true ) {
 				await tcpClient.GetStream().ReadAsync(size, 0, 2);
 				var luaSize = BitConverter.ToInt16(size, 0);
-				if(luaSize <= 0)
+				if( luaSize <= 0 )
 					continue;
 
 				var recvCount = 0;
 				buffer = new byte[luaSize];
 				while( recvCount < luaSize ) {
 					var count = await tcpClient.GetStream().ReadAsync(buffer, recvCount, buffer.Length - recvCount);
-					if(count == 0)
+					if( count == 0 )
 						return;
 					recvCount += count;
 				}
@@ -51,9 +52,9 @@ public static class RemoteCmdClient {
 				var lua = Encoding.UTF8.GetString(buffer);
 				Debug.LogWarning($"REMOTE DEBUG REQUEST : {lua}");
 				var luaService = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
-				var func = luaService.Global.Get<Func<string, string>>("Global_DebugFunction");
-				var ret = func(lua);
-				
+				var func = luaService.Global.Get<LuaFunction>("Global_DebugFunction");
+				var ret = func.Func<string, string>(lua);
+
 				protocol = new byte[] {2};
 				await tcpClient.GetStream().WriteAsync(protocol, 0, protocol.Length);
 				size = BitConverter.GetBytes((short)ret.Length);

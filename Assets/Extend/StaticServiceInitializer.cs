@@ -11,6 +11,7 @@ namespace Extend {
 	internal static class StaticServiceInitializer {
 		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
 		private static void OnInit() {
+			Application.runInBackground = true;
 			DOTween.Init(true, true, LogBehaviour.Default);
 
 			CSharpServiceManager.Initialize();

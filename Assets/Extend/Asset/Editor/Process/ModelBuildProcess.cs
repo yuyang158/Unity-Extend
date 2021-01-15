@@ -25,7 +25,6 @@ namespace Extend.Asset.Editor.Process {
 		}
 
 		public void PostProcess() {
-			
 		}
 	}
 }

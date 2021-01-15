@@ -6,35 +6,41 @@ using XLua;
 
 namespace Extend {
 	[CSharpCallLua, LuaCallCSharp]
-	public class LuaBinding : MonoBehaviour {
+	public sealed class LuaBinding : MonoBehaviour {
 		[LuaFileAttribute, BlackList]
 		public string LuaFile;
 
 		public LuaTable LuaInstance { get; private set; }
 		public LuaTable LuaClass { get; private set; }
 
+		private LuaClassCache.LuaClass m_cachedClass;
+		public LuaClassCache.LuaClass CachedClass => m_cachedClass;
+
 		private void Awake() {
 			if( string.IsNullOrEmpty(LuaFile) )
 				return;
-			var ret = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE).LoadFileAtPath(LuaFile);
-			if( !( ret[0] is LuaTable luaClass ) )
+			var luaVM = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
+			var ret = luaVM.LoadFileAtPath(LuaFile);
+			if( !( ret[0] is LuaTable klass ) )
 				return;
-			LuaClass = luaClass;
-			var constructor = luaClass.Get<LuaBindingClassNew>("new");
+			LuaClass = klass;
+			m_cachedClass = luaVM.GetLuaClass(klass);
+			
+			var constructor = m_cachedClass.GetLuaMethod<LuaBindingClassNew>("new");
 			var luaInstance = constructor?.Invoke(gameObject);
 			Bind(luaInstance);
 
-			var awake = luaInstance.Get<LuaUnityEventFunction>("awake");
+			var awake = m_cachedClass.GetLuaMethod<LuaUnityEventFunction>("awake");
 			awake?.Invoke(luaInstance);
 		}
 
 		private void Start() {
-			var start = LuaInstance.Get<LuaUnityEventFunction>("start");
+			var start = m_cachedClass.GetLuaMethod<LuaUnityEventFunction>("start");
 			start?.Invoke(LuaInstance);
 		}
 
 		private void OnDestroy() {
-			var destroy = LuaInstance.Get<LuaUnityEventFunction>("destroy");
+			var destroy = m_cachedClass.GetLuaMethod<LuaUnityEventFunction>("destroy");
 			destroy?.Invoke(LuaInstance);
 			LuaInstance?.Dispose();
 			LuaInstance = null;

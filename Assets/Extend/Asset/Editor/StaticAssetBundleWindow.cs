@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Compression;
+using Extend.Asset.Editor.Process;
 using Extend.Common;
-using Unity.EditorCoroutines.Editor;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.Assertions;
-using CompressionLevel = System.IO.Compression.CompressionLevel;
 
 namespace Extend.Asset.Editor {
 	public class StaticAssetBundleWindow : EditorWindow {
@@ -280,7 +277,7 @@ namespace Extend.Asset.Editor {
 		}
 
 		private static BuildTarget m_currentBuildTarget;
-		public static void RebuildAllAssetBundles(BuildTarget target, bool appendLuaDir, Action<bool> finishCallback = null) {
+		public static bool RebuildAllAssetBundles(BuildTarget target, bool appendLuaDir) {
 			outputPath = null;
 			m_currentBuildTarget = target;
 			InitializeSetting();
@@ -303,23 +300,25 @@ namespace Extend.Asset.Editor {
 			}
 
 			try {
-				BuildAssetRelation.BuildRelation(settings, () => {
-					Directory.Delete($"{Application.dataPath}/Resources/Lua", true);
-					Debug.Log($"Start AB Build Output : {OutputPath}");
-					BuildPipeline.BuildAssetBundles(OutputPath, AssetNodeCollector.Output(), 
-						BuildAssetBundleOptions.DeterministicAssetBundle | BuildAssetBundleOptions.ChunkBasedCompression, target);
-					var manifestFiles = Directory.GetFiles(OutputPath, "*.manifest", SearchOption.AllDirectories);
-					foreach( var manifestFile in manifestFiles ) {
-						File.Delete(manifestFile);
-					}
-					finishCallback?.Invoke(true);
-				});
+				BuildAssetRelation.BuildRelation(settings);
+				Directory.Delete($"{Application.dataPath}/Resources/Lua", true);
+				Debug.Log($"Start AB Build Output : {OutputPath}");
+				BuildPipeline.BuildAssetBundles(OutputPath, AssetNodeCollector.Output(),
+					BuildAssetBundleOptions.DeterministicAssetBundle | BuildAssetBundleOptions.ChunkBasedCompression, target);
+				var manifestFiles = Directory.GetFiles(OutputPath, "*.manifest", SearchOption.AllDirectories);
+				foreach( var manifestFile in manifestFiles ) {
+					File.Delete(manifestFile);
+				}
+
+				return true;
 			}
 			catch( Exception e ) {
 				Debug.LogException(e);
-				finishCallback?.Invoke(false);
+				return false;
 			}
-			
+			finally {
+				AssetCustomProcesses.Shutdown();
+			}
 		}
 	}
 }

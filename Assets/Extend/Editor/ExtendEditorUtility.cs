@@ -15,12 +15,25 @@ namespace Extend.Editor {
 
 		private static void RebuildAllABForPlatform(BuildTarget target) {
 			Debug.LogWarning($"Rebuild all ab for platform {target}");
-			StaticAssetBundleWindow.RebuildAllAssetBundles(target, true, success => {
-				Debug.LogWarning($"Rebuild all ab for platform {target} success");
-				if( Application.isBatchMode ) {
-					EditorApplication.Exit(success ? 0 : 1);
+			try {
+				if( StaticAssetBundleWindow.RebuildAllAssetBundles(target, true) ) {
+					Debug.LogWarning($"Rebuild all ab for platform {target} success");
+					if( Application.isBatchMode ) {
+						EditorApplication.Exit(0);
+					}
 				}
-			});
+				else {
+					if( Application.isBatchMode )
+						EditorApplication.Exit(1);
+				}
+			}
+			catch( Exception e ) {
+				Debug.LogException(e);
+				EditorUtility.ClearProgressBar();
+				if( Application.isBatchMode ) {
+					EditorApplication.Exit(1);
+				}
+			}
 		}
 
 		[MenuItem("Tools/CI/Rebuild Android Asset Bundle")]
@@ -92,11 +105,12 @@ namespace Extend.Editor {
 				Directory.CreateDirectory(buildPath);
 			}
 
-			var buildOptions = new BuildPlayerOptions() {
+			var buildOptions = new BuildPlayerOptions {
 				options = AnalyseCommandLineArgs(),
 				target = BuildTarget.Android,
 				locationPathName = buildPath,
 				scenes = CollectScenesPath()
+				// scenes = new string[0]
 			};
 			Debug.Log("Gen XLUA Wrap");
 			GenerateXLua();

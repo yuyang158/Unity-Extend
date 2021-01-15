@@ -1,11 +1,23 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using XLua;
 
 namespace Extend.LuaUtil {
 	public class LuaClassCache {
-		private class LuaClass {
+		public class LuaClass {
 			public LuaTable ClassMetaTable;
 			public readonly List<LuaTable> ChildClasses = new List<LuaTable>();
+			private readonly Dictionary<string, Delegate> m_cachedMethods = new Dictionary<string, Delegate>();
+
+			public T GetLuaMethod<T>(string methodName) where T : Delegate {
+				if( m_cachedMethods.TryGetValue(methodName, out var m) ) {
+					return m as T;
+				}
+				
+				var luaMethod = ClassMetaTable.GetInPath<T>(methodName);
+				m_cachedMethods.Add(methodName, luaMethod);
+				return luaMethod;
+			}
 		}
 
 		private readonly Dictionary<LuaTable, LuaClass> m_cachedClasses = new Dictionary<LuaTable, LuaClass>(256);
@@ -16,9 +28,15 @@ namespace Extend.LuaUtil {
 				parentClass.ChildClasses.Add(classMeta);
 			}
 
-			m_cachedClasses.Add(classMeta, new LuaClass() {
+			var klass = new LuaClass {
 				ClassMetaTable = classMeta
-			});
+			};
+			m_cachedClasses.Add(classMeta, klass);
+		}
+
+		public LuaClass TryGetClass(LuaTable klass) {
+			m_cachedClasses.TryGetValue(klass, out var luaClass);
+			return luaClass;
 		}
 
 		public bool IsSubClassOf(LuaTable klass, LuaTable klassToCheck) {

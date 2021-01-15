@@ -107,6 +107,7 @@ namespace Extend.Asset {
 		}
 
 		public bool Exist(string path) {
+			path = m_provider.FormatAssetPath(path);
 			return m_provider.Exist(path);
 		}
 

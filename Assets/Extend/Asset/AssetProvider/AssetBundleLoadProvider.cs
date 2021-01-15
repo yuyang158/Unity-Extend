@@ -25,8 +25,7 @@ namespace Extend.Asset.AssetProvider {
 		private readonly Dictionary<string, AssetPath> m_asset2ABMap = new Dictionary<string, AssetPath>();
 		private readonly Dictionary<string, string> m_guid2AssetPath = new Dictionary<string, string>();
 
-		public override string FormatAssetPath(string path)
-		{
+		public override string FormatAssetPath(string path) {
 			path = base.FormatAssetPath(path).ToLower();
 			if( path.StartsWith("assets") ) {
 				return path;
@@ -35,12 +34,12 @@ namespace Extend.Asset.AssetProvider {
 			return "assets/resources/" + path;
 		}
 
-		public override string FormatScenePath(string path)
-		{
+		public override string FormatScenePath(string path) {
 			path = base.FormatScenePath(path).ToLower().Replace(".unity", "");
 			if( path.StartsWith("assets") ) {
 				return path;
 			}
+
 			return "assets/resources/" + path;
 		}
 
@@ -90,6 +89,7 @@ namespace Extend.Asset.AssetProvider {
 						line = reader.ReadLine();
 						continue;
 					}
+
 					fullPath = fullPath.Substring(0, fullPath.Length - extension.Length);
 					var assetAB = segments[1];
 					var assetGUID = segments[2];
@@ -107,6 +107,7 @@ namespace Extend.Asset.AssetProvider {
 					else {
 						m_asset2ABMap.Add(fullPath, abContext);
 					}
+
 					m_guid2AssetPath.Add(assetGUID, fullPath);
 					line = reader.ReadLine();
 				}
@@ -115,19 +116,13 @@ namespace Extend.Asset.AssetProvider {
 
 		public override void ProvideAsync(AssetAsyncLoadHandle loadHandle, Type typ) {
 			var operators = new List<AssetOperatorBase>();
-			if (PrepareMainAbOperators(operators, loadHandle))
-			{
+			if( PrepareMainAbOperators(operators, loadHandle) ) {
 				HandleAssetOperators(operators, loadHandle, typ);
 			}
 		}
 
 		private bool TryGetABContext(string path, out AssetPath context) {
-			if( !m_asset2ABMap.TryGetValue(path, out context) ) {
-				Debug.LogError($"Can not file asset : {path}");
-				return false;
-			}
-
-			return true;
+			return m_asset2ABMap.TryGetValue(path, out context);
 		}
 
 		public override AssetReference Provide(string path, AssetContainer container, Type typ) {
@@ -135,17 +130,14 @@ namespace Extend.Asset.AssetProvider {
 			return new AssetReference(asset);
 		}
 
-		public override void ProvideSceneAsync(AssetAsyncLoadHandle loadHandle)
-		{
+		public override void ProvideSceneAsync(AssetAsyncLoadHandle loadHandle) {
 			var operators = new List<AssetOperatorBase>();
-			if (PrepareMainAbOperators(operators, loadHandle, true))
-			{
+			if( PrepareMainAbOperators(operators, loadHandle, true) ) {
 				HandleAssetOperators(operators, loadHandle, null);
 			}
 		}
 
-		public override void ProvideScene(string path, AssetContainer container)
-		{
+		public override void ProvideScene(string path, AssetContainer container) {
 			if( !TryGetABContext(path, out var abPathContext) ) {
 				return;
 			}
@@ -164,15 +156,18 @@ namespace Extend.Asset.AssetProvider {
 		}
 
 		private AssetInstance ProvideAsset(string path, AssetContainer container, Type typ) {
+			var hash = AssetInstance.GenerateHash(path);
+			if( container.TryGetAsset(hash) is AssetInstance asset && asset.IsFinished ) {
+				return asset;
+			}
+
 			if( !TryGetABContext(path, out var abPathContext) ) {
 				Debug.LogWarning($"Can not get ab context : {path}");
 				return null;
 			}
 
-			if( !( container.TryGetAsset(path.GetHashCode()) is AssetInstance asset ) ) {
-				asset = typ == typeof(GameObject) ? new PrefabAssetInstance(path) : new AssetInstance(path);
-				container.Put(asset);
-			}
+			asset = typ == typeof(GameObject) ? new PrefabAssetInstance(path) : new AssetInstance(path);
+			container.Put(asset);
 
 			var mainAbInstance = HandleMainAbDependencies(abPathContext.ABName, container);
 
@@ -185,16 +180,16 @@ namespace Extend.Asset.AssetProvider {
 			asset.SetAsset(unityObject, mainAbInstance);
 			return asset;
 		}
+
 		/// <summary>
 		/// 处理加载目标AB的全部依赖项
 		/// </summary>
 		/// <param name="abName">目标ab名</param>
 		/// <param name="container">ab缓存</param>
 		/// <returns></returns>
-		private AssetBundleInstance HandleMainAbDependencies(string abName, AssetContainer container )
-		{
+		private AssetBundleInstance HandleMainAbDependencies(string abName, AssetContainer container) {
 			var mainAbHash = AssetBundleInstance.GenerateHash(abName);
-			if( !( container.TryGetAsset(mainAbHash) is AssetBundleInstance mainAbInstance) ) {
+			if( !( container.TryGetAsset(mainAbHash) is AssetBundleInstance mainAbInstance ) ) {
 				mainAbInstance = new AssetBundleInstance(abName);
 				container.PutAB(mainAbInstance);
 				var needLoadPaths = new List<AssetBundleInstance>();
@@ -221,32 +216,25 @@ namespace Extend.Asset.AssetProvider {
 			return mainAbInstance;
 		}
 
-		private void HandleAssetOperators(List<AssetOperatorBase> operators, AssetAsyncLoadHandle loadHandle, Type t)
-		{
-			var op = new AssetOperators()
-			{
+		private void HandleAssetOperators(List<AssetOperatorBase> operators, AssetAsyncLoadHandle loadHandle, Type t) {
+			var op = new AssetOperators() {
 				Operators = operators.ToArray()
 			};
 			op.Execute(loadHandle, t);
 		}
 
-		private AsyncABArrayOperator GenerateMainAbDependenciesOperator(string abName, out AssetRefObject mainAbInstance, AssetAsyncLoadHandle loadHandle)
-		{
+		private AsyncABArrayOperator GenerateMainAbDependenciesOperator(string abName, out AssetRefObject mainAbInstance, AssetAsyncLoadHandle loadHandle) {
 			var mainABHash = AssetBundleInstance.GenerateHash(abName);
 			mainAbInstance = loadHandle.Container.TryGetAsset(mainABHash);
-			if (mainAbInstance == null)
-			{
+			if( mainAbInstance == null ) {
 				mainAbInstance = new AssetBundleInstance(abName);
-				loadHandle.Container.PutAB((AssetBundleInstance) mainAbInstance);
+				loadHandle.Container.PutAB((AssetBundleInstance)mainAbInstance);
 				var allDependencies = m_manifest.GetAllDependencies(abName);
-				if (allDependencies.Length > 0)
-				{
-					foreach (var dependency in allDependencies)
-					{
+				if( allDependencies.Length > 0 ) {
+					foreach( var dependency in allDependencies ) {
 						var depHash = AssetBundleInstance.GenerateHash(dependency);
 						var depAsset = loadHandle.Container.TryGetAsset(depHash);
-						if (depAsset == null)
-						{
+						if( depAsset == null ) {
 							loadHandle.Container.PutAB(new AssetBundleInstance(dependency));
 						}
 					}
@@ -254,43 +242,41 @@ namespace Extend.Asset.AssetProvider {
 
 				return new AsyncABArrayOperator(allDependencies);
 			}
+
 			return null;
 		}
 
-		private bool PrepareMainAbOperators(List<AssetOperatorBase> operators, AssetAsyncLoadHandle loadHandle, bool isScene = false)
-		{
+		private bool PrepareMainAbOperators(List<AssetOperatorBase> operators, AssetAsyncLoadHandle loadHandle, bool isScene = false) {
 			if( !AbContextChecker(loadHandle, out var abPathContext) ) {
 				return false;
 			}
+
 			loadHandle.Location = abPathContext.Path;
 			var mainAbName = abPathContext.ABName;
 			var mainAbHash = AssetBundleInstance.GenerateHash(mainAbName);
 			var mainAbInstance = loadHandle.Container.TryGetAsset(mainAbHash);
-			
+
 			var mainAbDependenciesOperator = GenerateMainAbDependenciesOperator(mainAbName, out mainAbInstance, loadHandle);
-			if (mainAbDependenciesOperator != null)
-			{
+			if( mainAbDependenciesOperator != null ) {
 				operators.Add(mainAbDependenciesOperator);
 			}
+
 			if( !mainAbInstance.IsFinished ) {
 				operators.Add(new AsyncABArrayOperator(new[] {abPathContext.ABName}));
 			}
 
-			if (isScene)
-			{
+			if( isScene ) {
 				operators.Add(new AsyncABSceneOperator(mainAbHash));
 			}
-			else
-			{
+			else {
 				operators.Add(new AsyncABAssetOperator(mainAbHash, loadHandle.Asset));
 			}
 
 			return true;
 		}
-		
-		private bool AbContextChecker(AssetAsyncLoadHandle loadHandle, out AssetPath abPathContext)
-		{
-			if( !TryGetABContext(loadHandle.Location, out abPathContext ) ) {
+
+		private bool AbContextChecker(AssetAsyncLoadHandle loadHandle, out AssetPath abPathContext) {
+			if( !TryGetABContext(loadHandle.Location, out abPathContext) ) {
 				loadHandle.Asset.Status = AssetRefObject.AssetStatus.FAIL;
 				loadHandle.Complete();
 				return false;
@@ -298,7 +284,7 @@ namespace Extend.Asset.AssetProvider {
 
 			return true;
 		}
-		
+
 		internal override AssetInstance ProvideAssetWithGUID<T>(string guid, AssetContainer container, out string path) {
 			if( m_guid2AssetPath.TryGetValue(guid, out path) ) {
 				return ProvideAsset(path, container, typeof(T));
@@ -320,7 +306,7 @@ namespace Extend.Asset.AssetProvider {
 			var streamingAsset = Path.Combine(PERSISTENT_DATA_PATH, path);
 			return File.Exists(streamingAsset) ? streamingAsset : Path.Combine(STREAMING_ASSET_PATH, path);
 		}
-		
+
 		public static string DetermineLocation(string path, out bool persistent) {
 			var streamingAsset = Path.Combine(PERSISTENT_DATA_PATH, path);
 			if( File.Exists(streamingAsset) ) {

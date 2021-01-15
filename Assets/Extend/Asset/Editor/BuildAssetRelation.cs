@@ -51,13 +51,14 @@ namespace Extend.Asset.Editor {
 
 		private static Dictionary<string, BundleUnloadStrategy> s_specialAB;
 
-		public static void BuildRelation(StaticABSettings abSetting, Action completeCallback) {
+		public static void BuildRelation(StaticABSettings abSetting) {
 			AssetCustomProcesses.Init();
 			AssetNodeCollector.Clear();
 
 			manualSettings = abSetting.Settings;
 			s_specialAB = new Dictionary<string, BundleUnloadStrategy>();
 			foreach( var setting in manualSettings ) {
+				Debug.LogWarning($"Setting Path : {setting.Path}");
 				var settingFiles = Directory.GetFiles(setting.Path, "*.*", SearchOption.AllDirectories);
 				foreach( var filePath in settingFiles ) {
 					if( Array.IndexOf(IgnoreExtensions, Path.GetExtension(filePath)) >= 0 )
@@ -101,6 +102,10 @@ namespace Extend.Asset.Editor {
 
 							var depNode = new AssetNode(dependency, abName);
 							AddNewAssetNode(depNode);
+							if( s_specialAB.ContainsKey(depNode.AssetName) ) {
+								Debug.LogError($"one sprite in multi atlas : {depNode.AssetName}");
+								continue;
+							}
 							s_specialAB.Add(depNode.AssetName, s?.UnloadStrategy ?? BundleUnloadStrategy.Normal);
 						}
 					}
@@ -117,16 +122,22 @@ namespace Extend.Asset.Editor {
 
 			files = files.Concat(otherFiles).ToArray();
 			EditorUtility.DisplayProgressBar("Process resources asset", "", 0);
-			EditorCoroutineUtility.StartCoroutineOwnerless(RelationProcess(files, completeCallback));
+			RelationProcess(files);
 		}
 
 		private static void AddNewAssetNode(AssetNode node) {
 			var guid = AssetDatabase.AssetPathToGUID(node.AssetPath);
-			if( node.AssetPath.StartsWith("assets/resources", true, CultureInfo.InvariantCulture) ) {
-				resourcesNodes.Add(guid, node);
+			if( node.AssetPath.ToLower().Contains("resources/") ) {
+				if(!resourcesNodes.ContainsKey(guid))
+					resourcesNodes.Add(guid, node);
 			}
 
-			allAssetNodes.Add(guid, node);
+			if( !allAssetNodes.ContainsKey(guid) ) {
+				allAssetNodes.Add(guid, node);
+			}
+			else {
+				Debug.LogWarning($"Duplicate asset path : {node.AssetPath}");
+			}
 		}
 
 		// \\ -> /
@@ -146,13 +157,13 @@ namespace Extend.Asset.Editor {
 					var assetPath = resourcesNode.AssetPath.ToLower();
 
 					writer.WriteLine(s_specialAB.TryGetValue(resourcesNode.AssetBundleName, out var strategy)
-						? $"{assetPath}|{resourcesNode.AssetBundleName}|{guid}|{(int)strategy}"
-						: $"{assetPath}|{resourcesNode.AssetBundleName}|{guid}");
+						? $"{assetPath}|{resourcesNode.AssetBundleName + AssetNode.AB_EXTENSION}|{guid}|{(int)strategy}"
+						: $"{assetPath}|{resourcesNode.AssetBundleName + AssetNode.AB_EXTENSION}|{guid}");
 				}
 			}
 		}
 
-		private static IEnumerator  RelationProcess(ICollection<string> files, Action completeCallback) {
+		private static void RelationProcess(ICollection<string> files) {
 			var progress = 0;
 			foreach( var filePath in files ) {
 				var extension = Path.GetExtension(filePath);
@@ -184,7 +195,6 @@ namespace Extend.Asset.Editor {
 
 				if( progress % 5 == 0 ) {
 					EditorUtility.DisplayProgressBar("Process resources asset", $"{progress} / {files.Count}", progress / (float)files.Count);
-					yield return null;
 				}
 			}
 
@@ -196,7 +206,6 @@ namespace Extend.Asset.Editor {
 				if( progress % 10 == 0 ) {
 					EditorUtility.DisplayProgressBar("Calculate resources relations", $"{progress} / {resourcesNodes.Count}",
 						progress / (float)resourcesNodes.Count);
-					yield return null;
 				}
 			}
 
@@ -206,7 +215,6 @@ namespace Extend.Asset.Editor {
 				node.Value.RemoveShorterLink();
 				if( progress % 10 == 0 ) {
 					EditorUtility.DisplayProgressBar("Remove shorter link", $"{progress} / {allAssetNodes.Count}", progress / (float)allAssetNodes.Count);
-					yield return null;
 				}
 			}
 
@@ -217,15 +225,12 @@ namespace Extend.Asset.Editor {
 				node.Value.CalculateABName();
 				progress++;
 				EditorUtility.DisplayProgressBar("Assign bundle name", $"{progress} / {allAssetNodes.Count}", progress / (float)allAssetNodes.Count);
-				yield return null;
 			}
 
 			//Debug.Log( sb.ToString() );
 			EditorUtility.ClearProgressBar();
 			ExportResourcesPackageConf();
-			completeCallback();
 			AssetCustomProcesses.PostProcess();
-			AssetCustomProcesses.Shutdown();
 		}
 	}
 }
