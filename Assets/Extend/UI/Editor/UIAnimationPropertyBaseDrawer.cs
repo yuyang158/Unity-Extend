@@ -134,9 +134,21 @@ namespace Extend.UI.Editor {
 			return previewComponent.transform;
 		}
 
+		private static Tween[] m_currentPreviewTweens;
+
 		private static void StartPreview(SerializedProperty property) {
 			var transform = PreviewComponent(property, out var animation);
 			DOTweenEditorPreview.Stop();
+			if( m_currentPreviewTweens != null ) {
+				foreach( var tween in m_currentPreviewTweens ) {
+					if(tween == null || !tween.active || tween.IsComplete())
+						continue;
+					tween.Complete();
+				}
+
+				m_currentPreviewTweens = null;
+			}
+			
 			var previewGO = GameObject.Find("-[ DOTween Preview ► ]-");
 			if( previewGO ) {
 				Object.DestroyImmediate(previewGO);
@@ -145,6 +157,7 @@ namespace Extend.UI.Editor {
 			
 			animation.CacheStartValue(transform);
 			var allTween = animation.CollectPreviewTween(transform);
+			m_currentPreviewTweens = allTween;
 			if( allTween == null )
 				return;
 
@@ -167,7 +180,7 @@ namespace Extend.UI.Editor {
 
 			DOTweenEditorPreview.Start();
 			previewGO = GameObject.Find("-[ DOTween Preview ► ]-");
-			previewGO.hideFlags |= HideFlags.HideAndDontSave;
+			previewGO.hideFlags |= HideFlags.DontSave;
 		}
 
 		private static void StopPreview(SerializedProperty property) {
