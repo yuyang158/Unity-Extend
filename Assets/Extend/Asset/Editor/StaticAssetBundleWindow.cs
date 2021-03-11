@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Text;
 using Extend.Asset.Editor.Process;
 using Extend.Common;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.Assertions;
+using Debug = UnityEngine.Debug;
 
 namespace Extend.Asset.Editor {
 	public class StaticAssetBundleWindow : EditorWindow {
@@ -20,6 +24,8 @@ namespace Extend.Asset.Editor {
 		private ReorderableList m_reList;
 		private ReorderableList m_otherDependencyList;
 		private ReorderableList m_reSpecialUnloadStrategyList;
+		private ReorderableList m_sceneList;
+
 		private static StaticABSettings settingRoot;
 		private SerializedObject serializedObject;
 		private SerializedProperty selectedSetting;
@@ -43,8 +49,11 @@ namespace Extend.Asset.Editor {
 
 			serializedObject = new SerializedObject(settingRoot);
 			var settingsProp = serializedObject.FindProperty("Settings");
+
+			#region ABSetting
+
 			m_reList = new ReorderableList(serializedObject, settingsProp);
-			m_reList.drawHeaderCallback += rect => { EditorGUI.LabelField(rect, SPECIAL_LIST_HEADER); };
+			m_reList.drawHeaderCallback += rect => { EditorGUI.LabelField(rect, SPECIAL_LIST_HEADER, EditorStyles.boldLabel); };
 			m_reList.drawElementCallback += (rect, index, active, focused) => {
 				rect.height = EditorGUIUtility.singleLineHeight;
 				var totalWidth = position.width;
@@ -155,9 +164,13 @@ namespace Extend.Asset.Editor {
 				}
 			};
 
+			#endregion
+
+			#region OtherSetting
+
 			var otherDepend = serializedObject.FindProperty("ExtraDependencyAssets");
 			m_otherDependencyList = new ReorderableList(otherDepend.serializedObject, otherDepend);
-			m_otherDependencyList.drawHeaderCallback += rect => { EditorGUI.LabelField(rect, "非Resources依赖"); };
+			m_otherDependencyList.drawHeaderCallback += rect => { EditorGUI.LabelField(rect, "非Resources依赖", EditorStyles.boldLabel); };
 			m_otherDependencyList.drawElementCallback += (rect, index, active, focused) => {
 				rect.height = EditorGUIUtility.singleLineHeight;
 				var dependProp = m_otherDependencyList.serializedProperty.GetArrayElementAtIndex(index);
@@ -171,6 +184,17 @@ namespace Extend.Asset.Editor {
 				}
 
 				serializedObject.ApplyModifiedProperties();
+			};
+
+			#endregion
+
+			var scenesProp = serializedObject.FindProperty("Scenes");
+			m_sceneList = new ReorderableList(serializedObject, scenesProp) {
+				drawHeaderCallback = rect => { GUI.Label(rect, "Scenes", EditorStyles.boldLabel); },
+				drawElementCallback = (rect, index, active, focused) => {
+					var sceneProp = scenesProp.GetArrayElementAtIndex(index);
+					EditorGUI.ObjectField(rect, sceneProp, GUIContent.none);
+				} 
 			};
 		}
 
@@ -198,6 +222,9 @@ namespace Extend.Asset.Editor {
 			m_otherDependencyList.DoLayoutList();
 			EditorGUILayout.Space();
 
+			m_sceneList.DoLayoutList();
+			EditorGUILayout.Space();
+
 			var rect = EditorGUILayout.BeginHorizontal();
 			var segmentWidth = position.width / BOTTOM_BUTTON_COUNT;
 			rect.height = EditorGUIUtility.singleLineHeight;
@@ -218,12 +245,13 @@ namespace Extend.Asset.Editor {
 
 		private static string buildRoot;
 		private static string outputPath;
+
 		public static string OutputPath {
 			get {
-				if(string.IsNullOrEmpty(outputPath)) {
+				if( string.IsNullOrEmpty(outputPath) ) {
 					MakeOutputDirectory(m_currentBuildTarget);
 				}
-				
+
 				return outputPath;
 			}
 		}
@@ -277,6 +305,88 @@ namespace Extend.Asset.Editor {
 		}
 
 		private static BuildTarget m_currentBuildTarget;
+
+		/// <summary>
+		/// build lua-like files(include '.lua' & '.proto')
+		/// </summary>
+		/// <param name="luaRootPath">absolute path</param>
+		private static void BuildLuaFile(string luaRootPath)
+		{
+			System.Diagnostics.Process process = new System.Diagnostics.Process();
+#if UNITY_EDITOR_WIN
+			process.StartInfo.WorkingDirectory = Path.Combine(Application.dataPath.Replace("Assets", ""), "xlua_build", "luac", "build64", "Release").Replace("/", @"\");
+			process.StartInfo.FileName = Path.Combine(process.StartInfo.WorkingDirectory, "build_lua.bat");
+			process.StartInfo.Arguments = luaRootPath.Replace("/", @"\");
+#else			
+			process.StartInfo.WorkingDirectory = Path.Combine(Application.dataPath.Replace("Assets", ""), "xlua_build", "luac", "build_unix");
+			process.StartInfo.FileName = "/bin/sh";
+			process.StartInfo.Arguments = Path.Combine(process.StartInfo.WorkingDirectory, "build_lua.sh") + " " + luaRootPath;
+#endif			
+			process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+			process.StartInfo.RedirectStandardOutput = true;
+			process.StartInfo.RedirectStandardError = true;
+			process.StartInfo.StandardOutputEncoding = UTF8Encoding.UTF8;
+			process.StartInfo.StandardErrorEncoding = UTF8Encoding.UTF8;
+			process.StartInfo.UseShellExecute = false;
+			process.StartInfo.CreateNoWindow = true;
+			process.Start();
+			process.WaitForExit();
+			var output = process.StandardOutput.ReadToEnd();
+			var outputError = process.StandardError.ReadToEnd();
+			if (!string.IsNullOrEmpty(output))
+			{
+				Debug.Log(output);
+			}
+
+			if (!string.IsNullOrEmpty(outputError))
+			{
+				Debug.LogError(outputError);
+			}
+			process.Close();
+#if UNITY_EDITOR_WIN
+			DirectoryCopy($"{Application.dataPath}/../xlua_build/luac/build64/Release/Lua", $"{Application.dataPath}/Resources/Lua", true);
+#else
+			DirectoryCopy($"{Application.dataPath}/../xlua_build/luac/build_unix/Lua", $"{Application.dataPath}/Resources/Lua", true);
+#endif
+		}
+		
+		public static bool RebuildSelectedAssetBundles(BuildTarget target, bool appendLuaDir, int[] selectedIds) {
+			if( appendLuaDir ) {
+				BuildLuaFile(Path.Combine(Application.dataPath.Replace("Assets", ""), "Lua"));
+				AssetDatabase.Refresh();
+			}
+
+			var builds = new List<AssetBundleBuild>();
+			using( var reader = new StreamReader("./build-relations.tsv") ) {
+				while( !reader.EndOfStream ) {
+					var line = reader.ReadLine();
+					var parts = line.Split('\t');
+					var index = int.Parse(parts[0]);
+					if( !selectedIds.Contains(index) ) {
+						continue;
+					}
+					
+					var assetBundleName = parts[1];
+					var build = new AssetBundleBuild {
+						assetBundleName = assetBundleName
+					};
+
+					var assetCount = parts.Length - 2;
+					build.assetNames = new string[assetCount];
+					for( int i = 2; i < parts.Length; i++ ) {
+						build.assetNames[i - 2] = parts[i];
+					}
+					
+					builds.Add(build);
+				}
+			}
+			BuildPipeline.BuildAssetBundles(OutputPath, builds.ToArray(),
+				BuildAssetBundleOptions.DeterministicAssetBundle | BuildAssetBundleOptions.ChunkBasedCompression, target);
+			Directory.Delete($"{Application.dataPath}/Resources/Lua", true);
+			FinalClear();
+			return true;
+		}
+
 		public static bool RebuildAllAssetBundles(BuildTarget target, bool appendLuaDir) {
 			outputPath = null;
 			m_currentBuildTarget = target;
@@ -284,7 +394,7 @@ namespace Extend.Asset.Editor {
 			BuildAssetRelation.Clear();
 			var settings = settingRoot;
 			if( appendLuaDir ) {
-				DirectoryCopy($"{Application.dataPath}/../Lua", $"{Application.dataPath}/Resources/Lua", true);
+				BuildLuaFile(Path.Combine(Application.dataPath.Replace("Assets", ""), "Lua"));
 				AssetDatabase.Refresh();
 
 				settings = CreateInstance<StaticABSettings>();
@@ -296,20 +406,25 @@ namespace Extend.Asset.Editor {
 					Op = StaticABSetting.Operation.ALL_IN_ONE,
 					UnloadStrategies = new SpecialBundleLoadLogic[0]
 				};
+				settings.Scenes = settingRoot.Scenes;
 				Debug.Log("Finish copy lua directory");
 			}
 
 			try {
 				BuildAssetRelation.BuildRelation(settings);
-				Directory.Delete($"{Application.dataPath}/Resources/Lua", true);
 				Debug.Log($"Start AB Build Output : {OutputPath}");
-				BuildPipeline.BuildAssetBundles(OutputPath, AssetNodeCollector.Output(),
-					BuildAssetBundleOptions.DeterministicAssetBundle | BuildAssetBundleOptions.ChunkBasedCompression, target);
-				var manifestFiles = Directory.GetFiles(OutputPath, "*.manifest", SearchOption.AllDirectories);
-				foreach( var manifestFile in manifestFiles ) {
-					File.Delete(manifestFile);
-				}
 
+				var buildContext = AssetNodeCollector.Output();
+				using( var stream = new StreamWriter("./build-relations.tsv") ) {
+					for( int i = 0; i < buildContext.Length; i++ ) {
+						var ctx = buildContext[i];
+						stream.WriteLine($"{i}\t{ctx.assetBundleName}\t{string.Join("\t", ctx.assetNames)}");
+					}
+				}
+				BuildPipeline.BuildAssetBundles(OutputPath, buildContext,
+					BuildAssetBundleOptions.DeterministicAssetBundle | BuildAssetBundleOptions.ChunkBasedCompression, target);
+				Directory.Delete($"{Application.dataPath}/Resources/Lua", true);
+				FinalClear();
 				return true;
 			}
 			catch( Exception e ) {
@@ -319,6 +434,15 @@ namespace Extend.Asset.Editor {
 			finally {
 				AssetCustomProcesses.Shutdown();
 			}
+		}
+
+		private static void FinalClear() {
+			var manifestFiles = Directory.GetFiles(OutputPath, "*.manifest", SearchOption.AllDirectories);
+			foreach( var manifestFile in manifestFiles ) {
+				File.Delete(manifestFile);
+			}
+
+			AssetDatabase.Refresh();
 		}
 	}
 }

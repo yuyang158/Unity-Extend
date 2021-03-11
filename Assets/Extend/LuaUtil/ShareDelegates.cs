@@ -14,6 +14,9 @@ namespace Extend.LuaUtil {
 
 	[CSharpCallLua]
 	public delegate void LuaUnityEventFunction(LuaTable self);
+	
+	[CSharpCallLua]
+	public delegate void LuaUnityCollision2DEventFunction(LuaTable self, Collision2D collision);
 
 	[CSharpCallLua]
 	public delegate void WatchCallback(LuaTable self, object val);
@@ -58,5 +61,5 @@ namespace Extend.LuaUtil {
 	public delegate void SetupLuaNewClassCallback(LuaTable classMeta, LuaTable parentClassMeta);
 
 	[CSharpCallLua]
-	public delegate void BindingEventDispatch(int id);
+	public delegate void BindingEventDispatch(int id, PointerEventData eventData);
 }

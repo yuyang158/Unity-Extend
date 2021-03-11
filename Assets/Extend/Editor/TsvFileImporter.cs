@@ -1,14 +1,14 @@
 using System.IO;
 using Extend.Common;
 using Extend.LuaUtil;
-using UnityEditor.Experimental.AssetImporters;
+
 using UnityEngine;
 using XLua;
 
 namespace Extend.Editor {
-	[ScriptedImporter(1, "tsv")]
-	public class TsvFileImporter : ScriptedImporter {
-		public override void OnImportAsset(AssetImportContext ctx) {
+	[UnityEditor.AssetImporters.ScriptedImporter(1, "tsv")]
+	public class TsvFileImporter : UnityEditor.AssetImporters.ScriptedImporter {
+		public override void OnImportAsset(UnityEditor.AssetImporters.AssetImportContext ctx) {
 			var text = File.ReadAllText(ctx.assetPath);
 			var asset = new TextAsset(text);
 

@@ -92,8 +92,13 @@ namespace Extend.Asset {
 			Resources.UnloadUnusedAssets();
 			GC.Collect();
 		}
-		
-		
+
+		public void Clear() {
+			foreach( var asset in m_assets ) {
+				asset.Destroy();
+			}
+		}
+
 		public void Dump() {
 			foreach( var asset in m_hashAssetDic.Values ) {
 				StatService.Get().LogStat("AssetDump", asset.ToString(), "");

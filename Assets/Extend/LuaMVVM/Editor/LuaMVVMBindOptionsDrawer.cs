@@ -12,7 +12,7 @@ namespace Extend.LuaMVVM.Editor {
 		public override float GetPropertyHeight(SerializedProperty property, GUIContent label) {
 			if( mvvmBindList == null )
 				return 0;
-			return mvvmBindList.headerHeight + mvvmBindList.elementHeight * (mvvmBindList.count == 0 ? 1 : mvvmBindList.count) + mvvmBindList.footerHeight + 5;
+			return mvvmBindList.headerHeight + (mvvmBindList.elementHeight + EditorGUIUtility.standardVerticalSpacing) * (mvvmBindList.count == 0 ? 1 : mvvmBindList.count) + mvvmBindList.footerHeight + 5;
 		}
 		
 		private static Rect[] GetRowRects(Rect rect) {

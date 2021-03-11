@@ -1,6 +1,7 @@
 using System;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
 
 namespace Extend.Asset.Editor {
@@ -30,6 +31,8 @@ namespace Extend.Asset.Editor {
 	public class StaticABSettings : ScriptableObject {
 		public StaticABSetting[] Settings;
 		public Object[] ExtraDependencyAssets;
+
+		public SceneAsset[] Scenes;
 
 		public bool ContainExtraObject(Object obj) {
 			return Array.Find(ExtraDependencyAssets, dep => dep == obj);

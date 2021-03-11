@@ -1,11 +1,9 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using Extend.Asset.Editor.Process;
-using Unity.EditorCoroutines.Editor;
 using UnityEditor;
 using UnityEngine;
 
@@ -31,9 +29,7 @@ namespace Extend.Asset.Editor {
 
 			var guid = AssetDatabase.AssetPathToGUID(filePath);
 			if( !allAssetNodes.TryGetValue(guid, out var dependencyNode) ) {
-				dependencyNode = new AssetNode(filePath) {
-					Calculated = ContainInManualSettingDirectory(filePath)
-				};
+				dependencyNode = new AssetNode(filePath);
 				if( !dependencyNode.IsValid )
 					return null;
 				allAssetNodes.Add(guid, dependencyNode);
@@ -44,6 +40,7 @@ namespace Extend.Asset.Editor {
 		}
 
 		public static IEnumerable<AssetNode> ResourcesNodes => resourcesNodes.Values;
+
 		public static void Clear() {
 			resourcesNodes.Clear();
 			allAssetNodes.Clear();
@@ -59,7 +56,7 @@ namespace Extend.Asset.Editor {
 			s_specialAB = new Dictionary<string, BundleUnloadStrategy>();
 			foreach( var setting in manualSettings ) {
 				Debug.LogWarning($"Setting Path : {setting.Path}");
-				var settingFiles = Directory.GetFiles(setting.Path, "*.*", SearchOption.AllDirectories);
+				var settingFiles = Directory.GetFiles(setting.Path, "*", SearchOption.AllDirectories);
 				foreach( var filePath in settingFiles ) {
 					if( Array.IndexOf(IgnoreExtensions, Path.GetExtension(filePath)) >= 0 )
 						continue;
@@ -86,13 +83,13 @@ namespace Extend.Asset.Editor {
 							throw new ArgumentOutOfRangeException();
 					}
 
-					var node = new AssetNode(importer.assetPath, abName);
 					var s = Array.Find(setting.UnloadStrategies, (strategy) => strategy.BundleName == abName);
-					AddNewAssetNode(node);
+					var node = AddNewAssetNode(importer.assetPath, abName);
 					// 同名资源处理
 					if( !s_specialAB.ContainsKey(node.AssetName) ) {
 						s_specialAB.Add(node.AssetName, s?.UnloadStrategy ?? BundleUnloadStrategy.Normal);
 					}
+
 					if( Path.GetExtension(node.AssetPath) == ".spriteatlas" ) {
 						var dependencies = AssetDatabase.GetDependencies(node.AssetPath);
 						foreach( var dependency in dependencies ) {
@@ -100,19 +97,23 @@ namespace Extend.Asset.Editor {
 								continue;
 							}
 
-							var depNode = new AssetNode(dependency, abName);
-							AddNewAssetNode(depNode);
+							var depNode = AddNewAssetNode(dependency, abName);
 							if( s_specialAB.ContainsKey(depNode.AssetName) ) {
 								Debug.LogError($"one sprite in multi atlas : {depNode.AssetName}");
 								continue;
 							}
+
 							s_specialAB.Add(depNode.AssetName, s?.UnloadStrategy ?? BundleUnloadStrategy.Normal);
 						}
 					}
 				}
 			}
 
-			var files = Directory.GetFiles("Assets/Resources", "*", SearchOption.AllDirectories);
+			var resourcesFiles = Directory.GetFiles("Assets/Resources", "*", SearchOption.AllDirectories);
+			List<string> filteredFiles = new List<string>(resourcesFiles.Length);
+			filteredFiles.AddRange(resourcesFiles.Where(file => !file.Contains(".svn") && 
+				Array.IndexOf(IgnoreExtensions, Path.GetExtension(file)) == -1));
+			resourcesFiles = filteredFiles.ToArray();
 			var otherFiles = new string[abSetting.ExtraDependencyAssets.Length];
 			for( var i = 0; i < abSetting.ExtraDependencyAssets.Length; i++ ) {
 				var asset = abSetting.ExtraDependencyAssets[i];
@@ -120,24 +121,73 @@ namespace Extend.Asset.Editor {
 				otherFiles[i] = path;
 			}
 
-			files = files.Concat(otherFiles).ToArray();
+			foreach( var sceneAsset in abSetting.Scenes ) {
+				if(!sceneAsset) {
+					Debug.LogError($"Scene asset is null");
+					continue;
+				}
+				var scenePath = AssetDatabase.GetAssetPath(sceneAsset);
+				var sceneAbName = scenePath.Substring(0, scenePath.Length - 6).ToLower();
+				var sceneAssetNode = new AssetNode(scenePath, sceneAbName);
+				allAssetNodes.Add(sceneAssetNode.GUID, sceneAssetNode);
+				resourcesNodes.Add(sceneAssetNode.GUID, sceneAssetNode);
+				var dependencies = AssetDatabase.GetDependencies(scenePath);
+				foreach( var dependency in dependencies ) {
+					if( Array.IndexOf(IgnoreExtensions, Path.GetExtension(dependency)) >= 0 )
+						continue;
+
+					if( !dependency.StartsWith("assets", true, CultureInfo.InvariantCulture) ) {
+						Debug.LogWarning($"{scenePath} Depend asset : {dependency} is not under Assets folder");
+						continue;
+					}
+					var guid = AssetDatabase.AssetPathToGUID(dependency);
+					if( !allAssetNodes.TryGetValue(guid, out var node) ) {
+						node = new AssetNode(dependency, sceneAbName + "_scene");
+						allAssetNodes.Add(guid, node);
+					}
+				}
+			}
+
+			resourcesFiles = resourcesFiles.Concat(otherFiles).ToArray();
 			EditorUtility.DisplayProgressBar("Process resources asset", "", 0);
-			RelationProcess(files);
+			RelationProcess(resourcesFiles);
+
+			ExportResourcesPackageConf();
+			AssetCustomProcesses.PostProcess();
 		}
 
-		private static void AddNewAssetNode(AssetNode node) {
-			var guid = AssetDatabase.AssetPathToGUID(node.AssetPath);
-			if( node.AssetPath.ToLower().Contains("resources/") ) {
-				if(!resourcesNodes.ContainsKey(guid))
-					resourcesNodes.Add(guid, node);
-			}
-
-			if( !allAssetNodes.ContainsKey(guid) ) {
-				allAssetNodes.Add(guid, node);
+		private static AssetNode AddNewResourcesAssetNode(string path, string abName = null) {
+			var guid = AssetDatabase.AssetPathToGUID(path);
+			AssetNode node;
+			if( allAssetNodes.ContainsKey(guid) ) {
+				node = allAssetNodes[guid];
 			}
 			else {
-				Debug.LogWarning($"Duplicate asset path : {node.AssetPath}");
+				node = new AssetNode(path, abName);
+				allAssetNodes.Add(guid, node);
 			}
+
+			if(!resourcesNodes.ContainsKey(guid)) {
+				resourcesNodes.Add(guid, node);
+			}
+
+			return node;
+		}
+
+		private static AssetNode AddNewAssetNode(string path, string abName = null) {
+			var guid = AssetDatabase.AssetPathToGUID(path);
+			if( allAssetNodes.ContainsKey(guid) ) {
+				return allAssetNodes[guid];
+			}
+
+			var node = new AssetNode(path, abName);
+			allAssetNodes.Add(guid, node);
+			if( path.ToLower().Contains("resources/") ) {
+				if( resourcesNodes.ContainsKey(guid) )
+					return node;
+				resourcesNodes.Add(guid, node);
+			}
+			return node;
 		}
 
 		// \\ -> /
@@ -163,38 +213,23 @@ namespace Extend.Asset.Editor {
 			}
 		}
 
-		private static void RelationProcess(ICollection<string> files) {
+		private static void RelationProcess(ICollection<string> resourcesFolderFiles) {
 			var progress = 0;
-			foreach( var filePath in files ) {
+			foreach( var filePath in resourcesFolderFiles ) {
 				var extension = Path.GetExtension(filePath);
 				progress++;
 				if( Array.IndexOf(IgnoreExtensions, extension) >= 0 || filePath.Contains(".svn") )
 					continue;
 
 				var formatPath = FormatPath(filePath);
-				var node = new AssetNode(formatPath);
-				if( s_specialAB.ContainsKey(node.AssetName) ) {
-					continue;
-				}
-
 				var guid = AssetDatabase.AssetPathToGUID(formatPath);
-				if( !allAssetNodes.ContainsKey(guid) ) {
-					if( string.IsNullOrEmpty(guid) ) {
-						continue;
-					}
-
-					node.Calculated = ContainInManualSettingDirectory(node.AssetName);
-					if( !node.IsValid )
-						continue;
-					resourcesNodes.Add(guid, node);
-					allAssetNodes.Add(guid, node);
-				}
-				else {
-					resourcesNodes.Add(guid, allAssetNodes[guid]);
+				if( !string.IsNullOrEmpty(guid) ) {
+					AddNewResourcesAssetNode(formatPath);
 				}
 
 				if( progress % 5 == 0 ) {
-					EditorUtility.DisplayProgressBar("Process resources asset", $"{progress} / {files.Count}", progress / (float)files.Count);
+					EditorUtility.DisplayProgressBar("Process resources asset", $"{progress} / {resourcesFolderFiles.Count}",
+						progress / (float)resourcesFolderFiles.Count);
 				}
 			}
 
@@ -229,8 +264,6 @@ namespace Extend.Asset.Editor {
 
 			//Debug.Log( sb.ToString() );
 			EditorUtility.ClearProgressBar();
-			ExportResourcesPackageConf();
-			AssetCustomProcesses.PostProcess();
 		}
 	}
 }

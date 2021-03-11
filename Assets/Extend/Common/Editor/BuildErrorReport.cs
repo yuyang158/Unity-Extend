@@ -4,6 +4,7 @@ using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEditor;
@@ -16,20 +17,18 @@ namespace Extend.Common.Editor {
 	public static class BuildErrorReport {
 		private const string POST_URL = "https://open.feishu.cn/open-apis/bot/v2/hook/7edd60ad-1e5e-4c7e-b47e-f66d909833fd";
 
+#if NOTIFICATION_WHEN_COMPILE_ERROR
 		static BuildErrorReport() {
 			var t = new Thread(Run);
 			t.Start();
-
-			var updateThread = new Thread(SVNUpdate);
-			updateThread.Start();
-
-			EditorApplication.quitting += () => {
-				t.Abort();
-				updateThread.Abort();
-			};
+			SVNUpdate();
 		}
+#endif
 
-		private static void SVNUpdate() {
+		private static HttpListener m_listener;
+		public static string m_url = "http://pw-win.private-tunnel.site:6081/";
+
+		private static async void SVNUpdate() {
 			var paths = Environment.GetEnvironmentVariable("Path");
 			var pathArray = paths.Split(';');
 			string svnDir = string.Empty;
@@ -41,10 +40,52 @@ namespace Extend.Common.Editor {
 				}
 			}
 
-			while( true ) {
-				Thread.Sleep(10000);
-				Process.Start($"{svnDir}/svn.exe", "update").WaitForExit();
+			m_listener = new HttpListener();
+			m_listener.Prefixes.Add(m_url);
+			try {
+				m_listener.Start();
 			}
+			catch( Exception e ) {
+				Debug.LogException(e);
+				return;
+			}
+
+			while( true ) {
+				var ctx = await m_listener.GetContextAsync();
+				var req = ctx.Request;
+				var resp = ctx.Response;
+				
+				Debug.LogWarning($"Request : {DateTime.Now}");
+
+				if( req.Url.AbsolutePath == "/shutdown" ) {
+					break;
+				}
+
+				byte[] data = Encoding.UTF8.GetBytes($"Sync at {DateTime.Now}");
+				resp.ContentType = "text/html";
+				resp.ContentEncoding = Encoding.UTF8;
+				resp.ContentLength64 = data.LongLength;
+
+				await resp.OutputStream.WriteAsync(data, 0, data.Length);
+				resp.Close();
+
+				Debug.Log("SVN Update Start");
+				var process = new Process {
+					StartInfo = {
+						RedirectStandardOutput = true,
+						UseShellExecute = true,
+						FileName = $"{svnDir}/svn.exe",
+						Arguments = "update"
+					}
+				};
+				process.Start();
+				process.WaitForExit();
+				Debug.Log("SVN Update Finished");
+				AssetDatabase.Refresh();
+				Debug.Log("Asset Database Refreshed...");
+			}
+
+			EditorApplication.Exit(0);
 		}
 
 		private static void Run() {
@@ -58,6 +99,7 @@ namespace Extend.Common.Editor {
 #else
 			var logPath = "~/.config/unity3d/Editor.log";
 #endif
+			Debug.Log($"Watch for : {logPath}");
 			var dir = Path.GetDirectoryName(logPath);
 			var fsw = new FileSystemWatcher(dir) {
 				Filter = Path.GetFileName(logPath), EnableRaisingEvents = true

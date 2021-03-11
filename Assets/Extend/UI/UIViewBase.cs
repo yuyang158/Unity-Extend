@@ -93,7 +93,6 @@ namespace Extend.UI {
 		protected virtual void OnClosed() {
 			ViewStatus = Status.Hidden;
 			Hidden?.Invoke();
-			AssetService.Recycle(this);
 		}
 	}
 }

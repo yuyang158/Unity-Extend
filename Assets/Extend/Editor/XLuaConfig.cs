@@ -15,6 +15,8 @@ using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.EventSystems;
+using UnityEngine.Rendering;
 using UnityEngine.UI;
 using XLua;
 
@@ -22,7 +24,7 @@ using XLua;
 public static class XLuaGenConfig {
 	/***************如果你全lua编程，可以参考这份自动化配置***************/
 	//--------------begin 纯lua编程配置参考----------------------------
-	static List<string> exclude = new List<string> {
+	private static readonly List<string> exclude = new List<string> {
 		"HideInInspector", "ExecuteInEditMode",
 		"AddComponentMenu", "ContextMenu",
 		"RequireComponent", "DisallowMultipleComponent",
@@ -60,7 +62,8 @@ public static class XLuaGenConfig {
 		"NativeLeakDetectionMode", "WWWAudioExtensions", "UnityEngine.Experimental", "MeshRenderer",
 		"CanvasRenderer", "AnimatorControllerParameter", "AudioSetting", "Caching",
 		"DrivenRectTransformTracker", "LightProbeGroup", "Animation", "DefaultControls",
-		"UnityEngine.Light", "WebCam", "Human", "QualitySettings", "LOD", "ParticleSystem", "UIVertex"
+		"UnityEngine.Light", "WebCam", "Human", "QualitySettings", "LOD", "ParticleSystem", "UIVertex",
+		"ClusterSerialization", "DefaultExecutionOrder", "Audio", "FrameTimingManager", "Gyroscope"
 	};
 
 	private static bool isExcluded(Type type) {
@@ -132,7 +135,11 @@ public static class XLuaGenConfig {
 		typeof(TextMeshProUGUI),
 		typeof(TextMeshPro),
 		typeof(TMP_InputField),
-		typeof(Tweener)
+		typeof(Tweener),
+		typeof(UnityEngine.XR.ARFoundation.ARPlaneManager),
+		typeof(UnityEngine.XR.ARFoundation.ARSession),
+		typeof(EventSystem),
+		typeof(Volume)
 	};
 
 	[LuaCallCSharp]

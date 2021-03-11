@@ -1,14 +1,12 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using Extend.Asset;
 using Extend.Common;
 using Extend.LuaUtil;
 using UnityEngine;
 using XLua;
 using Debug = UnityEngine.Debug;
-#if !UNITY_EDITOR
-using Extend.Asset;
-#endif
 namespace Extend {
 	public class LuaVM : IService, IServiceUpdate, IDisposable {
 		private LuaMemoryLeakChecker.Data leakData;
@@ -17,7 +15,7 @@ namespace Extend {
 		private LuaFunction OnInit;
 		private LuaEnv Default { get; set; }
 		public LuaTable Global => Default.Global;
-		public static event Action OnPreRequestLoaded;
+		public static Action OnPreRequestLoaded;
 
 		public LuaTable NewTable() {
 			return Default.NewTable();
@@ -67,11 +65,39 @@ namespace Extend {
 
 				return null;
 #else
-				filename = filename.Replace('.', '/');
-				var hotfix = $"{LUA_DEBUG_DIRECTORY}{filename}.lua";
+				filename = filename.Replace('.', '/') + ".lua";
+				var hotfix = $"{LUA_DEBUG_DIRECTORY}{filename}.bytes";
 				if( File.Exists(hotfix) ) {
 					Debug.LogWarning("HOTFIX FILE : " + hotfix);
-					filename += ".lua";
+					filename += ".bytes";
+					return File.ReadAllBytes(hotfix);
+				}
+				
+				var service = CSharpServiceManager.Get<AssetService>(CSharpServiceManager.ServiceType.ASSET_SERVICE);
+				var assetRef = service.Load($"Lua/{filename}", typeof(TextAsset));
+				if( assetRef.AssetStatus != AssetRefObject.AssetStatus.DONE )
+					return null;
+				filename += ".bytes";
+				return assetRef.GetTextAsset().bytes;
+#endif
+			});
+
+			Default.SetProtoLoader((ref string filename) => {
+#if UNITY_EDITOR
+				filename = filename.Replace('.', '/') + ".proto";
+				var path = $"{Application.dataPath}/../Lua/{filename}";
+				if( File.Exists(path) ) {
+					var text = File.ReadAllText(path);
+					return Encoding.UTF8.GetBytes(text);
+				}
+
+				return null;
+#else
+				filename = filename.Replace('.', '/');
+				var hotfix = $"{LUA_DEBUG_DIRECTORY}{filename}.proto";
+				if( File.Exists(hotfix) ) {
+					Debug.LogWarning("HOTFIX FILE : " + hotfix);
+					filename += ".proto";
 					return Encoding.UTF8.GetBytes(File.ReadAllText(hotfix));
 				}
 				
@@ -79,7 +105,7 @@ namespace Extend {
 				var assetRef = service.Load($"Lua/{filename}", typeof(TextAsset));
 				if( assetRef.AssetStatus != AssetRefObject.AssetStatus.DONE )
 					return null;
-				filename += ".lua";
+				filename += ".proto";
 				return assetRef.GetTextAsset().bytes;
 #endif
 			});
@@ -97,6 +123,7 @@ namespace Extend {
 			if( reportLeakMark )
 				leakData = Default.StartMemoryLeakCheck();
 #endif
+			AssetService.Get().AddAfterDestroy(this);
 		}
 
 		public void StartUp() {
@@ -118,6 +145,13 @@ namespace Extend {
 		public LuaClassCache.LuaClass GetLuaClass(LuaTable klass) {
 			return LuaClassCache.TryGetClass(klass);
 		}
+		
+		public LuaClassCache.LuaClass GetLuaClass(string klass) {
+			var ret = LoadFileAtPath(klass);
+			if( !( ret[0] is LuaTable c ) )
+				return null;
+			return LuaClassCache.TryGetClass(c);
+		}
 
 		public void LogCallStack() {
 			var msg = Default.Global.GetInPath<Func<string>>("debug.traceback");
@@ -128,6 +162,14 @@ namespace Extend {
 		public void Destroy() {
 			OnVMQuiting?.Invoke();
 			OnDestroy.Call();
+
+			m_newClassCallback = null;
+			OnInit = null;
+			OnDestroy = null;
+			OnVMCreated = null;
+			OnPreRequestLoaded = null;
+			OnVMQuiting = null;
+			GC.Collect();
 		}
 
 		public void Update() {
@@ -171,6 +213,7 @@ namespace Extend {
 			if( reportLeakMark )
 				ReportLeak();
 #endif
+			Default.Dispose();
 		}
 	}
 }

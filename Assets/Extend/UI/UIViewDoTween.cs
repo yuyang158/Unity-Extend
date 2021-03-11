@@ -41,6 +41,7 @@ namespace Extend.UI {
 			if( ShowAnimation.Enabled ) {
 				enabled = true;
 				CurrentTweens = ShowAnimation.Active(transform);
+				ShowAnimation.ExecuteAtTrigger();
 			}
 			else {
 				Loop();
@@ -51,6 +52,7 @@ namespace Extend.UI {
 			if( HideAnimation.Enabled ) {
 				enabled = true;
 				CurrentTweens = HideAnimation.Active(transform);
+				HideAnimation.ExecuteAtTrigger();
 			}
 			else {
 				OnClosed();
@@ -61,6 +63,7 @@ namespace Extend.UI {
 			if( LoopAnimation.Enabled ) {
 				enabled = true;
 				CurrentTweens = LoopAnimation.Active(transform);
+				LoopAnimation.ExecuteAtTrigger();
 			}
 		}
 

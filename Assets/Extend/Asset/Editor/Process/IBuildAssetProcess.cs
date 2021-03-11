@@ -20,6 +20,14 @@ namespace Extend.Asset.Editor.Process {
 
 		public static void Init() {
 			m_processWriter = new StreamWriter($"{Application.dataPath}/../asset_build_warning_report.txt");
+			var typeCollection = TypeCache.GetTypesDerivedFrom<IBuildAssetProcess>();
+			foreach( var type in typeCollection ) {
+				RegisterProcess(Activator.CreateInstance(type) as IBuildAssetProcess);
+			}
+			var files = Directory.GetFiles("Assets/Shaders", "*.shadervariants", SearchOption.AllDirectories);
+			foreach( var file in files ) {
+				File.Delete(file);
+			}
 		}
 
 		public static void RegisterProcess(IBuildAssetProcess process) {
@@ -27,6 +35,7 @@ namespace Extend.Asset.Editor.Process {
 				processes = new List<IBuildAssetProcess>();
 				extensionProcessesMap.Add(process.ProcessType, processes);
 			}
+
 			processes.Add(process);
 		}
 

@@ -5,6 +5,8 @@ using Extend.DebugUtil;
 using Extend.LuaUtil;
 using Extend.Network;
 using Extend.UI.i18n;
+using Extend.GraphicsInstancing;
+using Extend.Render;
 using UnityEngine;
 
 namespace Extend {
@@ -17,6 +19,9 @@ namespace Extend {
 			CSharpServiceManager.Initialize();
 			CSharpServiceManager.Register(new GlobalCoroutineRunnerService());
 			CSharpServiceManager.Register(new StatService());
+#if UNITY_DEBUG
+			CSharpServiceManager.Register(new AssetFullStatService());
+#endif
 			CSharpServiceManager.Register(new ErrorLogToFile());
 			CSharpServiceManager.Register(new AssetService());
 			CSharpServiceManager.Register(new GameSystem());
@@ -24,6 +29,14 @@ namespace Extend {
 			CSharpServiceManager.Register(new I18nService());
 			CSharpServiceManager.Register(new LuaVM());
 			CSharpServiceManager.Register(new TickService());
+			CSharpServiceManager.Register(new GraphicsInstancingService());
+			CSharpServiceManager.Register(new RenderFeatureService());
+
+#if !UNITY_EDITOR
+			if( Application.isMobilePlatform ) {
+				Debug.LogWarning("usesReversedZBuffer : " + SystemInfo.usesReversedZBuffer);
+			}
+#endif
 		}
 
 		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
@@ -37,6 +50,7 @@ namespace Extend {
 					CSharpServiceManager.Register(go.GetComponent<InGameConsole>());
 				}
 			}
+
 			Application.targetFrameRate = 30;
 			var maxInstantiateDuration = GameSystem.Get().SystemSetting.GetDouble("GAME", "MaxInstantiateDuration");
 			AssetService.Get().AfterSceneLoaded((float)maxInstantiateDuration);

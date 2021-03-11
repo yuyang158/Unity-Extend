@@ -37,8 +37,13 @@ namespace Extend.Asset.Editor.Process {
 		}
 
 		public void OnProcessShader(Shader shader, ShaderSnippetData snippet, IList<ShaderCompilerData> data) {
+			Debug.Log($"Before Shader {shader.name} --> {data.Count}");
 			if( !m_shaderKeywordCollector.TryGetValue(shader, out var collectKeywords) ) {
+				if( m_shaderKeywordCollector.Count == 0 ) {
+					return;
+				}
 				data.Clear();
+				Debug.Log($"Shader {shader.name} --> {data.Count}");
 				return;
 			}
 

@@ -143,12 +143,13 @@ namespace Extend.Asset.AssetProvider {
 			}
 
 			var mainAbInstance = HandleMainAbDependencies(abPathContext.ABName, container);
-
 			if( !mainAbInstance.IsFinished ) {
 				var ab = AssetBundle.LoadFromFile(DetermineLocation(mainAbInstance.ABPath));
-				string[] scenePaths = ab.GetAllScenePaths();
-				SceneManager.LoadScene(scenePaths[0]);
+				mainAbInstance.SetAssetBundle(ab, GetDirectDependencies(mainAbInstance.ABPath));
 			}
+			string[] scenePaths = mainAbInstance.AB.GetAllScenePaths();
+			SceneManager.LoadScene(scenePaths[0]);
+			mainAbInstance.Release();
 		}
 
 		public override bool Exist(string path) {
@@ -287,6 +288,7 @@ namespace Extend.Asset.AssetProvider {
 
 		internal override AssetInstance ProvideAssetWithGUID<T>(string guid, AssetContainer container, out string path) {
 			if( m_guid2AssetPath.TryGetValue(guid, out path) ) {
+				Debug.LogWarning($"Load GUID Asset {guid} -> {path}");
 				return ProvideAsset(path, container, typeof(T));
 			}
 

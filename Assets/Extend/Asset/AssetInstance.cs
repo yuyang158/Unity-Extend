@@ -7,6 +7,8 @@ namespace Extend.Asset {
 		private AssetBundleInstance RefAssetBundle { get; set; }
 		public string AssetPath { get; }
 
+		public float CreateTime;
+
 		public AssetInstance(string assetPath) {
 			AssetPath = string.Intern(assetPath);
 		}
@@ -20,12 +22,21 @@ namespace Extend.Asset {
 			Status = UnityObject ? AssetStatus.DONE : AssetStatus.FAIL;
 			if( Status == AssetStatus.DONE ) {
 				StatService.Get().Increase(StatService.StatName.ASSET_COUNT, 1);
+				CreateTime = Time.realtimeSinceStartup;
+#if UNITY_DEBUG
+				var service = CSharpServiceManager.Get<AssetFullStatService>(CSharpServiceManager.ServiceType.ASSET_FULL_STAT);
+				service.OnAssetLoaded(this);
+#endif
 			}
 		}
 
 		public override void Destroy() {
 			if( Status == AssetStatus.DONE ) {
 				StatService.Get().Increase(StatService.StatName.ASSET_COUNT, -1);
+#if UNITY_DEBUG
+				var service = CSharpServiceManager.Get<AssetFullStatService>(CSharpServiceManager.ServiceType.ASSET_FULL_STAT);
+				service.OnAssetUnloaded(this);
+#endif
 			}
 			Status = AssetStatus.DESTROYED;
 			RefAssetBundle?.Release();

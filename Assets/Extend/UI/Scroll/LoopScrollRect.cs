@@ -7,10 +7,11 @@ using Extend.Asset;
 using Extend.Asset.Attribute;
 using Extend.Common;
 using UnityEngine.UI;
+using XLua;
 
 namespace Extend.UI.Scroll {
 	[DisallowMultipleComponent]
-	[RequireComponent(typeof(RectTransform))]
+	[RequireComponent(typeof(RectTransform)), LuaCallCSharp]
 	public abstract class LoopScrollRect : UIBehaviour, IInitializePotentialDragHandler, IBeginDragHandler, IEndDragHandler, IDragHandler, IScrollHandler,
 		ICanvasElement, ILayoutElement, ILayoutGroup {
 		//==========LoopScrollRect==========

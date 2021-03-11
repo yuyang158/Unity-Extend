@@ -61,7 +61,7 @@ namespace Extend.Asset {
 			}
 
 			if( Asset.Status != AssetRefObject.AssetStatus.DONE ) {
-				Debug.LogError($"Load failed : {Asset.AssetPath}");
+				Debug.LogError($"Load failed : {Asset.AssetPath}   {Asset.Status}");
 			}
 
 			return Asset.UnityObject as T;
@@ -146,9 +146,18 @@ namespace Extend.Asset {
 
 		[LuaCallCSharp]
 		public class InstantiateAsyncContext {
+			private AssetReference m_ref;
 			[BlackList]
-			public readonly AssetReference Ref;
-			public OnInstantiateComplete Callback;
+			private AssetReference Ref {
+				set {
+					m_ref = value;
+					if( !GetAssetReady() ) {
+						m_ref.LoadAsync(typeof(GameObject));
+					}
+				}
+				get => m_ref;
+			}
+			public event OnInstantiateComplete Callback;
 			public bool Cancel;
 
 			private readonly Transform m_parent;
@@ -173,6 +182,10 @@ namespace Extend.Asset {
 				m_position = position;
 				m_rotation = rotation;
 				AssetService.Get().AddDeferInstantiateContext(this);
+			}
+
+			public bool GetAssetReady() {
+				return Ref.Asset != null && Ref.Asset.IsFinished;
 			}
 
 			public void Instantiate() {

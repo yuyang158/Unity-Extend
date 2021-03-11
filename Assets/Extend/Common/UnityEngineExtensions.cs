@@ -13,7 +13,18 @@ namespace Extend.Common {
 			list[index] = list[list.Count - 1];
 			list.RemoveAt(list.Count - 1);
 		}
-		
+
+		public static bool RemoveSwap<T>(this List<T> list, T item) {
+			var index = list.IndexOf(item);
+			if( index < 0 ) {
+				return false;
+			}
+
+			list[index] = list[list.Count - 1];
+			list.RemoveAt(list.Count - 1);
+			return true;
+		}
+
 		[LuaCallCSharp]
 		public static void SetParent(this GameObject go, GameObject parent, bool stayWorld = false) {
 			go.transform.SetParent(parent.transform, stayWorld);

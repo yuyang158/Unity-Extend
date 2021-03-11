@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Globalization;
 using Extend.Common;
 using UnityEngine;
@@ -9,17 +10,26 @@ using Object = UnityEngine.Object;
 namespace Extend.Asset.AssetProvider {
 	public class ResourcesLoadProvider : AssetLoadProvider {
 		private static readonly WaitForSeconds DEBUG_WAIT = new WaitForSeconds(0.2f);
+		private readonly Dictionary<string, string> m_extraDependencies = new Dictionary<string, string>();
+		private const string RESOURCES_FOLDER_NAME = "Assets/Resources";
 
-		private static IEnumerator SimulateDelayLoad(AssetAsyncLoadHandle loadHandle, Type typ) {
-			if( loadHandle.Location.StartsWith("assets", true, CultureInfo.InvariantCulture) ) {
-				yield return DEBUG_WAIT;
-				Object unityObject;
-#if UNITY_EDITOR
-				unityObject = UnityEditor.AssetDatabase.LoadAssetAtPath(loadHandle.Location, typ);
-#else
-				unityObject = null;
-#endif
+		private bool ConvertPath(ref string path) {
+			if(m_extraDependencies.TryGetValue(path, out var fullPath)) {
+				path = fullPath;
+				return true;
+			}
+			return false;
+		}
+
+		private IEnumerator SimulateDelayLoad(AssetAsyncLoadHandle loadHandle, Type typ) {
+			yield return DEBUG_WAIT;
+			var path = loadHandle.Location;
+			if(ConvertPath(ref path) || loadHandle.Location.StartsWith("Assets")) {
+				loadHandle.Location = path;
+				#if UNITY_EDITOR
+				var unityObject = UnityEditor.AssetDatabase.LoadAssetAtPath(loadHandle.Location, typ);
 				loadHandle.Asset.SetAsset(unityObject, null);
+				#endif
 			}
 			else {
 				var req = Resources.LoadAsync(loadHandle.Location, typ);
@@ -32,13 +42,12 @@ namespace Extend.Asset.AssetProvider {
 					}
 				};
 			}
-
 		}
 
 		private static IEnumerator SimulateDelayLoadScene(AssetAsyncLoadHandle loadHandle)
 		{
 			yield return DEBUG_WAIT;
-			AsyncOperation asyncOperation = SceneManager.LoadSceneAsync(loadHandle.Location);
+			var asyncOperation = SceneManager.LoadSceneAsync(loadHandle.Location + ".unity");
 			while (!asyncOperation.isDone)
 			{
 				yield return null;
@@ -46,7 +55,15 @@ namespace Extend.Asset.AssetProvider {
 		}
 
 		public override void Initialize() {
-			
+			#if UNITY_EDITOR
+			var abSetting = UnityEditor.AssetDatabase.LoadAssetAtPath<ScriptableObject>("Assets/Extend/Asset/Editor/settings.asset");
+			var extraField = abSetting.GetType().GetField("ExtraDependencyAssets");
+			var dependencies = extraField.GetValue(abSetting) as Object[];
+			foreach (var dep in dependencies) {
+				var path = UnityEditor.AssetDatabase.GetAssetPath(dep);
+				m_extraDependencies.Add(path.Substring(0, path.LastIndexOf('.')), path);
+			}
+			#endif
 		}
 
 		public override void ProvideAsync(AssetAsyncLoadHandle loadHandle, Type typ) {
@@ -67,26 +84,24 @@ namespace Extend.Asset.AssetProvider {
 
 		public override void ProvideScene(string path, AssetContainer container)
 		{
-			SceneManager.LoadScene(path);
+			SceneManager.LoadScene(path + ".unity");
 		}
 
 		public override bool Exist(string path) {
-			Object unityObject;
-			if( path.StartsWith("assets", true, CultureInfo.InvariantCulture) ) {
-#if UNITY_EDITOR
-				unityObject = UnityEditor.AssetDatabase.LoadAssetAtPath<Object>(path);
-#else
-				unityObject = null;
-#endif
+			if(ConvertPath(ref path) || path.StartsWith("Assets") ) {
+				#if UNITY_EDITOR
+				return UnityEditor.AssetDatabase.AssetPathToGUID(path) != null;
+				#else
+				return false;
+				#endif
 			}
 			else {
-				unityObject = Resources.Load<Object>(path);
+				var unityObject = Resources.Load<Object>(path);
+				return unityObject != null;
 			}
-
-			return unityObject != null;
 		}
 
-		private static AssetInstance ProvideAsset(string path, AssetContainer container, Type typ) {
+		private AssetInstance ProvideAsset(string path, AssetContainer container, Type typ) {
 			var hash = AssetInstance.GenerateHash(path);
 			if( container.TryGetAsset(hash) is AssetInstance asset && asset.IsFinished ) {
 				return asset;
@@ -94,12 +109,12 @@ namespace Extend.Asset.AssetProvider {
 
 			asset = typ == typeof(GameObject) ? new PrefabAssetInstance(path) : new AssetInstance(path);
 			Object unityObject;
-			if( path.StartsWith("assets", true, CultureInfo.InvariantCulture) ) {
-#if UNITY_EDITOR
+			if(ConvertPath(ref path) || path.StartsWith("Assets")) {
+				#if UNITY_EDITOR
 				unityObject = UnityEditor.AssetDatabase.LoadAssetAtPath(path, typ);
-#else
+				#else
 				unityObject = null;
-#endif
+				#endif
 			}
 			else {
 				unityObject = Resources.Load(path, typ);

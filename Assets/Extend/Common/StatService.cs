@@ -66,7 +66,6 @@ namespace Extend.Common {
 				var type = (StatName)i;
 				LogStat("Stat", type.ToString(), m_stats[i].ToString());
 			}
-
 			m_writer.Close();
 		}
 

@@ -5,57 +5,35 @@ using XLua;
 
 namespace Extend.Asset {
 	[LuaCallCSharp]
-	public class SpriteAssetAssignment : MonoBehaviour {
+	public abstract class SpriteAssetAssignment : MonoBehaviour {
 		public bool Sync;
 		private string m_spriteKey;
 		private SpriteAssetService.SpriteLoadingHandle m_loadingHandle;
 
-		public string ImgSpriteKey {
-			get => m_spriteKey;
-			set {
-				if( m_spriteKey == value )
-					return;
-				var img = GetComponent<Image>();
-				img.sprite = null;
-				ApplyNewKey(value, img, null);
-			}
-		}
-
-		public string SpriteRendererKey {
-			get => m_spriteKey;
-			set {
-				if( m_spriteKey == value )
-					return;
-				var spriteRenderer = GetComponent<SpriteRenderer>();
-				spriteRenderer.sprite = null;
-				ApplyNewKey(value, null, spriteRenderer);
-			}
-		}
-
-		private void ApplyNewKey(string key, Image img, SpriteRenderer spriteRenderer) {
+		protected void ApplyNewKey(string key) {
 			m_loadingHandle?.GiveUp();
 			m_loadingHandle = null;
-			if( !string.IsNullOrEmpty(SpriteRendererKey) ) {
-				SpriteAssetService.Get().Release(SpriteRendererKey);
+			if( !string.IsNullOrEmpty(m_spriteKey) ) {
+				SpriteAssetService.Get().Release(m_spriteKey);
 			}
 
 			m_spriteKey = key;
 			if( string.IsNullOrEmpty(m_spriteKey) ) {
-				if( img )
-					img.sprite = null;
-				if( spriteRenderer )
-					spriteRenderer.sprite = null;
+				Apply(null);
 			}
 			else {
-				m_loadingHandle = SpriteAssetService.Get().SetUIImage(img, spriteRenderer, SpriteRendererKey, Sync);
+				m_loadingHandle = SpriteAssetService.Get().SetUIImage(this, m_spriteKey, Sync);
 			}
 		}
 
+		public abstract void Apply(Sprite sprite);
+
 		private void OnDestroy() {
 			m_loadingHandle?.GiveUp();
-			if( string.IsNullOrEmpty(ImgSpriteKey) )
+			if( string.IsNullOrEmpty(m_spriteKey) )
 				return;
-			SpriteAssetService.Get().Release(ImgSpriteKey);
+			SpriteAssetService.Get().Release(m_spriteKey);
+			m_spriteKey = null;
 		}
 	}
 }

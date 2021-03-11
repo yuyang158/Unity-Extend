@@ -1,10 +1,13 @@
 {
     "name": "Extend.UI",
+    "rootNamespace": "",
     "references": [
         "DOTweenAssembly",
         "Extend.Common",
         "Extend.Asset",
-        "Unity.TextMeshPro"
+        "Unity.TextMeshPro",
+        "Unity.RenderPipelines.Universal.Runtime",
+        "Extend.Render"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

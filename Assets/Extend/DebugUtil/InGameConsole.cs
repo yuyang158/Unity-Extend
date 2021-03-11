@@ -86,6 +86,8 @@ namespace Extend.DebugUtil {
 			m_showStat = GameSystem.Get().SystemSetting.GetBool("DEBUG", "ShowStat");
 			m_logScrollVisible = GameSystem.Get().SystemSetting.GetBool("DEBUG", "LogPanelGUIVisible");
 
+			m_txtLogTemplate.fontSize = (int)(m_txtLogTemplate.fontSize * Screen.dpi / 100.0f);
+
 			DontDestroyOnLoad(gameObject);
 		}
 
@@ -132,6 +134,7 @@ namespace Extend.DebugUtil {
 				param = inputs.Skip(1).Take(inputs.Length - 1).ToArray();
 			}
 
+			// ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
 			foreach( var luaCommand in luaCommands ) {
 				if( luaCommand.CommandName.ToLower() == cmd.ToLower() ) {
 					luaCommand.Command(param);
@@ -215,11 +218,11 @@ namespace Extend.DebugUtil {
 		}
 
 		private void OnDisable() {
-			Application.logMessageReceivedThreaded -= HandleLogThreaded;
+			Application.logMessageReceived -= HandleLogThreaded;
 		}
 
 		private void OnEnable() {
-			Application.logMessageReceivedThreaded += HandleLogThreaded;
+			Application.logMessageReceived += HandleLogThreaded;
 		}
 
 		private readonly StringBuilder builder = new StringBuilder(1024);

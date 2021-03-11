@@ -22,6 +22,7 @@ namespace Extend.Common {
 		public enum ServiceType : byte {
 			ERROR_LOG_TO_FILE,
 			STAT,
+			ASSET_FULL_STAT,
 			ASSET_SERVICE,
 			GAME_SYSTEM_SERVICE,
 			SPRITE_ASSET_SERVICE,
@@ -31,10 +32,12 @@ namespace Extend.Common {
 			IN_GAME_CONSOLE,
 			LUA_SERVICE,
 			I18N,
+			GRAPHICS_INSTANCING,
+			RENDER_FEATURE,
 			COUNT
 		}
 
-		private static bool Initialized { get; set; }
+		public static bool Initialized { get; private set; }
 		public static CSharpServiceManager Instance { get; private set; }
 
 		public static void Initialize() {
@@ -47,17 +50,7 @@ namespace Extend.Common {
 			DontDestroyOnLoad(go);
 			Instance = go.AddComponent<CSharpServiceManager>();
 
-			Application.quitting += () => {
-				var serviceList = new List<IService>(services);
-				serviceList.Sort((a, b) => -a.ServiceType.CompareTo(b.ServiceType));
-				
-				foreach( var service in serviceList ) {
-					service.Destroy();
-				}
-
-				var luaService = services[(int)ServiceType.LUA_SERVICE] as IDisposable;
-				luaService.Dispose();
-			};
+			Application.quitting += Clear;
 		}
 
 		private static readonly IService[] services = new IService[(int)ServiceType.COUNT];
@@ -88,17 +81,15 @@ namespace Extend.Common {
 				service.Destroy();
 				services[(int)type] = null;
 			}
-			else {
-				throw new Exception($"Service {type} not exist");
-			}
 		}
 
 		public static T Get<T>(ServiceType typ) where T : class {
 			Assert.IsTrue(Initialized);
 			var service = services[(int)typ];
-			if(service == null) {
+			if( service == null ) {
 				Debug.LogError($"Service {typ} not exist!");
 			}
+
 			return (T)service;
 		}
 
@@ -106,6 +97,18 @@ namespace Extend.Common {
 			foreach( var service in updateableServices ) {
 				service.Update();
 			}
+		}
+
+		private static void Clear() {
+			updateableServices.Clear();
+			for( int i = (int)ServiceType.COUNT - 1; i >= 0; i-- ) {
+				Unregister((ServiceType)i);
+			}
+			Initialized = false;
+		}
+
+		private void OnDestroy() {
+			Application.quitting -= Clear;
 		}
 	}
 }

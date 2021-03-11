@@ -2,7 +2,6 @@ using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-
 namespace Extend.UI {
 	[RequireComponent(typeof(Button))]
 	public class UIButtonDoTween : MonoBehaviour, IPointerDownHandler, IPointerClickHandler, IPointerUpHandler {
@@ -45,6 +44,7 @@ namespace Extend.UI {
 		public void OnPointerDown(PointerEventData eventData) {
 			if( PointerDown.Enabled && button.interactable ) {
 				CurrentTweens = PointerDown.Active(transform);
+				PointerDown.ExecuteAtTrigger();
 			}
 			else {
 				CurrentTweens = null;
@@ -54,6 +54,7 @@ namespace Extend.UI {
 		public void OnPointerClick(PointerEventData eventData) {
 			if( PointerClick.Enabled && button.interactable ) {
 				CurrentTweens = PointerClick.Active(transform);
+				PointerClick.ExecuteAtTrigger();
 			}
 			else {
 				CurrentTweens = null;
@@ -63,6 +64,7 @@ namespace Extend.UI {
 		public void OnPointerUp(PointerEventData eventData) {
 			if( PointerUp.Enabled && button.interactable ) {
 				CurrentTweens = PointerUp.Active(transform);
+				PointerUp.ExecuteAtTrigger();
 			}
 			else {
 				CurrentTweens = null;

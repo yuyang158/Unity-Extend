@@ -1,33 +1,32 @@
+using System;
 using System.Collections.Generic;
 using Extend.Common;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Extend.Asset {
 	public class SpriteAssetService : IService, IServiceUpdate {
 		public class SpriteLoadingHandle {
-			public static SpriteLoadingHandle Create(Image img, SpriteRenderer spriteRenderer, AssetInstance asset, string path) {
-				return new SpriteLoadingHandle(asset, img, spriteRenderer, path);
+			public static SpriteLoadingHandle Create(SpriteAssetAssignment assignment, AssetInstance asset, string path) {
+				return new SpriteLoadingHandle(asset, assignment, path);
 			}
 
 			private readonly string m_path;
 			private readonly AssetInstance m_asset;
-			private readonly Image m_img;
-			private readonly SpriteRenderer m_spriteRenderer;
+			private readonly WeakReference<SpriteAssetAssignment> m_assignment;
 
-			private SpriteLoadingHandle(AssetInstance asset, Image img, SpriteRenderer spriteRenderer, string path) {
+			private SpriteLoadingHandle(AssetInstance asset, SpriteAssetAssignment assignment, string path) {
 				m_asset = asset;
 				m_path = path;
-				m_spriteRenderer = spriteRenderer;
-				m_img = img;
-
+				m_assignment = new WeakReference<SpriteAssetAssignment>(assignment);
 				m_asset.OnStatusChanged += OnAssetStatusChanged;
 			}
 
 			private void OnAssetStatusChanged(AssetRefObject _) {
 				if( m_asset.IsFinished ) {
 					m_asset.OnStatusChanged -= OnAssetStatusChanged;
-					TryApplySprite(m_img, m_spriteRenderer, m_asset);
+					if( m_assignment.TryGetTarget(out var assignment) ) {
+						TryApplySprite(assignment, m_asset);
+					}
 				}
 			}
 
@@ -48,7 +47,7 @@ namespace Extend.Asset {
 
 		private readonly Dictionary<string, AssetInstance> m_sprites = new Dictionary<string, AssetInstance>();
 
-		public SpriteLoadingHandle SetUIImage(Image img, SpriteRenderer spriteRenderer, string path, bool sync = false) {
+		public SpriteLoadingHandle SetUIImage(SpriteAssetAssignment assignment, string path, bool sync = false) {
 			SpriteLoadingHandle ret = null;
 			if( m_sprites.TryGetValue(path, out var spriteAsset) ) {
 				if( spriteAsset.Status == AssetRefObject.AssetStatus.DESTROYED ) {
@@ -56,10 +55,10 @@ namespace Extend.Asset {
 				}
 				else {
 					if( spriteAsset.IsFinished ) {
-						TryApplySprite(img, spriteRenderer, spriteAsset);
+						TryApplySprite(assignment, spriteAsset);
 					}
 					else {
-						ret = SpriteLoadingHandle.Create(img, spriteRenderer, spriteAsset, path);
+						ret = SpriteLoadingHandle.Create(assignment, spriteAsset, path);
 					}
 					return ret;
 				}
@@ -68,12 +67,12 @@ namespace Extend.Asset {
 			if( sync ) {
 				var reference = AssetService.Get().Load(path, typeof(Sprite));
 				spriteAsset = reference.Asset;
-				TryApplySprite(img, spriteRenderer, spriteAsset);
+				TryApplySprite(assignment, spriteAsset);
 			}
 			else {
 				var loadHandle = AssetService.Get().LoadAsync(path, typeof(Sprite));
 				spriteAsset = loadHandle.Asset;
-				ret = SpriteLoadingHandle.Create(img, spriteRenderer, spriteAsset, path);
+				ret = SpriteLoadingHandle.Create(assignment, spriteAsset, path);
 			}
 
 			m_sprites.Add(path, spriteAsset);
@@ -82,22 +81,17 @@ namespace Extend.Asset {
 
 		public void Release(string key) {
 			if( !m_sprites.TryGetValue(key, out var spriteAsset) ) {
+				Debug.LogWarning($"Not found sprite key : {key}");
 				return;
 			}
 
 			spriteAsset.Release();
 		}
 
-		private static void TryApplySprite(Image img, SpriteRenderer spriteRenderer, AssetInstance spriteAsset) {
-			if(!img && !spriteRenderer)
-				return;
-			
+		private static void TryApplySprite(SpriteAssetAssignment assignment, AssetInstance spriteAsset) {
 			if( spriteAsset.IsFinished ) {
 				spriteAsset.IncRef();
-				if(img)
-					img.sprite = spriteAsset.UnityObject as Sprite;
-				if(spriteRenderer)
-					spriteRenderer.sprite = spriteAsset.UnityObject as Sprite;
+				assignment.Apply(spriteAsset.UnityObject as Sprite);
 			}
 		}
 
@@ -105,6 +99,10 @@ namespace Extend.Asset {
 		}
 
 		public void Destroy() {
+			foreach( var spriteInstance in m_sprites.Values ) {
+				spriteInstance.Destroy();
+			}
+			m_sprites.Clear();
 		}
 
 		public void Update() {

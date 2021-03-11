@@ -6,6 +6,8 @@ using System.Reflection;
 namespace Extend.Common.Editor.InspectorGUI {
 	public static class ReflectionUtility {
 		public static IEnumerable<FieldInfo> GetAllFields(object target, Func<FieldInfo, bool> predicate) {
+			if(target == null)
+				yield return null;
 			var types = new List<Type>() {
 				target.GetType()
 			};

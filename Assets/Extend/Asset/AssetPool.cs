@@ -22,6 +22,7 @@ namespace Extend.Asset {
 			m_assetInstance = assetInstance;
 			m_cached = new List<GameObject>(MaxSize);
 			PoolNode = new GameObject(name).transform;
+			Object.DontDestroyOnLoad(PoolNode);
 			AssetService.Get().AddPool(this);
 		}
 

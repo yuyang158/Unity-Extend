@@ -68,6 +68,11 @@ namespace Extend.Asset {
 #if UNITY_EDITOR
 			StatService.Get().LogStat("Instantiate", UnityObject.name, m_transformCount);
 #endif
+
+#if UNITY_DEBUG
+			var service = CSharpServiceManager.Get<AssetFullStatService>(CSharpServiceManager.ServiceType.ASSET_FULL_STAT);
+			service.OnInstantiateGameObject(go);
+#endif
 			return go;
 		}
 
@@ -88,6 +93,10 @@ namespace Extend.Asset {
 			StatService.Get().Increase(StatService.StatName.IN_USE_GO, 1);
 #if UNITY_EDITOR
 			StatService.Get().LogStat("Instantiate", UnityObject.name, m_transformCount);
+#endif
+#if UNITY_DEBUG
+			var service = CSharpServiceManager.Get<AssetFullStatService>(CSharpServiceManager.ServiceType.ASSET_FULL_STAT);
+			service.OnInstantiateGameObject(go);
 #endif
 			return go;
 		}

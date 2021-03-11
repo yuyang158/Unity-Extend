@@ -112,10 +112,11 @@ namespace Extend.LuaMVVM {
 				m_dataSource = dataContext;
 				if( m_expression ) {
 					var function = TempBindingExpressCache.GenerateTempFunction(ref Path);
-					var setupTempFunc = m_dataSource.GetInPath<LuaFunction>("setup_temp_getter");
-					var key = Path.GetHashCode().ToString();
-					setupTempFunc.Call(key, function);
-					bindingValue = dataContext.GetInPath<object>(key);
+					using( var setupTempFunc = m_dataSource.GetInPath<LuaFunction>("setup_temp_getter") ) {
+						var key = Path.GetHashCode().ToString();
+						setupTempFunc.Call(key, function);
+						bindingValue = dataContext.GetInPath<object>(key);
+					}
 				}
 				else {
 					if( m_dataSource == null ) {

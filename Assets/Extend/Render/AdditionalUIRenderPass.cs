@@ -9,7 +9,6 @@ namespace Extend.Render {
 		private readonly RenderQueueType m_renderQueueType;
 		private FilteringSettings m_filteringSettings;
 		private readonly string m_profilerTag;
-		private readonly ProfilingSampler m_profilingSampler;
 
 		private readonly List<ShaderTagId> m_shaderTagIdList = new List<ShaderTagId>();
 
@@ -32,12 +31,12 @@ namespace Extend.Render {
 		}
 
 		private RenderStateBlock m_renderStateBlock;
-		private ClearFlag m_clearFlag;
+		private readonly ClearFlag m_clearFlag;
 
-		public AdditionalUIRenderPass(string profilerTag, RenderPassEvent renderPassEvent, string[] shaderTags, RenderQueueType renderQueueType, int layerMask, ClearFlag clearFlag) {
+		public AdditionalUIRenderPass(string profilerTag, RenderPassEvent renderPassEvent, string[] shaderTags, RenderQueueType renderQueueType, int layerMask,
+			ClearFlag clearFlag) {
 			m_profilerTag = profilerTag;
-			m_profilingSampler = new ProfilingSampler(profilerTag);
-			this.renderPassEvent = renderPassEvent;
+			this.renderPassEvent = renderPassEvent + 2;
 			m_renderQueueType = renderQueueType;
 			m_clearFlag = clearFlag;
 			var renderQueueRange = renderQueueType == RenderQueueType.Transparent
@@ -65,13 +64,11 @@ namespace Extend.Render {
 
 			var drawingSettings = CreateDrawingSettings(m_shaderTagIdList, ref renderingData, sortingCriteria);
 			var cmd = CommandBufferPool.Get(m_profilerTag);
-			using( new ProfilingScope(cmd, m_profilingSampler) ) {
-				context.ExecuteCommandBuffer(cmd);
-				cmd.Clear();
-				cmd.ClearRenderTarget((m_clearFlag & ClearFlag.Depth) != 0, false, Color.black);
-				context.DrawRenderers(renderingData.cullResults, ref drawingSettings, ref m_filteringSettings,
-					ref m_renderStateBlock);
-			}
+			context.ExecuteCommandBuffer(cmd);
+			cmd.Clear();
+			cmd.ClearRenderTarget(( m_clearFlag & ClearFlag.Depth ) != 0, false, Color.black);
+			context.DrawRenderers(renderingData.cullResults, ref drawingSettings, ref m_filteringSettings,
+				ref m_renderStateBlock);
 
 			context.ExecuteCommandBuffer(cmd);
 			CommandBufferPool.Release(cmd);

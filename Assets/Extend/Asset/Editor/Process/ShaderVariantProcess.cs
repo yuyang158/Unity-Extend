@@ -17,21 +17,38 @@ namespace Extend.Asset.Editor.Process {
 			}
 
 			var material = AssetDatabase.LoadAssetAtPath<Material>(importer.assetPath);
+			var shaderPath = AssetDatabase.GetAssetPath(material.shader);
+			if( shaderPath.StartsWith("Packages") ) {
+				writer.WriteLine($"Material : {importer.assetPath} using in packages shader : {shaderPath}");
+			}
+
 			ShaderPreprocessor.AddInUsedShaderKeywords(material.shader, material.shaderKeywords);
 		}
 
 		public void PostProcess() {
 		}
 
+		[MenuItem("Tools/Editor/Show Importer")]
 		private static void ShowImporter() {
 			if( !Selection.activeObject )
 				return;
 
 			var path = AssetDatabase.GetAssetPath(Selection.activeObject);
 			var importer = AssetImporter.GetAtPath(path);
-			if(!importer)
+			if( !importer ) {
+				Debug.Log("Import is missing!");
 				return;
+			}
 			Debug.Log($"Importer : {importer.GetType().FullName}");
+		}
+
+		[MenuItem("Tools/Editor/Show Keywords")]
+		private static void ShowKeywords() {
+			if( !( Selection.activeObject is Material ) )
+				return;
+
+			var mat = Selection.activeObject as Material;
+			Debug.Log(string.Join(";", mat.shaderKeywords));
 		}
 	}
 }

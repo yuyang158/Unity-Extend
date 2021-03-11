@@ -41,16 +41,21 @@ namespace Extend.Editor {
 		public static SettingsProvider CreateLuaCheckSettingProvider() {
 			var provider = new SettingsProvider("Project/LuaCheckSetting", SettingsScope.Project) {
 				label = "Setup Lua Check",
-				guiHandler = (search) => {
+				guiHandler = search => {
 					var settings = LuaCheckSetting.GetSerializedSettings();
+					var activeProp = settings.FindProperty("m_active");
+					EditorGUILayout.PropertyField(activeProp);
+
+					EditorGUILayout.BeginHorizontal();
 					GUI.enabled = false;
 					var execPathProp = settings.FindProperty("m_luaCheckExecPath");
 					EditorGUILayout.PropertyField(execPathProp);
 					GUI.enabled = true;
-					if( GUILayout.Button("Open", "LargeButtonRight") ) {
+					if( GUILayout.Button("Open", "LargeButtonRight", GUILayout.Width(80)) ) {
 						var selected = EditorUtility.OpenFilePanel("Select LuaCheck.exe", "", "exe");
 						execPathProp.stringValue = selected;
 					}
+					EditorGUILayout.EndHorizontal();
 
 					EditorGUILayout.PropertyField(settings.FindProperty("m_maxLineLength"));
 					settings.ApplyModifiedProperties();

@@ -55,20 +55,18 @@ namespace Extend.Common.Editor.InspectorGUI {
 				var height = EditorGUIUtility.singleLineHeight;
 				var buttonName = buttonAttribute.ButtonName;
 				if( string.IsNullOrEmpty(buttonName) ) {
-					switch( buttonAttribute.Size ) {
+					switch (buttonAttribute.Size)
+					{
 						case ButtonSize.Small:
-							height *= 1;
-							break;
+						height *= 1;
+						break;
 						case ButtonSize.Medium:
-							height *= 2;
-							break;
+						height *= 2;
+						break;
 						case ButtonSize.Large:
-							height *= 3;
-							break;
-						default:
-							throw new ArgumentOutOfRangeException();
+						height *= 3;
+						break;
 					}
-
 					buttonName = method.Name;
 				}
 

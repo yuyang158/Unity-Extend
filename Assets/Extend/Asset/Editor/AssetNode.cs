@@ -12,17 +12,36 @@ using UnityEngine.Assertions;
 namespace Extend.Asset.Editor {
 	internal static class AssetNodeCollector {
 		private static readonly Dictionary<string, List<AssetNode>> m_sameBundleAssets = new Dictionary<string, List<AssetNode>>();
+		private static readonly Dictionary<string, AssetNode> m_duplicateCheck = new Dictionary<string, AssetNode>();
 
 		public static void Add(string assetBundleName, AssetNode assetNode) {
 			if( !m_sameBundleAssets.TryGetValue(assetBundleName, out var assetNodes) ) {
 				assetNodes = new List<AssetNode>();
 				m_sameBundleAssets.Add(assetBundleName, assetNodes);
 			}
+
+			if( assetNodes.Contains(assetNode) )
+				return;
 			assetNodes.Add(assetNode);
+			if( assetBundleName != assetNode.AssetBundleName ) {
+				Debug.LogError($"{assetNode.AssetName} : {assetBundleName} --> {assetNode.AssetBundleName}");
+			}
+
+			if( m_duplicateCheck.ContainsKey(assetNode.AssetName) ) {
+				// Debug.LogError($"ERROR : Asset duplicate : {assetNode.AssetName}");
+			}
+			else {
+				m_duplicateCheck.Add(assetNode.AssetName, assetNode);
+			}
 		}
-		
+
+		public static string GetAssetBundleName(string assetName) {
+			return m_duplicateCheck.TryGetValue(assetName, out var assetNode) ? assetNode.AssetBundleName : "";
+		}
+
 		public static void Clear() {
 			m_sameBundleAssets.Clear();
+			m_duplicateCheck.Clear();
 		}
 
 		public static AssetBundleBuild[] Output() {
@@ -40,20 +59,26 @@ namespace Extend.Asset.Editor {
 					build.addressableNames[i] = asset.AssetName;
 					build.assetNames[i] = asset.AssetPath;
 				}
-				
+
 				builds[index] = build;
 				index++;
 			}
-			
+
 			return builds;
 		}
 	}
-	
+
 	public class AssetNode {
 		public const string AB_EXTENSION = ".ab";
 		public string AssetPath => importer.assetPath;
+
 		public string AssetName {
 			get {
+				if(!importer) {
+					Debug.Log("Missing : " + m_path);
+					return string.Empty;
+				}
+
 				var assetName = Path.GetDirectoryName(importer.assetPath) + "/" + Path.GetFileNameWithoutExtension(importer.assetPath);
 				assetName = assetName.Replace('\\', '/');
 				return assetName.ToLower();
@@ -61,9 +86,11 @@ namespace Extend.Asset.Editor {
 		}
 
 		private string m_assetBundleName;
+
 		public string AssetBundleName {
 			get => m_assetBundleName;
 			private set {
+				Assert.IsTrue(string.IsNullOrEmpty(m_assetBundleName));
 				Assert.IsFalse(Calculated);
 				Calculated = true;
 				m_assetBundleName = value;
@@ -76,14 +103,20 @@ namespace Extend.Asset.Editor {
 		private readonly List<AssetNode> referenceNodes = new List<AssetNode>();
 		private readonly AssetImporter importer;
 
-		public bool Calculated { private get; set; }
+		private bool Calculated { get; set; }
+		private string m_path;
 
 		public AssetNode(string path, string abName = "") {
-			Assert.IsTrue(path.StartsWith("assets", true, CultureInfo.InvariantCulture), path);
+			if( !path.StartsWith("assets", true, CultureInfo.InvariantCulture) ) {
+				Debug.LogError("Asset in not under assets : " + path);
+				return;
+			}
+			m_path = path;
 			importer = AssetImporter.GetAtPath(path);
 			if( !importer ) {
 				throw new Exception("Path is not valid : " + path);
 			}
+
 			AssetCustomProcesses.Process(importer);
 			if( !string.IsNullOrEmpty(abName) ) {
 				AssetBundleName = abName;
@@ -181,6 +214,17 @@ namespace Extend.Asset.Editor {
 			}
 
 			AssetBundleName = AssetName;
+		}
+
+		public override int GetHashCode() {
+			return AssetName.GetHashCode();
+		}
+
+		public override bool Equals(object obj) {
+			if( obj == null )
+				return false;
+			var other = obj as AssetNode;
+			return AssetName == other.AssetName;
 		}
 
 		public int ReferenceCount => referenceNodes.Count;

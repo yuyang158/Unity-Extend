@@ -12,6 +12,7 @@ namespace Extend.Common.Editor {
 		
 		public static readonly string[] PUNCH_ANIMATION_MODE = {"Move", "Rotate", "Scale"};
 		public static readonly string[] STATE_ANIMATION_MODE = {"Move", "Rotate", "Scale", "Fade"};
+		public static readonly string[] FLY_ANIMATION_MODE = {"MovePath", "Scale", "Fade"};
 		public const float ROW_CONTROL_MARGIN = 5;
 		public static readonly float LINE_HEIGHT = EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
 

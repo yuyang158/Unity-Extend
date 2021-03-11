@@ -32,6 +32,11 @@ namespace Extend.Asset {
 			m_forceAssetBundleMode = forceABMode;
 		}
 
+		private readonly List<IDisposable> m_disposables = new List<IDisposable>();
+		public void AddAfterDestroy(IDisposable disposable) {
+			m_disposables.Add(disposable);
+		}
+
 		public static AssetService Get() {
 			return CSharpServiceManager.Get<AssetService>(CSharpServiceManager.ServiceType.ASSET_SERVICE);
 		}
@@ -63,14 +68,24 @@ namespace Extend.Asset {
 			poolGO.SetActive(false);
 			m_poolRootNode = poolGO.transform;
 
-			SpriteAtlasManager.atlasRequested += (s, action) => {
-				var reference = Load("Assets/SpriteAtlas/" + s, typeof(SpriteAtlas));
-				action(reference.GetObject() as SpriteAtlas);
+			SpriteAtlasManager.atlasRequested += (atlasName, callback) => {
+				var reference = Load("Assets/SpriteAtlas/" + atlasName, typeof(SpriteAtlas));
+				callback(reference.GetObject() as SpriteAtlas);
+				reference.Dispose();
 			};
 		}
 
 		[BlackList]
 		public void Destroy() {
+			foreach( var pool in m_pools ) {
+				pool.Dispose();
+			}
+			
+			GC.Collect();
+			foreach( var disposable in m_disposables ) {
+				disposable.Dispose();
+			}
+			Container.Clear();
 		}
 
 		public void FullCollect() {
@@ -83,17 +98,18 @@ namespace Extend.Asset {
 
 			if( m_deferInstantiates.Count > 0 ) {
 				m_instantiateStopwatch.Restart();
-				int instantiatedIndex = 0;
-				for( var i = 0; i < m_deferInstantiates.Count; i++ ) {
+				for( var i = 0; i < m_deferInstantiates.Count; ) {
 					var context = m_deferInstantiates[i];
+					if( !context.GetAssetReady() ) {
+						i++;
+						continue;
+					}
 					context.Instantiate();
-					instantiatedIndex = i;
+					m_deferInstantiates.RemoveSwapAt(i);
 					if( m_singleFrameMaxInstantiateDuration < m_instantiateStopwatch.Elapsed.TotalSeconds ) {
 						break;
 					}
 				}
-
-				m_deferInstantiates.RemoveRange(0, instantiatedIndex + 1);
 			}
 
 			if( m_pools.Count == 0 )
@@ -116,6 +132,9 @@ namespace Extend.Asset {
 			var ticks = m_stopwatch.ElapsedTicks;
 			m_stopwatch.Start();
 #endif
+#if ASSET_LOG
+			Debug.LogWarning($"Sync Load Asset {path}");
+#endif
 			path = m_provider.FormatAssetPath(path);
 			var assetRef = m_provider.Provide(path, Container, typ);
 #if UNITY_DEBUG
@@ -128,6 +147,8 @@ namespace Extend.Asset {
 		}
 
 		public static void Recycle(GameObject go) {
+			if(!go)
+				return;
 			var cache = go.GetComponent<AssetServiceManagedGO>();
 			cache.Recycle();
 			StatService.Get().Increase(StatService.StatName.IN_USE_GO, -1);
@@ -181,10 +202,6 @@ namespace Extend.Asset {
 			var ticks = m_stopwatch.ElapsedTicks;
 			m_stopwatch.Start();
 #endif
-			if( !m_provider.ScenePathChecker(path) ) {
-				return;
-			}
-
 			path = m_provider.FormatScenePath(path);
 			m_provider.ProvideScene(path, Container);
 #if UNITY_DEBUG
@@ -200,10 +217,6 @@ namespace Extend.Asset {
 		/// </summary>
 		/// <param name="path">路径</param>
 		public void LoadSceneAsync(string path) {
-			if( !m_provider.ScenePathChecker(path) ) {
-				return;
-			}
-
 			path = m_provider.FormatScenePath(path);
 			var handle = new AssetAsyncLoadHandle(Container, m_provider, path);
 			m_provider.ProvideSceneAsync(handle);

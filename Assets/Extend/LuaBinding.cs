@@ -1,4 +1,5 @@
-﻿using Extend.Common;
+﻿using System;
+using Extend.Common;
 using Extend.LuaBindingData;
 using Extend.LuaUtil;
 using UnityEngine;
@@ -13,8 +14,7 @@ namespace Extend {
 		public LuaTable LuaInstance { get; private set; }
 		public LuaTable LuaClass { get; private set; }
 
-		private LuaClassCache.LuaClass m_cachedClass;
-		public LuaClassCache.LuaClass CachedClass => m_cachedClass;
+		public LuaClassCache.LuaClass CachedClass { get; private set; }
 
 		private void Awake() {
 			if( string.IsNullOrEmpty(LuaFile) )
@@ -24,23 +24,25 @@ namespace Extend {
 			if( !( ret[0] is LuaTable klass ) )
 				return;
 			LuaClass = klass;
-			m_cachedClass = luaVM.GetLuaClass(klass);
+			CachedClass = luaVM.GetLuaClass(klass);
 			
-			var constructor = m_cachedClass.GetLuaMethod<LuaBindingClassNew>("new");
+			var constructor = CachedClass.GetLuaMethod<LuaBindingClassNew>("new");
 			var luaInstance = constructor?.Invoke(gameObject);
 			Bind(luaInstance);
 
-			var awake = m_cachedClass.GetLuaMethod<LuaUnityEventFunction>("awake");
+			var awake = CachedClass.GetLuaMethod<LuaUnityEventFunction>("awake");
 			awake?.Invoke(luaInstance);
 		}
 
 		private void Start() {
-			var start = m_cachedClass.GetLuaMethod<LuaUnityEventFunction>("start");
+			var start = CachedClass.GetLuaMethod<LuaUnityEventFunction>("start");
 			start?.Invoke(LuaInstance);
 		}
 
 		private void OnDestroy() {
-			var destroy = m_cachedClass.GetLuaMethod<LuaUnityEventFunction>("destroy");
+			if(!CSharpServiceManager.Initialized)
+				return;
+			var destroy = CachedClass.GetLuaMethod<LuaUnityEventFunction>("destroy");
 			destroy?.Invoke(LuaInstance);
 			LuaInstance?.Dispose();
 			LuaInstance = null;
@@ -68,6 +70,11 @@ namespace Extend {
 			foreach( var binding in LuaData ) {
 				binding.ApplyToLuaInstance(LuaInstance);
 			}
+		}
+
+		[BlackList]
+		public T GetLuaMethod<T>(string methodName) where T : Delegate {
+			return CachedClass.GetLuaMethod<T>(methodName);
 		}
 	}
 }

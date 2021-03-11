@@ -14,6 +14,9 @@ namespace Extend.Asset {
 		}
 
 		public void SetAssetBundle(AssetBundle ab, string[] dependencies) {
+#if ASSET_LOG
+			Debug.LogWarning($"Asset Bundle Loaded : {ABPath}");
+#endif
 			AB = ab;
 			var service = CSharpServiceManager.Get<AssetService>(CSharpServiceManager.ServiceType.ASSET_SERVICE);
 			var assetBundles = new AssetBundleInstance[dependencies.Length];
