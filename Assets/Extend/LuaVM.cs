@@ -82,34 +82,6 @@ namespace Extend {
 #endif
 			});
 
-			Default.SetProtoLoader((ref string filename) => {
-#if UNITY_EDITOR
-				filename = filename.Replace('.', '/') + ".proto";
-				var path = $"{Application.dataPath}/../Lua/{filename}";
-				if( File.Exists(path) ) {
-					var text = File.ReadAllText(path);
-					return Encoding.UTF8.GetBytes(text);
-				}
-
-				return null;
-#else
-				filename = filename.Replace('.', '/');
-				var hotfix = $"{LUA_DEBUG_DIRECTORY}{filename}.proto";
-				if( File.Exists(hotfix) ) {
-					Debug.LogWarning("HOTFIX FILE : " + hotfix);
-					filename += ".proto";
-					return Encoding.UTF8.GetBytes(File.ReadAllText(hotfix));
-				}
-				
-				var service = CSharpServiceManager.Get<AssetService>(CSharpServiceManager.ServiceType.ASSET_SERVICE);
-				var assetRef = service.Load($"Lua/{filename}", typeof(TextAsset));
-				if( assetRef.AssetStatus != AssetRefObject.AssetStatus.DONE )
-					return null;
-				filename += ".proto";
-				return assetRef.GetTextAsset().bytes;
-#endif
-			});
-
 			var setupNewCallback = LoadFileAtPath("base.class")[0] as LuaFunction;
 			setupNewCallback.Action(m_newClassCallback);
 			OnVMCreated?.Invoke();

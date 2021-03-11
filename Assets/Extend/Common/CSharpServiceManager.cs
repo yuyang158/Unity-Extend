@@ -32,7 +32,6 @@ namespace Extend.Common {
 			IN_GAME_CONSOLE,
 			LUA_SERVICE,
 			I18N,
-			GRAPHICS_INSTANCING,
 			RENDER_FEATURE,
 			COUNT
 		}

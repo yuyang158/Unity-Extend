@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace Extend.UI {
 	[Serializable]
-	public class UIViewOutAnimation : IUIAnimationPreview, IUITriggerPreview {
+	public class UIViewOutAnimation : IUIAnimationPreview {
 		public enum AnimationMode {
 			ANIMATOR,
 			STATE
@@ -28,19 +28,6 @@ namespace Extend.UI {
 
 		[SerializeField]
 		private AnimatorParamProcessor m_processor;
-		
-		[SerializeReference]
-		private IUITriggerExecutor[] m_executors;
-
-		private HashSet<UITriggerMode> m_triggerModes;
-		
-		public UIViewOutAnimation()
-		{
-			// 自行添加所需trigger
-			m_triggerModes = new HashSet<UITriggerMode>() {UITriggerMode.Criware, };
-			UITriggerUtil.UITriggerConstructorHandler(out m_executors, m_triggerModes);
-		}
-		
 		public Tween[] Active(Transform t) {
 			switch( Mode ) {
 				case AnimationMode.STATE:
@@ -69,14 +56,6 @@ namespace Extend.UI {
 		public void Editor_Recovery(Transform transform) {
 			if( Mode == AnimationMode.STATE ) {
 				m_state.Editor_Recovery(transform);
-			}
-		}
-
-		public void ExecuteAtTrigger()
-		{
-			foreach (var executor in m_executors)
-			{
-				executor?.Execute();
 			}
 		}
 	}

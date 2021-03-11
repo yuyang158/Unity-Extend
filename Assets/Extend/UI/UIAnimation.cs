@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace Extend.UI {
 	[Serializable]
-	public class UIAnimation : IUIAnimationPreview, IUITriggerPreview {
+	public class UIAnimation : IUIAnimationPreview {
 		public enum AnimationMode {
 			ANIMATOR,
 			PUNCH,
@@ -32,17 +32,6 @@ namespace Extend.UI {
 
 		[SerializeField]
 		private AnimatorParamProcessor m_processor;
-		
-		[SerializeReference]
-		private IUITriggerExecutor[] m_executors;
-
-		private HashSet<UITriggerMode> m_triggerModes;
-		public UIAnimation()
-		{
-			// 自行添加所需trigger
-			m_triggerModes = new HashSet<UITriggerMode>() {UITriggerMode.Criware, };
-			UITriggerUtil.UITriggerConstructorHandler(out m_executors, m_triggerModes);
-		}
 
 		public Tween[] Active(Transform t) {
 			switch( Mode ) {
@@ -81,14 +70,6 @@ namespace Extend.UI {
 			}
 			else if( Mode == AnimationMode.PUNCH ) {
 				m_punch.Editor_Recovery(transform);
-			}
-		}
-
-		public void ExecuteAtTrigger()
-		{
-			foreach (var executor in m_executors)
-			{
-				executor?.Execute();
 			}
 		}
 	}

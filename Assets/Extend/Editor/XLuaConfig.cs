@@ -136,8 +136,6 @@ public static class XLuaGenConfig {
 		typeof(TextMeshPro),
 		typeof(TMP_InputField),
 		typeof(Tweener),
-		typeof(UnityEngine.XR.ARFoundation.ARPlaneManager),
-		typeof(UnityEngine.XR.ARFoundation.ARSession),
 		typeof(EventSystem),
 		typeof(Volume)
 	};
