@@ -1,0 +1,29 @@
+{
+  "name": "com.unity.render-pipelines.universal",
+  "description": "The Universal Render Pipeline (URP) is a prebuilt Scriptable Render Pipeline, made by Unity. URP provides artist-friendly workflows that let you quickly and easily create optimized graphics across a range of platforms, from mobile to high-end consoles and PCs.",
+  "version": "10.3.2",
+  "unity": "2020.2",
+  "unityRelease": "3f1",
+  "displayName": "Universal RP",
+  "dependencies": {
+    "com.unity.mathematics": "1.1.0",
+    "com.unity.render-pipelines.core": "10.3.2",
+    "com.unity.shadergraph": "10.3.2"
+  },
+  "keywords": [
+    "graphics",
+    "performance",
+    "rendering",
+    "mobile",
+    "render",
+    "pipeline"
+  ],
+  "upmCi": {
+    "footprint": "7d042776b1083d952e432b464f60a94e4fbec581"
+  },
+  "repository": {
+    "url": "https://github.com/Unity-Technologies/Graphics.git",
+    "type": "git",
+    "revision": "1342255ea41f4ab7910113c8dc207aecdfd4cf8e"
+  }
+}
