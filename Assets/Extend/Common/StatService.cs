@@ -41,7 +41,7 @@ namespace Extend.Common {
 		}
 
 		public void Set(StatName name, long value) {
-			m_stats[(int)name] += value;
+			m_stats[(int)name] = value;
 		}
 
 		public long Get(StatName name) {
@@ -70,6 +70,7 @@ namespace Extend.Common {
 		}
 
 		public void Output(StringBuilder builder) {
+			DOTween.ClearCachedTweens();
 			Set(StatName.ACTIVE_TWEEN, DOTween.TotalPlayingTweens());
 			for( var i = 0; i < (int)StatName.COUNT; i++ ) {
 				builder.AppendLine($"{STAT_DESCRIPTIONS[i]} : {m_stats[i].ToString()}");
