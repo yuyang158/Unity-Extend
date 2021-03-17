@@ -14,7 +14,7 @@ namespace Extend.Common.Editor {
 			if( !animator ) {
 				return UIEditorUtil.LINE_HEIGHT;
 			}
-			
+
 			var controller = animator.runtimeAnimatorController as AnimatorController;
 			if( !controller ) {
 				return UIEditorUtil.LINE_HEIGHT;
@@ -47,11 +47,13 @@ namespace Extend.Common.Editor {
 			position.y += UIEditorUtil.LINE_HEIGHT;
 
 			var animator = animatorProp.objectReferenceValue as Animator;
+			if( !animator )
+				return;
 			var controller = animator.runtimeAnimatorController as AnimatorController;
 			if( !controller ) {
 				return;
 			}
-			
+
 			var paramNames = new string[controller.parameters.Length];
 			for( int i = 0; i < controller.parameters.Length; i++ ) {
 				var parameter = controller.parameters[i];
