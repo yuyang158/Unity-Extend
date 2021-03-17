@@ -5,6 +5,8 @@ using System.Text;
 using Extend.Common;
 using Extend.LuaUtil;
 using TMPro;
+using Unity.Profiling;
+using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.Profiling;
 using UnityEngine.UI;
@@ -61,6 +63,7 @@ namespace Extend.DebugUtil {
 		private LuaVM luaVM;
 		private bool m_showConsoleWhenError;
 		private bool m_showFps;
+		private bool m_showRender;
 		private bool m_showMemory;
 		private bool m_showStat;
 		private bool m_logScrollVisible;
@@ -77,18 +80,56 @@ namespace Extend.DebugUtil {
 			}
 		}
 
+		private ProfilerRecorder m_drawCallCount;
+		private ProfilerRecorder m_trianglesCount;
+		private ProfilerRecorder m_verticesCount;
+
+		private ProfilerRecorder m_totalAlloc;
+		private ProfilerRecorder m_textureMemory;
+		private ProfilerRecorder m_meshMemory;
+		private ProfilerRecorder m_gcMemoryCount;
+		private ProfilerRecorder m_frameAllocMemory;
+
 		private void Awake() {
 			luaVM = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
 
 			m_showConsoleWhenError = GameSystem.Get().SystemSetting.GetBool("DEBUG", "ShowConsoleWhenError");
 			m_showFps = GameSystem.Get().SystemSetting.GetBool("DEBUG", "ShowFPS");
+			m_showRender = GameSystem.Get().SystemSetting.GetBool("DEBUG", "ShowRender");
 			m_showMemory = GameSystem.Get().SystemSetting.GetBool("DEBUG", "ShowMemory");
 			m_showStat = GameSystem.Get().SystemSetting.GetBool("DEBUG", "ShowStat");
 			m_logScrollVisible = GameSystem.Get().SystemSetting.GetBool("DEBUG", "LogPanelGUIVisible");
 
-			m_txtLogTemplate.fontSize = (int)(m_txtLogTemplate.fontSize * Screen.dpi / 100.0f);
+			m_txtLogTemplate.fontSize = (int)( m_txtLogTemplate.fontSize * Screen.dpi / 100.0f );
 
 			DontDestroyOnLoad(gameObject);
+		}
+
+
+		private void OnDisable() {
+			Application.logMessageReceived -= HandleLogThreaded;
+			m_drawCallCount.Dispose();
+			m_trianglesCount.Dispose();
+			m_verticesCount.Dispose();
+
+			m_totalAlloc.Dispose();
+			m_textureMemory.Dispose();
+			m_meshMemory.Dispose();
+			m_gcMemoryCount.Dispose();
+			m_frameAllocMemory.Dispose();
+		}
+
+		private void OnEnable() {
+			Application.logMessageReceived += HandleLogThreaded;
+			m_drawCallCount = ProfilerRecorder.StartNew(ProfilerCategory.Render, "Draw Calls Count");
+			m_trianglesCount = ProfilerRecorder.StartNew(ProfilerCategory.Render, "Triangles Count");
+			m_verticesCount = ProfilerRecorder.StartNew(ProfilerCategory.Render, "Vertices Count");
+
+			m_totalAlloc = ProfilerRecorder.StartNew(ProfilerCategory.Memory, "Total Reserved Memory");
+			m_textureMemory = ProfilerRecorder.StartNew(ProfilerCategory.Memory, "Texture Memory");
+			m_meshMemory = ProfilerRecorder.StartNew(ProfilerCategory.Memory, "Mesh Memory");
+			m_gcMemoryCount = ProfilerRecorder.StartNew(ProfilerCategory.Memory, "GC Used Memory");
+			m_frameAllocMemory = ProfilerRecorder.StartNew(ProfilerCategory.Memory, "GC Allocation In Frame Count");
 		}
 
 		private class LuaCommandMatch : IComparable {
@@ -200,11 +241,12 @@ namespace Extend.DebugUtil {
 				var text = Instantiate(m_txtLogTemplate, m_logContentRoot, false);
 				text.gameObject.SetActive(true);
 				text.color = logTypeColors[type];
-				log = new Log() {
+				log = new Log {
 					text = text,
 					type = type
 				};
 			}
+
 			log.text.text = $"{message}\n{stacktrace}";
 			m_queuedLogs.Enqueue(log);
 
@@ -217,15 +259,7 @@ namespace Extend.DebugUtil {
 			}
 		}
 
-		private void OnDisable() {
-			Application.logMessageReceived -= HandleLogThreaded;
-		}
-
-		private void OnEnable() {
-			Application.logMessageReceived += HandleLogThreaded;
-		}
-
-		private readonly StringBuilder builder = new StringBuilder(1024);
+		private readonly StringBuilder builder = new StringBuilder(4096);
 
 		private void Update() {
 			builder.Clear();
@@ -234,16 +268,23 @@ namespace Extend.DebugUtil {
 					Application.targetFrameRate <= 0 ? "No Limit" : Application.targetFrameRate.ToString());
 			}
 
+			if( m_showRender ) {
+				builder.AppendLine($"Draw Call : {m_drawCallCount.LastValue.ToString()}");
+				builder.AppendLine($"Triangles Count : {m_trianglesCount.LastValue.ToString()}");
+				builder.AppendLine($"Vertices Count : {m_verticesCount.LastValue.ToString()}");
+			}
+
 			if( m_showMemory ) {
-				var graphicsDriver = Profiler.GetAllocatedMemoryForGraphicsDriver() / 1024 / 1024;
-				var unityTotalMemory = Profiler.GetTotalReservedMemoryLong() / 1024 / 1024;
-				builder.AppendFormat("Mono : {0} KB\n", ( GC.GetTotalMemory(false) / 1024 ).ToString());
-				builder.AppendFormat("Lua : {0} KB\n", luaVM.Memory.ToString());
-				builder.AppendFormat("Lua Map : {0}\n", luaVM.LuaMapCount.ToString());
-				builder.AppendFormat("Unity : {0} MB\n", unityTotalMemory.ToString());
-				builder.AppendFormat("Texture : {0} KB\n", ( Texture.currentTextureMemory / 1024 ).ToString());
-				if( Debug.isDebugBuild )
-					builder.AppendFormat("Graphics : {0} MB\n", graphicsDriver.ToString());
+				builder.AppendLine($"Mono : {( m_gcMemoryCount.LastValue / 1024 ).ToString()} KB");
+				builder.AppendLine($"Lua : {luaVM.Memory.ToString()} KB");
+				builder.AppendLine($"Unity : {( m_totalAlloc.LastValue / 1024 / 1024 ).ToString()} MB");
+				builder.AppendLine($"Texture : {( m_textureMemory.LastValue / 1024 ).ToString()} KB");
+				builder.AppendLine($"Mesh : {( m_meshMemory.LastValue / 1024 ).ToString()} KB");
+				builder.AppendLine($"Alloc : {m_frameAllocMemory.LastValue.ToString()} Byte");
+				if( Debug.isDebugBuild ) {
+					var graphicsDriver = Profiler.GetAllocatedMemoryForGraphicsDriver() / 1024 / 1024;
+					builder.AppendLine($"Graphics : {graphicsDriver.ToString()} MB");
+				}
 			}
 
 			if( m_showStat ) {
@@ -286,8 +327,8 @@ namespace Extend.DebugUtil {
 			if( Input.GetKeyDown(KeyCode.DownArrow) ) {
 				if( m_cmdHistory.Count == 0 )
 					return;
-				
-				if(HistoryIndex < 0)
+
+				if( HistoryIndex < 0 )
 					return;
 				HistoryIndex++;
 			}
@@ -314,11 +355,13 @@ namespace Extend.DebugUtil {
 				Debug.LogError("Get service return null");
 				return;
 			}
+
 			var commands = getServiceFunc(3);
 			if( commands == null ) {
 				Debug.LogError("Get commands return null");
 				return;
 			}
+
 			commands.ForEach((string cmdName, LuaCommandDelegate cmd) => {
 				luaCommands.Add(new LuaCommand() {
 					CommandName = cmdName,
