@@ -54,16 +54,11 @@ function M.hotfix_module(module_name)
         M.log_debug("Skip unloaded module: " .. module_name)
         return package.loaded[module_name]
     end
-    M.log_debug("Hot fix module: " .. module_name)
+    M.log_info("Hot fix module: " .. module_name)
 
-
-    local assetService = CS.Extend.Asset.AssetService.Get()
-    local textAssetType = typeof(CS.UnityEngine.TextAsset)
-    local filePath = string.replace(module_name, ".", "/")
-    local asset = assetService:Load("Lua/" .. filePath, textAssetType)
-    local chunk = asset:GetTextAsset().text
+    local chunk = hotfix_func(module_name)
     -- Load chunk.
-    local func = assert(load(chunk, '@'..filePath))
+    local func = assert(load(chunk, '@'..module_name))
     local ok, obj = assert(pcall(func))
     if nil == obj then obj = true end  -- obj may be false
 
@@ -73,9 +68,9 @@ end
 
 -- User can set log functions. Default is no log.
 -- Like: require("hotfix").log_info = function(s) mylog:info(s) end
-function M.log_error(msg_str) end
-function M.log_info(msg_str) end
-function M.log_debug(msg_str) end
+function M.log_error(msg_str) error(msg_str) end
+function M.log_info(msg_str) print(msg_str) end
+function M.log_debug(msg_str)  end
 
 -- Add objects to protect.
 -- Example: add_protect({table, math, print})
