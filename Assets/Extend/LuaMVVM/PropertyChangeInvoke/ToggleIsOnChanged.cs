@@ -14,7 +14,7 @@ namespace Extend.LuaMVVM.PropertyChangeInvoke {
 		private void Awake() {
 			m_toggle = GetComponent<Toggle>();
 			m_toggle.onValueChanged.AddListener((val) => {
-				OnPropertyChanged(m_toggle, val);
+				OnPropertyChanged?.Invoke(m_toggle, val);
 			});
 		}
 	}

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Extend.Common;
 using Extend.LuaUtil;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using XLua;
 
@@ -10,6 +11,17 @@ namespace Extend.LuaBindingEvent {
 	[LuaCallCSharp]
 	public abstract class LuaBindingEventBase : MonoBehaviour {
 		private static BindingEventDispatch m_dispatch;
+		private static BindEvent m_bindEvent;
+		public static BindEvent BindEvent => m_bindEvent;
+		private static BindEvent m_unbindEvent;
+		public static BindEvent UnbindEvent => m_unbindEvent;
+
+		private Selectable m_selectable;
+
+		private void Awake() {
+			m_selectable = GetComponent<Selectable>();
+		}
+
 		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSplashScreen)]
 		private static void OnLoad() {
 			LuaVM.OnPreRequestLoaded += () => {
@@ -17,14 +29,21 @@ namespace Extend.LuaBindingEvent {
 				var getLuaService = luaVm.Global.GetInPath<GetLuaService>("_ServiceManager.GetService");
 				var eventBindingService = getLuaService(8);
 				m_dispatch = eventBindingService.GetInPath<BindingEventDispatch>("Dispatch");
+				m_bindEvent = eventBindingService.GetInPath<BindEvent>("AddEventListener");
+				m_unbindEvent = eventBindingService.GetInPath<BindEvent>("RemoveEventListener");
 			};
 
 			LuaVM.OnVMQuiting += () => {
+				m_bindEvent = null;
+				m_unbindEvent = null;
 				m_dispatch = null;
 			};
 		}
-		
-		protected void TriggerPointerEvent(string eventName,  IEnumerable<BindingEvent> events, PointerEventData data) {
+
+		protected void TriggerPointerEvent(string eventName, IEnumerable<BindingEvent> events, PointerEventData data) {
+			if( m_selectable != null && !m_selectable.interactable )
+				return;
+
 			foreach( var evt in events ) {
 				var emmyFunction = evt.Function;
 				switch( evt.Param.Type ) {
@@ -63,6 +82,7 @@ namespace Extend.LuaBindingEvent {
 		}
 
 		private Dictionary<string, List<int>> m_luaEvents;
+
 		public void AddEventListener(string eventName, int id) {
 			if( m_luaEvents == null ) {
 				m_luaEvents = new Dictionary<string, List<int>>();

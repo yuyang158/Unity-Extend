@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Extend.Common.Editor;
+using Extend.LuaBindingEvent;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
@@ -69,16 +70,40 @@ namespace Extend.LuaMVVM.Editor {
 				var prop = property.GetArrayElementAtIndex(index);
 				var bindTargetProp = prop.FindPropertyRelative("BindTarget");
 				EditorGUI.PropertyField(enabledRect, bindTargetProp, GUIContent.none);
+				var bindModeProp = prop.FindPropertyRelative("Mode");
+				EditorGUI.PropertyField(functionRect, bindModeProp, GUIContent.none);
+				
 				if( bindTargetProp.objectReferenceValue != null ) {
-					var typ = bindTargetProp.objectReferenceValue.GetType();
-					var propertyInfos = typ.GetProperties();
-					var names = new List<string>();
-					foreach( var propertyInfo in propertyInfos ) {
-						if( propertyInfo.CanRead && propertyInfo.CanWrite && propertyInfo.PropertyType.IsPublic && 
-						    propertyInfo.GetCustomAttributes(typeof(ObsoleteAttribute), true).Length == 0 ) {
-							names.Add(propertyInfo.Name);
+					List<string> names;
+					if( bindModeProp.intValue == (int)LuaMVVMBindingOption.BindMode.EVENT ) {
+						var typ = bindTargetProp.objectReferenceValue.GetType();
+						names = new List<string>(8);
+						if( typ == typeof(LuaBindingClickEvent) ) {
+							names.Add("OnClick");
+						}
+						else if( typ == typeof(LuaBindingDragEvent) ) {
+							names.Add("OnBeginDrag");
+							names.Add("OnDrag");
+							names.Add("OnEndDrag");
+						}
+						else if( typ == typeof(LuaBindingUpDownMoveEvent) ) {
+							names.Add("OnDown");
+							names.Add("OnUp");
+							names.Add("OnDrag");
 						}
 					}
+					else {
+						var typ = bindTargetProp.objectReferenceValue.GetType();
+						var propertyInfos = typ.GetProperties();
+						names = new List<string>(128) { "SetActive" };
+						foreach( var propertyInfo in propertyInfos ) {
+							if( propertyInfo.CanRead && propertyInfo.CanWrite && propertyInfo.PropertyType.IsPublic && 
+							    propertyInfo.GetCustomAttributes(typeof(ObsoleteAttribute), true).Length == 0 ) {
+								names.Add(propertyInfo.Name);
+							}
+						}
+					}
+					
 					var bindTargetPropProp = prop.FindPropertyRelative("BindTargetProp");
 					var nameArr = names.ToArray();
 					var select = EditorGUI.Popup(goRect, Array.IndexOf(nameArr, bindTargetPropProp.stringValue), nameArr);
@@ -90,8 +115,6 @@ namespace Extend.LuaMVVM.Editor {
 					}
 				}
 				
-				var bindModeProp = prop.FindPropertyRelative("Mode");
-				EditorGUI.PropertyField(functionRect, bindModeProp, GUIContent.none);
 				var bindPathProp = prop.FindPropertyRelative("Path");
 				EditorGUI.PropertyField(argRect, bindPathProp, GUIContent.none);
 				

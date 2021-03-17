@@ -14,15 +14,18 @@ namespace Extend.LuaUtil {
 
 	[CSharpCallLua]
 	public delegate void LuaUnityEventFunction(LuaTable self);
-	
+
+	[CSharpCallLua]
+	public delegate LuaTable LuaUnityReturnTableFunc(LuaTable self);
+
 	[CSharpCallLua]
 	public delegate void LuaUnityCollision2DEventFunction(LuaTable self, Collision2D collision);
 
 	[CSharpCallLua]
-	public delegate void WatchCallback(LuaTable self, object val);
+	public delegate void WatchCallback(object val);
 
 	[CSharpCallLua]
-	public delegate void WatchLuaProperty(LuaTable self, string path, WatchCallback callback);
+	public delegate void WatchLuaProperty(LuaTable self, string path, WatchCallback callback, bool expression);
 
 	[CSharpCallLua]
 	public delegate void DetachLuaProperty(LuaTable self, string path, WatchCallback callback);
@@ -56,10 +59,19 @@ namespace Extend.LuaUtil {
 
 	[CSharpCallLua]
 	public delegate object GetGlobalVM(string path);
-	
+
+	[CSharpCallLua]
+	public delegate object ComputeGet(string path);
+
+	[CSharpCallLua]
+	public delegate object GetLuaValue(LuaTable self);
+
 	[CSharpCallLua]
 	public delegate void SetupLuaNewClassCallback(LuaTable classMeta, LuaTable parentClassMeta);
 
 	[CSharpCallLua]
 	public delegate void BindingEventDispatch(int id, PointerEventData eventData);
+
+	[CSharpCallLua]
+	public delegate void BindEvent(string eventName, GameObject go, LuaFunction func);
 }

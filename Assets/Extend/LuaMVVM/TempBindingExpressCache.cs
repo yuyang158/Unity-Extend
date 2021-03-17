@@ -4,7 +4,7 @@ using XLua;
 
 namespace Extend.LuaMVVM {
 	internal static class TempBindingExpressCache {
-		private const string LUA_TEMPLATE = @"return function(this) return {0} end";
+		private const string LUA_TEMPLATE = @"return function(this, current) return {0} end";
 		private static readonly Dictionary<int, LuaFunction> m_cachedLuaFunctions = new Dictionary<int, LuaFunction>();
 		
 		public static LuaFunction GenerateTempFunction(ref string script) {
@@ -16,6 +16,13 @@ namespace Extend.LuaMVVM {
 			}
 
 			return tempFunc;
+		}
+
+		public static void Clear() {
+			foreach( var func in m_cachedLuaFunctions.Values ) {
+				func.Dispose();
+			}
+			m_cachedLuaFunctions.Clear();
 		}
 	}
 }

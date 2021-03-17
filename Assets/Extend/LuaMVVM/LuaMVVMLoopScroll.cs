@@ -30,7 +30,7 @@ namespace Extend.LuaMVVM {
 		private List<BindingEvent> m_onScrollEndEvent;
 
 		public void ProvideData(Transform t, int index) {
-			var binding = t.GetComponent<LuaMVVMBinding>();
+			var binding = t.GetComponent<ILuaMVVM>();
 			binding.SetDataContext(m_arrayData.Get<int, LuaTable>(index + 1));
 			if( m_scroll.totalCount - 1 == index ) {
 				TriggerPointerEvent("OnScrollToEnd", m_onScrollEndEvent, null);

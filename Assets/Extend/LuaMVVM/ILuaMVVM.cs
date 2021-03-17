@@ -3,5 +3,7 @@
 namespace Extend.LuaMVVM {
 	public interface ILuaMVVM {
 		void SetDataContext(LuaTable dataSource);
+
+		void Detach();
 	}
 }
