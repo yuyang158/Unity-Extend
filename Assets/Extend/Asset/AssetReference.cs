@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Assertions;
 using XLua;
@@ -25,10 +26,17 @@ namespace Extend.Asset {
 		public AssetInstance Asset {
 			get => m_asset;
 			private set {
+				if( m_asset == value )
+					return;
+
 				m_asset?.Release();
 				m_asset = value;
 				m_asset?.IncRef();
 			}
+		}
+
+		public AssetReference() {
+			m_asset = null;
 		}
 
 		public AssetReference(AssetInstance instance) {
@@ -147,6 +155,7 @@ namespace Extend.Asset {
 		[LuaCallCSharp]
 		public class InstantiateAsyncContext {
 			private AssetReference m_ref;
+
 			[BlackList]
 			private AssetReference Ref {
 				set {
@@ -157,6 +166,7 @@ namespace Extend.Asset {
 				}
 				get => m_ref;
 			}
+
 			public event OnInstantiateComplete Callback;
 			public bool Cancel;
 

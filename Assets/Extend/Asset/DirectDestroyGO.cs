@@ -1,7 +1,7 @@
 ﻿namespace Extend.Asset {
 	public class DirectDestroyGO : AssetServiceManagedGO {
 		internal override void Recycle() {
-			Destroy(gameObject);
+			DestroyImmediate(gameObject);
 			base.Recycle();
 		}
 	}

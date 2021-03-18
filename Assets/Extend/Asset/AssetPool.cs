@@ -26,11 +26,22 @@ namespace Extend.Asset {
 			AssetService.Get().AddPool(this);
 		}
 
+		public void WarmUp() {
+			var gameObjects = new GameObject[PreferSize];
+			for( int i = 0; i < PreferSize; i++ ) {
+				gameObjects[i] = m_assetInstance.Instantiate(PoolNode.transform, false);
+			}
+
+			foreach( var gameObject in gameObjects ) {
+				Cache(gameObject);
+			}
+		}
+
 		public void Cache(GameObject go) {
-			StatService.Get().Increase(StatService.StatName.IN_USE_GO, -1);
 			if( m_cached.Count == 0 ) {
 				m_cacheStart = Time.time;
 			}
+
 			if( m_cached.Count >= MaxSize ) {
 				Object.Destroy(go);
 				return;
@@ -66,7 +77,7 @@ namespace Extend.Asset {
 
 			return go;
 		}
-		
+
 		public GameObject Get(Vector3 position, Quaternion quaternion, Transform parent) {
 			var go = GetFromCache();
 			if( go ) {
@@ -91,13 +102,13 @@ namespace Extend.Asset {
 		}
 
 		public void Update() {
-			if(m_cached.Count == 0)
-				return;
-			
-			if(m_cached.Count <= PreferSize)
+			if( m_cached.Count == 0 )
 				return;
 
-			if( m_cacheStart - Time.time > 30 ) {
+			if( m_cached.Count <= PreferSize )
+				return;
+
+			if( Time.time - m_cacheStart > 30 ) {
 				Object.Destroy(m_cached[0]);
 				StatService.Get().Increase(StatService.StatName.IN_POOL_GO, -1);
 				m_cached.RemoveSwapAt(0);

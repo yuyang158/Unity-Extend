@@ -10,6 +10,10 @@ namespace Extend.Asset {
 		public float CreateTime;
 
 		public AssetInstance(string assetPath) {
+			if( string.IsNullOrEmpty(assetPath) ) {
+				Debug.LogError("Asset path is empty");
+				return;
+			}
 			AssetPath = string.Intern(assetPath);
 		}
 

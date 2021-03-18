@@ -5,10 +5,11 @@ using XLua;
 namespace Extend.Asset {
 	[LuaCallCSharp]
 	public class AsyncInstantiateGroup {
-		private AssetReference m_ref;
+		private readonly AssetReference m_ref;
 		private List<AssetReference.InstantiateAsyncContext> m_contexts = new List<AssetReference.InstantiateAsyncContext>();
 		
-		public AsyncInstantiateGroup(AssetReference @m_ref) {
+		public AsyncInstantiateGroup(AssetReference reference) {
+			m_ref = reference;
 		}
 
 		public void Clear() {

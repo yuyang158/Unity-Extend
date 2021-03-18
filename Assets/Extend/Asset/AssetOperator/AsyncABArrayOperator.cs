@@ -9,6 +9,9 @@ namespace Extend.Asset.AssetOperator {
 
 		public AsyncABArrayOperator(string[] assetBundles) {
 			assetBundlePaths = assetBundles;
+			if( assetBundlePaths.Length == 0 ) {
+				throw new Exception("Request ab count is 0");
+			}
 		}
 
 		private void CheckFinish() {

@@ -97,6 +97,8 @@ namespace Extend.Asset {
 			foreach( var asset in m_assets ) {
 				asset.Destroy();
 			}
+			m_assets.Clear();
+			m_hashAssetDic.Clear();
 		}
 
 		public void Dump() {

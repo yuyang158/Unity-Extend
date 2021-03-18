@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEngine;
 
 namespace Extend.Asset.AssetOperator {
 	public class AsyncABAssetOperator : AssetOperatorBase {
@@ -10,6 +11,7 @@ namespace Extend.Asset.AssetOperator {
 		}
 		
 		public override void Execute(AssetAsyncLoadHandle handle, Type typ) {
+			Debug.LogWarning("Exec Asset : " + handle.Location);
 			if( !( handle.Container.TryGetAsset(assetBundleHash) is AssetBundleInstance abInstance ) || 
 			    abInstance.Status != AssetRefObject.AssetStatus.DONE ) {
 				throw new Exception("Asset depend asset bundle not loaded");

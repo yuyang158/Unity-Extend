@@ -1,11 +1,12 @@
 {
     "name": "Extend.Asset",
+    "rootNamespace": "",
     "references": [
         "GUID:22784c00bfb32f049827a00b892b0d3c"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
-    "allowUnsafeCode": false,
+    "allowUnsafeCode": true,
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,

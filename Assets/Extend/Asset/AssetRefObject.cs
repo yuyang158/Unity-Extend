@@ -41,7 +41,7 @@ namespace Extend.Asset {
 			}
 
 			if( m_refCount < 0 ) {
-				Debug.Log("");
+				Debug.Log($"Release : {m_refCount}");
 			}
 			return m_refCount;
 		}

@@ -53,12 +53,6 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 3b9c7f443b9e1f747991a0ca956769bf, type: 3}
   - {fileID: 21300000, guid: 88474487c256bbc44b6813c5effe636c, type: 3}
   - {fileID: 4320898640841355039, guid: 19faa8c35069ea54d9c30d9325382563, type: 3}
-  - {fileID: 21300000, guid: 9f54030e6518444428bccbde6f4e4a82, type: 3}
-  - {fileID: 21300000, guid: ea82cec89f1de9a48b0ba32f7965b500, type: 3}
-  - {fileID: 21300000, guid: c1395f09891e0124ab818bc184d5305b, type: 3}
-  - {fileID: 21300000, guid: 7f20c882a89fd994ca17dfa04ecd9989, type: 3}
-  - {fileID: 21300000, guid: b910be2d61b80aa4c8549633e87baa49, type: 3}
-  - {fileID: 21300000, guid: 9670c9120482a264baf260c82d3eb225, type: 3}
   - {fileID: 4284650462427428293, guid: 66c0e659f1969774c980b05ea9f8eee3, type: 3}
   Scenes:
   - {fileID: 102900000, guid: 0e9387e82025f6b43843be9c390dc0d7, type: 3}

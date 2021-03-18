@@ -119,6 +119,9 @@ namespace Extend.Asset.AssetProvider {
 			if( PrepareMainAbOperators(operators, loadHandle) ) {
 				HandleAssetOperators(operators, loadHandle, typ);
 			}
+			else {
+				throw new Exception($"{loadHandle.Location} load error");
+			}
 		}
 
 		private bool TryGetABContext(string path, out AssetPath context) {
@@ -217,8 +220,8 @@ namespace Extend.Asset.AssetProvider {
 			return mainAbInstance;
 		}
 
-		private void HandleAssetOperators(List<AssetOperatorBase> operators, AssetAsyncLoadHandle loadHandle, Type t) {
-			var op = new AssetOperators() {
+		private static void HandleAssetOperators(List<AssetOperatorBase> operators, AssetAsyncLoadHandle loadHandle, Type t) {
+			var op = new AssetOperators {
 				Operators = operators.ToArray()
 			};
 			op.Execute(loadHandle, t);
@@ -239,9 +242,8 @@ namespace Extend.Asset.AssetProvider {
 							loadHandle.Container.PutAB(new AssetBundleInstance(dependency));
 						}
 					}
+					return new AsyncABArrayOperator(allDependencies);
 				}
-
-				return new AsyncABArrayOperator(allDependencies);
 			}
 
 			return null;
@@ -255,9 +257,8 @@ namespace Extend.Asset.AssetProvider {
 			loadHandle.Location = abPathContext.Path;
 			var mainAbName = abPathContext.ABName;
 			var mainAbHash = AssetBundleInstance.GenerateHash(mainAbName);
-			var mainAbInstance = loadHandle.Container.TryGetAsset(mainAbHash);
 
-			var mainAbDependenciesOperator = GenerateMainAbDependenciesOperator(mainAbName, out mainAbInstance, loadHandle);
+			var mainAbDependenciesOperator = GenerateMainAbDependenciesOperator(mainAbName, out var mainAbInstance, loadHandle);
 			if( mainAbDependenciesOperator != null ) {
 				operators.Add(mainAbDependenciesOperator);
 			}

@@ -48,6 +48,7 @@ namespace Extend.Asset {
 			if( m_pool != null )
 				throw new Exception("Pool is created!");
 			m_pool = new AssetPool(name, prefer, max, this);
+			m_pool.WarmUp();
 		}
 
 		public GameObject Instantiate(Transform parent, bool stayWorldPosition) {

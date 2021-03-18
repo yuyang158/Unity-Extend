@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEngine;
 
 namespace Extend.Asset.AssetOperator {
 	public class AssetOperators {
@@ -10,8 +11,10 @@ namespace Extend.Asset.AssetOperator {
 		public float Progress => currentOpIndex / (float)Operators.Length;
 
 		private void DoExecute(AssetAsyncLoadHandle handle, Type typ) {
-			if(currentOpIndex >= Operators.Length)
+			if( currentOpIndex >= Operators.Length ) {
+				Debug.LogWarning($"Operator finish : {currentOpIndex} / {Operators.Length}");
 				return;
+			}
 			
 			Operators[currentOpIndex].Execute(handle, typ);
 		}
@@ -21,10 +24,12 @@ namespace Extend.Asset.AssetOperator {
 				op.OnComplete += _ => {
 					currentOpIndex += 1;
 					DoExecute(handle, typ);
+					Debug.LogWarning("Exec : " + handle.Location);
 				};
 			}
 
 			DoExecute(handle, typ);
+			Debug.LogWarning("Exec : " + handle.Location);
 		}
 	}
 	

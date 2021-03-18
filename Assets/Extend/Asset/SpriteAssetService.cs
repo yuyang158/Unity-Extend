@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using Extend.Common;
 using UnityEngine;
 
@@ -46,8 +47,18 @@ namespace Extend.Asset {
 		}
 
 		private readonly Dictionary<string, AssetInstance> m_sprites = new Dictionary<string, AssetInstance>();
+		private readonly Dictionary<int, PackedSprite> m_packedSprites = new Dictionary<int, PackedSprite>();
 
-		public SpriteLoadingHandle SetUIImage(SpriteAssetAssignment assignment, string path, bool sync = false) {
+		public PackedSprite.SpriteElement RequestIcon(string path) {
+			var directoryName = Path.GetDirectoryName(path);
+			var folderName = directoryName.Substring(directoryName.LastIndexOf('\\') + 1);
+			var size = int.Parse(folderName);
+
+			var packedSprite = m_packedSprites[size];
+			return packedSprite.Request(path);
+		}
+
+		public SpriteLoadingHandle RequestSprite(SpriteAssetAssignment assignment, string path, bool sync = false) {
 			SpriteLoadingHandle ret = null;
 			if( m_sprites.TryGetValue(path, out var spriteAsset) ) {
 				if( spriteAsset.Status == AssetRefObject.AssetStatus.DESTROYED ) {
@@ -89,13 +100,14 @@ namespace Extend.Asset {
 		}
 
 		private static void TryApplySprite(SpriteAssetAssignment assignment, AssetInstance spriteAsset) {
-			if( spriteAsset.IsFinished ) {
+			if( spriteAsset.Status == AssetRefObject.AssetStatus.DONE ) {
 				spriteAsset.IncRef();
 				assignment.Apply(spriteAsset.UnityObject as Sprite);
 			}
 		}
 
 		public void Initialize() {
+			m_packedSprites.Add(128, new PackedSprite(128));
 		}
 
 		public void Destroy() {
@@ -103,6 +115,11 @@ namespace Extend.Asset {
 				spriteInstance.Destroy();
 			}
 			m_sprites.Clear();
+
+			foreach( var packedSprite in m_packedSprites.Values ) {
+				packedSprite.Dispose();
+			}
+			m_packedSprites.Clear();
 		}
 
 		public void Update() {

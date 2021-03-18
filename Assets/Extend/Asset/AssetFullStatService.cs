@@ -41,9 +41,9 @@ namespace Extend.Asset {
 		}
 
 		public void OnInstantiateGameObject(GameObject go) {
-			go.AddComponent<DestroyGOStatHandle>();
+			go.GetOrAddComponent<DestroyGOStatHandle>();
 			lock( m_loadedGameObjects ) {
-				m_loadedGameObjects.Add(go.GetInstanceID(), new Tuple<string, GameObject>(go.name, go));
+				m_loadedGameObjects[go.GetInstanceID()] = new Tuple<string, GameObject>(go.name, go);
 			}
 		}
 

@@ -1,39 +1,52 @@
-using System;
 using UnityEngine;
-using UnityEngine.UI;
 using XLua;
 
 namespace Extend.Asset {
 	[LuaCallCSharp]
 	public abstract class SpriteAssetAssignment : MonoBehaviour {
 		public bool Sync;
-		private string m_spriteKey;
 		private SpriteAssetService.SpriteLoadingHandle m_loadingHandle;
+		private string m_spritePath;
 
-		protected void ApplyNewKey(string key) {
-			m_loadingHandle?.GiveUp();
-			m_loadingHandle = null;
-			if( !string.IsNullOrEmpty(m_spriteKey) ) {
-				SpriteAssetService.Get().Release(m_spriteKey);
-			}
-
-			m_spriteKey = key;
-			if( string.IsNullOrEmpty(m_spriteKey) ) {
-				Apply(null);
-			}
-			else {
-				m_loadingHandle = SpriteAssetService.Get().SetUIImage(this, m_spriteKey, Sync);
+		public string SpritePath {
+			get => m_spritePath;
+			set {
+				if( m_spritePath == value )
+					return;
+				ApplyNewKey(value);
 			}
 		}
 
-		public abstract void Apply(Sprite sprite);
+		protected void ApplyNewKey(string key) {
+			PreLoad();
+			m_loadingHandle?.GiveUp();
+			m_loadingHandle = null;
+			if( !string.IsNullOrEmpty(m_spritePath) ) {
+				SpriteAssetService.Get().Release(m_spritePath);
+			}
+
+			m_spritePath = key;
+			if( string.IsNullOrEmpty(m_spritePath) ) {
+				Apply(null);
+			}
+			else {
+				m_loadingHandle = SpriteAssetService.Get().RequestSprite(this, m_spritePath, Sync);
+			}
+		}
+
+		protected abstract void PreLoad();
+		protected abstract void PostLoad();
+
+		public virtual void Apply(Sprite sprite) {
+			PostLoad();
+		}
 
 		private void OnDestroy() {
 			m_loadingHandle?.GiveUp();
-			if( string.IsNullOrEmpty(m_spriteKey) )
+			if( string.IsNullOrEmpty(m_spritePath) )
 				return;
-			SpriteAssetService.Get().Release(m_spriteKey);
-			m_spriteKey = null;
+			SpriteAssetService.Get().Release(m_spritePath);
+			m_spritePath = null;
 		}
 	}
 }

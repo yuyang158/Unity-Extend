@@ -6,6 +6,7 @@ using Extend.Common;
 using UnityEngine;
 using UnityEngine.U2D;
 using XLua;
+using Debug = UnityEngine.Debug;
 using Object = UnityEngine.Object;
 
 namespace Extend.Asset {
@@ -23,7 +24,9 @@ namespace Extend.Asset {
 		private int m_poolUpdateIndex;
 		private Transform m_poolRootNode;
 		private readonly List<AssetPool> m_pools = new List<AssetPool>();
-		private readonly List<AssetReference.InstantiateAsyncContext> m_deferInstantiates = new List<AssetReference.InstantiateAsyncContext>();
+
+		private readonly Queue<AssetReference.InstantiateAsyncContext> m_deferInstantiates =
+			new Queue<AssetReference.InstantiateAsyncContext>(64);
 
 		private readonly bool m_forceAssetBundleMode;
 		private float m_singleFrameMaxInstantiateDuration;
@@ -33,6 +36,7 @@ namespace Extend.Asset {
 		}
 
 		private readonly List<IDisposable> m_disposables = new List<IDisposable>();
+
 		public void AddAfterDestroy(IDisposable disposable) {
 			m_disposables.Add(disposable);
 		}
@@ -80,11 +84,12 @@ namespace Extend.Asset {
 			foreach( var pool in m_pools ) {
 				pool.Dispose();
 			}
-			
+
 			GC.Collect();
 			foreach( var disposable in m_disposables ) {
 				disposable.Dispose();
 			}
+
 			Container.Clear();
 		}
 
@@ -98,17 +103,21 @@ namespace Extend.Asset {
 
 			if( m_deferInstantiates.Count > 0 ) {
 				m_instantiateStopwatch.Restart();
-				for( var i = 0; i < m_deferInstantiates.Count; ) {
-					var context = m_deferInstantiates[i];
+				var context = m_deferInstantiates.Peek();
+				while( true ) {
 					if( !context.GetAssetReady() ) {
-						i++;
-						continue;
+						break;
 					}
-					context.Instantiate();
-					m_deferInstantiates.RemoveSwapAt(i);
+
 					if( m_singleFrameMaxInstantiateDuration < m_instantiateStopwatch.Elapsed.TotalSeconds ) {
 						break;
 					}
+
+					context.Instantiate();
+					m_deferInstantiates.Dequeue();
+					if( m_deferInstantiates.Count == 0 )
+						break;
+					context = m_deferInstantiates.Peek();
 				}
 			}
 
@@ -119,7 +128,10 @@ namespace Extend.Asset {
 				m_poolUpdateIndex = 0;
 			}
 
-			// m_pools[m_poolUpdateIndex]
+			var pool = m_pools[m_poolUpdateIndex];
+			pool.Update();
+			
+			m_poolUpdateIndex++;
 		}
 
 		public bool Exist(string path) {
@@ -141,14 +153,12 @@ namespace Extend.Asset {
 			var time = m_stopwatch.ElapsedTicks - ticks;
 			m_stopwatch.Stop();
 			var statService = CSharpServiceManager.Get<StatService>(CSharpServiceManager.ServiceType.STAT);
-			statService.LogStat("AssetLoad", path, time);
+			statService.LogStat("AssetLoad", path, ( time / 10000.0f ).ToString("0.000"));
 #endif
 			return assetRef;
 		}
 
 		public static void Recycle(GameObject go) {
-			if(!go)
-				return;
 			var cache = go.GetComponent<AssetServiceManagedGO>();
 			cache.Recycle();
 			StatService.Get().Increase(StatService.StatName.IN_USE_GO, -1);
@@ -164,7 +174,7 @@ namespace Extend.Asset {
 		}
 
 		internal void AddDeferInstantiateContext(AssetReference.InstantiateAsyncContext context) {
-			m_deferInstantiates.Add(context);
+			m_deferInstantiates.Enqueue(context);
 		}
 
 		internal AssetInstance LoadAssetWithGUID<T>(string guid) where T : Object {
@@ -177,7 +187,7 @@ namespace Extend.Asset {
 			var time = m_stopwatch.ElapsedTicks - ticks;
 			m_stopwatch.Stop();
 			var statService = CSharpServiceManager.Get<StatService>(CSharpServiceManager.ServiceType.STAT);
-			statService.LogStat("AssetLoad", path, time);
+			statService.LogStat("AssetLoad", path, ( time / 10000.0f ).ToString("0.000"));
 #endif
 			return assetRef;
 		}
@@ -208,7 +218,7 @@ namespace Extend.Asset {
 			var time = m_stopwatch.ElapsedTicks - ticks;
 			m_stopwatch.Stop();
 			var statService = CSharpServiceManager.Get<StatService>(CSharpServiceManager.ServiceType.STAT);
-			statService.LogStat("AssetLoad", path, time);
+			statService.LogStat("AssetLoad", path, ( time / 10000.0f ).ToString("0.000"));
 #endif
 		}
 
