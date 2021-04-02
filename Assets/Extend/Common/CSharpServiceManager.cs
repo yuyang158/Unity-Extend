@@ -25,6 +25,7 @@ namespace Extend.Common {
 			ASSET_FULL_STAT,
 			ASSET_SERVICE,
 			GAME_SYSTEM_SERVICE,
+			RENDER_FEATURE,
 			SPRITE_ASSET_SERVICE,
 			TICK_SERVICE,
 			COROUTINE_SERVICE,
@@ -32,7 +33,6 @@ namespace Extend.Common {
 			IN_GAME_CONSOLE,
 			LUA_SERVICE,
 			I18N,
-			RENDER_FEATURE,
 			COUNT
 		}
 

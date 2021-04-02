@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SimpleLogger;
+using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -11,10 +12,13 @@ namespace Server {
 		public DeviceRegisterTcpServer() {
 			listener = new TcpListener(IPAddress.Parse("0.0.0.0"), TCP_PORT);
 			listener.Start();
-			Console.WriteLine($"TCP Server started : {TCP_PORT}");
+			Logger.Log(Logger.Level.Info, $"TCP Server started : {TCP_PORT}");
 
 			var listenThread = new Thread(StartAccept);
 			listenThread.Start();
+
+			var pingThread = new Thread(StartPing);
+			pingThread.Start();
 		}
 
 		private void StartAccept() {
@@ -28,7 +32,24 @@ namespace Server {
 				}
 			}
 			catch( Exception e ) {
-				Console.WriteLine(e);
+				Logger.Log(Logger.Level.Info, e.Message);
+			}
+		}
+
+		private void StartPing() {
+			while( true ) {
+				try {
+					lock( Router.Devices ) {
+						for (int i = 0; i < Router.Devices.Count; i++) {
+							var device = Router.Devices[i];
+							device.Ping();
+						}
+					}
+				}
+				catch(Exception e) {
+					Logger.Log(e);
+				}
+				Thread.Sleep(1000 * 30);
 			}
 		}
 	}

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SimpleLogger;
+using System;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -11,32 +12,29 @@ namespace Server {
 		public string Name { get; private set; }
 		public string Guid { get; }
 		public bool Connected { get; private set; } = true;
-		
+
 		private static int UID = 1;
 		public DeviceTcpClient(TcpClient client) {
 			tcpClient = client;
 			tcpClient.NoDelay = true;
-#pragma warning disable 4014
 			StartRecv();
-#pragma warning restore 4014
 
 			Guid = UID.ToString();
-			UID++;
+			Interlocked.Increment(ref UID);
 		}
 
 		private async Task ReadWithSize(int count) {
 			var total = count;
 			var offset = 0;
 			var readCount = 0;
-			while( true ) {
+			while (true) {
 				var c = await tcpClient.GetStream().ReadAsync(buffer, offset, count);
-				if( c <= 0 ) {
-					Console.WriteLine("Disconnect when recv 0");
+				if (c <= 0) {
 					Disconnect();
 					break;
 				}
 				readCount += c;
-				if( readCount < total ) {
+				if (readCount < total) {
 					offset = readCount;
 					count = total - readCount;
 				}
@@ -51,78 +49,77 @@ namespace Server {
 		public Task<string> RequestDevice(string lua) {
 			luaRet = "";
 			try {
-				Console.WriteLine($"REQUEST LUA : {lua}");
+				Logger.Log($"REQUEST LUA : {lua}");
 				tcpClient.GetStream().Write(BitConverter.GetBytes((short)lua.Length));
 				tcpClient.GetStream().Write(Encoding.UTF8.GetBytes(lua));
 				tcpClient.GetStream().Flush();
 				return Task.Run(() => {
 					var counter = 0;
-					while( string.IsNullOrEmpty(luaRet) && counter < 50 ) {
+					while (string.IsNullOrEmpty(luaRet) && counter < 50) {
 						Thread.Sleep(100);
 						counter++;
 					}
 					return luaRet;
 				});
 			}
-			catch( Exception e ) {
+			catch (Exception e) {
 				Disconnect();
-				Console.WriteLine(e.Message + "\r\n" + e.StackTrace);
+				Logger.Log(e);
 				return Task.Run(() => e.Message);
 			}
 		}
-		
+
 		public void Ping() {
 			try {
+				Logger.Log(Logger.Level.Debug, $"Ping Client : {tcpClient.Client.RemoteEndPoint}");
 				tcpClient.GetStream().Write(BitConverter.GetBytes((short)-1));
-				tcpClient.GetStream().Flush();
 			}
-			catch( Exception ) {
+			catch (Exception) {
 				Disconnect();
 			}
 		}
 
 		private void Disconnect() {
-			lock( Router.Devices ) {
+			lock (Router.Devices) {
 				Router.Devices.Remove(this);
-				Console.WriteLine($"Disconnect : {Guid}");
+				Logger.Log($"Disconnect : {Guid}");
 				Connected = false;
 			}
 		}
 
-		private async Task StartRecv() {
+		private async void StartRecv() {
 			try {
 				await Process();
 			}
-			catch( Exception e ) {
-				Console.WriteLine(e.Message + "\r\n" + e.StackTrace);
+			catch (Exception e) {
+				Logger.Log(e);
 				Disconnect();
 			}
 		}
 
 		private async Task Process() {
-			while( true ) {
+			while (true) {
 				await ReadWithSize(1);
-				if(!Connected)
+				if (!Connected)
 					break;
 				var protocol = buffer[0];
 				await ReadWithSize(2);
-				if(!Connected)
+				if (!Connected)
 					break;
 				var sizeBuff = new byte[2];
 				Array.Copy(buffer, 0, sizeBuff, 0, 2);
 				var size = BitConverter.ToInt16(sizeBuff);
-				Console.WriteLine($"REQUEST SIZE {size}");
 				await ReadWithSize(size);
-				if(!Connected)
+				if (!Connected)
 					break;
-				switch( protocol ) {
+				switch (protocol) {
 					case 1:
 						Name = Encoding.UTF8.GetString(buffer, 0, size);
-						Console.WriteLine($"DEVICE {Name} Connect, {DateTime.Now.ToLongTimeString()}");
+						Logger.Log($"DEVICE {Name} Connect");
 						break;
 					case 2:
 						luaRet = Encoding.UTF8.GetString(buffer, 0, size);
-						Console.WriteLine($"Remote lua response : {luaRet}");
+						Logger.Log($"Remote lua response : {luaRet}");
 						break;
 				}
 			}
