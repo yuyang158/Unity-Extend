@@ -6,7 +6,6 @@ using Extend.DebugUtil;
 using Extend.LuaUtil;
 using Extend.Network;
 using Extend.UI.i18n;
-using Extend.GraphicsInstancing;
 using Extend.Render;
 using UnityEngine;
 
@@ -31,7 +30,6 @@ namespace Extend {
 			CSharpServiceManager.Register(new I18nService());
 			CSharpServiceManager.Register(new LuaVM());
 			CSharpServiceManager.Register(new TickService());
-			CSharpServiceManager.Register(new GraphicsInstancingService());
 
 			var builder = new StringBuilder(2048);
 			builder.AppendLine($"Unity: {Application.unityVersion} App : {Application.identifier}:{Application.version} {Application.platform}");

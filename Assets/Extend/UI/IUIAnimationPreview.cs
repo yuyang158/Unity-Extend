@@ -8,7 +8,5 @@ namespace Extend.UI {
 		Tween[] CollectPreviewTween(Transform transform);
 
 		void Editor_Recovery(Transform transform);
-
-		void Destroy();
 	}
 }
