@@ -34,24 +34,21 @@ namespace Extend.Asset.AssetProvider {
 			else {
 				var req = Resources.LoadAsync(loadHandle.Location, typ);
 				req.completed += operation => {
-					if( !operation.isDone ) {
-						loadHandle.Asset.SetAsset(null, null);
-					}
-					else {
-						loadHandle.Asset.SetAsset(req.asset, null);
-					}
+					loadHandle.Asset.SetAsset(operation.isDone ? req.asset : null, null);
 				};
 			}
 		}
 
-		private static IEnumerator SimulateDelayLoadScene(AssetAsyncLoadHandle loadHandle)
+		private static IEnumerator SimulateDelayLoadScene(AssetAsyncLoadHandle loadHandle, bool add)
 		{
 			yield return DEBUG_WAIT;
-			var asyncOperation = SceneManager.LoadSceneAsync(loadHandle.Location + ".unity");
+			var asyncOperation = SceneManager.LoadSceneAsync(loadHandle.Location + ".unity", 
+				add ? LoadSceneMode.Additive : LoadSceneMode.Single);
 			while (!asyncOperation.isDone)
 			{
 				yield return null;
 			}
+			loadHandle.Complete();
 		}
 
 		public override void Initialize() {
@@ -76,15 +73,16 @@ namespace Extend.Asset.AssetProvider {
 			return new AssetReference(asset);
 		}
 
-		public override void ProvideSceneAsync(AssetAsyncLoadHandle loadHandle)
+		public override void ProvideSceneAsync(AssetAsyncLoadHandle loadHandle, bool add)
 		{
 			var service = CSharpServiceManager.Get<GlobalCoroutineRunnerService>(CSharpServiceManager.ServiceType.COROUTINE_SERVICE);
-			service.StartCoroutine(SimulateDelayLoadScene(loadHandle));
+			service.StartCoroutine(SimulateDelayLoadScene(loadHandle, add));
 		}
 
-		public override void ProvideScene(string path, AssetContainer container)
+		public override void ProvideScene(string path, AssetContainer container, bool add)
 		{
-			SceneManager.LoadScene(path + ".unity");
+			SceneManager.LoadScene(path + ".unity",
+				add ? LoadSceneMode.Additive : LoadSceneMode.Single);
 		}
 
 		public override bool Exist(string path) {
@@ -121,7 +119,6 @@ namespace Extend.Asset.AssetProvider {
 			}
 
 			asset.SetAsset(unityObject, null);
-			container.Put(asset);
 			return asset;
 		}
 

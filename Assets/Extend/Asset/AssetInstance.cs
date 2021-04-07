@@ -15,6 +15,7 @@ namespace Extend.Asset {
 				return;
 			}
 			AssetPath = string.Intern(assetPath);
+			AssetService.Get().Container.Put(this);
 		}
 
 		public virtual void SetAsset(Object unityObj, AssetBundleInstance refAssetBundle) {
@@ -43,7 +44,9 @@ namespace Extend.Asset {
 #endif
 			}
 			Status = AssetStatus.DESTROYED;
+			UnityObject = null;
 			RefAssetBundle?.Release();
+			RefAssetBundle = null;
 		}
 		
 		public static int GenerateHash(string path) {

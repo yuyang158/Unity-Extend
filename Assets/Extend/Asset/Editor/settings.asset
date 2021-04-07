@@ -28,13 +28,7 @@ MonoBehaviour:
     UnloadStrategies:
     - BundleName: assets/spriteatlas/all
       UnloadStrategy: 0
-    - BundleName: assets/spriteatlas/clan
-      UnloadStrategy: 0
-    - BundleName: assets/spriteatlas/explore
-      UnloadStrategy: 0
-    - BundleName: assets/spriteatlas/play_continue_pause_result
-      UnloadStrategy: 0
-    - BundleName: assets/spriteatlas/stage
+    - BundleName: assets/spriteatlas/battle
       UnloadStrategy: 0
   - FolderPath: {fileID: 102900000, guid: f15dc826fb14592438de49c4a067ce83, type: 3}
     Op: 0
@@ -45,6 +39,17 @@ MonoBehaviour:
     Op: 0
     UnloadStrategies:
     - BundleName: assets/textmesh pro
+      UnloadStrategy: 0
+  - FolderPath: {fileID: 102900000, guid: 46145ce4086fab64abc5d45ba9be2232, type: 3}
+    Op: 2
+    UnloadStrategies:
+    - BundleName: assets/resources/graphicsmesh/assets/resources/graphicsmesh
+      UnloadStrategy: 0
+    - BundleName: assets/resources/graphicsmesh/assets/resources/graphicsmesh
+      UnloadStrategy: 0
+    - BundleName: assets/resources/graphicsmesh/assets/resources/graphicsmesh
+      UnloadStrategy: 0
+    - BundleName: assets/resources/graphicsmesh/assets/resources/graphicsmesh
       UnloadStrategy: 0
   ExtraDependencyAssets:
   - {fileID: 6851187077164719647, guid: 137ba47d564f47c449894731ac5c3ea5, type: 3}
@@ -60,3 +65,4 @@ MonoBehaviour:
   - {fileID: 102900000, guid: 6a1ee3bbb0409ac4fb489361eae80182, type: 3}
   - {fileID: 102900000, guid: 7ca7bdb3ee60a704cb563ac4322e6e14, type: 3}
   - {fileID: 102900000, guid: 7a0a98be552fdcb4ea4fa77450af126a, type: 3}
+  - {fileID: 102900000, guid: 07fedf97ef6d1d547884e084a7340896, type: 3}

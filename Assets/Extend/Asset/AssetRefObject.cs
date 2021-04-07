@@ -39,10 +39,6 @@ namespace Extend.Asset {
 			if( m_refCount <= 0 ) {
 				ZeroRefTimeStart = Time.time;
 			}
-
-			if( m_refCount < 0 ) {
-				Debug.Log($"Release : {m_refCount}");
-			}
 			return m_refCount;
 		}
 

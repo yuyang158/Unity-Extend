@@ -45,6 +45,14 @@ namespace Extend.Asset {
 			m_loadingHandle?.GiveUp();
 			if( string.IsNullOrEmpty(m_spritePath) )
 				return;
+			
+			
+#if UNITY_EDITOR
+			if( !Common.CSharpServiceManager.Initialized ) {
+				Debug.LogError($"Asset : {m_spritePath} release after system destroy.");
+				return;
+			}
+#endif
 			SpriteAssetService.Get().Release(m_spritePath);
 			m_spritePath = null;
 		}

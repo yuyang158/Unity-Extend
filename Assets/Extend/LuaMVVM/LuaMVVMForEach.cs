@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Extend.Asset;
 using Extend.Asset.Attribute;
+using Extend.Common;
 using UnityEngine;
 using XLua;
 

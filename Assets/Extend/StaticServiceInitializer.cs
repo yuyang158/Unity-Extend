@@ -1,3 +1,4 @@
+using System.Text;
 using DG.Tweening;
 using Extend.Asset;
 using Extend.Common;
@@ -5,6 +6,7 @@ using Extend.DebugUtil;
 using Extend.LuaUtil;
 using Extend.Network;
 using Extend.UI.i18n;
+using Extend.GraphicsInstancing;
 using Extend.Render;
 using UnityEngine;
 
@@ -13,22 +15,38 @@ namespace Extend {
 		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
 		private static void OnInit() {
 			Application.runInBackground = true;
-			DOTween.Init(true, true, LogBehaviour.Default);
+			DOTween.Init(false, true, LogBehaviour.Default);
 
 			CSharpServiceManager.Initialize();
+			CSharpServiceManager.Register(new ErrorLogToFile());
 			CSharpServiceManager.Register(new GlobalCoroutineRunnerService());
 			CSharpServiceManager.Register(new StatService());
 #if UNITY_DEBUG
 			CSharpServiceManager.Register(new AssetFullStatService());
 #endif
-			CSharpServiceManager.Register(new ErrorLogToFile());
 			CSharpServiceManager.Register(new AssetService());
 			CSharpServiceManager.Register(new GameSystem());
+			CSharpServiceManager.Register(new RenderFeatureService());
 			CSharpServiceManager.Register(new SpriteAssetService());
 			CSharpServiceManager.Register(new I18nService());
 			CSharpServiceManager.Register(new LuaVM());
 			CSharpServiceManager.Register(new TickService());
-			CSharpServiceManager.Register(new RenderFeatureService());
+			CSharpServiceManager.Register(new GraphicsInstancingService());
+
+			var builder = new StringBuilder(2048);
+			builder.AppendLine($"Unity: {Application.unityVersion} App : {Application.identifier}:{Application.version} {Application.platform}");
+			builder.AppendLine($"Device : {SystemInfo.deviceModel}, {SystemInfo.deviceName}, {SystemInfo.deviceType}");
+			builder.AppendLine($"Battery : {SystemInfo.batteryStatus}, {SystemInfo.batteryLevel:0.00}");
+			builder.AppendLine($"Processor : {SystemInfo.processorType}, {SystemInfo.processorCount}, {SystemInfo.processorFrequency}");
+			builder.AppendLine($"Graphics : {SystemInfo.graphicsDeviceName}, {SystemInfo.graphicsDeviceType}, " +
+			                   $"{SystemInfo.graphicsDeviceVendor}, {SystemInfo.graphicsDeviceVersion}, " +
+			                   $"GMEM : {SystemInfo.graphicsMemorySize}, SM{SystemInfo.graphicsShaderLevel}");
+
+			builder.AppendLine($"OS : {SystemInfo.operatingSystem}, MEM : {SystemInfo.systemMemorySize}, {SystemInfo.operatingSystemFamily}");
+			builder.Append($"NPOT : {SystemInfo.npotSupport}, INSTANCING : {SystemInfo.supportsInstancing}, Texture Size : {SystemInfo.maxTextureSize}, " +
+			                   $"Compute : {SystemInfo.supportsComputeShaders}");
+			
+			Debug.LogWarning(builder.ToString());
 
 #if !UNITY_EDITOR
 			if( Application.isMobilePlatform ) {

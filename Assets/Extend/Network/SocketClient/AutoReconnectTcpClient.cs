@@ -26,13 +26,14 @@ namespace Extend.Network.SocketClient {
 		private Status m_tcpStatus = Status.NONE;
 		private float m_statusTimeLast;
 		private int m_reconnectTime;
-		
+
 		private readonly LuaTable m_callback;
 		private readonly OnSocketStatusChanged m_statusChangedCallback;
 		private readonly OnRecvData m_receivePackageCallback;
-		
+
 		[CSharpCallLua]
 		public delegate void LuaUpdate(LuaTable owner);
+
 		public readonly LuaUpdate updateCallback;
 
 		private readonly byte[] m_receiveBuffer = new byte[65536];
@@ -60,7 +61,8 @@ namespace Extend.Network.SocketClient {
 				}
 
 				m_tcpStatus = value;
-				m_statusChangedCallback(m_callback, value);
+				if( CSharpServiceManager.Initialized )
+					m_statusChangedCallback(m_callback, value);
 				if( m_tcpStatus == Status.CONNECTED ) {
 					DoReceive();
 				}
@@ -73,6 +75,7 @@ namespace Extend.Network.SocketClient {
 		public EncryptHandler encryptHandler;
 		private byte[] m_cyphertextBuffer = new byte[65536];
 		private int m_cyphertextOffset;
+
 		public AutoReconnectTcpClient(LuaTable luaCallback) {
 			m_client = new TcpClient(AddressFamily.InterNetwork) {
 				NoDelay = true
@@ -83,7 +86,7 @@ namespace Extend.Network.SocketClient {
 			m_receivePackageCallback = m_callback.Get<OnRecvData>("OnRecvPackage");
 			updateCallback = m_callback.Get<LuaUpdate>("OnUpdate");
 			encryptHandler = new EncryptNoneHandler();
-			
+
 			var service = CSharpServiceManager.Get<NetworkService>(CSharpServiceManager.ServiceType.NETWORK_SERVICE);
 			service.RegisterTcpClient(this);
 		}
@@ -141,19 +144,21 @@ namespace Extend.Network.SocketClient {
 						TcpStatus = Status.DISCONNECTED;
 						return;
 					}
+
 					// 解密部分
 					byte[] tempCache = new byte[recvCyphertextCount];
-                    Array.Copy(m_cyphertextBuffer, tempCache, recvCyphertextCount);
-                    encryptHandler.Decrypt(ref tempCache);
-                    // 解密部分拷贝至明文buffer
-                    recvPlaintextCount = tempCache.Length;
+					Array.Copy(m_cyphertextBuffer, tempCache, recvCyphertextCount);
+					encryptHandler.Decrypt(ref tempCache);
+					// 解密部分拷贝至明文buffer
+					recvPlaintextCount = tempCache.Length;
 					Array.Copy(tempCache, 0, m_receiveBuffer, m_receiveOffset, recvPlaintextCount);
 					m_receiveOffset += recvPlaintextCount;
 					StatService.Get().Increase(StatService.StatName.TCP_RECEIVED, recvPlaintextCount);
 
 					var readOffset = 0;
 					while( true ) {
-						var packageSize = m_receiveBuffer[readOffset] * PbLenOffsetA + m_receiveBuffer[readOffset + 1] * PbLenOffsetB + m_receiveBuffer[readOffset + 2] * PbLenOffsetC + m_receiveBuffer[readOffset + 3];
+						var packageSize = m_receiveBuffer[readOffset] * PbLenOffsetA + m_receiveBuffer[readOffset + 1] * PbLenOffsetB +
+						                  m_receiveBuffer[readOffset + 2] * PbLenOffsetC + m_receiveBuffer[readOffset + 3];
 						if( packageSize + 4 > m_receiveOffset - readOffset ) {
 							break;
 						}
@@ -163,10 +168,12 @@ namespace Extend.Network.SocketClient {
 						m_receivePackageCallback(m_callback, packageBuffer);
 						readOffset += packageSize + 4;
 					}
+
 					if( readOffset > 0 && m_receiveOffset - readOffset >= 0 ) {
 						for( var i = readOffset; i < m_receiveOffset; i++ ) {
 							m_receiveBuffer[i - readOffset] = m_receiveBuffer[i];
 						}
+
 						m_receiveOffset -= readOffset;
 					}
 				}

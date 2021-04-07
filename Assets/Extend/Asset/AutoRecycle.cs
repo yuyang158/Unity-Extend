@@ -11,14 +11,15 @@ namespace Extend.Asset {
 			NONE,
 			DURATION,
 			PARTICLE_DISAPPEAR,
-			ANIMATION_EVENT
+			ANIMATION_EVENT,
+			Manual
 		}
 
 		[Flags]
 		public enum ResourceFlag {
 			NONE = 0,
-			PARTICLE = 1 << 0,
-			TRAIL = 2 << 0
+			PARTICLE = 1,
+			TRAIL = 2
 		}
 
 		[SerializeField]
@@ -124,6 +125,10 @@ namespace Extend.Asset {
 					m_particleAlive[i] = false;
 				}
 			}
+		}
+
+		public void Stop() {
+			Recycle(true);
 		}
 
 		private void Update() {

@@ -1,5 +1,4 @@
 ﻿using System;
-using Extend.Asset;
 using UnityEngine;
 using XLua;
 

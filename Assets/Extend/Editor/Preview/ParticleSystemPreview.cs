@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using UnityEditor;
 using UnityEngine;
@@ -37,16 +38,15 @@ namespace Extend.Editor.Preview {
 			ParticleSystemEditorUtilsReflect.StopEffect();
 
 			base.SimulateDisable();
-
 			if( m_pss.Count > 0 ) {
 			}
 		}
 
 		protected override void SimulateEnable() {
 			base.SimulateEnable();
-			var particleSystem = m_PreviewInstance.GetComponentInChildren<ParticleSystem>(true);
-			if( particleSystem ) {
-				particleSystem.Play();
+			var particleSystem = m_PreviewInstance.GetComponentsInChildren<ParticleSystem>(true);
+			foreach( var ps in particleSystem ) {
+				ps.Play();
 				ParticleSystemEditorUtilsReflect.editorIsScrubbing = false;
 			}
 		}
@@ -130,17 +130,23 @@ namespace Extend.Editor.Preview {
 			Repaint();
 		}
 
+		protected override string ExtraHUDText() {
+			var pss = m_PreviewInstance.GetComponentsInChildren<ParticleSystem>();
+			int count = pss.Sum(particleSystem => particleSystem.particleCount);
+			return $"PS Count : {count}";
+		}
+
 		/// <summary>
 		/// 解锁粒子
 		/// </summary>
 		private void ClearLockedParticle() {
-			if( m_PreviewInstance ) {
-				var particleSystem = m_PreviewInstance.GetComponentInChildren<ParticleSystem>(true);
-				if( particleSystem ) {
-					if( ParticleSystemEditorUtilsReflect.lockedParticleSystem == particleSystem ) {
-						ParticleSystemEditorUtilsReflect.lockedParticleSystem = null;
-					}
-				}
+			if( !m_PreviewInstance ) {
+				return;
+			}
+
+			var particleSystem = m_PreviewInstance.GetComponentInChildren<ParticleSystem>(true);
+			if( particleSystem && ParticleSystemEditorUtilsReflect.lockedParticleSystem == particleSystem ) {
+				ParticleSystemEditorUtilsReflect.lockedParticleSystem = null;
 			}
 		}
 

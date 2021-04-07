@@ -54,21 +54,30 @@ namespace Extend.Common {
 			return s;
 		}
 
+		private bool FindOne(string section, string key, out string val) {
+			var s = iniSections.Find(x => x.Name == section);
+			if( s == null ) {
+				val = string.Empty;
+				return false;
+			}
+			return s.KeyValue.TryGetValue(key, out val);
+		}
+
 		public int GetInt(string section, string key) {
-			return int.Parse(iniSections.Find(x => x.Name == section).KeyValue[key]);
+			return FindOne(section, key, out var val) ? int.Parse(val) : default;
 		}
 
 		public bool GetBool(string section, string key) {
-			return ( iniSections.Find(x => x.Name == section).KeyValue[key] == "true" ) || 
-			       ( iniSections.Find(x => x.Name == section).KeyValue[key] == "1" );
+			return FindOne(section, key, out var val) && (val == "true" || val == "false");
 		}
 
 		public string GetString(string section, string key) {
-			return iniSections.Find(x => x.Name == section).KeyValue[key];
+			FindOne(section, key, out var val);
+			return val;
 		}
 
 		public double GetDouble(string section, string key) {
-			return double.Parse(iniSections.Find(x => x.Name == section).KeyValue[key]);
+			return FindOne(section, key, out var val) ? double.Parse(val) : default;
 		}
 
 		private IniRead() {

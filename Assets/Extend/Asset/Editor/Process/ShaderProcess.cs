@@ -22,18 +22,34 @@ namespace Extend.Asset.Editor.Process {
 		};
 
 		private static readonly Dictionary<Shader, List<string[]>> m_shaderKeywordCollector = new Dictionary<Shader, List<string[]>>();
+		private static readonly List<string> m_filteredBuildInKeywords = new List<string>();
 
 		public static void Clear() {
 			m_shaderKeywordCollector.Clear();
+
+			Debug.LogWarning("Builtin keywords : " + string.Join(";", m_filteredBuildInKeywords));
+			m_filteredBuildInKeywords.Clear();
 		}
 
-		public static void AddInUsedShaderKeywords(Shader shader, string[] keywords) {
+		public static bool AddInUsedShaderKeywords(Shader shader, string[] keywords) {
 			if( !m_shaderKeywordCollector.TryGetValue(shader, out var keywordLists) ) {
 				keywordLists = new List<string[]>();
 				m_shaderKeywordCollector.Add(shader, keywordLists);
 			}
 
-			keywordLists.Add(keywords);
+			Array.Sort(keywords);
+			bool newKeyword = false;
+			if( keywordLists.FindIndex(existList => {
+				if( keywords.Length != existList.Length )
+					return false;
+
+				return !keywords.Where((t, i) => t != existList[i]).Any();
+			}) == -1 ) {
+				keywordLists.Add(keywords);
+				newKeyword = true;
+			}
+
+			return newKeyword;
 		}
 
 		public void OnProcessShader(Shader shader, ShaderSnippetData snippet, IList<ShaderCompilerData> data) {
@@ -42,6 +58,7 @@ namespace Extend.Asset.Editor.Process {
 				if( m_shaderKeywordCollector.Count == 0 ) {
 					return;
 				}
+
 				data.Clear();
 				Debug.Log($"Shader {shader.name} --> {data.Count}");
 				return;
@@ -57,6 +74,12 @@ namespace Extend.Asset.Editor.Process {
 					}
 
 					var keywordName = ShaderKeyword.GetKeywordName(shader, shaderKeyword);
+					if( !keywordName.StartsWith("_") ) {
+						if( !m_filteredBuildInKeywords.Contains(keywordName) )
+							m_filteredBuildInKeywords.Add(keywordName);
+						continue;
+					}
+
 					bool inUsed = false;
 					foreach( var collectKeyword in collectKeywords ) {
 						if( collectKeyword.Contains(keywordName) ) {

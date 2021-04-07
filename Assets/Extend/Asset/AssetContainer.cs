@@ -72,9 +72,7 @@ namespace Extend.Asset {
 				if( asset.Status == AssetRefObject.AssetStatus.DONE && asset.GetRefCount() <= 0 &&
 				    ( ignoreTime || Time.time - asset.ZeroRefTimeStart > MAX_ASSET_ZERO_REF_DURATION ) ) {
 					asset.Destroy();
-					var last = m_assets[m_assets.Count - 1];
-					m_assets[i] = last;
-					m_assets.RemoveAt(m_assets.Count - 1);
+					m_assets.RemoveSwapAt(i);
 					m_hashAssetDic.Remove(asset.GetHashCode());
 					i--;
 				}

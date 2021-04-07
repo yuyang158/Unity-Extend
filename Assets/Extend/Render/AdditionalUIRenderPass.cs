@@ -6,7 +6,6 @@ using UnityEngine.Rendering.Universal;
 
 namespace Extend.Render {
 	public class AdditionalUIRenderPass : ScriptableRenderPass {
-		private readonly RenderQueueType m_renderQueueType;
 		private FilteringSettings m_filteringSettings;
 		private readonly string m_profilerTag;
 
@@ -33,15 +32,12 @@ namespace Extend.Render {
 		private RenderStateBlock m_renderStateBlock;
 		private readonly ClearFlag m_clearFlag;
 
-		public AdditionalUIRenderPass(string profilerTag, RenderPassEvent renderPassEvent, string[] shaderTags, RenderQueueType renderQueueType, int layerMask,
+		public AdditionalUIRenderPass(string profilerTag, RenderPassEvent renderPassEvent, string[] shaderTags, int layerMask,
 			ClearFlag clearFlag) {
 			m_profilerTag = profilerTag;
 			this.renderPassEvent = renderPassEvent + 2;
-			m_renderQueueType = renderQueueType;
 			m_clearFlag = clearFlag;
-			var renderQueueRange = renderQueueType == RenderQueueType.Transparent
-				? RenderQueueRange.transparent
-				: RenderQueueRange.opaque;
+			var renderQueueRange = RenderQueueRange.all;
 			m_filteringSettings = new FilteringSettings(renderQueueRange, layerMask);
 
 			if( shaderTags != null && shaderTags.Length > 0 ) {
@@ -58,11 +54,7 @@ namespace Extend.Render {
 		}
 
 		public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData) {
-			var sortingCriteria = m_renderQueueType == RenderQueueType.Transparent
-				? SortingCriteria.CommonTransparent
-				: renderingData.cameraData.defaultOpaqueSortFlags;
-
-			var drawingSettings = CreateDrawingSettings(m_shaderTagIdList, ref renderingData, sortingCriteria);
+			var drawingSettings = CreateDrawingSettings(m_shaderTagIdList, ref renderingData, SortingCriteria.RenderQueue | SortingCriteria.SortingLayer);
 			var cmd = CommandBufferPool.Get(m_profilerTag);
 			context.ExecuteCommandBuffer(cmd);
 			cmd.Clear();

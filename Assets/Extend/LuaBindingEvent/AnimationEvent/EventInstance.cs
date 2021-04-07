@@ -1,4 +1,5 @@
 ﻿using System;
+using Extend.Asset;
 using UnityEngine;
 using XLua;
 
@@ -20,7 +21,7 @@ namespace Extend.LuaBindingEvent.AnimationEvent {
 					case EventParam.ParamType.String:
 						return Param.Str;
 					case EventParam.ParamType.AssetRef:
-						return Param.AssetRef;
+						return Param.AssetRef.Clone();
 					default:
 						throw new ArgumentOutOfRangeException();
 				}

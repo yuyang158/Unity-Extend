@@ -23,12 +23,10 @@ namespace Extend.Render {
 		[System.Serializable]
 		public class FilterSettings {
 			// TODO: expose opaque, transparent, all ranges as drop down
-			public RenderQueueType RenderQueueType;
 			public LayerMask LayerMask;
 			public string[] PassNames;
 
 			public FilterSettings() {
-				RenderQueueType = RenderQueueType.Opaque;
 				LayerMask = 0;
 			}
 		}
@@ -39,7 +37,7 @@ namespace Extend.Render {
 		public override void Create() {
 			var filter = settings.filterSettings;
 			renderObjectsPass = new AdditionalUIRenderPass(settings.passTag, settings.Event, filter.PassNames,
-				filter.RenderQueueType, filter.LayerMask, settings.clearFlag);
+				filter.LayerMask, settings.clearFlag);
 
 			if( settings.overrideDepthState )
 				renderObjectsPass.SetDepthState(settings.enableWrite, settings.depthCompareFunction);

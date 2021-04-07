@@ -65,6 +65,10 @@ namespace Extend.UI.Animation {
 			return m_cachedTween;
 		}
 
+		public void Destroy() {
+			m_cachedTween?.Kill();
+		}
+
 		
 		protected abstract Tween DoGenerateTween(RectTransform t, Vector3 start);
 	}

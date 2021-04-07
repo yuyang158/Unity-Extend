@@ -16,7 +16,10 @@ namespace Extend.Asset.Editor {
 		public static readonly string[] IgnoreExtensions = {
 			".cs",
 			".meta",
-			".dll"
+			".dll",
+			".cginc",
+			".hlsl",
+			".shadersubgraph"
 		};
 
 		public static AssetNode GetNode(string filePath) {
@@ -83,7 +86,7 @@ namespace Extend.Asset.Editor {
 							throw new ArgumentOutOfRangeException();
 					}
 
-					var s = Array.Find(setting.UnloadStrategies, (strategy) => strategy.BundleName == abName);
+					var s = Array.Find(setting.UnloadStrategies, strategy => strategy.BundleName == abName);
 					var node = AddNewAssetNode(importer.assetPath, abName);
 					// 同名资源处理
 					if( !s_specialAB.ContainsKey(node.AssetName) ) {
@@ -91,6 +94,7 @@ namespace Extend.Asset.Editor {
 					}
 
 					if( Path.GetExtension(node.AssetPath) == ".spriteatlas" ) {
+						resourcesNodes.Add(node.GUID, node);
 						var dependencies = AssetDatabase.GetDependencies(node.AssetPath);
 						foreach( var dependency in dependencies ) {
 							if( dependency == importer.assetPath ) {
@@ -151,9 +155,9 @@ namespace Extend.Asset.Editor {
 			resourcesFiles = resourcesFiles.Concat(otherFiles).ToArray();
 			EditorUtility.DisplayProgressBar("Process resources asset", "", 0);
 			RelationProcess(resourcesFiles);
+			AssetCustomProcesses.PostProcess();
 
 			ExportResourcesPackageConf();
-			AssetCustomProcesses.PostProcess();
 		}
 
 		private static AssetNode AddNewResourcesAssetNode(string path, string abName = null) {
@@ -174,7 +178,7 @@ namespace Extend.Asset.Editor {
 			return node;
 		}
 
-		private static AssetNode AddNewAssetNode(string path, string abName = null) {
+		public static AssetNode AddNewAssetNode(string path, string abName = null) {
 			var guid = AssetDatabase.AssetPathToGUID(path);
 			if( allAssetNodes.ContainsKey(guid) ) {
 				return allAssetNodes[guid];

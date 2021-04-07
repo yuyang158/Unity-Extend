@@ -164,6 +164,10 @@ namespace Extend.Editor.Preview {
 			m_CacheEditor = editor;
 		}
 
+		protected virtual string ExtraHUDText() {
+			return string.Empty;
+		}
+
 		public override void OnPreviewGUI(Rect r, GUIStyle background) {
 			InitPreview();
 			if( m_PreviewUtility == null ) {
@@ -190,6 +194,12 @@ namespace Extend.Editor.Preview {
 			typeForControl = current.GetTypeForControl(controlID2);
 			HandleViewTool(current, typeForControl, controlID2, rect2);
 			DoAvatarPreviewFrame(current, typeForControl, rect2);
+
+			var extraText = ExtraHUDText();
+			if( !string.IsNullOrEmpty(extraText) ) {
+				EditorGUI.DropShadowLabel(new Rect(r.x, r.yMax - 40f, r.width, 20f), extraText);
+			}
+			
 			EditorGUI.DropShadowLabel(new Rect(r.x, r.yMax - 20f, r.width, 20f),
 				( r.width > 140f ? "Playback Time:" : string.Empty ) + $"{m_RunningTime:F}");
 
@@ -264,10 +274,12 @@ namespace Extend.Editor.Preview {
 			m_Loaded = true;
 
 			if( m_PreviewUtility == null ) {
-				m_PreviewUtility = new PreviewRenderUtility(true) {cameraFieldOfView = 30f};
-
+				m_PreviewUtility = new PreviewRenderUtility(true) {
+					cameraFieldOfView = 30f
+				};
+				
 				GetPreviewCamera().cullingMask = 1 << PreviewCullingLayer;
-				GetPreviewCamera().allowHDR = false;
+				GetPreviewCamera().allowHDR = true;
 				GetPreviewCamera().allowMSAA = false;
 				CreatePreviewInstances();
 			}
@@ -362,9 +374,9 @@ namespace Extend.Editor.Preview {
 		
 		protected virtual void CreatePreviewInstances() {
 			DestroyPreviewInstances();
-			var gameObject = Object.Instantiate(target) as GameObject;
+
+			var gameObject = m_PreviewUtility.InstantiatePrefabInScene(target as GameObject);
 			gameObject.name = target.name;
-			AddSingleGO(gameObject);
 			InitInstantiatedPreviewRecursive(gameObject);
 			var component = gameObject.GetComponent<Animator>();
 			if( component ) {
@@ -384,7 +396,7 @@ namespace Extend.Editor.Preview {
 			}
 
 			m_BoundingVolumeScale = Mathf.Max(bounds.size.x, Mathf.Max(bounds.size.y, bounds.size.z));
-			m_AvatarScale = ( m_ZoomFactor = m_BoundingVolumeScale / 2f );
+			m_AvatarScale = m_ZoomFactor = m_BoundingVolumeScale / 2f;
 		}
 
 		protected void DestroyPreviewInstances() {

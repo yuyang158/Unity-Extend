@@ -18,9 +18,9 @@ namespace Extend.Asset.AssetProvider {
 
 		public abstract AssetReference Provide(string path, AssetContainer container, Type typ);
 
-		public abstract void ProvideSceneAsync(AssetAsyncLoadHandle loadHandle);
+		public abstract void ProvideSceneAsync(AssetAsyncLoadHandle loadHandle, bool add);
 
-		public abstract void ProvideScene(string path, AssetContainer container);
+		public abstract void ProvideScene(string path, AssetContainer container, bool add);
 
 		public abstract bool Exist(string path);
 

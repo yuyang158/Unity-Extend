@@ -14,7 +14,10 @@ namespace Extend.UI.Editor {
 			Configuration = configuration;
 		}
 
-		public override string displayName { get => Configuration?.Name; set {} }
+		public override string displayName {
+			get => Configuration?.Name;
+			set { }
+		}
 	}
 
 	public class UIViewDelegate : IListViewDelegate<UIViewTreeItem> {
@@ -42,7 +45,7 @@ namespace Extend.UI.Editor {
 
 		public List<TreeViewItem> GetSortedData(int columnIndex, bool isAscending) {
 			var items = GetData();
-			items.Sort((a, b) => (isAscending ? -1 : 1) * string.Compare(a.displayName, b.displayName, StringComparison.Ordinal));
+			items.Sort((a, b) => ( isAscending ? -1 : 1 ) * string.Compare(a.displayName, b.displayName, StringComparison.Ordinal));
 			return items;
 		}
 
@@ -50,22 +53,20 @@ namespace Extend.UI.Editor {
 
 		public void Draw(Rect rect, int columnIndex, UIViewTreeItem data, bool selected) {
 			var index = Array.IndexOf(configurationContext.Configurations, data.Configuration);
+			if( index == -1 )
+				return;
 			if( selected ) {
 				selectedIndex = index;
 			}
-			
+
 			var configurations = serializedObject.FindProperty("m_configurations");
 			var element = configurations.GetArrayElementAtIndex(index);
 
 			var fieldName = columnIndexToFieldName[columnIndex];
 			var prop = element.FindPropertyRelative(fieldName);
-			
+
 			EditorGUI.BeginChangeCheck();
 			EditorGUI.PropertyField(rect, prop, GUIContent.none);
-
-			if( EditorGUI.EndChangeCheck() ) {
-				serializedObject.ApplyModifiedProperties();
-			}
 		}
 
 		public void OnItemClick(int id) {
@@ -86,12 +87,18 @@ namespace Extend.UI.Editor {
 				configurations.DeleteArrayElementAtIndex(selectedIndex);
 				serializedObject.ApplyModifiedProperties();
 			}
+
 			selectedIndex = -1;
 		}
 
 		public void Save() {
+			serializedObject.ApplyModifiedProperties();
 			EditorUtility.SetDirty(configurationContext);
 			AssetDatabase.SaveAssets();
+		}
+
+		public void Revert() {
+			serializedObject.UpdateIfRequiredOrScript();
 		}
 	}
 
@@ -101,7 +108,6 @@ namespace Extend.UI.Editor {
 
 		private UIViewDelegate _delegate;
 		private bool refreshFlag;
-		private bool dirtyFlag;
 
 		[MenuItem("Window/UIView Window")]
 		private static void OpenWindow() {
@@ -131,19 +137,12 @@ namespace Extend.UI.Editor {
 
 		private void OnGUI() {
 			ButtonsGUI();
-			var controlRect = EditorGUILayout.GetControlRect(
-				GUILayout.ExpandHeight(true),
-				GUILayout.ExpandWidth(true));
+			var controlRect = EditorGUILayout.GetControlRect(GUILayout.ExpandHeight(true), GUILayout.ExpandWidth(true));
 			if( refreshFlag ) {
 				listView?.Refresh();
 			}
 
 			listView?.OnGUI(controlRect);
-			if( dirtyFlag || refreshFlag ) {
-				_delegate.Save();
-			}
-
-			dirtyFlag = false;
 			refreshFlag = false;
 		}
 
@@ -159,10 +158,11 @@ namespace Extend.UI.Editor {
 				refreshFlag = true;
 			}
 
-			if( GUILayout.Button("Refresh") ) {
+			if( GUILayout.Button("Revert") ) {
+				_delegate.Revert();
 				refreshFlag = true;
 			}
-			
+
 			if( GUILayout.Button("Save") ) {
 				_delegate.Save();
 			}

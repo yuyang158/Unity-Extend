@@ -73,9 +73,15 @@ namespace Extend.Asset {
 			m_poolRootNode = poolGO.transform;
 
 			SpriteAtlasManager.atlasRequested += (atlasName, callback) => {
+				Debug.LogWarning("Request Atlas : " + atlasName);
 				var reference = Load("Assets/SpriteAtlas/" + atlasName, typeof(SpriteAtlas));
-				callback(reference.GetObject() as SpriteAtlas);
-				reference.Dispose();
+				var atlas = reference.GetObject() as SpriteAtlas;
+				if( atlas == null ) {
+					Debug.LogError($"Load Asset is : {reference.Asset.UnityObject.GetType()}");
+					reference.Dispose();
+					return;
+				}
+				callback(atlas);
 			};
 		}
 
@@ -109,16 +115,16 @@ namespace Extend.Asset {
 						break;
 					}
 
-					if( m_singleFrameMaxInstantiateDuration < m_instantiateStopwatch.Elapsed.TotalSeconds ) {
-						break;
-					}
-
 					context.Instantiate();
 					m_deferInstantiates.Dequeue();
 					if( m_deferInstantiates.Count == 0 )
 						break;
 					context = m_deferInstantiates.Peek();
+					if( m_singleFrameMaxInstantiateDuration < m_instantiateStopwatch.Elapsed.TotalSeconds ) {
+						break;
+					}
 				}
+				m_instantiateStopwatch.Stop();
 			}
 
 			if( m_pools.Count == 0 )
@@ -207,13 +213,13 @@ namespace Extend.Asset {
 		/// 只用于加载场景
 		/// </summary>
 		/// <param name="path">路径名（usage：Assets/Demos/CriWareDemo.unity）</param>
-		public void LoadScene(string path) {
+		public void LoadScene(string path, bool add) {
 #if UNITY_DEBUG
 			var ticks = m_stopwatch.ElapsedTicks;
 			m_stopwatch.Start();
 #endif
 			path = m_provider.FormatScenePath(path);
-			m_provider.ProvideScene(path, Container);
+			m_provider.ProvideScene(path, Container, add);
 #if UNITY_DEBUG
 			var time = m_stopwatch.ElapsedTicks - ticks;
 			m_stopwatch.Stop();
@@ -226,10 +232,11 @@ namespace Extend.Asset {
 		/// 只用于异步加载场景
 		/// </summary>
 		/// <param name="path">路径</param>
-		public void LoadSceneAsync(string path) {
+		public AssetAsyncLoadHandle LoadSceneAsync(string path, bool add) {
 			path = m_provider.FormatScenePath(path);
 			var handle = new AssetAsyncLoadHandle(Container, m_provider, path);
-			m_provider.ProvideSceneAsync(handle);
+			m_provider.ProvideSceneAsync(handle, add);
+			return handle;
 		}
 	}
 }

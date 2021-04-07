@@ -59,33 +59,38 @@ namespace Extend.Editor {
 		}
 	}
 
-	[InitializeOnLoad]
 	internal static class LuaMVVMDebugSettingIMGUIRegister {
 		private static bool m_debuggerConnected;
 		private static LuaFunction m_debugFunc;
 		private static List<GameObject> m_mvvmWatchGOs;
 		private static ReorderableList m_mvvmWatchGUI;
 
-		static LuaMVVMDebugSettingIMGUIRegister() {
-			EditorApplication.playModeStateChanged += mode => {
-				var settingObj = LuaDebugSetting.GetOrCreateSettings();
-				if( mode == PlayModeStateChange.EnteredPlayMode ) {
-					LuaMVVMBindingOption.DebugCheckCallback += go => {
-						if( settingObj.MvvmBreakEnabled && m_debuggerConnected && m_mvvmWatchGOs.Contains(go) ) {
-							m_debugFunc.Call();
-						}
-					};
+		[InitializeOnEnterPlayMode]
+		private static void Setup() {
+			var settingObj = LuaDebugSetting.GetOrCreateSettings();
+			LuaMVVMBindingOption.DebugCheckCallback += go => {
+				if( settingObj.MvvmBreakEnabled && m_debuggerConnected && m_mvvmWatchGOs.Contains(go) ) {
+					m_debugFunc.Call();
 				}
 			};
 
 			LuaVM.OnVMQuiting += () => {
 				var luaVm = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
-				var settingObj = LuaDebugSetting.GetOrCreateSettings();
 				if( settingObj.Mode == LuaDebugSetting.DebugMode.CoverageMode ) {
 					var luaCovRunner = luaVm.LoadFileAtPath("luacov.runner")[0] as LuaTable;
 					var runnerShutdownFunc = luaCovRunner.GetInPath<LuaFunction>("shutdown");
 					runnerShutdownFunc.Call();
+					return;
 				}
+
+				if( settingObj.Mode == LuaDebugSetting.DebugMode.None )
+					return;
+
+				var tbl = luaVm.LoadFileAtPath("EmmyDebuggerBridge")[0] as LuaTable;
+				var stop = tbl.Get<LuaFunction>("stop");
+				if( stop == null )
+					return;
+				stop.Call();
 			};
 
 			LuaVM.OnVMCreated += () => {
@@ -112,7 +117,6 @@ namespace Extend.Editor {
 				var listenFunc = tbl.Get<LuaFunction>("listen");
 				m_debugFunc = tbl.Get<LuaFunction>("break");
 
-				var settingObj = LuaDebugSetting.GetOrCreateSettings();
 				switch( settingObj.Mode ) {
 					case LuaDebugSetting.DebugMode.None:
 						return;
@@ -199,7 +203,7 @@ namespace Extend.Editor {
 					EditorGUILayout.PropertyField(enabledProp);
 
 					if( Application.isPlaying ) {
-						m_mvvmWatchGUI.DoLayoutList();
+						m_mvvmWatchGUI?.DoLayoutList();
 					}
 
 					settings.ApplyModifiedProperties();

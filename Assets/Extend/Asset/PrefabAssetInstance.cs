@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Diagnostics;
 using Extend.Common;
 using UnityEngine;
-using Debug = UnityEngine.Debug;
 using Object = UnityEngine.Object;
 
 namespace Extend.Asset {
@@ -25,8 +23,7 @@ namespace Extend.Asset {
 #endif
 
 		public override void SetAsset(Object unityObj, AssetBundleInstance refAssetBundle) {
-			base.SetAsset(unityObj, refAssetBundle);
-			if( Status == AssetStatus.DONE ) {
+			if( unityObj ) {
 				var prefab = unityObj as GameObject;
 				var cacheConfig = prefab.GetComponent<PoolCacheGO>();
 				if( cacheConfig ) {
@@ -42,11 +39,18 @@ namespace Extend.Asset {
 				m_transformCount++;
 #endif
 			}
+			base.SetAsset(unityObj, refAssetBundle);
 		}
 
 		public void InitPool(string name, int prefer, int max) {
 			if( m_pool != null )
 				throw new Exception("Pool is created!");
+
+			var go = UnityObject as GameObject;
+			if( !go.GetComponent<PoolCacheGO>() ) {
+				throw new Exception($"{go.name} need add PoolCacheGO component.");
+			}
+			
 			m_pool = new AssetPool(name, prefer, max, this);
 			m_pool.WarmUp();
 		}

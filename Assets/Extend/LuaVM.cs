@@ -3,10 +3,12 @@ using System.IO;
 using System.Text;
 using Extend.Asset;
 using Extend.Common;
+using Extend.LuaMVVM;
 using Extend.LuaUtil;
 using UnityEngine;
 using XLua;
 using Debug = UnityEngine.Debug;
+
 namespace Extend {
 	public class LuaVM : IService, IServiceUpdate, IDisposable {
 		private LuaMemoryLeakChecker.Data leakData;
@@ -50,37 +52,47 @@ namespace Extend {
 		public static Action OnVMCreated;
 		public static Action OnVMQuiting;
 
+		private static byte[] LoadFile(ref string filename, string extension) {
+#if UNITY_EDITOR
+			filename = filename.Replace('.', '/') + extension;
+			var path = $"{Application.dataPath}/../Lua/{filename}";
+			if( File.Exists(path) ) {
+				var text = File.ReadAllText(path);
+				return Encoding.UTF8.GetBytes(text);
+			}
+
+			return null;
+#else
+			filename = filename.Replace('.', '/') + extension;
+			var hotfix = $"{LUA_DEBUG_DIRECTORY}{filename}";
+			if( File.Exists(hotfix) ) {
+				Debug.LogWarning("HOTFIX FILE : " + hotfix);
+				filename += extension;
+				return File.ReadAllBytes(hotfix);
+			}
+			
+			var service = CSharpServiceManager.Get<AssetService>(CSharpServiceManager.ServiceType.ASSET_SERVICE);
+			var assetRef = service.Load($"Lua/{filename}", typeof(TextAsset));
+			if( assetRef.AssetStatus != AssetRefObject.AssetStatus.DONE )
+				return null;
+			return assetRef.GetTextAsset().bytes;
+#endif
+		}
+
 		public void Initialize() {
 			Default = new LuaEnv();
 			LuaClassCache = new LuaClassCache();
 			m_newClassCallback = OnLuaNewClass;
-			Default.AddLoader((ref string filename) => {
 #if UNITY_EDITOR
-				filename = filename.Replace('.', '/') + ".lua";
-				var path = $"{Application.dataPath}/../Lua/{filename}";
-				if( File.Exists(path) ) {
-					var text = File.ReadAllText(path);
-					return Encoding.UTF8.GetBytes(text);
-				}
-
-				return null;
+			Default.AddLoader((ref string filename) => LoadFile(ref filename, ".lua"));
 #else
-				filename = filename.Replace('.', '/') + ".lua";
-				var hotfix = $"{LUA_DEBUG_DIRECTORY}{filename}.bytes";
-				if( File.Exists(hotfix) ) {
-					Debug.LogWarning("HOTFIX FILE : " + hotfix);
-					filename += ".bytes";
-					return File.ReadAllBytes(hotfix);
-				}
-				
-				var service = CSharpServiceManager.Get<AssetService>(CSharpServiceManager.ServiceType.ASSET_SERVICE);
-				var assetRef = service.Load($"Lua/{filename}", typeof(TextAsset));
-				if( assetRef.AssetStatus != AssetRefObject.AssetStatus.DONE )
-					return null;
-				filename += ".bytes";
-				return assetRef.GetTextAsset().bytes;
+			Default.AddLoader((ref string filename) => LoadFile(ref filename, ".lua"));
 #endif
-			});
+#if UNITY_EDITOR
+			Default.SetProtoLoader((ref string filename) => LoadFile(ref filename, ".proto"));
+#else
+			Default.SetProtoLoader((ref string filename) => LoadFile(ref filename, ""));
+#endif
 
 			var setupNewCallback = LoadFileAtPath("base.class")[0] as LuaFunction;
 			setupNewCallback.Action(m_newClassCallback);
@@ -89,7 +101,7 @@ namespace Extend {
 			var ret = LoadFileAtPath("PreRequest")[0] as LuaTable;
 			OnInit = ret.Get<LuaFunction>("init");
 			OnDestroy = ret.Get<LuaFunction>("shutdown");
-			
+
 			OnPreRequestLoaded?.Invoke();
 #if UNITY_EDITOR
 			if( reportLeakMark )
@@ -99,7 +111,7 @@ namespace Extend {
 		}
 
 		public void StartUp() {
-			OnInit.Call();
+			OnInit.Action<Func<string, byte[]>>(filename => LoadFile(ref filename, ".lua"));
 		}
 
 		private GetGlobalVM m_getGlobalVMFunc;
@@ -117,7 +129,7 @@ namespace Extend {
 		public LuaClassCache.LuaClass GetLuaClass(LuaTable klass) {
 			return LuaClassCache.TryGetClass(klass);
 		}
-		
+
 		public LuaClassCache.LuaClass GetLuaClass(string klass) {
 			var ret = LoadFileAtPath(klass);
 			if( !( ret[0] is LuaTable c ) )
@@ -125,15 +137,19 @@ namespace Extend {
 			return LuaClassCache.TryGetClass(c);
 		}
 
-		public void LogCallStack() {
-			var msg = Default.Global.GetInPath<Func<string>>("debug.traceback");
+		public static string LogCallStack() {
+			var luaVm = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
+			var msg = luaVm.Default.Global.GetInPath<Func<string>>("debug.traceback");
 			var str = "lua stack : " + msg.Invoke();
 			Debug.Log(str);
+
+			return str;
 		}
 
 		public void Destroy() {
-			OnVMQuiting?.Invoke();
 			OnDestroy.Call();
+			TempBindingExpressCache.Clear();
+			OnVMQuiting?.Invoke();
 
 			m_newClassCallback = null;
 			OnInit = null;

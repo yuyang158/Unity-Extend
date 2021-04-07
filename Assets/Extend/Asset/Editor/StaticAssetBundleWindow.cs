@@ -437,9 +437,15 @@ namespace Extend.Asset.Editor {
 		}
 
 		private static void FinalClear() {
+			AssetCustomProcesses.Clear();
 			var manifestFiles = Directory.GetFiles(OutputPath, "*.manifest", SearchOption.AllDirectories);
 			foreach( var manifestFile in manifestFiles ) {
 				File.Delete(manifestFile);
+			}
+			
+			var manifestMetaFiles = Directory.GetFiles(OutputPath, "*.manifest.meta", SearchOption.AllDirectories);
+			foreach( var metaFile in manifestMetaFiles ) {
+				File.Delete(metaFile);
 			}
 
 			AssetDatabase.Refresh();

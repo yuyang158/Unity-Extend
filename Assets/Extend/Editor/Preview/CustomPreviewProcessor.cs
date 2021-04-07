@@ -10,19 +10,20 @@ namespace Extend.Editor.Preview {
 	[InitializeOnLoad]
 	public static class CustomPreviewProcessor {
 		private static readonly Dictionary<CustomPreviewAttribute, Type> m_previewTypes = new Dictionary<CustomPreviewAttribute, Type>();
-		static CustomPreviewProcessor() {
-			var types = typeof(CustomPreviewProcessor).Assembly.GetTypes();
-			foreach( var type in types ) {
-				if( type.IsSubclassOf(typeof(ObjectPreview)) ) {
-					var attributes = type.GetCustomAttributes(typeof(CustomPreviewAttribute)).ToArray();
-					if(attributes.Length == 0) 
-						continue;
 
-					var previewAttribute = attributes[0] as CustomPreviewAttribute;
-					m_previewTypes.Add(previewAttribute, type);
-				}
+		static CustomPreviewProcessor() {
+			var typeCollection = TypeCache.GetTypesDerivedFrom<ObjectPreview>();
+			foreach( var type in typeCollection ) {
+				var attributes = type.GetCustomAttributes(typeof(CustomPreviewAttribute)).ToArray();
+				if( attributes.Length == 0 )
+					continue;
+
+				var previewAttribute = attributes[0] as CustomPreviewAttribute;
+				if( previewAttribute == null )
+					continue;
+				m_previewTypes.Add(previewAttribute, type);
 			}
-			
+
 			ParticleSystemEditorUtilsReflect.InitType();
 		}
 
@@ -44,7 +45,7 @@ namespace Extend.Editor.Preview {
 					return Activator.CreateInstance(previewTypePair.Value) as ObjectPreview;
 				}
 			}
-			
+
 			return null;
 		}
 	}

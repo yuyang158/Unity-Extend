@@ -19,6 +19,7 @@ namespace Extend.Editor.InspectorGUI {
 					m_Preview = CustomPreviewProcessor.TryGeneratePreview(target as GameObject);
 					if( m_Preview == null )
 						return null;
+
 					m_Preview.Initialize(targets);
 				}
 
@@ -40,9 +41,9 @@ namespace Extend.Editor.InspectorGUI {
 		private void OnDisable() {
 			if( preview != null ) {
 				var method = preview.GetType().GetMethod("OnDestroy");
-				method.Invoke(preview, null);	
+				method.Invoke(preview, null);
 			}
-			
+
 			// DestroyImmediate(baseEditor);
 		}
 

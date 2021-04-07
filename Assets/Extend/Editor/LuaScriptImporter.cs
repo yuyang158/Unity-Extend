@@ -96,6 +96,10 @@ namespace Extend.Editor {
 		}
 
 		private static void ExecLuaCheck(string luaPath) {
+			luaPath = luaPath.Replace('\\', '/');
+			var index = luaPath.IndexOf("Lua/", StringComparison.InvariantCulture);
+			var projectPath = luaPath.Substring(index + 4, luaPath.Length - index - 4 - 4);
+			LuaClassEditorFactory.ReloadDescriptor(projectPath);
 			var setting = LuaCheckSetting.GetOrCreateSettings();
 			if( setting.Active && !string.IsNullOrEmpty(setting.LuaCheckExecPath) && File.Exists(setting.LuaCheckExecPath) ) {
 				var proc = new Process {

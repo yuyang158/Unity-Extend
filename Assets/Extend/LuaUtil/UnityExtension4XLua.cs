@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using Extend.Common;
+using Extend.UI.Fx;
 using UnityEngine;
 using XLua;
 
@@ -16,11 +17,11 @@ namespace Extend.LuaUtil {
 			var bindings = component.GetComponents<LuaBinding>();
 			return FindInLuaBinding(classMeta, bindings);
 		}
-		
+
 		public static T AddComponent<T>(this Component component) where T : Component {
 			return component.gameObject.AddComponent<T>();
 		}
-		
+
 		public static LuaTable GetLuaBindingsInChildren(this Component component, LuaTable classMeta) {
 			var bindings = component.GetComponentsInChildren<LuaBinding>();
 			return FindInComponents(classMeta, bindings);
@@ -30,7 +31,7 @@ namespace Extend.LuaUtil {
 			var bindings = component.GetComponents<LuaBinding>();
 			return FindInComponents(classMeta, bindings);
 		}
-		
+
 		public static LuaTable GetLuaBindingsInChildren(this GameObject go, LuaTable classMeta) {
 			var bindings = go.GetComponentsInChildren<LuaBinding>();
 			return FindInComponents(classMeta, bindings);
@@ -62,7 +63,12 @@ namespace Extend.LuaUtil {
 			y = position.y;
 			z = position.z;
 		}
-		
+
+		public static void SetGray(this RectTransform transform, bool active) {
+			var grayScale = transform.GetOrAddComponent<UIGrayScale>();
+			grayScale.enabled = active;
+		}
+
 		private static LuaTable FindInComponents(LuaTable classMeta, LuaBinding[] bindings) {
 			var luaVm = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
 			var t = luaVm.NewTable();

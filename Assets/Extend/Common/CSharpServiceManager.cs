@@ -77,6 +77,9 @@ namespace Extend.Common {
 			Assert.IsTrue(Initialized);
 			if( services[(int)type] != null ) {
 				var service = services[(int)type];
+				if( service is IServiceUpdate update ) {
+					updateableServices.Remove(update);
+				}
 				service.Destroy();
 				services[(int)type] = null;
 			}

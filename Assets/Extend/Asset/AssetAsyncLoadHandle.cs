@@ -29,6 +29,7 @@ namespace Extend.Asset {
 		public int AssetHashCode => AssetInstance.GenerateHash(Location);
 
 		public delegate void OnAssetLoadComplete(AssetAsyncLoadHandle handle);
+
 		public event OnAssetLoadComplete OnComplete;
 		public AssetInstance Asset { get; private set; }
 
@@ -51,7 +52,6 @@ namespace Extend.Asset {
 			Asset = Container.TryGetAsset(hashCode) as AssetInstance;
 			if( Asset == null ) {
 				Asset = typ == typeof(GameObject) ? new PrefabAssetInstance(Location) : new AssetInstance(Location);
-				Container.Put(Asset);
 			}
 			else if( Asset.IsFinished ) {
 				var service = CSharpServiceManager.Get<GlobalCoroutineRunnerService>(CSharpServiceManager.ServiceType.COROUTINE_SERVICE);
@@ -60,6 +60,9 @@ namespace Extend.Asset {
 			}
 
 			Asset.OnStatusChanged += OnAssetReady;
+			if( Asset.Status == AssetRefObject.AssetStatus.ASYNC_LOADING )
+				return;
+			Asset.Status = AssetRefObject.AssetStatus.ASYNC_LOADING;
 			Provider.ProvideAsync(this, typ);
 		}
 

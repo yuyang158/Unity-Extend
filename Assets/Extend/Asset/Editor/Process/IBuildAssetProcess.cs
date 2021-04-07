@@ -12,6 +12,8 @@ namespace Extend.Asset.Editor.Process {
 		void Process(AssetImporter importer, TextWriter writer);
 
 		void PostProcess();
+
+		void Clear();
 	}
 
 	public static class AssetCustomProcesses {
@@ -52,6 +54,12 @@ namespace Extend.Asset.Editor.Process {
 		public static void PostProcess() {
 			foreach( var process in extensionProcessesMap.Values.SelectMany(processes => processes) ) {
 				process.PostProcess();
+			}
+		}
+		
+		public static void Clear() {
+			foreach( var process in extensionProcessesMap.Values.SelectMany(processes => processes) ) {
+				process.Clear();
 			}
 		}
 

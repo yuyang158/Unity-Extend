@@ -27,7 +27,7 @@ namespace Extend.Editor {
 						break;
 					if( string.IsNullOrEmpty(parts[1]) )
 						break;
-					
+
 					var ids = parts[1].Split(';');
 					specify = new int[ids.Length];
 					for( int i = 0; i < ids.Length; i++ ) {
@@ -175,6 +175,15 @@ namespace Extend.Editor {
 			}
 		}
 
+		[PostProcessBuild(2)]
+		private static void IOSPostBuild(BuildTarget buildTarget, string path) {
+			if( buildTarget != BuildTarget.iOS )
+				return;
+#if UNITY_IOS
+			
+#endif
+		}
+
 		private static IEnumerator DelayExit() {
 			yield return new WaitForSeconds(1);
 			EditorApplication.Exit(0);
@@ -188,6 +197,15 @@ namespace Extend.Editor {
 				Selection.activeObject = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(path);
 			};
 			input.ShowModal();
+		}
+
+		[MenuItem("Tools/Asset/Show Material Keywords")]
+		private static void ShowWindow() {
+			var mat = Selection.activeObject as Material;
+			if( !mat )
+				return;
+
+			Debug.Log(string.Join(";", mat.shaderKeywords));
 		}
 	}
 }

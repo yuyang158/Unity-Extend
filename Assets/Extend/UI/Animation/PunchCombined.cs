@@ -59,5 +59,11 @@ namespace Extend.UI.Animation {
 				tweener.Complete();
 			}
 		}
+
+		public void Destroy() {
+			foreach( var tween in AllTween ) {
+				tween?.Kill();
+			}
+		}
 	}
 }

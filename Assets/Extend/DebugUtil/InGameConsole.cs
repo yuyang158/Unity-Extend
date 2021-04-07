@@ -6,7 +6,6 @@ using Extend.Common;
 using Extend.LuaUtil;
 using TMPro;
 using Unity.Profiling;
-using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.Profiling;
 using UnityEngine.UI;

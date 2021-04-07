@@ -41,6 +41,12 @@ namespace Extend.Asset {
 			if( m_cached.Count == 0 ) {
 				m_cacheStart = Time.time;
 			}
+			
+			#if UNITY_DEBUG
+			if( m_cached.Contains(go) ) {
+				throw new Exception($"GameObject exist in pool {go.name}");
+			}
+			#endif
 
 			if( m_cached.Count >= MaxSize ) {
 				Object.Destroy(go);

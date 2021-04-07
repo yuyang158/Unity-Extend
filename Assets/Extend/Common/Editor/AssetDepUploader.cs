@@ -1,11 +1,14 @@
-﻿using System.Collections.Specialized;
-using System.Net;
+﻿using System.Net;
 using System.Text;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEditor;
 using UnityEngine;
+
+#if NOTIFICATION_WHEN_COMPILE_ERROR
+using System.Collections.Specialized;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
+#endif
 
 namespace Extend.Common.Editor {
 	public class AssetDepUploader : AssetPostprocessor {
@@ -110,7 +113,7 @@ namespace Extend.Common.Editor {
 				readCount += stream.Read(buffer, readCount, buffer.Length - readCount);
 			}
 
-			Debug.Log(Encoding.UTF8.GetString(buffer));
+			Debug.Log($"POST : {URL} -> {jcontent.ToString()} RESPONSE : {Encoding.UTF8.GetString(buffer)}");
 		}
 #endif
 	}
