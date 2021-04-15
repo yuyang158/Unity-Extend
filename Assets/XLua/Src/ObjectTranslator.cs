@@ -15,6 +15,7 @@ using LuaAPI = XLua.LuaDLL.Lua;
 using RealStatePtr = System.IntPtr;
 using LuaCSFunction = XLua.LuaDLL.lua_CSFunction;
 #endif
+using UnityEngine;
 
 
 namespace XLua
@@ -329,9 +330,11 @@ namespace XLua
                         }
                     }
                 }
+
                 IEnumerable<IGrouping<MethodInfo, Type>> groups = (from type in cs_call_lua
-                              where typeof(Delegate).IsAssignableFrom(type) && type != typeof(Delegate) && type != typeof(MulticastDelegate)
-                              where !type.GetMethod("Invoke").GetParameters().Any(paramInfo => paramInfo.ParameterType.IsGenericParameter)
+                              where typeof(Delegate).IsAssignableFrom(type) && type != typeof(Delegate) && type != typeof(MulticastDelegate) && type != null
+                              where type.GetMethod("Invoke") != null && !type.GetMethod("Invoke").GetParameters().Any(paramInfo => 
+                                  paramInfo.ParameterType.IsGenericParameter)
                                select type).GroupBy(t => t.GetMethod("Invoke"), new CompareByArgRet());
 
                 ce.SetGenInterfaces(cs_call_lua.Where(type=>type.IsInterface()).ToList());

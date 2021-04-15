@@ -18,11 +18,6 @@ MonoBehaviour:
     UnloadStrategies:
     - BundleName: assets/resources/config
       UnloadStrategy: 0
-  - FolderPath: {fileID: 102900000, guid: 916008b1f759b8e45af3a9393811b085, type: 3}
-    Op: 0
-    UnloadStrategies:
-    - BundleName: assets/shaders
-      UnloadStrategy: 1
   - FolderPath: {fileID: 102900000, guid: 2f26b1c14ce71734f900a3a777780238, type: 3}
     Op: 3
     UnloadStrategies:
@@ -30,39 +25,11 @@ MonoBehaviour:
       UnloadStrategy: 0
     - BundleName: assets/spriteatlas/battle
       UnloadStrategy: 0
-  - FolderPath: {fileID: 102900000, guid: f15dc826fb14592438de49c4a067ce83, type: 3}
-    Op: 0
-    UnloadStrategies:
-    - BundleName: assets/resources/xlsx
-      UnloadStrategy: 0
   - FolderPath: {fileID: 102900000, guid: f54d1bd14bd3ca042bd867b519fee8cc, type: 3}
     Op: 0
     UnloadStrategies:
     - BundleName: assets/textmesh pro
       UnloadStrategy: 0
-  - FolderPath: {fileID: 102900000, guid: 46145ce4086fab64abc5d45ba9be2232, type: 3}
-    Op: 2
-    UnloadStrategies:
-    - BundleName: assets/resources/graphicsmesh/assets/resources/graphicsmesh
-      UnloadStrategy: 0
-    - BundleName: assets/resources/graphicsmesh/assets/resources/graphicsmesh
-      UnloadStrategy: 0
-    - BundleName: assets/resources/graphicsmesh/assets/resources/graphicsmesh
-      UnloadStrategy: 0
-    - BundleName: assets/resources/graphicsmesh/assets/resources/graphicsmesh
-      UnloadStrategy: 0
-  ExtraDependencyAssets:
-  - {fileID: 6851187077164719647, guid: 137ba47d564f47c449894731ac5c3ea5, type: 3}
-  - {fileID: 5217080358584263105, guid: 27b42b69c4e52ff4aa52549be43fe4ea, type: 3}
-  - {fileID: 21300000, guid: c50db377fa684d34aa7b9e7c9f00d6e9, type: 3}
-  - {fileID: 21300000, guid: 3b9c7f443b9e1f747991a0ca956769bf, type: 3}
-  - {fileID: 21300000, guid: 88474487c256bbc44b6813c5effe636c, type: 3}
-  - {fileID: 4320898640841355039, guid: 19faa8c35069ea54d9c30d9325382563, type: 3}
-  - {fileID: 4284650462427428293, guid: 66c0e659f1969774c980b05ea9f8eee3, type: 3}
+  ExtraDependencyAssets: []
   Scenes:
   - {fileID: 102900000, guid: 0e9387e82025f6b43843be9c390dc0d7, type: 3}
-  - {fileID: 102900000, guid: 6acf170be81bf4e4d9197794fc39c34d, type: 3}
-  - {fileID: 102900000, guid: 6a1ee3bbb0409ac4fb489361eae80182, type: 3}
-  - {fileID: 102900000, guid: 7ca7bdb3ee60a704cb563ac4322e6e14, type: 3}
-  - {fileID: 102900000, guid: 7a0a98be552fdcb4ea4fa77450af126a, type: 3}
-  - {fileID: 102900000, guid: 07fedf97ef6d1d547884e084a7340896, type: 3}
