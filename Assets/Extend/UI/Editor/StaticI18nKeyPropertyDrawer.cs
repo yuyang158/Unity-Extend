@@ -38,7 +38,7 @@ namespace Extend.UI.Editor {
 							continue;
 						var element = childNode as XmlElement;
 						existTexts.Add(new StaticText() {
-							GUID = element.Name,
+							GUID = element.Attributes["guid"].Value,
 							Text = element.Attributes[DEFAULT_EDITOR_LANG].Value
 						});
 					}
@@ -67,6 +67,7 @@ namespace Extend.UI.Editor {
 			if( string.IsNullOrEmpty(m_text) && !string.IsNullOrEmpty(property.stringValue) ) {
 				m_text = FindGUID(property.stringValue);
 			}
+
 			rect.height = UIEditorUtil.LINE_HEIGHT * 2 + EditorGUIUtility.singleLineHeight;
 			m_text = EditorGUI.TextArea(rect, m_text);
 
@@ -102,7 +103,7 @@ namespace Extend.UI.Editor {
 				if( textMesh ) {
 					textMesh.text = m_text;
 				}
-				
+
 				var txt = component.GetComponent<Text>();
 				if( txt ) {
 					txt.text = m_text;
@@ -135,10 +136,16 @@ namespace Extend.UI.Editor {
 		}
 
 		private void NewElement(string guid) {
-			var newEle = i18nXml.CreateElement(guid);
+			var newEle = i18nXml.CreateElement("Text");
 			var zhsAttribute = i18nXml.CreateAttribute("zh-s");
 			zhsAttribute.Value = m_text;
+
+			var guidAttribute = i18nXml.CreateAttribute("guid");
+			guidAttribute.Value = guid;
+
 			newEle.Attributes.Append(zhsAttribute);
+			newEle.Attributes.Append(guidAttribute);
+
 			rootElement.AppendChild(newEle);
 			i18nXml.Save(xmlConfigPath);
 		}

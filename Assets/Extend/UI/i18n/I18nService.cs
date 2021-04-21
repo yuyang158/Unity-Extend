@@ -42,7 +42,7 @@ namespace Extend.UI.i18n {
 						continue;
 					}
 
-					var key = node.Name;
+					var key = node.Attributes["guid"].Value;
 					var val = node.Attributes[m_currentLang].Value;
 					m_languageText.Add(key, val);
 				}
