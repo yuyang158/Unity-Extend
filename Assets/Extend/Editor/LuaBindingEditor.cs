@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Extend.Common;
@@ -64,6 +65,7 @@ namespace Extend.Editor {
 			if( binding.LuaData == null ) {
 				binding.LuaData = new LuaBindingDataBase[0];
 			}
+
 			var luaPathProp = serializedObject.FindProperty("LuaFile");
 			if( string.IsNullOrEmpty(luaPathProp.stringValue) ) {
 				EditorGUILayout.PropertyField(luaPathProp);
@@ -145,10 +147,25 @@ namespace Extend.Editor {
 
 			serializedObject.ApplyModifiedProperties();
 			base.OnInspectorGUI();
+			GUILayout.BeginHorizontal();
 			if( GUILayout.Button("重新加载Lua文件") ) {
 				if( descriptor == null ) return;
 				descriptor = LuaClassEditorFactory.ReloadDescriptor(descriptor.ClassName.Replace('.', '/'));
 			}
+
+			if( GUILayout.Button("在编辑器中打开") ) {
+				string idePath = EditorPrefs.GetString("kScriptsDefaultApp_h2657262712");
+				var luaPath = $"{Application.dataPath}/../Lua/{luaPathProp.stringValue.Replace('.', '/')}.lua";
+				if( idePath.Contains("Rider") ) {
+					Process.Start($"\"{idePath}\"", $"--line 0 {luaPath}");
+				}
+				else if( idePath.Contains("Code") ) {
+					string binPath = idePath.Replace("Code.exe", "bin/code");
+					Process.Start($"\"{binPath}\"", $"-r -g \"{luaPath}:0\"");
+				}
+			}
+
+			GUILayout.EndHorizontal();
 		}
 	}
 }
