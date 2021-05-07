@@ -76,17 +76,22 @@ namespace Extend.LuaBindingEvent {
 				return;
 			}
 
-			foreach( var id in eventIds ) {
-				m_dispatch(id, data);
+			for( int i = 0; i < eventIds.Count; ) {
+				var id = eventIds[i];
+				if( id == 0 ) {
+					eventIds.RemoveAt(i);
+				}
+				else {
+					m_dispatch(id, data);
+					i++;
+				}
 			}
 		}
 
 		private Dictionary<string, List<int>> m_luaEvents;
 
 		public void AddEventListener(string eventName, int id) {
-			if( m_luaEvents == null ) {
-				m_luaEvents = new Dictionary<string, List<int>>();
-			}
+			m_luaEvents ??= new Dictionary<string, List<int>>();
 
 			if( !m_luaEvents.TryGetValue(eventName, out var ids) ) {
 				ids = new List<int> {id};
@@ -102,7 +107,10 @@ namespace Extend.LuaBindingEvent {
 				return;
 			}
 
-			eventIds.Remove(id);
+			var index = eventIds.IndexOf(id);
+			if( index >= 0 ) {
+				eventIds[index] = 0;
+			}
 		}
 	}
 }
