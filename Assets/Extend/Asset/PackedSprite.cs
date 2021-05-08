@@ -65,7 +65,8 @@ namespace Extend.Asset {
 
 			m_packTexture = new Texture2D(width, height, format, false) {
 				wrapMode = TextureWrapMode.Clamp,
-				filterMode = FilterMode.Bilinear
+				filterMode = FilterMode.Bilinear,
+				name = $"Packed Sprite Texture : {spriteSize}"
 			};
 			m_spriteSize = spriteSize;
 
@@ -124,9 +125,11 @@ namespace Extend.Asset {
 					return;
 				}
 
-				var textAsset = handle.Result.GetTextAsset();
+				var assetRef = handle.Result;
+				var textAsset = assetRef.GetTextAsset();
 				var texture = new Texture2D(m_spriteSize, m_spriteSize);
 				texture.LoadImage(textAsset.bytes, false);
+				assetRef.Dispose();
 
 				if( m_spriteSize != texture.width || m_spriteSize != texture.height ) {
 					Object.Destroy(texture);
@@ -147,7 +150,6 @@ namespace Extend.Asset {
 					}
 					element.Trigger();
 				}
-				handle.Result.Dispose();
 			};
 			return element;
 		}
