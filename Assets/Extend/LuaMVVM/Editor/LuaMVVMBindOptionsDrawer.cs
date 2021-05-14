@@ -69,7 +69,33 @@ namespace Extend.LuaMVVM.Editor {
 
 				var prop = property.GetArrayElementAtIndex(index);
 				var bindTargetProp = prop.FindPropertyRelative("BindTarget");
+				EditorGUI.BeginChangeCheck();
 				EditorGUI.PropertyField(enabledRect, bindTargetProp, GUIContent.none);
+				if( EditorGUI.EndChangeCheck() && bindTargetProp.objectReferenceValue ) {
+					var menu = new GenericMenu();
+
+					var component = bindTargetProp.objectReferenceValue as Component;
+					List<Component> components = new List<Component>();
+					if( component != null ) {
+						component.GetComponents(components);
+					}
+					else {
+						var go = bindTargetProp.objectReferenceValue as GameObject;
+						if( go ) {
+							go.GetComponents(components);
+						}
+					}
+
+					if( components.Count > 0 ) {
+						foreach( var c in components ) {
+							menu.AddItem(new GUIContent(c.GetType().Name), false, () => {
+								bindTargetProp.objectReferenceValue = c;
+								bindTargetProp.serializedObject.ApplyModifiedProperties();
+							});
+						}
+						menu.ShowAsContext();
+					}
+				}
 				var bindModeProp = prop.FindPropertyRelative("Mode");
 				EditorGUI.PropertyField(functionRect, bindModeProp, GUIContent.none);
 				
@@ -90,6 +116,11 @@ namespace Extend.LuaMVVM.Editor {
 							names.Add("OnDown");
 							names.Add("OnUp");
 							names.Add("OnDrag");
+						}
+						else if (typ == typeof(LuaBindingClickLongTapEvent))
+						{
+							names.Add("OnClick");
+							names.Add("OnLongTap");
 						}
 					}
 					else {
