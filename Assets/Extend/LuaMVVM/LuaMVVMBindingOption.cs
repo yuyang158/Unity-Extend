@@ -43,9 +43,9 @@ namespace Extend.LuaMVVM {
 		public static Action<GameObject> DebugCheckCallback;
 #endif
 
-		public void Start() {
+		public void Prepare(GameObject owner) {
 			if( !BindTarget ) {
-				Debug.LogError($"Binding target is null, Path : {Path} Property : {BindTargetProp}");
+				Debug.LogError($"Binding target is null, Path : {Path} Property : {BindTargetProp}, Owner: {owner.name}");
 				return;
 			}
 

@@ -1,11 +1,11 @@
-using System;
 using Extend.Common;
 using UnityEngine;
 using XLua;
 
 namespace Extend.LuaMVVM {
+	[LuaCallCSharp]
 	public class LuaMVVMBinding : MonoBehaviour, ILuaMVVM {
-		[LuaMVVMBindOptions]
+		[LuaMVVMBindOptions, BlackList]
 		public LuaMVVMBindingOptions BindingOptions;
 
 		private void OnDestroy() {
@@ -16,12 +16,25 @@ namespace Extend.LuaMVVM {
 			}
 		}
 
+		private LuaTable m_dataSource;
+
+		public LuaTable DataSource {
+			get => m_dataSource;
+			set => SetDataContext(value);
+		}
+		
 		public void SetDataContext(LuaTable dataSource) {
+			m_dataSource = dataSource;
 			foreach( var option in BindingOptions.Options ) {
 				option.Bind(dataSource);
 			}
 		}
 
+		public LuaTable GetDataContext() {
+			return m_dataSource;
+		}
+
+		[BlackList]
 		public void Detach() {
 			foreach( var option in BindingOptions.Options ) {
 				option.TryDetach();
@@ -30,7 +43,7 @@ namespace Extend.LuaMVVM {
 
 		private void Awake() {
 			foreach( var option in BindingOptions.Options ) {
-				option.Start();
+				option.Prepare(gameObject);
 			}
 		}
 	}

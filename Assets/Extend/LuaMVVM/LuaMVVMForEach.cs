@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using Extend.Asset;
 using Extend.Asset.Attribute;
-using Extend.Common;
 using UnityEngine;
 using XLua;
 
 namespace Extend.LuaMVVM {
+	[LuaCallCSharp]
 	public class LuaMVVMForEach : MonoBehaviour, ILuaMVVM {
 		[AssetReferenceAssetType(AssetType = typeof(GameObject))]
 		public AssetReference Asset;
@@ -19,7 +19,7 @@ namespace Extend.LuaMVVM {
 			set {
 				m_arrayData = value;
 				int length = m_arrayData?.Length ?? 0;
-				if( Asset == null || !Asset.GUIDValid ) {
+				if( !( Asset is {GUIDValid: true} ) ) {
 					if( length > transform.childCount ) {
 						Debug.LogError($"Data count greater then children count. {length} < {transform.childCount}");
 					}
@@ -77,6 +77,10 @@ namespace Extend.LuaMVVM {
 			LuaArrayData = dataSource;
 		}
 
+		public LuaTable GetDataContext() {
+			return LuaArrayData;
+		}
+
 		private void Recycle(GameObject go) {
 			var bindings = go.GetComponentsInChildren<ILuaMVVM>();
 			foreach( var binding in bindings ) {
@@ -100,6 +104,7 @@ namespace Extend.LuaMVVM {
 			Asset.Dispose();
 		}
 
+		[BlackList]
 		public void Detach() {
 		}
 	}
