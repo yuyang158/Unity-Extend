@@ -5,7 +5,6 @@ using System;
 using System.Collections;
 using Extend.Asset;
 using Extend.Asset.Attribute;
-using Extend.Common;
 using UnityEngine.UI;
 using XLua;
 
@@ -37,20 +36,28 @@ namespace Extend.UI.Scroll {
 		protected abstract float GetSize(RectTransform item);
 		protected abstract float GetDimension(Vector2 vector);
 		protected abstract Vector2 GetVector(float value);
-		protected int directionSign = 0;
 
-		private float m_ContentSpacing = -1;
-		protected GridLayoutGroup m_GridLayout;
+		protected enum LoopScrollRectDirection {
+			Vertical,
+			Horizontal,
+		}
+
+		protected LoopScrollRectDirection direction = LoopScrollRectDirection.Horizontal;
+
+		private bool m_ContentSpaceInit = false;
+		private float m_ContentSpacing = 0;
+		protected GridLayoutGroup m_GridLayout = null;
 
 		protected float contentSpacing {
 			get {
-				if( m_ContentSpacing >= 0 ) {
+				if( m_ContentSpaceInit ) {
 					return m_ContentSpacing;
 				}
 
+				m_ContentSpaceInit = true;
 				m_ContentSpacing = 0;
 				if( content != null ) {
-					var layout1 = content.GetComponent<HorizontalOrVerticalLayoutGroup>();
+					HorizontalOrVerticalLayoutGroup layout1 = content.GetComponent<HorizontalOrVerticalLayoutGroup>();
 					if( layout1 != null ) {
 						m_ContentSpacing = layout1.spacing;
 					}
@@ -65,18 +72,20 @@ namespace Extend.UI.Scroll {
 			}
 		}
 
-		private int m_ContentConstraintCount;
+		private bool m_ContentConstraintCountInit = false;
+		private int m_ContentConstraintCount = 0;
 
 		protected int contentConstraintCount {
 			get {
-				if( m_ContentConstraintCount > 0 ) {
+				if( m_ContentConstraintCountInit ) {
 					return m_ContentConstraintCount;
 				}
 
+				m_ContentConstraintCountInit = true;
 				m_ContentConstraintCount = 1;
-				if( content ) {
-					var layout2 = content.GetComponent<GridLayoutGroup>();
-					if( layout2 ) {
+				if( content != null ) {
+					GridLayoutGroup layout2 = content.GetComponent<GridLayoutGroup>();
+					if( layout2 != null ) {
 						if( layout2.constraint == GridLayoutGroup.Constraint.Flexible ) {
 							Debug.LogWarning("[LoopScrollRect] Flexible not supported yet");
 						}
@@ -90,13 +99,19 @@ namespace Extend.UI.Scroll {
 		}
 
 		// the first line
-		int StartLine => Mathf.CeilToInt((float)( itemTypeStart ) / contentConstraintCount);
+		protected int StartLine {
+			get { return Mathf.CeilToInt((float)( itemTypeStart ) / contentConstraintCount); }
+		}
 
 		// how many lines we have for now
-		int CurrentLines => Mathf.CeilToInt((float)( itemTypeEnd - itemTypeStart ) / contentConstraintCount);
+		protected int CurrentLines {
+			get { return Mathf.CeilToInt((float)( itemTypeEnd - itemTypeStart ) / contentConstraintCount); }
+		}
 
 		// how many lines we have in total
-		int TotalLines => Mathf.CeilToInt((float)( totalCount ) / contentConstraintCount);
+		protected int TotalLines {
+			get { return Mathf.CeilToInt((float)( totalCount ) / contentConstraintCount); }
+		}
 
 		protected virtual bool UpdateItems(Bounds viewBounds, Bounds contentBounds) {
 			return false;
@@ -123,71 +138,71 @@ namespace Extend.UI.Scroll {
 		private RectTransform m_Content;
 
 		public RectTransform content {
-			get => m_Content;
-			set => m_Content = value;
+			get { return m_Content; }
+			set { m_Content = value; }
 		}
 
 		[SerializeField]
 		private bool m_Horizontal = true;
 
 		public bool horizontal {
-			get => m_Horizontal;
-			set => m_Horizontal = value;
+			get { return m_Horizontal; }
+			set { m_Horizontal = value; }
 		}
 
 		[SerializeField]
 		private bool m_Vertical = true;
 
 		public bool vertical {
-			get => m_Vertical;
-			set => m_Vertical = value;
+			get { return m_Vertical; }
+			set { m_Vertical = value; }
 		}
 
 		[SerializeField]
 		private MovementType m_MovementType = MovementType.Elastic;
 
 		public MovementType movementType {
-			get => m_MovementType;
-			set => m_MovementType = value;
+			get { return m_MovementType; }
+			set { m_MovementType = value; }
 		}
 
-		[SerializeField, HideIf("m_MovementType", MovementType.Unrestricted)]
+		[SerializeField]
 		private float m_Elasticity = 0.1f; // Only used for MovementType.Elastic
 
 		public float elasticity {
-			get => m_Elasticity;
-			set => m_Elasticity = value;
+			get { return m_Elasticity; }
+			set { m_Elasticity = value; }
 		}
 
 		[SerializeField]
 		private bool m_Inertia = true;
 
 		public bool inertia {
-			get => m_Inertia;
-			set => m_Inertia = value;
+			get { return m_Inertia; }
+			set { m_Inertia = value; }
 		}
 
 		[SerializeField]
 		private float m_DecelerationRate = 0.135f; // Only used when inertia is enabled
 
 		public float decelerationRate {
-			get => m_DecelerationRate;
-			set => m_DecelerationRate = value;
+			get { return m_DecelerationRate; }
+			set { m_DecelerationRate = value; }
 		}
 
 		[SerializeField]
 		private float m_ScrollSensitivity = 1.0f;
 
 		public float scrollSensitivity {
-			get => m_ScrollSensitivity;
-			set => m_ScrollSensitivity = value;
+			get { return m_ScrollSensitivity; }
+			set { m_ScrollSensitivity = value; }
 		}
 
 		[SerializeField]
 		private RectTransform m_Viewport;
 
 		public RectTransform viewport {
-			get => m_Viewport;
+			get { return m_Viewport; }
 			set {
 				m_Viewport = value;
 				SetDirtyCaching();
@@ -198,7 +213,7 @@ namespace Extend.UI.Scroll {
 		private Scrollbar m_HorizontalScrollbar;
 
 		public Scrollbar horizontalScrollbar {
-			get => m_HorizontalScrollbar;
+			get { return m_HorizontalScrollbar; }
 			set {
 				if( m_HorizontalScrollbar )
 					m_HorizontalScrollbar.onValueChanged.RemoveListener(SetHorizontalNormalizedPosition);
@@ -213,7 +228,7 @@ namespace Extend.UI.Scroll {
 		private Scrollbar m_VerticalScrollbar;
 
 		public Scrollbar verticalScrollbar {
-			get => m_VerticalScrollbar;
+			get { return m_VerticalScrollbar; }
 			set {
 				if( m_VerticalScrollbar )
 					m_VerticalScrollbar.onValueChanged.RemoveListener(SetVerticalNormalizedPosition);
@@ -228,7 +243,7 @@ namespace Extend.UI.Scroll {
 		private ScrollbarVisibility m_HorizontalScrollbarVisibility;
 
 		public ScrollbarVisibility horizontalScrollbarVisibility {
-			get => m_HorizontalScrollbarVisibility;
+			get { return m_HorizontalScrollbarVisibility; }
 			set {
 				m_HorizontalScrollbarVisibility = value;
 				SetDirtyCaching();
@@ -239,7 +254,7 @@ namespace Extend.UI.Scroll {
 		private ScrollbarVisibility m_VerticalScrollbarVisibility;
 
 		public ScrollbarVisibility verticalScrollbarVisibility {
-			get => m_VerticalScrollbarVisibility;
+			get { return m_VerticalScrollbarVisibility; }
 			set {
 				m_VerticalScrollbarVisibility = value;
 				SetDirtyCaching();
@@ -250,7 +265,7 @@ namespace Extend.UI.Scroll {
 		private float m_HorizontalScrollbarSpacing;
 
 		public float horizontalScrollbarSpacing {
-			get => m_HorizontalScrollbarSpacing;
+			get { return m_HorizontalScrollbarSpacing; }
 			set {
 				m_HorizontalScrollbarSpacing = value;
 				SetDirty();
@@ -261,7 +276,7 @@ namespace Extend.UI.Scroll {
 		private float m_VerticalScrollbarSpacing;
 
 		public float verticalScrollbarSpacing {
-			get => m_VerticalScrollbarSpacing;
+			get { return m_VerticalScrollbarSpacing; }
 			set {
 				m_VerticalScrollbarSpacing = value;
 				SetDirty();
@@ -272,8 +287,8 @@ namespace Extend.UI.Scroll {
 		private ScrollRectEvent m_OnValueChanged = new ScrollRectEvent();
 
 		public ScrollRectEvent onValueChanged {
-			get => m_OnValueChanged;
-			set => m_OnValueChanged = value;
+			get { return m_OnValueChanged; }
+			set { m_OnValueChanged = value; }
 		}
 
 		// The offset from handle position to mouse down position
@@ -298,8 +313,8 @@ namespace Extend.UI.Scroll {
 		private Vector2 m_Velocity;
 
 		public Vector2 velocity {
-			get => m_Velocity;
-			set => m_Velocity = value;
+			get { return m_Velocity; }
+			set { m_Velocity = value; }
 		}
 
 		private bool m_Dragging;
@@ -309,14 +324,14 @@ namespace Extend.UI.Scroll {
 		private Bounds m_PrevViewBounds;
 
 		[NonSerialized]
-		private bool m_HasRebuiltLayout;
+		private bool m_HasRebuiltLayout = false;
 
 		private bool m_HSliderExpand;
 		private bool m_VSliderExpand;
 		private float m_HSliderHeight;
 		private float m_VSliderWidth;
 
-		[NonSerialized]
+		[System.NonSerialized]
 		private RectTransform m_Rect;
 
 		private RectTransform rectTransform {
@@ -337,6 +352,17 @@ namespace Extend.UI.Scroll {
 		}
 
 		//==========LoopScrollRect==========
+#if UNITY_EDITOR
+		protected override void Awake() {
+			base.Awake();
+			if( Application.isPlaying ) {
+				float value = ( reverseDirection ^ ( direction == LoopScrollRectDirection.Horizontal ) ) ? 0 : 1;
+				Debug.Assert(Mathf.Abs(GetDimension(content.pivot)) == value, this);
+				Debug.Assert(Mathf.Abs(GetDimension(content.anchorMin)) == value, this);
+				Debug.Assert(Mathf.Abs(GetDimension(content.anchorMax)) == value, this);
+			}
+		}
+#endif
 
 		public void ClearCells() {
 			if( Application.isPlaying ) {
@@ -351,21 +377,21 @@ namespace Extend.UI.Scroll {
 
 		public void ScrollToCell(int index, float speed) {
 			if( totalCount >= 0 && ( index < 0 || index >= totalCount ) ) {
-				Debug.LogWarningFormat("invalid index {0}", index);
-				return;
-			}
-
-			if( speed <= 0 ) {
-				Debug.LogWarningFormat("invalid speed {0}", speed);
+				Debug.LogErrorFormat("invalid index {0}", index);
 				return;
 			}
 
 			StopAllCoroutines();
+			if( speed <= 0 ) {
+				RefillCells(index);
+				return;
+			}
+
 			StartCoroutine(ScrollToCellCoroutine(index, speed));
 		}
 
 		IEnumerator ScrollToCellCoroutine(int index, float speed) {
-			var needMoving = true;
+			bool needMoving = true;
 			while( needMoving ) {
 				yield return null;
 				if( !m_Dragging ) {
@@ -380,32 +406,32 @@ namespace Extend.UI.Scroll {
 						m_ViewBounds = new Bounds(viewRect.rect.center, viewRect.rect.size);
 						var m_ItemBounds = GetBounds4Item(index);
 						var offset = 0.0f;
-						if( directionSign == -1 )
+						if( direction == LoopScrollRectDirection.Vertical )
 							offset = reverseDirection ? ( m_ViewBounds.min.y - m_ItemBounds.min.y ) : ( m_ViewBounds.max.y - m_ItemBounds.max.y );
-						else if( directionSign == 1 )
+						else
 							offset = reverseDirection ? ( m_ItemBounds.max.x - m_ViewBounds.max.x ) : ( m_ItemBounds.min.x - m_ViewBounds.min.x );
 						// check if we cannot move on
 						if( totalCount >= 0 ) {
 							if( offset > 0 && itemTypeEnd == totalCount && !reverseDirection ) {
 								m_ItemBounds = GetBounds4Item(totalCount - 1);
 								// reach bottom
-								if( ( directionSign == -1 && m_ItemBounds.min.y > m_ViewBounds.min.y ) ||
-								    ( directionSign == 1 && m_ItemBounds.max.x < m_ViewBounds.max.x ) ) {
+								if( ( direction == LoopScrollRectDirection.Vertical && m_ItemBounds.min.y > m_ViewBounds.min.y ) ||
+								    ( direction == LoopScrollRectDirection.Horizontal && m_ItemBounds.max.x < m_ViewBounds.max.x ) ) {
 									needMoving = false;
 									break;
 								}
 							}
 							else if( offset < 0 && itemTypeStart == 0 && reverseDirection ) {
 								m_ItemBounds = GetBounds4Item(0);
-								if( ( directionSign == -1 && m_ItemBounds.max.y < m_ViewBounds.max.y ) ||
-								    ( directionSign == 1 && m_ItemBounds.min.x > m_ViewBounds.min.x ) ) {
+								if( ( direction == LoopScrollRectDirection.Vertical && m_ItemBounds.max.y < m_ViewBounds.max.y ) ||
+								    ( direction == LoopScrollRectDirection.Horizontal && m_ItemBounds.min.x > m_ViewBounds.min.x ) ) {
 									needMoving = false;
 									break;
 								}
 							}
 						}
 
-						var maxMove = Time.deltaTime * speed;
+						float maxMove = Time.deltaTime * speed;
 						if( Mathf.Abs(offset) < maxMove ) {
 							needMoving = false;
 							move = offset;
@@ -415,10 +441,11 @@ namespace Extend.UI.Scroll {
 					}
 
 					if( move != 0 ) {
-						var offset = GetVector(move);
+						Vector2 offset = GetVector(move);
 						content.anchoredPosition += offset;
 						m_PrevPosition += offset;
 						m_ContentStartPosition += offset;
+						UpdateBounds(true);
 					}
 				}
 			}
@@ -428,10 +455,10 @@ namespace Extend.UI.Scroll {
 		}
 
 		public void RefreshCells() {
-			if( Application.isPlaying && isActiveAndEnabled ) {
+			if( Application.isPlaying && this.isActiveAndEnabled ) {
 				itemTypeEnd = itemTypeStart;
 				// recycle items if we can
-				for( var i = 0; i < content.childCount; i++ ) {
+				for( int i = 0; i < content.childCount; i++ ) {
 					if( itemTypeEnd < totalCount ) {
 						dataSource.ProvideData(content.GetChild(i), itemTypeEnd);
 						itemTypeEnd++;
@@ -444,7 +471,7 @@ namespace Extend.UI.Scroll {
 			}
 		}
 
-		public void RefillCellsFromEnd(int offset = 0) {
+		public void RefillCellsFromEnd(int offset = 0, bool alignStart = false) {
 			if( !Application.isPlaying || CellAsset == null || !CellAsset.GUIDValid )
 				return;
 
@@ -452,83 +479,99 @@ namespace Extend.UI.Scroll {
 			itemTypeEnd = reverseDirection ? offset : totalCount - offset;
 			itemTypeStart = itemTypeEnd;
 
-			if( totalCount >= 0 && itemTypeStart % contentConstraintCount != 0 )
-				Debug.LogWarning("Grid will become strange since we can't fill items in the last line");
-
-			for( var i = m_Content.childCount - 1; i >= 0; i-- ) {
-				AssetService.Recycle(m_Content.GetChild(i));
+			if( totalCount >= 0 && itemTypeStart % contentConstraintCount != 0 ) {
+				itemTypeStart = ( itemTypeStart / contentConstraintCount ) * contentConstraintCount;
 			}
 
-			float sizeToFill = 0, sizeFilled = 0;
-			if( directionSign == -1 )
-				sizeToFill = viewRect.rect.size.y;
-			else
-				sizeToFill = viewRect.rect.size.x;
+			ReturnToTempPool(!reverseDirection, m_Content.childCount);
+
+			float sizeToFill = Mathf.Abs(GetDimension(viewRect.rect.size)), sizeFilled = 0;
 
 			while( sizeToFill > sizeFilled ) {
-				var size = reverseDirection ? NewItemAtEnd() : NewItemAtStart();
-				if( size <= 0 ) break;
+				float size = reverseDirection ? NewItemAtEnd() : NewItemAtStart();
+				if( size <= 0 )
+					break;
 				sizeFilled += size;
 			}
 
-			var pos = m_Content.anchoredPosition;
-			var dist = Mathf.Max(0, sizeFilled - sizeToFill);
+			// refill from start in case not full yet
+			while( sizeToFill > sizeFilled ) {
+				float size = reverseDirection ? NewItemAtStart() : NewItemAtEnd();
+				if( size <= 0 )
+					break;
+				sizeFilled += size;
+			}
+
+			Vector2 pos = m_Content.anchoredPosition;
+			float dist = alignStart ? 0 : Mathf.Max(0, sizeFilled - sizeToFill);
 			if( reverseDirection )
 				dist = -dist;
-			if( directionSign == -1 )
+			if( direction == LoopScrollRectDirection.Vertical )
 				pos.y = dist;
-			else if( directionSign == 1 )
+			else
 				pos.x = -dist;
 			m_Content.anchoredPosition = pos;
+			m_ContentStartPosition = pos;
+
+			ClearTempPool();
+			UpdateScrollbars(Vector2.zero);
 		}
 
 		public void RefillCells(int offset = 0, bool fillViewRect = false) {
-			if( !Application.isPlaying || CellAsset == null || !CellAsset.GUIDValid )
+			if( !Application.isPlaying || !( CellAsset is {GUIDValid: true} ) )
 				return;
 
 			StopMovement();
 			itemTypeStart = reverseDirection ? totalCount - offset : offset;
-			itemTypeEnd = itemTypeStart;
-
-			if( totalCount >= 0 && itemTypeStart % contentConstraintCount != 0 )
-				Debug.LogWarning("Grid will become strange since we can't fill items in the first line");
-
-			// Don't `Canvas.ForceUpdateCanvases();` here, or it will new/delete cells to change itemTypeStart/End
-			for( var i = m_Content.childCount - 1; i >= 0; i-- ) {
-				AssetService.Recycle(m_Content.GetChild(i));
+			if( totalCount >= 0 && itemTypeStart % contentConstraintCount != 0 ) {
+				itemTypeStart = ( itemTypeStart / contentConstraintCount ) * contentConstraintCount;
 			}
 
-			float sizeToFill = 0, sizeFilled = 0;
+			itemTypeEnd = itemTypeStart;
+
+			// Don't `Canvas.ForceUpdateCanvases();` here, or it will new/delete cells to change itemTypeStart/End
+			ReturnToTempPool(reverseDirection, m_Content.childCount);
+
+			float sizeToFill = Mathf.Abs(GetDimension(viewRect.rect.size)), sizeFilled = 0;
 			// m_ViewBounds may be not ready when RefillCells on Start
-			if( directionSign == -1 )
-				sizeToFill = viewRect.rect.size.y;
-			else
-				sizeToFill = viewRect.rect.size.x;
 
 			float itemSize = 0;
 
 			while( sizeToFill > sizeFilled ) {
-				var size = reverseDirection ? NewItemAtStart() : NewItemAtEnd();
-				if( size <= 0 ) break;
-				else itemSize = size;
+				float size = reverseDirection ? NewItemAtStart() : NewItemAtEnd();
+				if( size <= 0 )
+					break;
+				itemSize = size;
+				sizeFilled += size;
+			}
+
+			// refill from start in case not full yet
+			while( sizeToFill > sizeFilled ) {
+				float size = reverseDirection ? NewItemAtEnd() : NewItemAtStart();
+				if( size <= 0 )
+					break;
 				sizeFilled += size;
 			}
 
 			if( fillViewRect && itemSize > 0 && sizeFilled < sizeToFill ) {
-				var itemsToAddCount =
+				int itemsToAddCount =
 					(int)( ( sizeToFill - sizeFilled ) /
 					       itemSize ); //calculate how many items can be added above the offset, so it still is visible in the view
-				var newOffset = offset - itemsToAddCount;
+				int newOffset = offset - itemsToAddCount;
 				if( newOffset < 0 ) newOffset = 0;
 				if( newOffset != offset ) RefillCells(newOffset); //refill again, with the new offset value, and now with fillViewRect disabled.
 			}
 
-			var pos = m_Content.anchoredPosition;
-			if( directionSign == -1 )
+			Vector2 pos = m_Content.anchoredPosition;
+			if( direction == LoopScrollRectDirection.Vertical )
 				pos.y = 0;
-			else if( directionSign == 1 )
+			else
 				pos.x = 0;
 			m_Content.anchoredPosition = pos;
+			m_ContentStartPosition = pos;
+
+			ClearTempPool();
+			UpdateScrollbars(Vector2.zero);
 		}
 
 		protected float NewItemAtStart() {
@@ -537,17 +580,17 @@ namespace Extend.UI.Scroll {
 			}
 
 			float size = 0;
-			for( var i = 0; i < contentConstraintCount; i++ ) {
+			for( int i = 0; i < contentConstraintCount; i++ ) {
 				itemTypeStart--;
-				var newItem = InstantiateNextItem(itemTypeStart);
-				newItem.SetAsFirstSibling();
+				RectTransform newItem = GetFromTempPool(itemTypeStart);
+				newItem.SetSiblingIndex(deletedItemTypeStart);
 				size = Mathf.Max(GetSize(newItem), size);
 			}
 
 			threshold = Mathf.Max(threshold, size * 1.5f);
 
 			if( !reverseDirection ) {
-				var offset = GetVector(size);
+				Vector2 offset = GetVector(size);
 				content.anchoredPosition += offset;
 				m_PrevPosition += offset;
 				m_ContentStartPosition += offset;
@@ -558,26 +601,31 @@ namespace Extend.UI.Scroll {
 
 		protected float DeleteItemAtStart() {
 			// special case: when moving or dragging, we cannot simply delete start when we've reached the end
-			if( ( ( m_Dragging || m_Velocity != Vector2.zero ) && totalCount >= 0 && itemTypeEnd >= totalCount - 1 )
-			    || content.childCount == 0 ) {
+			if( ( m_Dragging || m_Velocity != Vector2.zero ) && totalCount >= 0 && itemTypeEnd >= totalCount - contentConstraintCount ) {
+				return 0;
+			}
+
+			int availableChilds = content.childCount - deletedItemTypeStart - deletedItemTypeEnd;
+			Debug.Assert(availableChilds >= 0);
+			if( availableChilds == 0 ) {
 				return 0;
 			}
 
 			float size = 0;
-			for( var i = 0; i < contentConstraintCount; i++ ) {
-				var oldItem = content.GetChild(0) as RectTransform;
+			for( int i = 0; i < contentConstraintCount; i++ ) {
+				RectTransform oldItem = content.GetChild(deletedItemTypeStart) as RectTransform;
 				size = Mathf.Max(GetSize(oldItem), size);
-				AssetService.Recycle(oldItem);
-
+				ReturnToTempPool(true);
+				availableChilds--;
 				itemTypeStart++;
 
-				if( content.childCount == 0 ) {
+				if( availableChilds == 0 ) {
 					break;
 				}
 			}
 
 			if( !reverseDirection ) {
-				var offset = GetVector(size);
+				Vector2 offset = GetVector(size);
 				content.anchoredPosition -= offset;
 				m_PrevPosition -= offset;
 				m_ContentStartPosition -= offset;
@@ -594,9 +642,11 @@ namespace Extend.UI.Scroll {
 
 			float size = 0;
 			// issue 4: fill lines to end first
-			var count = contentConstraintCount - ( content.childCount % contentConstraintCount );
-			for( var i = 0; i < count; i++ ) {
-				var newItem = InstantiateNextItem(itemTypeEnd);
+			int availableChilds = content.childCount - deletedItemTypeStart - deletedItemTypeEnd;
+			int count = contentConstraintCount - ( availableChilds % contentConstraintCount );
+			for( int i = 0; i < count; i++ ) {
+				RectTransform newItem = GetFromTempPool(itemTypeEnd);
+				newItem.SetSiblingIndex(content.childCount - deletedItemTypeEnd - 1);
 				size = Mathf.Max(GetSize(newItem), size);
 				itemTypeEnd++;
 				if( totalCount >= 0 && itemTypeEnd >= totalCount ) {
@@ -607,7 +657,7 @@ namespace Extend.UI.Scroll {
 			threshold = Mathf.Max(threshold, size * 1.5f);
 
 			if( reverseDirection ) {
-				var offset = GetVector(size);
+				Vector2 offset = GetVector(size);
 				content.anchoredPosition -= offset;
 				m_PrevPosition -= offset;
 				m_ContentStartPosition -= offset;
@@ -617,25 +667,30 @@ namespace Extend.UI.Scroll {
 		}
 
 		protected float DeleteItemAtEnd() {
-			if( ( ( m_Dragging || m_Velocity != Vector2.zero ) && totalCount >= 0 && itemTypeStart < contentConstraintCount )
-			    || content.childCount == 0 ) {
+			if( ( m_Dragging || m_Velocity != Vector2.zero ) && totalCount >= 0 && itemTypeStart < contentConstraintCount ) {
+				return 0;
+			}
+
+			int availableChilds = content.childCount - deletedItemTypeStart - deletedItemTypeEnd;
+			Debug.Assert(availableChilds >= 0);
+			if( availableChilds == 0 ) {
 				return 0;
 			}
 
 			float size = 0;
-			for( var i = 0; i < contentConstraintCount; i++ ) {
-				var oldItem = content.GetChild(content.childCount - 1) as RectTransform;
+			for( int i = 0; i < contentConstraintCount; i++ ) {
+				RectTransform oldItem = content.GetChild(content.childCount - deletedItemTypeEnd - 1) as RectTransform;
 				size = Mathf.Max(GetSize(oldItem), size);
-				AssetService.Recycle(oldItem);
-
+				ReturnToTempPool(false);
+				availableChilds--;
 				itemTypeEnd--;
-				if( itemTypeEnd % contentConstraintCount == 0 || content.childCount == 0 ) {
+				if( itemTypeEnd % contentConstraintCount == 0 || availableChilds == 0 ) {
 					break; //just delete the whole row
 				}
 			}
 
 			if( reverseDirection ) {
-				var offset = GetVector(size);
+				Vector2 offset = GetVector(size);
 				content.anchoredPosition += offset;
 				m_PrevPosition += offset;
 				m_ContentStartPosition += offset;
@@ -644,11 +699,47 @@ namespace Extend.UI.Scroll {
 			return size;
 		}
 
-		private RectTransform InstantiateNextItem(int itemIdx) {
-			var nextItem = CellAsset.Instantiate(content).transform as RectTransform;
-			nextItem.gameObject.SetActive(true);
+		int deletedItemTypeStart = 0;
+		int deletedItemTypeEnd = 0;
+
+		protected RectTransform GetFromTempPool(int itemIdx) {
+			RectTransform nextItem = null;
+			if( deletedItemTypeStart > 0 ) {
+				deletedItemTypeStart--;
+				nextItem = content.GetChild(0) as RectTransform;
+				nextItem.SetSiblingIndex(itemIdx - itemTypeStart + deletedItemTypeStart);
+			}
+			else if( deletedItemTypeEnd > 0 ) {
+				deletedItemTypeEnd--;
+				nextItem = content.GetChild(content.childCount - 1) as RectTransform;
+				nextItem.SetSiblingIndex(itemIdx - itemTypeStart + deletedItemTypeStart);
+			}
+			else {
+				nextItem = CellAsset.Instantiate(content).transform as RectTransform;
+				nextItem.gameObject.SetActive(true);
+			}
+
 			dataSource.ProvideData(nextItem, itemIdx);
 			return nextItem;
+		}
+
+		protected void ReturnToTempPool(bool fromStart, int count = 1) {
+			if( fromStart )
+				deletedItemTypeStart += count;
+			else
+				deletedItemTypeEnd += count;
+		}
+
+		protected void ClearTempPool() {
+			while( deletedItemTypeStart > 0 ) {
+				deletedItemTypeStart--;
+				AssetService.Recycle(content.GetChild(0));
+			}
+
+			while( deletedItemTypeEnd > 0 ) {
+				deletedItemTypeEnd--;
+				AssetService.Recycle(content.GetChild(content.childCount - 1));
+			}
 		}
 		//==========LoopScrollRect==========
 
@@ -672,16 +763,16 @@ namespace Extend.UI.Scroll {
 		public virtual void GraphicUpdateComplete() {
 		}
 
-		private void UpdateCachedData() {
-			var transform = this.transform;
+		void UpdateCachedData() {
+			Transform transform = this.transform;
 			m_HorizontalScrollbarRect = m_HorizontalScrollbar == null ? null : m_HorizontalScrollbar.transform as RectTransform;
 			m_VerticalScrollbarRect = m_VerticalScrollbar == null ? null : m_VerticalScrollbar.transform as RectTransform;
 
 			// These are true if either the elements are children, or they don't exist at all.
-			var viewIsChild = ( viewRect.parent == transform );
-			var hScrollbarIsChild = ( !m_HorizontalScrollbarRect || m_HorizontalScrollbarRect.parent == transform );
-			var vScrollbarIsChild = ( !m_VerticalScrollbarRect || m_VerticalScrollbarRect.parent == transform );
-			var allAreChildren = ( viewIsChild && hScrollbarIsChild && vScrollbarIsChild );
+			bool viewIsChild = ( viewRect.parent == transform );
+			bool hScrollbarIsChild = ( !m_HorizontalScrollbarRect || m_HorizontalScrollbarRect.parent == transform );
+			bool vScrollbarIsChild = ( !m_VerticalScrollbarRect || m_VerticalScrollbarRect.parent == transform );
+			bool allAreChildren = ( viewIsChild && hScrollbarIsChild && vScrollbarIsChild );
 
 			m_HSliderExpand = allAreChildren && m_HorizontalScrollbarRect && horizontalScrollbarVisibility == ScrollbarVisibility.AutoHideAndExpandViewport;
 			m_VSliderExpand = allAreChildren && m_VerticalScrollbarRect && verticalScrollbarVisibility == ScrollbarVisibility.AutoHideAndExpandViewport;
@@ -715,11 +806,6 @@ namespace Extend.UI.Scroll {
 			base.OnDisable();
 		}
 
-		protected override void OnDestroy() {
-			CellAsset?.Dispose();
-			base.OnDestroy();
-		}
-
 		public override bool IsActive() {
 			return base.IsActive() && m_Content != null;
 		}
@@ -740,7 +826,7 @@ namespace Extend.UI.Scroll {
 			EnsureLayoutHasRebuilt();
 			UpdateBounds();
 
-			var delta = data.scrollDelta;
+			Vector2 delta = data.scrollDelta;
 			// Down is positive for scroll events, while in UI system up is positive.
 			delta.y *= -1;
 			if( vertical && !horizontal ) {
@@ -755,7 +841,7 @@ namespace Extend.UI.Scroll {
 				delta.y = 0;
 			}
 
-			var position = m_Content.anchoredPosition;
+			Vector2 position = m_Content.anchoredPosition;
 			position += delta * m_ScrollSensitivity;
 			if( m_MovementType == MovementType.Clamped )
 				position += CalculateOffset(position - m_Content.anchoredPosition);
@@ -807,10 +893,10 @@ namespace Extend.UI.Scroll {
 			UpdateBounds();
 
 			var pointerDelta = localCursor - m_PointerStartLocalCursor;
-			var position = m_ContentStartPosition + pointerDelta;
+			Vector2 position = m_ContentStartPosition + pointerDelta;
 
 			// Offset to get content into place in the view.
-			var offset = CalculateOffset(position - m_Content.anchoredPosition);
+			Vector2 offset = CalculateOffset(position - m_Content.anchoredPosition);
 			position += offset;
 			if( m_MovementType == MovementType.Elastic ) {
 				//==========LoopScrollRect==========
@@ -830,7 +916,7 @@ namespace Extend.UI.Scroll {
 			if( !m_Vertical )
 				position.y = m_Content.anchoredPosition.y;
 
-			if( position != m_Content.anchoredPosition ) {
+			if( ( position - m_Content.anchoredPosition ).sqrMagnitude > 0.001f ) {
 				m_Content.anchoredPosition = position;
 				UpdateBounds(true);
 			}
@@ -843,14 +929,14 @@ namespace Extend.UI.Scroll {
 			EnsureLayoutHasRebuilt();
 			UpdateScrollbarVisibility();
 			UpdateBounds();
-			var deltaTime = Time.unscaledDeltaTime;
-			var offset = CalculateOffset(Vector2.zero);
+			float deltaTime = Time.unscaledDeltaTime;
+			Vector2 offset = CalculateOffset(Vector2.zero);
 			if( !m_Dragging && ( offset != Vector2.zero || m_Velocity != Vector2.zero ) ) {
-				var position = m_Content.anchoredPosition;
-				for( var axis = 0; axis < 2; axis++ ) {
+				Vector2 position = m_Content.anchoredPosition;
+				for( int axis = 0; axis < 2; axis++ ) {
 					// Apply spring physics if movement is elastic and content has an offset from the view.
 					if( m_MovementType == MovementType.Elastic && offset[axis] != 0 ) {
-						var speed = m_Velocity[axis];
+						float speed = m_Velocity[axis];
 						position[axis] = Mathf.SmoothDamp(m_Content.anchoredPosition[axis], m_Content.anchoredPosition[axis] + offset[axis], ref speed,
 							m_Elasticity, Mathf.Infinity, deltaTime);
 						m_Velocity[axis] = speed;
@@ -903,8 +989,9 @@ namespace Extend.UI.Scroll {
 			if( m_HorizontalScrollbar ) {
 				//==========LoopScrollRect==========
 				if( m_ContentBounds.size.x > 0 && totalCount > 0 ) {
-					m_HorizontalScrollbar.size =
-						Mathf.Clamp01(( m_ViewBounds.size.x - Mathf.Abs(offset.x) ) / m_ContentBounds.size.x * CurrentLines / TotalLines);
+					float elementSize = ( m_ContentBounds.size.x - contentSpacing * ( CurrentLines - 1 ) ) / CurrentLines;
+					float totalSize = elementSize * TotalLines + contentSpacing * ( TotalLines - 1 );
+					m_HorizontalScrollbar.size = Mathf.Clamp01(( m_ViewBounds.size.x - Mathf.Abs(offset.x) ) / totalSize);
 				}
 				//==========LoopScrollRect==========
 				else
@@ -916,8 +1003,9 @@ namespace Extend.UI.Scroll {
 			if( m_VerticalScrollbar ) {
 				//==========LoopScrollRect==========
 				if( m_ContentBounds.size.y > 0 && totalCount > 0 ) {
-					m_VerticalScrollbar.size =
-						Mathf.Clamp01(( m_ViewBounds.size.y - Mathf.Abs(offset.y) ) / m_ContentBounds.size.y * CurrentLines / TotalLines);
+					float elementSize = ( m_ContentBounds.size.y - contentSpacing * ( CurrentLines - 1 ) ) / CurrentLines;
+					float totalSize = elementSize * TotalLines + contentSpacing * ( TotalLines - 1 );
+					m_VerticalScrollbar.size = Mathf.Clamp01(( m_ViewBounds.size.y - Mathf.Abs(offset.y) ) / totalSize);
 				}
 				//==========LoopScrollRect==========
 				else
@@ -928,7 +1016,7 @@ namespace Extend.UI.Scroll {
 		}
 
 		public Vector2 normalizedPosition {
-			get => new Vector2(horizontalNormalizedPosition, verticalNormalizedPosition);
+			get { return new Vector2(horizontalNormalizedPosition, verticalNormalizedPosition); }
 			set {
 				SetNormalizedPosition(value.x, 0);
 				SetNormalizedPosition(value.y, 1);
@@ -940,10 +1028,9 @@ namespace Extend.UI.Scroll {
 				UpdateBounds();
 				//==========LoopScrollRect==========
 				if( totalCount > 0 && itemTypeEnd > itemTypeStart ) {
-					//TODO: consider contentSpacing
-					var elementSize = m_ContentBounds.size.x / CurrentLines;
-					var totalSize = elementSize * TotalLines;
-					var offset = m_ContentBounds.min.x - elementSize * StartLine;
+					float elementSize = ( m_ContentBounds.size.x - contentSpacing * ( CurrentLines - 1 ) ) / CurrentLines;
+					float totalSize = elementSize * TotalLines + contentSpacing * ( TotalLines - 1 );
+					float offset = m_ContentBounds.min.x - elementSize * StartLine - contentSpacing * StartLine;
 
 					if( totalSize <= m_ViewBounds.size.x )
 						return ( m_ViewBounds.min.x > offset ) ? 1 : 0;
@@ -951,10 +1038,9 @@ namespace Extend.UI.Scroll {
 				}
 				else
 					return 0.5f;
-
 				//==========LoopScrollRect==========
 			}
-			set => SetNormalizedPosition(value, 0);
+			set { SetNormalizedPosition(value, 0); }
 		}
 
 		public float verticalNormalizedPosition {
@@ -962,10 +1048,9 @@ namespace Extend.UI.Scroll {
 				UpdateBounds();
 				//==========LoopScrollRect==========
 				if( totalCount > 0 && itemTypeEnd > itemTypeStart ) {
-					//TODO: consider contentSpacinge
-					var elementSize = m_ContentBounds.size.y / CurrentLines;
-					var totalSize = elementSize * TotalLines;
-					var offset = m_ContentBounds.max.y + elementSize * StartLine;
+					float elementSize = ( m_ContentBounds.size.y - contentSpacing * ( CurrentLines - 1 ) ) / CurrentLines;
+					float totalSize = elementSize * TotalLines + contentSpacing * ( TotalLines - 1 );
+					float offset = m_ContentBounds.max.y + elementSize * StartLine + contentSpacing * StartLine;
 
 					if( totalSize <= m_ViewBounds.size.y )
 						return ( offset > m_ViewBounds.max.y ) ? 1 : 0;
@@ -973,10 +1058,9 @@ namespace Extend.UI.Scroll {
 				}
 				else
 					return 0.5f;
-
 				//==========LoopScrollRect==========
 			}
-			set => SetNormalizedPosition(value, 1);
+			set { SetNormalizedPosition(value, 1); }
 		}
 
 		private void SetHorizontalNormalizedPosition(float value) {
@@ -997,19 +1081,19 @@ namespace Extend.UI.Scroll {
 			UpdateBounds();
 
 			//==========LoopScrollRect==========
-			var localPosition = m_Content.localPosition;
-			var newLocalPosition = localPosition[axis];
+			Vector3 localPosition = m_Content.localPosition;
+			float newLocalPosition = localPosition[axis];
 			if( axis == 0 ) {
-				var elementSize = m_ContentBounds.size.x / CurrentLines;
-				var totalSize = elementSize * TotalLines;
-				var offset = m_ContentBounds.min.x - elementSize * StartLine;
+				float elementSize = ( m_ContentBounds.size.x - contentSpacing * ( CurrentLines - 1 ) ) / CurrentLines;
+				float totalSize = elementSize * TotalLines + contentSpacing * ( TotalLines - 1 );
+				float offset = m_ContentBounds.min.x - elementSize * StartLine - contentSpacing * StartLine;
 
 				newLocalPosition += m_ViewBounds.min.x - value * ( totalSize - m_ViewBounds.size[axis] ) - offset;
 			}
 			else if( axis == 1 ) {
-				var elementSize = m_ContentBounds.size.y / CurrentLines;
-				var totalSize = elementSize * TotalLines;
-				var offset = m_ContentBounds.max.y + elementSize * StartLine;
+				float elementSize = ( m_ContentBounds.size.y - contentSpacing * ( CurrentLines - 1 ) ) / CurrentLines;
+				float totalSize = elementSize * TotalLines + contentSpacing * ( TotalLines - 1 );
+				float offset = m_ContentBounds.max.y + elementSize * StartLine + contentSpacing * StartLine;
 
 				newLocalPosition -= offset - value * ( totalSize - m_ViewBounds.size.y ) - m_ViewBounds.max.y;
 			}
@@ -1053,19 +1137,31 @@ namespace Extend.UI.Scroll {
 		public virtual void CalculateLayoutInputVertical() {
 		}
 
-		public virtual float minWidth => -1;
+		public virtual float minWidth {
+			get { return -1; }
+		}
 
-		public virtual float preferredWidth => -1;
+		public virtual float preferredWidth {
+			get { return -1; }
+		}
 
 		public virtual float flexibleWidth { get; private set; }
 
-		public virtual float minHeight => -1;
+		public virtual float minHeight {
+			get { return -1; }
+		}
 
-		public virtual float preferredHeight => -1;
+		public virtual float preferredHeight {
+			get { return -1; }
+		}
 
-		public virtual float flexibleHeight => -1;
+		public virtual float flexibleHeight {
+			get { return -1; }
+		}
 
-		public virtual int layoutPriority => -1;
+		public virtual int layoutPriority {
+			get { return -1; }
+		}
 
 		public virtual void SetLayoutHorizontal() {
 			m_Tracker.Clear();
@@ -1184,9 +1280,9 @@ namespace Extend.UI.Scroll {
 			// We use the pivot of the content rect to decide in which directions the content bounds should be expanded.
 			// E.g. if pivot is at top, bounds are expanded downwards.
 			// This also works nicely when ContentSizeFitter is used on the content.
-			var contentSize = m_ContentBounds.size;
-			var contentPos = m_ContentBounds.center;
-			var excess = m_ViewBounds.size - contentSize;
+			Vector3 contentSize = m_ContentBounds.size;
+			Vector3 contentPos = m_ContentBounds.center;
+			Vector3 excess = m_ViewBounds.size - contentSize;
 			if( excess.x > 0 ) {
 				contentPos.x -= excess.x * ( m_Content.pivot.x - 0.5f );
 				contentSize.x = m_ViewBounds.size.x;
@@ -1212,8 +1308,8 @@ namespace Extend.UI.Scroll {
 
 			var toLocal = viewRect.worldToLocalMatrix;
 			m_Content.GetWorldCorners(m_Corners);
-			for( var j = 0; j < 4; j++ ) {
-				var v = toLocal.MultiplyPoint3x4(m_Corners[j]);
+			for( int j = 0; j < 4; j++ ) {
+				Vector3 v = toLocal.MultiplyPoint3x4(m_Corners[j]);
 				vMin = Vector3.Min(v, vMin);
 				vMax = Vector3.Max(v, vMax);
 			}
@@ -1223,7 +1319,7 @@ namespace Extend.UI.Scroll {
 			return bounds;
 		}
 
-		private Bounds GetBounds4Item(int index) {
+		public Bounds GetBounds4Item(int index) {
 			if( m_Content == null )
 				return new Bounds();
 
@@ -1231,15 +1327,15 @@ namespace Extend.UI.Scroll {
 			var vMax = new Vector3(float.MinValue, float.MinValue, float.MinValue);
 
 			var toLocal = viewRect.worldToLocalMatrix;
-			var offset = index - itemTypeStart;
+			int offset = index - itemTypeStart;
 			if( offset < 0 || offset >= m_Content.childCount )
 				return new Bounds();
 			var rt = m_Content.GetChild(offset) as RectTransform;
 			if( rt == null )
 				return new Bounds();
 			rt.GetWorldCorners(m_Corners);
-			for( var j = 0; j < 4; j++ ) {
-				var v = toLocal.MultiplyPoint3x4(m_Corners[j]);
+			for( int j = 0; j < 4; j++ ) {
+				Vector3 v = toLocal.MultiplyPoint3x4(m_Corners[j]);
 				vMin = Vector3.Min(v, vMin);
 				vMax = Vector3.Max(v, vMax);
 			}
@@ -1250,7 +1346,7 @@ namespace Extend.UI.Scroll {
 		}
 
 		private Vector2 CalculateOffset(Vector2 delta) {
-			var offset = Vector2.zero;
+			Vector2 offset = Vector2.zero;
 			if( m_MovementType == MovementType.Unrestricted )
 				return offset;
 			if( m_MovementType == MovementType.Clamped ) {
