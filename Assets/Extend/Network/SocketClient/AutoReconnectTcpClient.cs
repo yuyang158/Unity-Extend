@@ -72,7 +72,6 @@ namespace Extend.Network.SocketClient {
 			}
 		}
 
-		public EncryptHandler encryptHandler;
 		private byte[] m_cyphertextBuffer = new byte[65536];
 		private int m_cyphertextOffset;
 
@@ -85,7 +84,6 @@ namespace Extend.Network.SocketClient {
 			m_statusChangedCallback = m_callback.Get<OnSocketStatusChanged>("OnStatusChanged");
 			m_receivePackageCallback = m_callback.Get<OnRecvData>("OnRecvPackage");
 			updateCallback = m_callback.Get<LuaUpdate>("OnUpdate");
-			encryptHandler = new EncryptNoneHandler();
 
 			var service = CSharpServiceManager.Get<NetworkService>(CSharpServiceManager.ServiceType.NETWORK_SERVICE);
 			service.RegisterTcpClient(this);
@@ -100,7 +98,6 @@ namespace Extend.Network.SocketClient {
 
 		public async void Send(byte[] buffer) {
 			try {
-				encryptHandler.Encrypt(ref buffer);
 				StatService.Get().Increase(StatService.StatName.TCP_SENT, buffer.Length);
 				await m_client.GetStream().WriteAsync(buffer, 0, buffer.Length);
 				await m_client.GetStream().FlushAsync();
@@ -135,25 +132,15 @@ namespace Extend.Network.SocketClient {
 			var stream = m_client.GetStream();
 			while( m_client.Connected && Application.isPlaying ) {
 				if( stream.CanRead ) {
-					int recvCyphertextCount;
-					int recvPlaintextCount;
+					int count = 0;
 					try {
-						recvCyphertextCount = await stream.ReadAsync(m_cyphertextBuffer, 0, m_cyphertextBuffer.Length);
+						count = await stream.ReadAsync(m_receiveBuffer, 0, m_cyphertextBuffer.Length);
 					}
 					catch( Exception ) {
 						TcpStatus = Status.DISCONNECTED;
 						return;
 					}
-
-					// 解密部分
-					byte[] tempCache = new byte[recvCyphertextCount];
-					Array.Copy(m_cyphertextBuffer, tempCache, recvCyphertextCount);
-					encryptHandler.Decrypt(ref tempCache);
-					// 解密部分拷贝至明文buffer
-					recvPlaintextCount = tempCache.Length;
-					Array.Copy(tempCache, 0, m_receiveBuffer, m_receiveOffset, recvPlaintextCount);
-					m_receiveOffset += recvPlaintextCount;
-					StatService.Get().Increase(StatService.StatName.TCP_RECEIVED, recvPlaintextCount);
+					StatService.Get().Increase(StatService.StatName.TCP_RECEIVED, count);
 
 					var readOffset = 0;
 					while( true ) {

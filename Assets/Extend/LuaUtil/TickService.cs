@@ -6,7 +6,7 @@ using XLua;
 namespace Extend.LuaUtil {
 	[CSharpCallLua]
 	public class TickService : IService, IServiceUpdate {
-		public CSharpServiceManager.ServiceType ServiceType => CSharpServiceManager.ServiceType.TICK_SERVICE;
+		public int ServiceType => (int)CSharpServiceManager.ServiceType.TICK_SERVICE;
 		[CSharpCallLua]
 		private Action<float> m_tick;
 		

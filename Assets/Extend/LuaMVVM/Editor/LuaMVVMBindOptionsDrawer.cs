@@ -117,11 +117,6 @@ namespace Extend.LuaMVVM.Editor {
 							names.Add("OnUp");
 							names.Add("OnDrag");
 						}
-						else if (typ == typeof(LuaBindingClickLongTapEvent))
-						{
-							names.Add("OnClick");
-							names.Add("OnLongTap");
-						}
 					}
 					else {
 						var typ = bindTargetProp.objectReferenceValue.GetType();

@@ -92,11 +92,6 @@ namespace Extend {
 #else
 			Default.AddLoader((ref string filename) => LoadFile(ref filename, ".lua"));
 #endif
-#if UNITY_EDITOR
-			Default.SetProtoLoader((ref string filename) => LoadFile(ref filename, ".proto"));
-#else
-			Default.SetProtoLoader((ref string filename) => LoadFile(ref filename, ""));
-#endif
 
 			var setupNewCallback = LoadFileAtPath("base.class")[0] as LuaFunction;
 			setupNewCallback.Action(m_newClassCallback);
