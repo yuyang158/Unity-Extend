@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using Extend.Common;
 using Extend.LuaBindingData;
 using Extend.LuaUtil;
@@ -25,9 +26,11 @@ namespace Extend {
 				return;
 			LuaClass = klass;
 			CachedClass = luaVM.GetLuaClass(klass);
-			
+
 			var constructor = CachedClass.GetLuaMethod<LuaBindingClassNew>("new");
 			var luaInstance = constructor?.Invoke(gameObject);
+			luaInstance.SetInPath("name", Path.GetFileName(LuaFile.Substring(LuaFile.LastIndexOf('.') + 1)));
+			luaInstance.SetInPath("fullname", LuaFile);
 			Bind(luaInstance);
 
 			var awake = CachedClass.GetLuaMethod<LuaUnityEventFunction>("awake");
@@ -40,10 +43,14 @@ namespace Extend {
 		}
 
 		private void OnDestroy() {
-			if(!CSharpServiceManager.Initialized)
+			if( !CSharpServiceManager.Initialized )
 				return;
 			var destroy = CachedClass.GetLuaMethod<LuaUnityEventFunction>("destroy");
 			destroy?.Invoke(LuaInstance);
+#if UNITY_DEBUG
+			var luaVm = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
+			LuaInstance.SetMetaTable(luaVm.DestroyedTableMeta);
+#endif
 			LuaInstance?.Dispose();
 			LuaInstance = null;
 

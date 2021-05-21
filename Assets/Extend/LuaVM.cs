@@ -12,11 +12,15 @@ using Debug = UnityEngine.Debug;
 namespace Extend {
 	public class LuaVM : IService, IServiceUpdate, IDisposable {
 		private LuaMemoryLeakChecker.Data leakData;
+#if !UNITY_EDITOR
 		private static readonly string LUA_DEBUG_DIRECTORY = Application.persistentDataPath + "/Lua/";
+#endif
 		private LuaFunction OnDestroy;
 		private LuaFunction OnInit;
 		private LuaEnv Default { get; set; }
 		public LuaTable Global => Default.Global;
+		public LuaTable DestroyedTableMeta { private set; get; }
+
 		public static Action OnPreRequestLoaded;
 
 		public LuaTable NewTable() {
@@ -41,7 +45,7 @@ namespace Extend {
 			return Default.DoString(code, chunkName);
 		}
 
-		public CSharpServiceManager.ServiceType ServiceType => CSharpServiceManager.ServiceType.LUA_SERVICE;
+		public int ServiceType => (int)CSharpServiceManager.ServiceType.LUA_SERVICE;
 		private SetupLuaNewClassCallback m_newClassCallback;
 
 		private void OnLuaNewClass(LuaTable classMeta, LuaTable parentClassMeta) {
@@ -88,6 +92,11 @@ namespace Extend {
 #else
 			Default.AddLoader((ref string filename) => LoadFile(ref filename, ".lua"));
 #endif
+#if UNITY_EDITOR
+			Default.SetProtoLoader((ref string filename) => LoadFile(ref filename, ".proto"));
+#else
+			Default.SetProtoLoader((ref string filename) => LoadFile(ref filename, ""));
+#endif
 
 			var setupNewCallback = LoadFileAtPath("base.class")[0] as LuaFunction;
 			setupNewCallback.Action(m_newClassCallback);
@@ -103,6 +112,8 @@ namespace Extend {
 				leakData = Default.StartMemoryLeakCheck();
 #endif
 			AssetService.Get().AddAfterDestroy(this);
+
+			DestroyedTableMeta = Global.Get<LuaTable>("DestroyedTableMeta");
 		}
 
 		public void StartUp() {
