@@ -11,7 +11,7 @@ namespace Extend.Render {
 			return CSharpServiceManager.Get<RenderFeatureService>(CSharpServiceManager.ServiceType.RENDER_FEATURE);
 		}
 
-		public CSharpServiceManager.ServiceType ServiceType => CSharpServiceManager.ServiceType.RENDER_FEATURE;
+		public int ServiceType => (int)CSharpServiceManager.ServiceType.RENDER_FEATURE;
 		private RenderTexture m_targetTexture;
 
 		[BlackList]
