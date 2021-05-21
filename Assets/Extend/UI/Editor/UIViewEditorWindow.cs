@@ -5,6 +5,7 @@ using ListView;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Extend.UI.Editor {
 	public class UIViewTreeItem : TreeViewItem {
@@ -30,17 +31,27 @@ namespace Extend.UI.Editor {
 			serializedObject = new SerializedObject(context);
 		}
 
+		public string SearchText { get; set; }
+
 		public MultiColumnHeader Header => new MultiColumnHeader(new MultiColumnHeaderState(new[] {
+			new MultiColumnHeaderState.Column {headerContent = new GUIContent(EditorGUIUtility.FindTexture("console.erroricon")), width = 1},
 			new MultiColumnHeaderState.Column {headerContent = new GUIContent("Name"), width = 10},
 			new MultiColumnHeaderState.Column {headerContent = new GUIContent("UI View"), width = 20, canSort = false},
 			new MultiColumnHeaderState.Column {headerContent = new GUIContent("Background Fx"), width = 10, canSort = false},
 			new MultiColumnHeaderState.Column {headerContent = new GUIContent("Full Screen"), width = 5, canSort = false},
 			new MultiColumnHeaderState.Column {headerContent = new GUIContent("Attach Layer"), width = 10, canSort = false},
-			new MultiColumnHeaderState.Column {headerContent = new GUIContent("Transition"), width = 10, canSort = false}
+			new MultiColumnHeaderState.Column {headerContent = new GUIContent("Transition"), width = 10, canSort = false},
+			new MultiColumnHeaderState.Column {headerContent = new GUIContent("Close"), width = 10, canSort = false},
+			new MultiColumnHeaderState.Column {headerContent = new GUIContent("CloseButtonPath"), width = 10, canSort = false}
 		}));
 
 		public List<TreeViewItem> GetData() {
-			return configurationContext.Configurations.Select(configuration => new UIViewTreeItem(configuration)).Cast<TreeViewItem>().ToList();
+			return configurationContext.Configurations
+				.Where(configuration =>
+					string.IsNullOrEmpty(SearchText) || configuration.Name.IndexOf(SearchText, StringComparison.InvariantCultureIgnoreCase) != -1)
+				.Select(configuration => new UIViewTreeItem(configuration))
+				.Cast<TreeViewItem>()
+				.ToList();
 		}
 
 		public List<TreeViewItem> GetSortedData(int columnIndex, bool isAscending) {
@@ -49,7 +60,36 @@ namespace Extend.UI.Editor {
 			return items;
 		}
 
-		private static readonly string[] columnIndexToFieldName = {"Name", "UIView", "BackgroundFx", "FullScreen", "AttachLayer", "Transition"};
+		private static readonly string[] columnIndexToFieldName = {
+			"Name",
+			"UIView",
+			"BackgroundFx",
+			"FullScreen",
+			"AttachLayer",
+			"Transition",
+			"CloseMethod",
+			"CloseButtonPath"
+		};
+
+		private static string FindNodeWithName(Transform nodeToSearch, string name) {
+			if( nodeToSearch.name == name ) {
+				return name;
+			}
+
+			for( int i = 0; i < nodeToSearch.childCount; i++ ) {
+				var t = nodeToSearch.GetChild(i);
+				var path = FindNodeWithName(t, name);
+				if( !string.IsNullOrEmpty(path) ) {
+					if( nodeToSearch.parent == null ) {
+						return path;
+					}
+					path = $"{nodeToSearch.name}/{path}";
+					return path;
+				}
+			}
+
+			return string.Empty;
+		}
 
 		public void Draw(Rect rect, int columnIndex, UIViewTreeItem data, bool selected) {
 			var index = Array.IndexOf(configurationContext.Configurations, data.Configuration);
@@ -62,11 +102,65 @@ namespace Extend.UI.Editor {
 			var configurations = serializedObject.FindProperty("m_configurations");
 			var element = configurations.GetArrayElementAtIndex(index);
 
-			var fieldName = columnIndexToFieldName[columnIndex];
-			var prop = element.FindPropertyRelative(fieldName);
+			if( columnIndex == 0 ) {
+				var error = string.Empty;
+				do {
+					var sameNameCount = configurationContext.Configurations.Count(configuration => configuration.Name == data.Configuration.Name);
+					if( sameNameCount > 1 ) {
+						error = "Name duplicate";
+						break;
+					}
 
-			EditorGUI.BeginChangeCheck();
-			EditorGUI.PropertyField(rect, prop, GUIContent.none);
+					if( !data.Configuration.FullScreen ) {
+						var bg = data.Configuration.BackgroundFx;
+						if( bg is {GUIDValid: false} ) {
+							error = "Background is required for a non-full screen view";
+							break;
+						}
+					}
+
+					if( data.Configuration.UIView is {GUIDValid: false} ) {
+						error = "UI View can not be empty";
+						break;
+					}
+
+					if( data.Configuration.CloseMethod == CloseOption.Button ) {
+						var path = AssetDatabase.GUIDToAssetPath(data.Configuration.UIView.AssetGUID);
+						var go = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+						if( string.IsNullOrEmpty(data.Configuration.CloseButtonPath) || !go.transform.Find(data.Configuration.CloseButtonPath) ) {
+							data.Configuration.CloseButtonPath = FindNodeWithName(go.transform, "ebtn_close");
+							if( string.IsNullOrEmpty(data.Configuration.CloseButtonPath) ) {
+								error = "Can`t find node with name ebtn_close";
+								break;
+							}
+							var button = go.transform.Find(data.Configuration.CloseButtonPath).GetComponent<Button>();
+							if( !button ) {
+								error = "Need component Button : " + data.Configuration.CloseButtonPath;
+								data.Configuration.CloseButtonPath = "";
+								break;
+							}
+							serializedObject.UpdateIfRequiredOrScript();
+						}
+					}
+				} while( false );
+
+				if( !string.IsNullOrEmpty(error) ) {
+					EditorGUI.LabelField(rect, new GUIContent(EditorGUIUtility.FindTexture("console.erroricon"), error));
+				}
+
+				return;
+			}
+
+			var fieldName = columnIndexToFieldName[columnIndex - 1];
+			if( columnIndex == columnIndexToFieldName.Length ) {
+				if( data.Configuration.CloseMethod == CloseOption.Button ) {
+					EditorGUI.LabelField(rect, data.Configuration.CloseButtonPath);
+				}
+			}
+			else {
+				var prop = element.FindPropertyRelative(fieldName);
+				EditorGUI.PropertyField(rect, prop, GUIContent.none);
+			}
 		}
 
 		public void OnItemClick(int id) {
@@ -93,12 +187,11 @@ namespace Extend.UI.Editor {
 
 		public void Save() {
 			serializedObject.ApplyModifiedProperties();
-			EditorUtility.SetDirty(configurationContext);
-			AssetDatabase.SaveAssets();
+			configurationContext.Save();
 		}
 
-		public void Revert() {
-			serializedObject.UpdateIfRequiredOrScript();
+		public void ApplyChange() {
+			serializedObject.ApplyModifiedProperties();
 		}
 	}
 
@@ -108,6 +201,7 @@ namespace Extend.UI.Editor {
 
 		private UIViewDelegate _delegate;
 		private bool refreshFlag;
+		private SearchField m_searchField;
 
 		[MenuItem("Window/UIView Window")]
 		private static void OpenWindow() {
@@ -122,27 +216,52 @@ namespace Extend.UI.Editor {
 			window.Show();
 		}
 
-		private void OnEnable() {
-			const string path = "Assets/Resources/" + UIViewConfiguration.FILE_PATH + ".asset";
-			var uiViewConfiguration = AssetDatabase.LoadAssetAtPath<UIViewConfiguration>(path);
-			if( !uiViewConfiguration ) {
-				uiViewConfiguration = CreateInstance<UIViewConfiguration>();
-				AssetDatabase.CreateAsset(uiViewConfiguration, path);
+		private void OnEnterEditorMode(PlayModeStateChange change) {
+			if( change == PlayModeStateChange.EnteredEditMode ) {
+				Reset();
+				Repaint();
 			}
+		}
 
+		private void OnEnable() {
+			Reset();
+			EditorApplication.playModeStateChanged += OnEnterEditorMode;
+		}
+
+		private void Reset() {
+			var uiViewConfiguration = UIViewConfiguration.Load();
 			_delegate = new UIViewDelegate(uiViewConfiguration);
 			listView = new ListView<UIViewTreeItem>(_delegate);
 			listView.Refresh();
+			m_searchField = new SearchField();
+		}
+
+		private void OnDisable() {
+			_delegate = null;
+			EditorApplication.playModeStateChanged -= OnEnterEditorMode;
 		}
 
 		private void OnGUI() {
 			ButtonsGUI();
-			var controlRect = EditorGUILayout.GetControlRect(GUILayout.ExpandHeight(true), GUILayout.ExpandWidth(true));
+			var controlRect = EditorGUILayout.GetControlRect(GUILayout.Height(EditorGUIUtility.singleLineHeight),
+				GUILayout.ExpandWidth(true));
+			var searchText = m_searchField.OnGUI(controlRect, _delegate.SearchText);
+			controlRect = EditorGUILayout.GetControlRect(GUILayout.ExpandHeight(true), GUILayout.ExpandWidth(true));
+			if( _delegate.SearchText != searchText ) {
+				refreshFlag = true;
+				_delegate.SearchText = searchText;
+			}
+
 			if( refreshFlag ) {
 				listView?.Refresh();
 			}
 
+			EditorGUI.BeginChangeCheck();
 			listView?.OnGUI(controlRect);
+			if( EditorGUI.EndChangeCheck() ) {
+				_delegate.ApplyChange();
+			}
+
 			refreshFlag = false;
 		}
 
@@ -159,8 +278,7 @@ namespace Extend.UI.Editor {
 			}
 
 			if( GUILayout.Button("Revert") ) {
-				_delegate.Revert();
-				refreshFlag = true;
+				Reset();
 			}
 
 			if( GUILayout.Button("Save") ) {
