@@ -36,13 +36,26 @@ namespace Extend.Common {
 		}
 
 		[LuaCallCSharp]
+		public static void SetParent(this GameObject go, Component parent, bool stayWorld = false) {
+			go.transform.SetParent(parent.transform, stayWorld);
+		}
+
 		public static T GetOrAddComponent<T>(this GameObject gameObject) where T : Component {
 			return gameObject.GetComponent<T>() ?? gameObject.AddComponent<T>();
 		}
 
-		[LuaCallCSharp]
 		public static T GetOrAddComponent<T>(this Component component) where T : Component {
 			return component.GetComponent<T>() ?? component.gameObject.AddComponent<T>();
+		}
+		
+		[LuaCallCSharp]
+		public static Component GetOrAddComponent(this GameObject gameObject, Type componentType) {
+			return gameObject.GetComponent(componentType) ?? gameObject.AddComponent(componentType);
+		}
+
+		[LuaCallCSharp]
+		public static Component GetOrAddComponent(this Component component, Type componentType) {
+			return component.GetComponent(componentType) ?? component.gameObject.AddComponent(componentType);
 		}
 	}
 }

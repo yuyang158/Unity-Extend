@@ -68,7 +68,7 @@ namespace Extend.Common {
 		}
 
 		public bool GetBool(string section, string key) {
-			return FindOne(section, key, out var val) && (val == "true" || val == "false");
+			return FindOne(section, key, out var val) && (val == "true" || val == "1");
 		}
 
 		public string GetString(string section, string key) {

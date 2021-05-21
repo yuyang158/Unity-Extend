@@ -5,7 +5,7 @@ using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace Extend.Asset {
-	public class AssetPool : IDisposable {
+	internal class AssetPool : IDisposable {
 		private int PreferSize { get; }
 
 		private int MaxSize { get; }
@@ -14,7 +14,7 @@ namespace Extend.Asset {
 		private readonly PrefabAssetInstance m_assetInstance;
 		private float m_cacheStart;
 
-		public Transform PoolNode { get; }
+		private Transform PoolNode { get; }
 
 		public AssetPool(string name, int prefer, int max, PrefabAssetInstance assetInstance) {
 			PreferSize = prefer;
@@ -22,8 +22,7 @@ namespace Extend.Asset {
 			m_assetInstance = assetInstance;
 			m_cached = new List<GameObject>(MaxSize);
 			PoolNode = new GameObject(name).transform;
-			Object.DontDestroyOnLoad(PoolNode);
-			AssetService.Get().AddPool(this);
+			PoolNode.SetParent(AssetService.Get().PoolRootNode);
 		}
 
 		public void WarmUp() {

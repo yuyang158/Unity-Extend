@@ -10,7 +10,7 @@ namespace Extend.Common {
 			return CSharpServiceManager.Get<GlobalCoroutineRunnerService>(CSharpServiceManager.ServiceType.COROUTINE_SERVICE);
 		}
 		
-		public CSharpServiceManager.ServiceType ServiceType => CSharpServiceManager.ServiceType.COROUTINE_SERVICE;
+		public int ServiceType => (int)CSharpServiceManager.ServiceType.COROUTINE_SERVICE;
 		private CSharpServiceManager m_service;
 		public void Initialize() {
 			m_service = CSharpServiceManager.Instance;
@@ -32,10 +32,20 @@ namespace Extend.Common {
 			yield return second;
 			callback();
 		}
+		
+		private IEnumerator _WaitEndOfFrame(Action callback) {
+			var wait = new WaitForEndOfFrame();
+			yield return wait;
+			callback();
+		}
 
 		public Coroutine WaitSecond(float second, Action callback) {
 			var wait = new WaitForSeconds(second);
 			return StartCoroutine(WaitSecond(wait, callback));
+		}
+		
+		public Coroutine WaitEndOfFrame(Action callback) {
+			return StartCoroutine(_WaitEndOfFrame(callback));
 		}
 
 		public void StopCoroutineLua(Coroutine co) {

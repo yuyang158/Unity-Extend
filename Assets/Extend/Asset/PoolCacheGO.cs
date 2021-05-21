@@ -1,6 +1,5 @@
 ﻿using System;
 using UnityEngine;
-using UnityEngine.Assertions;
 
 namespace Extend.Asset {
 	public class PoolCacheGO : AssetServiceManagedGO {
@@ -15,7 +14,7 @@ namespace Extend.Asset {
 		public int MaxCount => m_maxCount;
 
 		private WeakReference<AssetPool> m_sharedPool;
-		public AssetPool SharedPool {
+		internal AssetPool SharedPool {
 			private get {
 				m_sharedPool.TryGetTarget(out var pool);
 				return pool;

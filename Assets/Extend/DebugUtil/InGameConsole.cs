@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Extend.Asset;
 using Extend.Common;
 using Extend.LuaUtil;
 using TMPro;
@@ -99,7 +100,7 @@ namespace Extend.DebugUtil {
 			m_showStat = GameSystem.Get().SystemSetting.GetBool("DEBUG", "ShowStat");
 			m_logScrollVisible = GameSystem.Get().SystemSetting.GetBool("DEBUG", "LogPanelGUIVisible");
 
-			m_txtLogTemplate.fontSize = (int)( m_txtLogTemplate.fontSize * Screen.dpi / 100.0f );
+			// m_txtLogTemplate.fontSize = (int)( m_txtLogTemplate.fontSize * Screen.dpi / 100.0f );
 
 			DontDestroyOnLoad(gameObject);
 		}
@@ -340,7 +341,7 @@ namespace Extend.DebugUtil {
 
 		private static readonly List<LuaCommand> luaCommands = new List<LuaCommand>();
 
-		public CSharpServiceManager.ServiceType ServiceType => CSharpServiceManager.ServiceType.IN_GAME_CONSOLE;
+		public int ServiceType => (int)CSharpServiceManager.ServiceType.IN_GAME_CONSOLE;
 
 		public void Initialize() {
 			BuildLuaCommand();
@@ -389,6 +390,7 @@ namespace Extend.DebugUtil {
 		}
 
 		public void Destroy() {
+			AssetService.Recycle(gameObject);
 		}
 	}
 

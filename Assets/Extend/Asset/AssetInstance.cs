@@ -35,6 +35,10 @@ namespace Extend.Asset {
 			}
 		}
 
+		internal virtual void Update() {
+			
+		}
+
 		public override void Destroy() {
 			if( Status == AssetStatus.DONE ) {
 				StatService.Get().Increase(StatService.StatName.ASSET_COUNT, -1);

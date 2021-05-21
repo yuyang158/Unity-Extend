@@ -13,7 +13,7 @@ namespace Extend.Asset {
 	[LuaCallCSharp]
 	public class AssetService : IService, IServiceUpdate {
 		[BlackList]
-		public CSharpServiceManager.ServiceType ServiceType => CSharpServiceManager.ServiceType.ASSET_SERVICE;
+		public int ServiceType => (int)CSharpServiceManager.ServiceType.ASSET_SERVICE;
 
 		[BlackList]
 		public AssetContainer Container { get; } = new AssetContainer();
@@ -21,9 +21,7 @@ namespace Extend.Asset {
 		private AssetLoadProvider m_provider;
 		private Stopwatch m_stopwatch = new Stopwatch();
 		private readonly Stopwatch m_instantiateStopwatch = new Stopwatch();
-		private int m_poolUpdateIndex;
-		private Transform m_poolRootNode;
-		private readonly List<AssetPool> m_pools = new List<AssetPool>();
+		public Transform PoolRootNode { get; private set; }
 
 		private readonly Queue<AssetReference.InstantiateAsyncContext> m_deferInstantiates =
 			new Queue<AssetReference.InstantiateAsyncContext>(64);
@@ -70,7 +68,7 @@ namespace Extend.Asset {
 			var poolGO = new GameObject("Pool");
 			Object.DontDestroyOnLoad(poolGO);
 			poolGO.SetActive(false);
-			m_poolRootNode = poolGO.transform;
+			PoolRootNode = poolGO.transform;
 
 			SpriteAtlasManager.atlasRequested += (atlasName, callback) => {
 				Debug.LogWarning("Request Atlas : " + atlasName);
@@ -87,16 +85,19 @@ namespace Extend.Asset {
 
 		[BlackList]
 		public void Destroy() {
-			foreach( var pool in m_pools ) {
-				pool.Dispose();
-			}
-
 			GC.Collect();
 			foreach( var disposable in m_disposables ) {
 				disposable.Dispose();
 			}
 
 			Container.Clear();
+
+			Resources.UnloadUnusedAssets();
+			var bundles = AssetBundle.GetAllLoadedAssetBundles();
+			foreach( var bundle in bundles ) {
+				Debug.LogError($"Unreleased asset bundle : {bundle.name}");
+			}
+			AssetBundle.UnloadAllAssetBundles(true);
 		}
 
 		public void FullCollect() {
@@ -126,18 +127,6 @@ namespace Extend.Asset {
 				}
 				m_instantiateStopwatch.Stop();
 			}
-
-			if( m_pools.Count == 0 )
-				return;
-
-			if( m_poolUpdateIndex >= m_pools.Count ) {
-				m_poolUpdateIndex = 0;
-			}
-
-			var pool = m_pools[m_poolUpdateIndex];
-			pool.Update();
-			
-			m_poolUpdateIndex++;
 		}
 
 		public bool Exist(string path) {
@@ -172,11 +161,6 @@ namespace Extend.Asset {
 
 		public static void Recycle(Component component) {
 			Recycle(component.gameObject);
-		}
-
-		internal void AddPool(AssetPool pool) {
-			m_pools.Add(pool);
-			pool.PoolNode.SetParent(m_poolRootNode, false);
 		}
 
 		internal void AddDeferInstantiateContext(AssetReference.InstantiateAsyncContext context) {

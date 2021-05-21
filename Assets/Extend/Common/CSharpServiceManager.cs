@@ -6,7 +6,7 @@ using XLua;
 
 namespace Extend.Common {
 	public interface IService {
-		CSharpServiceManager.ServiceType ServiceType { get; }
+		int ServiceType { get; }
 		void Initialize();
 		void Destroy();
 	}
@@ -33,6 +33,7 @@ namespace Extend.Common {
 			IN_GAME_CONSOLE,
 			LUA_SERVICE,
 			I18N,
+			GRAPHICS_INSTANCING,
 			COUNT
 		}
 
@@ -52,17 +53,17 @@ namespace Extend.Common {
 			Application.quitting += Clear;
 		}
 
-		private static readonly IService[] services = new IService[(int)ServiceType.COUNT];
+		private static readonly IService[] services = new IService[64];
 		private static readonly List<IServiceUpdate> updateableServices = new List<IServiceUpdate>();
 
 		public static void Register(IService service) {
 			Assert.IsTrue(Initialized);
-			if( services[(int)service.ServiceType] != null ) {
+			if( services[service.ServiceType] != null ) {
 				throw new Exception($"Service {service.ServiceType} exist.");
 			}
 
 			try {
-				services[(int)service.ServiceType] = service;
+				services[service.ServiceType] = service;
 				service.Initialize();
 				if( service is IServiceUpdate update ) {
 					updateableServices.Add(update);
@@ -73,25 +74,36 @@ namespace Extend.Common {
 			}
 		}
 
-		public static void Unregister(ServiceType type) {
+		public static void Unregister(int type) {
 			Assert.IsTrue(Initialized);
-			if( services[(int)type] != null ) {
-				var service = services[(int)type];
+			if( services[type] != null ) {
+				var service = services[type];
 				if( service is IServiceUpdate update ) {
 					updateableServices.Remove(update);
 				}
+
 				service.Destroy();
-				services[(int)type] = null;
+				services[type] = null;
 			}
 		}
 
 		public static T Get<T>(ServiceType typ) where T : class {
+			return Get<T>((int)typ);
+		}
+		
+		public static T Get<T>(int index) where T : class {
 			Assert.IsTrue(Initialized);
-			var service = services[(int)typ];
+			var service = services[index];
 			if( service == null ) {
-				Debug.LogError($"Service {typ} not exist!");
+				Debug.LogError($"Service {index} not exist!");
 			}
 
+			return (T)service;
+		}
+		
+		public static T TryGetAtIndex<T>(int index) where T : class {
+			Assert.IsTrue(Initialized);
+			var service = services[index];
 			return (T)service;
 		}
 
@@ -101,11 +113,16 @@ namespace Extend.Common {
 			}
 		}
 
-		private static void Clear() {
+		public static void Clear() {
 			updateableServices.Clear();
-			for( int i = (int)ServiceType.COUNT - 1; i >= 0; i-- ) {
-				Unregister((ServiceType)i);
+			for( int i = services.Length - 1; i >= 0; i-- ) {
+				var service = services[i];
+				if( service == null )
+					continue;
+				Unregister(service.ServiceType);
 			}
+
+			Destroy(Instance.gameObject);
 			Initialized = false;
 		}
 

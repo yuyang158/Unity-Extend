@@ -6,6 +6,7 @@ using System.Linq;
 using Extend.Asset.Editor.Process;
 using UnityEditor;
 using UnityEngine;
+using Zeus.Core.FileSystem;
 
 namespace Extend.Asset.Editor {
 	public static class BuildAssetRelation {
@@ -268,6 +269,26 @@ namespace Extend.Asset.Editor {
 
 			//Debug.Log( sb.ToString() );
 			EditorUtility.ClearProgressBar();
+		}
+
+		public static void ExportRedundantFileCheckSumInfoByPath(BuildTarget target)
+		{
+			string packageConfPathDir = Path.Combine(Application.streamingAssetsPath, "ABBuild", $"{target}");
+			DirectoryInfo soundRoot = new DirectoryInfo(Path.Combine(Application.streamingAssetsPath, "Sounds"));
+			RedundantFileCheckSumInfo checkSumInfo = RedundantFileCheckSumInfo.CreateNewOrLoadInfos();
+			// 根据生成的package.conf文件，计算ab的md5值
+			foreach (var line in File.ReadLines($"{packageConfPathDir}/package.conf"))
+			{
+				var key = line.Split('|')[1];
+				var fullPath = Path.Combine($"{packageConfPathDir}", key);
+				checkSumInfo.Update(key, fullPath);
+			}
+			// 计算声音文件夹中的文件的md5值，可拓展
+			foreach (var fileInfo in soundRoot.GetFiles("*.*", SearchOption.AllDirectories).Where(fi => !fi.Name.EndsWith(".meta")))
+			{
+				checkSumInfo.Update(fileInfo.Name, fileInfo.FullName);
+			}
+			checkSumInfo.SaveFB();
 		}
 	}
 }

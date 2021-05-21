@@ -32,6 +32,10 @@ namespace Extend.Asset.Editor {
 			m_object = resObj;
 			OnQuickInspectorGUI(ref position);
 			var newResObj = EditorGUI.ObjectField(position, label, resObj, type, false);
+			if( !string.IsNullOrEmpty(guidProp.stringValue) && string.IsNullOrEmpty(assetPath) ) {
+				position.xMax -= EditorGUIUtility.singleLineHeight;
+				EditorGUI.DrawRect(position, Color.red);
+			}
 			if( newResObj != resObj ) {
 				if( newResObj == null ) {
 					guidProp.stringValue = null;

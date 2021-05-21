@@ -1,10 +1,12 @@
 {
     "name": "Extend.Asset.Editor",
+    "rootNamespace": "",
     "references": [
         "GUID:22784c00bfb32f049827a00b892b0d3c",
         "GUID:45fc0be54141d6044996cb19c30f85c3",
         "GUID:5244392fac2b89c4a9fa7a5b7a72a1b1",
-        "GUID:478a2357cc57436488a56e564b08d223"
+        "GUID:478a2357cc57436488a56e564b08d223",
+        "GUID:d64ede9dfdfbbba47844fa404d1d1825"
     ],
     "includePlatforms": [
         "Editor"

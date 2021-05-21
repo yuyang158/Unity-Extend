@@ -40,6 +40,10 @@ namespace Extend.Asset.Editor.Process {
 			}
 
 			var material = AssetDatabase.LoadAssetAtPath<Material>(importer.assetPath);
+			if( !material ) {
+				Debug.LogError($"Load material fail : {importer.assetPath}");
+				return;
+			}
 			var shader = material.shader;
 			var shaderPath = AssetDatabase.GetAssetPath(shader);
 			if( shaderPath.StartsWith("Packages") ) {

@@ -111,6 +111,11 @@ namespace Extend.Asset {
 			return GetAsset<AnimationClip>();
 		}
 
+		public Mesh GetMesh()
+		{
+			return GetAsset<Mesh>();
+		}
+
 		public T GetScriptableObject<T>() where T : ScriptableObject {
 			return GetAsset<T>();
 		}
@@ -123,9 +128,7 @@ namespace Extend.Asset {
 		}
 
 		public GameObject Instantiate(Transform parent = null, bool stayWorldPosition = false) {
-			if( Asset == null ) {
-				Asset = AssetService.Get().LoadAssetWithGUID<GameObject>(m_assetGUID);
-			}
+			Asset ??= AssetService.Get().LoadAssetWithGUID<GameObject>(m_assetGUID);
 
 			if( !( Asset is PrefabAssetInstance prefabAsset ) ) {
 				Debug.LogError($"{Asset.AssetPath} is not a prefab!");

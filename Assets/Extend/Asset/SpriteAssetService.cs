@@ -40,7 +40,7 @@ namespace Extend.Asset {
 			}
 		}
 
-		public CSharpServiceManager.ServiceType ServiceType => CSharpServiceManager.ServiceType.SPRITE_ASSET_SERVICE;
+		public int ServiceType => (int)CSharpServiceManager.ServiceType.SPRITE_ASSET_SERVICE;
 
 		public static SpriteAssetService Get() {
 			return CSharpServiceManager.Get<SpriteAssetService>(CSharpServiceManager.ServiceType.SPRITE_ASSET_SERVICE);
@@ -108,6 +108,7 @@ namespace Extend.Asset {
 
 		public void Initialize() {
 			m_packedSprites.Add(128, new PackedSprite(128));
+			m_packedSprites.Add(256, new PackedSprite(256));
 		}
 
 		public void Destroy() {

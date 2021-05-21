@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Extend.DebugUtil {
 	public class ErrorLogToFile : IService {
-		public CSharpServiceManager.ServiceType ServiceType => CSharpServiceManager.ServiceType.ERROR_LOG_TO_FILE;
+		public int ServiceType => (int)CSharpServiceManager.ServiceType.ERROR_LOG_TO_FILE;
 		private TextWriter m_writer;
 		private readonly AutoResetEvent m_autoEvent = new AutoResetEvent(false);
 		private Thread m_writeThread;

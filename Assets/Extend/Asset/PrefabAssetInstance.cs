@@ -6,6 +6,7 @@ using Object = UnityEngine.Object;
 namespace Extend.Asset {
 	public class PrefabAssetInstance : AssetInstance {
 		private AssetPool m_pool;
+		private bool m_autoRecyclePrefab;
 #if UNITY_EDITOR
 		private int m_transformCount;
 #endif
@@ -34,11 +35,14 @@ namespace Extend.Asset {
 					m_pool = new AssetPool(prefab.name, cacheConfig.PreferCount, cacheConfig.MaxCount, this);
 				}
 
+				m_autoRecyclePrefab = prefab.GetComponent<AutoRecycle>();
+
 #if UNITY_EDITOR
 				ChildCountRecursive(prefab.transform);
 				m_transformCount++;
 #endif
 			}
+
 			base.SetAsset(unityObj, refAssetBundle);
 		}
 
@@ -50,7 +54,7 @@ namespace Extend.Asset {
 			if( !go.GetComponent<PoolCacheGO>() ) {
 				throw new Exception($"{go.name} need add PoolCacheGO component.");
 			}
-			
+
 			m_pool = new AssetPool(name, prefer, max, this);
 			m_pool.WarmUp();
 		}
@@ -67,6 +71,11 @@ namespace Extend.Asset {
 				go = m_pool.Get(parent, stayWorldPosition);
 				var cached = go.GetComponent<PoolCacheGO>();
 				cached.Instantiated();
+			}
+
+			if( m_autoRecyclePrefab ) {
+				var autoRecycle = go.GetComponent<AutoRecycle>();
+				autoRecycle.ResetAll();
 			}
 
 			StatService.Get().Increase(StatService.StatName.IN_USE_GO, 1);
@@ -95,6 +104,11 @@ namespace Extend.Asset {
 				cached.Instantiated();
 			}
 
+			if( m_autoRecyclePrefab ) {
+				var autoRecycle = go.GetComponent<AutoRecycle>();
+				autoRecycle.ResetAll();
+			}
+
 			StatService.Get().Increase(StatService.StatName.IN_USE_GO, 1);
 #if UNITY_EDITOR
 			StatService.Get().LogStat("Instantiate", UnityObject.name, m_transformCount);
@@ -104,6 +118,12 @@ namespace Extend.Asset {
 			service.OnInstantiateGameObject(go);
 #endif
 			return go;
+		}
+
+		internal override void Update() {
+			if( Status != AssetStatus.DONE )
+				return;
+			m_pool.Update();
 		}
 
 		public override void Destroy() {

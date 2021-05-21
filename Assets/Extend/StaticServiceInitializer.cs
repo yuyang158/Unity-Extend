@@ -12,7 +12,7 @@ using UnityEngine;
 namespace Extend {
 	internal static class StaticServiceInitializer {
 		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-		private static void OnInit() {
+		public static void OnInit() {
 			Application.runInBackground = true;
 			DOTween.Init(false, true, LogBehaviour.Default);
 
@@ -31,8 +31,10 @@ namespace Extend {
 			CSharpServiceManager.Register(new LuaVM());
 			CSharpServiceManager.Register(new TickService());
 
+#if !UNITY_EDITOR
 			var builder = new StringBuilder(2048);
-			builder.AppendLine($"Unity: {Application.unityVersion} App : {Application.identifier}:{Application.version} {Application.platform}");
+			builder.AppendLine($"Unity: {Application.unityVersion}");
+			builder.AppendLine($"App : {Application.identifier}:{Application.version} {Application.platform}");
 			builder.AppendLine($"Device : {SystemInfo.deviceModel}, {SystemInfo.deviceName}, {SystemInfo.deviceType}");
 			builder.AppendLine($"Battery : {SystemInfo.batteryStatus}, {SystemInfo.batteryLevel:0.00}");
 			builder.AppendLine($"Processor : {SystemInfo.processorType}, {SystemInfo.processorCount}, {SystemInfo.processorFrequency}");
@@ -41,20 +43,15 @@ namespace Extend {
 			                   $"GMEM : {SystemInfo.graphicsMemorySize}, SM{SystemInfo.graphicsShaderLevel}");
 
 			builder.AppendLine($"OS : {SystemInfo.operatingSystem}, MEM : {SystemInfo.systemMemorySize}, {SystemInfo.operatingSystemFamily}");
+			builder.AppendLine("UsesReversedZBuffer : " + SystemInfo.usesReversedZBuffer);
 			builder.Append($"NPOT : {SystemInfo.npotSupport}, INSTANCING : {SystemInfo.supportsInstancing}, Texture Size : {SystemInfo.maxTextureSize}, " +
 			                   $"Compute : {SystemInfo.supportsComputeShaders}");
-			
 			Debug.LogWarning(builder.ToString());
-
-#if !UNITY_EDITOR
-			if( Application.isMobilePlatform ) {
-				Debug.LogWarning("usesReversedZBuffer : " + SystemInfo.usesReversedZBuffer);
-			}
 #endif
 		}
 
 		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-		private static void OnSceneLoaded() {
+		public static void OnSceneLoaded() {
 			CSharpServiceManager.Register(new NetworkService());
 
 			var mode = GameSystem.Get().SystemSetting.GetString("GAME", "Mode");

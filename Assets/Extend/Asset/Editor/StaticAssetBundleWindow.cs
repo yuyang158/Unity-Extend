@@ -256,8 +256,23 @@ namespace Extend.Asset.Editor {
 			}
 		}
 
+		private static string copyPath;
+
+		public static string CopyPath
+		{
+			get
+			{
+				if (string.IsNullOrEmpty(copyPath))
+				{
+					MakeCopyDirectory(m_currentBuildTarget);
+				}
+
+				return copyPath;
+			}
+		}
+
 		private static void MakeOutputDirectory(BuildTarget buildTarget) {
-			buildRoot = $"{Application.streamingAssetsPath}/ABBuild";
+			buildRoot = $"{Application.dataPath}/../ABBuild";
 			if( !Directory.Exists(buildRoot) ) {
 				Directory.CreateDirectory(buildRoot);
 			}
@@ -265,6 +280,20 @@ namespace Extend.Asset.Editor {
 			outputPath = $"{buildRoot}/{buildTarget.ToString()}";
 			if( !Directory.Exists(outputPath) ) {
 				Directory.CreateDirectory(outputPath);
+			}
+		}
+		private static void MakeCopyDirectory(BuildTarget buildTarget)
+		{
+			buildRoot = $"{Application.streamingAssetsPath}/ABBuild";
+			if (!Directory.Exists(buildRoot))
+			{
+				Directory.CreateDirectory(buildRoot);
+			}
+
+			copyPath = $"{buildRoot}/{buildTarget.ToString()}";
+			if (!Directory.Exists(copyPath))
+			{
+				Directory.CreateDirectory(copyPath);
 			}
 		}
 
@@ -425,6 +454,37 @@ namespace Extend.Asset.Editor {
 					BuildAssetBundleOptions.DeterministicAssetBundle | BuildAssetBundleOptions.ChunkBasedCompression, target);
 				Directory.Delete($"{Application.dataPath}/Resources/Lua", true);
 				FinalClear();
+				//处理之前先删除streamingAssetsPath内的内容，以免有冗余的旧ab包打进安装包
+				if (Directory.Exists(CopyPath))
+				{
+					Directory.Delete(CopyPath, true);
+					Directory.CreateDirectory(CopyPath);
+				}
+				foreach (var item in buildContext)
+				{
+					string abBuildOutPath = Path.Combine(OutputPath, item.assetBundleName);
+					string nameStrHash = item.assetBundleName.GetHashCode().ToString();
+					byte[] filedata = File.ReadAllBytes(abBuildOutPath);
+					byte[] offsetData = Encoding.UTF8.GetBytes(nameStrHash);
+					int offset = offsetData.Length;
+					int filelen = offset + filedata.Length;
+					byte[] buffer = new byte[filelen];
+					CopyData(buffer, offsetData, 0);
+					CopyData(buffer, filedata, offset);
+					//Debug.Log($"{CopyPath}    {item.assetBundleName}     {Path.Combine(CopyPath, item.assetBundleName)}");
+					string targetPath = Path.Combine(CopyPath, item.assetBundleName);
+					string directoryPath = Path.GetDirectoryName(targetPath);
+					if(!Directory.Exists(directoryPath))
+					{
+						Directory.CreateDirectory(directoryPath);
+					}
+					FileStream fs = File.Open(targetPath, FileMode.OpenOrCreate, FileAccess.Write);
+					fs.Write(buffer, 0, filelen);
+					fs.Close();
+				}
+				File.Copy(string.Format("{0}/package.conf", OutputPath), string.Format("{0}/package.conf", CopyPath), true);
+				File.Copy(string.Format("{0}/{1}", OutputPath, m_currentBuildTarget.ToString()), 
+					string.Format("{0}/{1}", CopyPath, m_currentBuildTarget.ToString()), true);
 				return true;
 			}
 			catch( Exception e ) {
@@ -433,6 +493,14 @@ namespace Extend.Asset.Editor {
 			}
 			finally {
 				AssetCustomProcesses.Shutdown();
+			}
+		}
+		static void CopyData(byte[] buffer, byte[] data, int offset)
+		{
+			int len = data.Length;
+			for (int i = 0; i < len; i++)
+			{
+				buffer[i+ offset] = data[i];
 			}
 		}
 

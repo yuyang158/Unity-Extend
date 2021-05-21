@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Extend.Common {
 	public class StatService : IService {
-		public CSharpServiceManager.ServiceType ServiceType => CSharpServiceManager.ServiceType.STAT;
+		public int ServiceType => (int)CSharpServiceManager.ServiceType.STAT;
 
 		public static StatService Get() {
 			return CSharpServiceManager.Get<StatService>(CSharpServiceManager.ServiceType.STAT);

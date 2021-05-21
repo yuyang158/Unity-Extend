@@ -59,7 +59,8 @@ namespace Extend.Common {
 
 		private LinkedListNode<Tuple<TKey, TValue>> m_current;
 		public bool MoveNext() {
-			return m_current?.Next != null;
+			m_current = m_current.Next;
+			return m_current != null;
 		}
 
 		public void Reset() {

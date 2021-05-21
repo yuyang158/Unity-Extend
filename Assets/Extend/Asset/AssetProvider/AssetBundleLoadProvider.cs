@@ -56,6 +56,7 @@ namespace Extend.Asset.AssetProvider {
 			var manifestPath = DetermineLocation(platform);
 			var manifestAB = AssetBundle.LoadFromFile(manifestPath);
 			m_manifest = manifestAB.LoadAsset<AssetBundleManifest>("AssetBundleManifest");
+			manifestAB.Unload(false);
 
 #if UNITY_ANDROID
 			var mapPath = DetermineLocation("package.conf", out var persistent);
@@ -145,6 +146,7 @@ namespace Extend.Asset.AssetProvider {
 
 		public override void ProvideScene(string path, AssetContainer container, bool add) {
 			if( !TryGetABContext(path, out var abPathContext) ) {
+				Debug.LogError($"Load scene failed, not found asset bundle config for : {path}");
 				return;
 			}
 
@@ -152,7 +154,7 @@ namespace Extend.Asset.AssetProvider {
 			abInstance.Load();
 			SceneManager.LoadScene(abInstance.GetScenePath(),
 				add ? LoadSceneMode.Additive : LoadSceneMode.Single);
-			// container.DirectUnload(AssetBundleInstance.GenerateHash(path));
+			//abInstance.Destroy();
 		}
 
 		public override bool Exist(string path) {

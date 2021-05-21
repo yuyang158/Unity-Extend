@@ -11,7 +11,7 @@ using UnityEngine;
 
 namespace Extend.Asset {
 	public class AssetFullStatService : IService {
-		public CSharpServiceManager.ServiceType ServiceType => CSharpServiceManager.ServiceType.ASSET_FULL_STAT;
+		public int ServiceType => (int)CSharpServiceManager.ServiceType.ASSET_FULL_STAT;
 		public static readonly int LISTEN_PORT = 34320;
 		private Thread m_listenThread;
 		private TcpListener m_tcpListener;
