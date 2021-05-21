@@ -27,7 +27,6 @@ namespace Extend.UI.Editor {
 		static StaticI18nKeyPropertyDrawer() {
 			if( i18nXml == null ) {
 				i18nXml = new XmlDocument();
-
 				var i18nXmlAsset = AssetDatabase.LoadAssetAtPath<TextAsset>(xmlConfigPath);
 				try {
 					i18nXml.LoadXml(i18nXmlAsset.text);
@@ -37,10 +36,14 @@ namespace Extend.UI.Editor {
 						if( childNode.NodeType != XmlNodeType.Element )
 							continue;
 						var element = childNode as XmlElement;
-						existTexts.Add(new StaticText() {
-							GUID = element.Attributes["guid"].Value,
-							Text = element.Attributes[DEFAULT_EDITOR_LANG].Value
-						});
+						var guid = element.Attributes["guid"].Value;
+
+						if( !existTexts.Exists(t => t.GUID == guid) ) {
+							existTexts.Add(new StaticText {
+								GUID = guid,
+								Text = element.Attributes[DEFAULT_EDITOR_LANG].Value
+							});							
+						}
 					}
 				}
 				catch( Exception e ) {
@@ -87,13 +90,17 @@ namespace Extend.UI.Editor {
 					NewElement(guid);
 				}
 				else {
-					var elements = rootElement.GetElementsByTagName(guid);
-					if( elements.Count != 0 ) {
-						var element = elements[0] as XmlElement;
-						element.Attributes[DEFAULT_EDITOR_LANG].Value = m_text;
-						i18nXml.Save(xmlConfigPath);
+					bool found = false;
+					foreach( XmlElement i18nElement in rootElement ) {
+						if( i18nElement.GetAttribute("guid") == guid ) {
+							i18nElement.Attributes[DEFAULT_EDITOR_LANG].Value = m_text;
+							i18nXml.Save(xmlConfigPath);
+							found = true;
+							break;
+						}
 					}
-					else {
+
+					if( !found ) {
 						NewElement(guid);
 					}
 				}

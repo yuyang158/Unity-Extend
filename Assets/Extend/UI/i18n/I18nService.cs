@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Extend.UI.i18n {
 	public class I18nService : IService {
-		public CSharpServiceManager.ServiceType ServiceType => CSharpServiceManager.ServiceType.I18N;
+		public int ServiceType => (int)CSharpServiceManager.ServiceType.I18N;
 		private int m_currentLang = -1;
 		private string m_currentLangName;
 		private string[] m_supportedLang;
