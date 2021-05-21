@@ -37,6 +37,8 @@ namespace Extend.LuaBindingEvent.Editor {
 				default:
 					throw new ArgumentOutOfRangeException();
 			}
+
+			paramProp.serializedObject.ApplyModifiedProperties();
 		}
 	}
 }
