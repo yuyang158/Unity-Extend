@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Xml;
 using Extend.Asset;
 using Extend.Asset.Attribute;
@@ -31,8 +32,18 @@ namespace Extend.UI {
 
 	[LuaCallCSharp]
 	public class UIViewConfiguration : ScriptableObject {
-		[Serializable, LuaCallCSharp]
+		[LuaCallCSharp, Serializable]
 		public class Configuration {
+			public enum PreloadMethod {
+				AssetBundle,
+				Instance
+			}
+
+			public struct UIViewRelation {
+				public Guid RelationViewGuid;
+				public PreloadMethod Method;
+			}
+
 			public string Name = "Default";
 
 			[AssetReferenceAssetType(AssetType = typeof(UIViewBase))]
@@ -51,19 +62,36 @@ namespace Extend.UI {
 			public CloseOption CloseMethod = CloseOption.None;
 
 			public string CloseButtonPath;
+			[BlackList]
+			public Guid ViewGuid;
+
+			public UIViewRelation[] Relations;
+
+#if UNITY_EDITOR
+			public Configuration() {
+				ViewGuid = Guid.NewGuid();
+			}
+#endif
 
 			public override string ToString() {
 				return Name;
 			}
 		}
 
-		[SerializeField, FormerlySerializedAs("configurations")]
+		[SerializeField]
 		private Configuration[] m_configurations;
+
+		private Dictionary<Guid, Configuration> m_guidHashedConfigurations = new Dictionary<Guid, Configuration>();
 
 		public Configuration[] Configurations => m_configurations;
 
 		private Dictionary<string, Configuration> m_hashedConfigurations;
+		public static UIViewConfiguration GlobalInstance { get; private set; }
 		public const string FILE_PATH = "Config/UIViewConfiguration";
+
+		public Configuration FindWithGuid(Guid guid) {
+			return m_configurations.FirstOrDefault(configuration => configuration.ViewGuid == guid);
+		}
 
 		private void OnEnable() {
 			if( m_configurations == null ) {
@@ -100,6 +128,7 @@ namespace Extend.UI {
 				document.AppendChild(rootElement);
 				foreach( var configuration in m_configurations ) {
 					var element = document.CreateElement("UIView");
+					element.SetAttribute("Guid", configuration.ViewGuid.ToString());
 					element.SetAttribute("Name", configuration.Name);
 					element.SetAttribute("UIView", configuration.UIView?.AssetGUID);
 					element.SetAttribute("BackgroundFx", configuration.BackgroundFx?.AssetGUID);
@@ -108,6 +137,15 @@ namespace Extend.UI {
 					element.SetAttribute("AttachLayer", configuration.AttachLayer.ToString());
 					element.SetAttribute("CloseMethod", configuration.CloseMethod.ToString());
 					element.SetAttribute("CloseButtonPath", configuration.CloseButtonPath);
+
+					if( configuration.Relations != null && configuration.Relations.Length > 0 ) {
+						foreach( var relation in configuration.Relations ) {
+							var relationElement = document.CreateElement("Relation");
+							relationElement.SetAttribute("Guid", relation.RelationViewGuid.ToString());
+							relationElement.SetAttribute("Method", relation.Method.ToString());
+							element.AppendChild(relationElement);
+						}
+					}
 
 					rootElement.AppendChild(element);
 				}
@@ -142,7 +180,7 @@ namespace Extend.UI {
 			var rootElement = document.DocumentElement;
 			List<Configuration> configurations = new List<Configuration>();
 			foreach( XmlElement childElement in rootElement ) {
-				configurations.Add(new Configuration() {
+				var configuration = new Configuration {
 					Name = childElement.GetAttribute("Name"),
 					UIView = CreateAssetRef(childElement.GetAttribute("UIView")),
 					BackgroundFx = CreateAssetRef(childElement.GetAttribute("BackgroundFx")),
@@ -151,11 +189,32 @@ namespace Extend.UI {
 					AttachLayer = (UILayer)Enum.Parse(typeof(UILayer), childElement.GetAttribute("AttachLayer")),
 					CloseMethod = (CloseOption)Enum.Parse(typeof(CloseOption), childElement.GetAttribute("CloseMethod")),
 					CloseButtonPath = childElement.GetAttribute("CloseButtonPath")
-				});
+				};
+				if( childElement.HasAttribute("Guid") ) {
+					configuration.ViewGuid = Guid.Parse(childElement.GetAttribute("Guid"));
+				}
+
+				configurations.Add(configuration);
+
+				if( childElement.HasChildNodes ) {
+					var count = childElement.ChildNodes.Count;
+					configuration.Relations = new Configuration.UIViewRelation[count];
+					for( int i = 0; i < count; i++ ) {
+						var relationElement = childElement.ChildNodes[i] as XmlElement;
+						configuration.Relations[i] = new Configuration.UIViewRelation() {
+							Method = (Configuration.PreloadMethod)Enum.Parse(typeof(Configuration.PreloadMethod), relationElement.GetAttribute("Method")),
+							RelationViewGuid = Guid.Parse(relationElement.GetAttribute("Guid"))
+						};
+					}
+				}
 			}
 
 			var instance = CreateInstance<UIViewConfiguration>();
 			instance.m_configurations = configurations.ToArray();
+			foreach( var configuration in configurations ) {
+				instance.m_guidHashedConfigurations.Add(configuration.ViewGuid, configuration);
+			}
+			GlobalInstance = instance;
 			return instance.ConvertData();
 		}
 	}

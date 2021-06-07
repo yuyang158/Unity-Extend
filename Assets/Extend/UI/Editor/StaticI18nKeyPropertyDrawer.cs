@@ -18,44 +18,53 @@ namespace Extend.UI.Editor {
 			public string Text;
 		}
 
-		private static readonly XmlDocument i18nXml;
-		private static readonly XmlElement rootElement;
+		private static readonly XmlDocument m_i18nXml;
+		private static readonly XmlElement m_rootElement;
 
-		private static readonly List<StaticText> existTexts = new List<StaticText>();
+		private static readonly List<StaticText> m_existTexts = new List<StaticText>();
 		private const string xmlConfigPath = "Assets/Resources/Config/static-i18n.xml";
 
 		static StaticI18nKeyPropertyDrawer() {
-			if( i18nXml == null ) {
-				i18nXml = new XmlDocument();
+			if( m_i18nXml == null ) {
+				m_i18nXml = new XmlDocument();
 				var i18nXmlAsset = AssetDatabase.LoadAssetAtPath<TextAsset>(xmlConfigPath);
 				try {
-					i18nXml.LoadXml(i18nXmlAsset.text);
-					rootElement = i18nXml.DocumentElement;
+					m_i18nXml.LoadXml(i18nXmlAsset.text);
+					m_rootElement = m_i18nXml.DocumentElement;
 
-					foreach( XmlNode childNode in rootElement.ChildNodes ) {
+					foreach( XmlNode childNode in m_rootElement.ChildNodes ) {
 						if( childNode.NodeType != XmlNodeType.Element )
 							continue;
 						var element = childNode as XmlElement;
 						var guid = element.Attributes["guid"].Value;
 
-						if( !existTexts.Exists(t => t.GUID == guid) ) {
-							existTexts.Add(new StaticText {
+						if( !m_existTexts.Exists(t => t.GUID == guid) ) {
+							m_existTexts.Add(new StaticText {
 								GUID = guid,
 								Text = element.Attributes[DEFAULT_EDITOR_LANG].Value
-							});							
+							});
 						}
 					}
 				}
 				catch( Exception e ) {
 					Debug.LogWarning(e);
-					var declaration = i18nXml.CreateXmlDeclaration("1.0", "utf-8", null);
-					i18nXml.AppendChild(declaration);
-					rootElement = i18nXml.CreateElement("root");
-					rootElement.SetAttribute("support-lang", DEFAULT_EDITOR_LANG);
-					i18nXml.AppendChild(rootElement);
-					i18nXml.Save(xmlConfigPath);
+					var declaration = m_i18nXml.CreateXmlDeclaration("1.0", "utf-8", null);
+					m_i18nXml.AppendChild(declaration);
+					m_rootElement = m_i18nXml.CreateElement("root");
+					m_rootElement.SetAttribute("support-lang", DEFAULT_EDITOR_LANG);
+					m_i18nXml.AppendChild(m_rootElement);
+					m_i18nXml.Save(xmlConfigPath);
 				}
 			}
+		}
+
+		public static string FindText(string guid) {
+			foreach( var staticText in m_existTexts ) {
+				if( staticText.GUID == guid )
+					return staticText.Text;
+			}
+
+			return "None";
 		}
 
 		private string m_text;
@@ -91,10 +100,22 @@ namespace Extend.UI.Editor {
 				}
 				else {
 					bool found = false;
-					foreach( XmlElement i18nElement in rootElement ) {
+					foreach( XmlElement i18nElement in m_rootElement ) {
 						if( i18nElement.GetAttribute("guid") == guid ) {
 							i18nElement.Attributes[DEFAULT_EDITOR_LANG].Value = m_text;
-							i18nXml.Save(xmlConfigPath);
+							m_i18nXml.Save(xmlConfigPath);
+
+							var t = m_existTexts.Find(text => text.GUID == guid);
+							if( t == null ) {
+								m_existTexts.Add(new StaticText() {
+									Text = m_text,
+									GUID = guid
+								});
+							}
+							else {
+								t.Text = m_text;
+							}
+							
 							found = true;
 							break;
 						}
@@ -106,14 +127,16 @@ namespace Extend.UI.Editor {
 				}
 
 				var component = property.serializedObject.targetObject as Component;
-				var textMesh = component.GetComponent<TextMeshProUGUI>();
-				if( textMesh ) {
-					textMesh.text = m_text;
-				}
+				if( component ) {
+					var textMesh = component.GetComponent<TextMeshProUGUI>();
+					if( textMesh ) {
+						textMesh.text = m_text;
+					}
 
-				var txt = component.GetComponent<Text>();
-				if( txt ) {
-					txt.text = m_text;
+					var txt = component.GetComponent<Text>();
+					if( txt ) {
+						txt.text = m_text;
+					}
 				}
 			}
 
@@ -125,7 +148,7 @@ namespace Extend.UI.Editor {
 					return;
 				}
 
-				var elements = rootElement.GetElementsByTagName(guid);
+				var elements = m_rootElement.GetElementsByTagName(guid);
 				if( elements.Count != 0 ) {
 					var element = elements[0] as XmlElement;
 					m_text = element.Attributes[DEFAULT_EDITOR_LANG].Value;
@@ -138,23 +161,28 @@ namespace Extend.UI.Editor {
 		}
 
 		private static string FindGUID(string guid) {
-			var t = existTexts.Find(staticText => guid == staticText.GUID);
+			var t = m_existTexts.Find(staticText => guid == staticText.GUID);
 			return t == null ? string.Empty : t.Text;
 		}
 
 		private void NewElement(string guid) {
-			var newEle = i18nXml.CreateElement("Text");
-			var zhsAttribute = i18nXml.CreateAttribute("zh-s");
+			var newEle = m_i18nXml.CreateElement("Text");
+			var zhsAttribute = m_i18nXml.CreateAttribute("zh-s");
 			zhsAttribute.Value = m_text;
+			
+			m_existTexts.Add(new StaticText() {
+				Text = m_text,
+				GUID = guid
+			});
 
-			var guidAttribute = i18nXml.CreateAttribute("guid");
+			var guidAttribute = m_i18nXml.CreateAttribute("guid");
 			guidAttribute.Value = guid;
 
 			newEle.Attributes.Append(zhsAttribute);
 			newEle.Attributes.Append(guidAttribute);
 
-			rootElement.AppendChild(newEle);
-			i18nXml.Save(xmlConfigPath);
+			m_rootElement.AppendChild(newEle);
+			m_i18nXml.Save(xmlConfigPath);
 		}
 	}
 }
