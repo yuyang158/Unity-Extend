@@ -240,6 +240,15 @@ namespace Extend.Asset {
 			return Asset == null || !Asset.UnityObject ? "Not loaded" : Asset.UnityObject.name;
 		}
 
+		public override int GetHashCode() {
+			return m_assetGUID.GetHashCode();
+		}
+
+		public override bool Equals(object obj) {
+			var other = (AssetReference)obj;
+			return other != null && other.m_assetGUID == m_assetGUID;
+		}
+
 		public object Clone() {
 			return new AssetReference(Asset) {
 				m_assetGUID = m_assetGUID

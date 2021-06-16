@@ -75,11 +75,11 @@ namespace Extend.Asset {
 			}
 			else {
 				go = Object.Instantiate(m_assetInstance.UnityObject, parent, stayWorldPosition) as GameObject;
-				var config = go.GetOrAddComponent<PoolCacheGO>();
-				config.SharedPool = this;
-				config.PrefabAsset = m_assetInstance;
 			}
 
+			var config = go.GetOrAddComponent<PoolCacheGO>();
+			config.SharedPool = this;
+			config.PrefabAsset = m_assetInstance;
 			return go;
 		}
 
@@ -92,10 +92,10 @@ namespace Extend.Asset {
 			}
 			else {
 				go = Object.Instantiate(m_assetInstance.UnityObject, position, quaternion, parent) as GameObject;
-				var config = go.GetOrAddComponent<PoolCacheGO>();
-				config.SharedPool = this;
-				config.PrefabAsset = m_assetInstance;
 			}
+			var config = go.GetOrAddComponent<PoolCacheGO>();
+			config.SharedPool = this;
+			config.PrefabAsset = m_assetInstance;
 
 			return go;
 		}

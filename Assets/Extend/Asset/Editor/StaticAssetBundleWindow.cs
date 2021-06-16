@@ -478,30 +478,28 @@ namespace Extend.Asset.Editor {
 					{
 						Directory.CreateDirectory(directoryPath);
 					}
-					FileStream fs = File.Open(targetPath, FileMode.OpenOrCreate, FileAccess.Write);
+					var fs = File.Open(targetPath, FileMode.OpenOrCreate, FileAccess.Write);
 					fs.Write(buffer, 0, filelen);
 					fs.Close();
 				}
-				File.Copy(string.Format("{0}/package.conf", OutputPath), string.Format("{0}/package.conf", CopyPath), true);
-				File.Copy(string.Format("{0}/{1}", OutputPath, m_currentBuildTarget.ToString()), 
-					string.Format("{0}/{1}", CopyPath, m_currentBuildTarget.ToString()), true);
+				File.Copy($"{OutputPath}/package.conf", $"{CopyPath}/package.conf", true);
+				File.Copy($"{OutputPath}/{m_currentBuildTarget.ToString()}",
+					$"{CopyPath}/{m_currentBuildTarget.ToString()}", true);
 				return true;
 			}
 			catch( Exception e ) {
+				EditorUtility.ClearProgressBar();
 				Debug.LogException(e);
 				return false;
 			}
 			finally {
 				AssetCustomProcesses.Shutdown();
 			}
+			return true;
 		}
 		static void CopyData(byte[] buffer, byte[] data, int offset)
 		{
-			int len = data.Length;
-			for (int i = 0; i < len; i++)
-			{
-				buffer[i+ offset] = data[i];
-			}
+			Array.Copy(data, 0, buffer, offset, data.Length);
 		}
 
 		private static void FinalClear() {

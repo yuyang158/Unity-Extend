@@ -54,13 +54,11 @@ namespace Extend.Asset {
 
 		[BlackList]
 		public void Initialize() {
-			if( Application.isEditor && m_forceAssetBundleMode == false ) {
-				m_provider = new ResourcesLoadProvider();
-				// provider = new AssetBundleLoadProvider();
-			}
-			else {
-				m_provider = new AssetBundleLoadProvider();
-			}
+#if UNITY_EDITOR
+			m_provider = new ResourcesLoadProvider();
+#else
+			m_provider = new AssetBundleLoadProvider();
+#endif
 
 			m_provider.Initialize();
 			m_stopwatch = new Stopwatch();
@@ -72,14 +70,17 @@ namespace Extend.Asset {
 
 			SpriteAtlasManager.atlasRequested += (atlasName, callback) => {
 				Debug.LogWarning("Request Atlas : " + atlasName);
-				var reference = Load("Assets/SpriteAtlas/" + atlasName, typeof(SpriteAtlas));
-				var atlas = reference.GetObject() as SpriteAtlas;
-				if( atlas == null ) {
-					Debug.LogError($"Load Asset is : {reference.Asset.UnityObject.GetType()}");
-					reference.Dispose();
-					return;
-				}
-				callback(atlas);
+				var handle = LoadAsync("Assets/SpriteAtlas/" + atlasName, typeof(SpriteAtlas));
+				handle.OnComplete += loadHandle => {
+					var reference = loadHandle.Result;
+					var atlas = reference.GetObject() as SpriteAtlas;
+					if( atlas == null ) {
+						Debug.LogError($"Load Asset is : {reference.Asset.UnityObject.GetType()}");
+						reference.Dispose();
+						return;
+					}
+					callback(atlas);
+				};
 			};
 		}
 
@@ -97,6 +98,7 @@ namespace Extend.Asset {
 			foreach( var bundle in bundles ) {
 				Debug.LogError($"Unreleased asset bundle : {bundle.name}");
 			}
+
 			AssetBundle.UnloadAllAssetBundles(true);
 		}
 
@@ -125,6 +127,7 @@ namespace Extend.Asset {
 						break;
 					}
 				}
+
 				m_instantiateStopwatch.Stop();
 			}
 		}
@@ -155,6 +158,12 @@ namespace Extend.Asset {
 
 		public static void Recycle(GameObject go) {
 			var cache = go.GetComponent<AssetServiceManagedGO>();
+#if UNITY_DEBUG
+			if( !cache ) {
+				Debug.LogError($"Recycle a destroy go : {go.name}");
+				return;
+			}
+#endif
 			cache.Recycle();
 			StatService.Get().Increase(StatService.StatName.IN_USE_GO, -1);
 		}

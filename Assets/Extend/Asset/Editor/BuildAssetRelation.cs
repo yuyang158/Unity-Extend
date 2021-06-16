@@ -6,15 +6,12 @@ using System.Linq;
 using Extend.Asset.Editor.Process;
 using UnityEditor;
 using UnityEngine;
-
+using Zeus.Core.FileSystem;
 
 namespace Extend.Asset.Editor {
 	public static class BuildAssetRelation {
-		private static readonly Dictionary<string, AssetNode> resourcesNodes = new Dictionary<string, AssetNode>();
-		private static readonly Dictionary<string, AssetNode> allAssetNodes = new Dictionary<string, AssetNode>(40960);
 		private static StaticABSetting[] manualSettings;
-
-		public static readonly string[] IgnoreExtensions = {
+		private static readonly string[] IgnoreExtensions = {
 			".cs",
 			".meta",
 			".dll",
@@ -28,26 +25,13 @@ namespace Extend.Asset.Editor {
 			if( Array.IndexOf(IgnoreExtensions, extension) >= 0 )
 				return null;
 
-			if( !filePath.StartsWith("assets", true, CultureInfo.InvariantCulture) )
-				return null;
-
-			var guid = AssetDatabase.AssetPathToGUID(filePath);
-			if( !allAssetNodes.TryGetValue(guid, out var dependencyNode) ) {
-				dependencyNode = new AssetNode(filePath);
-				if( !dependencyNode.IsValid )
-					return null;
-				allAssetNodes.Add(guid, dependencyNode);
-				dependencyNode.BuildRelation();
-			}
-
-			return dependencyNode;
+			return !filePath.StartsWith("assets", true, CultureInfo.InvariantCulture) ? null : AssetNode.GetOrCreate(filePath);
 		}
 
-		public static IEnumerable<AssetNode> ResourcesNodes => resourcesNodes.Values;
+		public static IEnumerable<AssetNode> ResourcesNodes => AssetNode.ResourcesNodes.Values;
 
 		public static void Clear() {
-			resourcesNodes.Clear();
-			allAssetNodes.Clear();
+			AssetNode.Clear();
 		}
 
 		private static Dictionary<string, BundleUnloadStrategy> s_specialAB;
@@ -62,13 +46,8 @@ namespace Extend.Asset.Editor {
 				Debug.LogWarning($"Setting Path : {setting.Path}");
 				var settingFiles = Directory.GetFiles(setting.Path, "*", SearchOption.AllDirectories);
 				foreach( var filePath in settingFiles ) {
-					if( Array.IndexOf(IgnoreExtensions, Path.GetExtension(filePath)) >= 0 )
+					if( Array.IndexOf(IgnoreExtensions, Path.GetExtension(filePath)) >= 0 || filePath.Contains(".svn") )
 						continue;
-
-					var importer = AssetImporter.GetAtPath(filePath);
-					if( !importer )
-						continue;
-
 					var abName = string.Empty;
 					var directoryName = Path.GetDirectoryName(filePath) ?? "";
 					switch( setting.Op ) {
@@ -88,21 +67,20 @@ namespace Extend.Asset.Editor {
 					}
 
 					var s = Array.Find(setting.UnloadStrategies, strategy => strategy.BundleName == abName);
-					var node = AddNewAssetNode(importer.assetPath, abName);
+					var node = AssetNode.GetOrCreate(filePath, abName);
 					// 同名资源处理
 					if( !s_specialAB.ContainsKey(node.AssetName) ) {
 						s_specialAB.Add(node.AssetName, s?.UnloadStrategy ?? BundleUnloadStrategy.Normal);
 					}
 
 					if( Path.GetExtension(node.AssetPath) == ".spriteatlas" ) {
-						resourcesNodes.Add(node.GUID, node);
 						var dependencies = AssetDatabase.GetDependencies(node.AssetPath);
 						foreach( var dependency in dependencies ) {
-							if( dependency == importer.assetPath ) {
+							var depNode = AssetNode.GetOrCreate(dependency, abName);
+							if( Equals(depNode, node) ) {
 								continue;
 							}
 
-							var depNode = AddNewAssetNode(dependency, abName);
 							if( s_specialAB.ContainsKey(depNode.AssetName) ) {
 								Debug.LogError($"one sprite in multi atlas : {depNode.AssetName}");
 								continue;
@@ -133,10 +111,8 @@ namespace Extend.Asset.Editor {
 				}
 				var scenePath = AssetDatabase.GetAssetPath(sceneAsset);
 				var sceneAbName = scenePath.Substring(0, scenePath.Length - 6).ToLower();
-				var sceneAssetNode = new AssetNode(scenePath, sceneAbName);
-				allAssetNodes.Add(sceneAssetNode.GUID, sceneAssetNode);
-				resourcesNodes.Add(sceneAssetNode.GUID, sceneAssetNode);
-				var dependencies = AssetDatabase.GetDependencies(scenePath);
+				AssetNode.GetOrCreate(scenePath, sceneAbName);
+				var dependencies = AssetDatabase.GetDependencies(scenePath, false);
 				foreach( var dependency in dependencies ) {
 					if( Array.IndexOf(IgnoreExtensions, Path.GetExtension(dependency)) >= 0 )
 						continue;
@@ -145,11 +121,7 @@ namespace Extend.Asset.Editor {
 						Debug.LogWarning($"{scenePath} Depend asset : {dependency} is not under Assets folder");
 						continue;
 					}
-					var guid = AssetDatabase.AssetPathToGUID(dependency);
-					if( !allAssetNodes.TryGetValue(guid, out var node) ) {
-						node = new AssetNode(dependency, sceneAbName + "_scene");
-						allAssetNodes.Add(guid, node);
-					}
+					AssetNode.GetOrCreate(dependency, sceneAbName + "_scene");
 				}
 			}
 
@@ -159,40 +131,6 @@ namespace Extend.Asset.Editor {
 			AssetCustomProcesses.PostProcess();
 
 			ExportResourcesPackageConf();
-		}
-
-		private static AssetNode AddNewResourcesAssetNode(string path, string abName = null) {
-			var guid = AssetDatabase.AssetPathToGUID(path);
-			AssetNode node;
-			if( allAssetNodes.ContainsKey(guid) ) {
-				node = allAssetNodes[guid];
-			}
-			else {
-				node = new AssetNode(path, abName);
-				allAssetNodes.Add(guid, node);
-			}
-
-			if(!resourcesNodes.ContainsKey(guid)) {
-				resourcesNodes.Add(guid, node);
-			}
-
-			return node;
-		}
-
-		public static AssetNode AddNewAssetNode(string path, string abName = null) {
-			var guid = AssetDatabase.AssetPathToGUID(path);
-			if( allAssetNodes.ContainsKey(guid) ) {
-				return allAssetNodes[guid];
-			}
-
-			var node = new AssetNode(path, abName);
-			allAssetNodes.Add(guid, node);
-			if( path.ToLower().Contains("resources/") ) {
-				if( resourcesNodes.ContainsKey(guid) )
-					return node;
-				resourcesNodes.Add(guid, node);
-			}
-			return node;
 		}
 
 		// \\ -> /
@@ -225,12 +163,7 @@ namespace Extend.Asset.Editor {
 				progress++;
 				if( Array.IndexOf(IgnoreExtensions, extension) >= 0 || filePath.Contains(".svn") )
 					continue;
-
-				var formatPath = FormatPath(filePath);
-				var guid = AssetDatabase.AssetPathToGUID(formatPath);
-				if( !string.IsNullOrEmpty(guid) ) {
-					AddNewResourcesAssetNode(formatPath);
-				}
+				AssetNode.GetOrCreate(filePath);
 
 				if( progress % 5 == 0 ) {
 					EditorUtility.DisplayProgressBar("Process resources asset", $"{progress} / {resourcesFolderFiles.Count}",
@@ -240,35 +173,57 @@ namespace Extend.Asset.Editor {
 
 			// 获取依赖关系
 			progress = 0;
-			foreach( var assetNode in resourcesNodes ) {
+			var totalCount = AssetNode.ResourcesNodes.Count;
+			foreach( var assetNode in AssetNode.ResourcesNodes ) {
 				progress++;
 				assetNode.Value.BuildRelation();
 				if( progress % 10 == 0 ) {
-					EditorUtility.DisplayProgressBar("Calculate resources relations", $"{progress} / {resourcesNodes.Count}",
-						progress / (float)resourcesNodes.Count);
+					EditorUtility.DisplayProgressBar("Calculate resources relations", $"{progress} / {totalCount}",
+						progress / (float)totalCount);
 				}
 			}
 
 			progress = 0;
-			foreach( var node in allAssetNodes ) {
+			totalCount = AssetNode.AllNodes.Count;
+			foreach( var node in AssetNode.AllNodes ) {
 				progress++;
 				node.Value.RemoveShorterLink();
 				if( progress % 10 == 0 ) {
-					EditorUtility.DisplayProgressBar("Remove shorter link", $"{progress} / {allAssetNodes.Count}", progress / (float)allAssetNodes.Count);
+					EditorUtility.DisplayProgressBar("Remove shorter link", $"{progress} / {totalCount}", progress / (float)totalCount);
 				}
 			}
 
 			progress = 0;
 			//var sb = new StringBuilder();
-			foreach( var node in allAssetNodes ) {
+			foreach( var node in AssetNode.AllNodes ) {
 				//sb.Append( node.Value.BuildGraphviz() );
 				node.Value.CalculateABName();
 				progress++;
-				EditorUtility.DisplayProgressBar("Assign bundle name", $"{progress} / {allAssetNodes.Count}", progress / (float)allAssetNodes.Count);
+				EditorUtility.DisplayProgressBar("Assign bundle name", $"{progress} / {totalCount}", progress / (float)totalCount);
 			}
 
 			//Debug.Log( sb.ToString() );
 			EditorUtility.ClearProgressBar();
+		}
+
+		public static void ExportRedundantFileCheckSumInfoByPath(BuildTarget target)
+		{
+			string packageConfPathDir = Path.Combine(Application.streamingAssetsPath, "ABBuild", $"{target}");
+			DirectoryInfo soundRoot = new DirectoryInfo(Path.Combine(Application.streamingAssetsPath, "Sounds"));
+			RedundantFileCheckSumInfo checkSumInfo = RedundantFileCheckSumInfo.CreateNewOrLoadInfos();
+			// 根据生成的package.conf文件，计算ab的md5值
+			foreach (var line in File.ReadLines($"{packageConfPathDir}/package.conf"))
+			{
+				var key = line.Split('|')[1];
+				var fullPath = Path.Combine($"{packageConfPathDir}", key);
+				checkSumInfo.Update(key, fullPath);
+			}
+			// 计算声音文件夹中的文件的md5值，可拓展
+			foreach (var fileInfo in soundRoot.GetFiles("*.*", SearchOption.AllDirectories).Where(fi => !fi.Name.EndsWith(".meta")))
+			{
+				checkSumInfo.Update(fileInfo.Name, fileInfo.FullName);
+			}
+			checkSumInfo.SaveFB();
 		}
 	}
 }

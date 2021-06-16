@@ -27,6 +27,8 @@ namespace Extend.Asset {
 		internal override void Recycle() {
 			SharedPool.Cache(gameObject);
 			base.Recycle();
+			
+			Destroy(this);
 		}
 	}
 }

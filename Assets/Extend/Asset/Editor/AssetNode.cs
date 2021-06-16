@@ -70,18 +70,17 @@ namespace Extend.Asset.Editor {
 
 	public class AssetNode {
 		public const string AB_EXTENSION = ".ab";
-		public string AssetPath => importer.assetPath;
+		public string AssetPath => m_path;
 
 		public string AssetName {
 			get {
-				if(!importer) {
+				if( string.IsNullOrEmpty(m_guid) ) {
 					Debug.Log("Missing : " + m_path);
 					return string.Empty;
 				}
 
-				var assetName = Path.GetDirectoryName(importer.assetPath) + "/" + Path.GetFileNameWithoutExtension(importer.assetPath);
-				assetName = assetName.Replace('\\', '/');
-				return assetName.ToLower();
+				var assetName = Path.GetDirectoryName(m_path) + "/" + Path.GetFileNameWithoutExtension(m_path);
+				return assetName;
 			}
 		}
 
@@ -90,43 +89,80 @@ namespace Extend.Asset.Editor {
 		public string AssetBundleName {
 			get => m_assetBundleName;
 			private set {
+				var val = FormatPath(value);
 				Assert.IsTrue(string.IsNullOrEmpty(m_assetBundleName));
 				Assert.IsFalse(Calculated);
 				Calculated = true;
-				m_assetBundleName = value;
-				AssetNodeCollector.Add(value, this);
+				m_assetBundleName = val;
+				AssetNodeCollector.Add(m_assetBundleName, this);
 			}
 		}
 
 		public string GUID => AssetDatabase.AssetPathToGUID(AssetPath);
 
 		private readonly List<AssetNode> referenceNodes = new List<AssetNode>();
-		private readonly AssetImporter importer;
 
 		private bool Calculated { get; set; }
-		private string m_path;
+		private readonly string m_path;
+		private readonly string m_guid;
 
-		public AssetNode(string path, string abName = "") {
+		private static string FormatPath(string path) {
+			return path.Replace('\\', '/').ToLower();
+		}
+
+		public static void Clear() {
+			AllNodes.Clear();
+			ResourcesNodes.Clear();
+		}
+
+		public static Dictionary<string, AssetNode> AllNodes { get; } = new Dictionary<string, AssetNode>();
+		public static Dictionary<string, AssetNode> ResourcesNodes { get; } = new Dictionary<string, AssetNode>();
+
+		public static AssetNode GetOrCreate(string path, string abName = "") {
+			path = FormatPath(path);
+			var guid = AssetDatabase.AssetPathToGUID(path);
+			if( string.IsNullOrEmpty(guid) ) {
+				throw new Exception("Can not find asset for path : " + path);
+			}
+
+			if( AllNodes.TryGetValue(guid, out var node) ) {
+				return node;
+			}
+
+			node = new AssetNode(path, guid, abName);
+			AllNodes.Add(guid, node);
+			if( path.Contains("/resources/") ) {
+				ResourcesNodes.Add(guid, node);
+			}
+			else if( Path.GetExtension(path) == ".spriteatlas" ) {
+				ResourcesNodes.Add(guid, node);
+			}
+
+			return node;
+		}
+
+		private AssetNode(string path, string guid, string abName) {
 			if( !path.StartsWith("assets", true, CultureInfo.InvariantCulture) ) {
 				Debug.LogError("Asset in not under assets : " + path);
 				return;
 			}
+
 			m_path = path;
-			importer = AssetImporter.GetAtPath(path);
-			if( !importer ) {
-				throw new Exception("Path is not valid : " + path);
+			m_guid = guid;
+			if( string.IsNullOrEmpty(m_guid) ) {
+				throw new Exception("Path is invalid : " + path);
 			}
 
-			AssetCustomProcesses.Process(importer);
+			AssetCustomProcesses.Process(AssetImporter.GetAtPath(path));
 			if( !string.IsNullOrEmpty(abName) ) {
 				AssetBundleName = abName;
 			}
 		}
 
-		public bool IsValid => importer != null;
+		public bool IsValid => !string.IsNullOrEmpty(m_guid);
 
 		private void AddReferenceNode(AssetNode node) {
-			if( referenceNodes.Contains(node) || node == this ) {
+			if( referenceNodes.Contains(node) || Equals(node, this) ) {
 				return;
 			}
 
@@ -134,11 +170,13 @@ namespace Extend.Asset.Editor {
 		}
 
 		public void BuildRelation() {
-			var dependencies = AssetDatabase.GetDependencies(AssetPath);
+			var importer = AssetImporter.GetAtPath(AssetName);
+			if( importer && importer is TrueTypeFontImporter ) {
+				return;
+			}
+			
+			var dependencies = AssetDatabase.GetDependencies(AssetPath, false);
 			foreach( var filePath in dependencies ) {
-				var extension = Path.GetExtension(filePath);
-				if( Array.IndexOf(BuildAssetRelation.IgnoreExtensions, extension) >= 0 )
-					continue;
 				var dependencyNode = BuildAssetRelation.GetNode(filePath);
 				dependencyNode?.AddReferenceNode(this);
 			}
@@ -182,13 +220,8 @@ namespace Extend.Asset.Editor {
 				if( Path.GetExtension(AssetPath) == ".prefab" )
 					return false;
 
-				if( importer is TextureImporter textureImporter ) {
-					if( textureImporter.textureType == TextureImporterType.Sprite ) {
-						return false;
-					}
-				}
-
-				return true;
+				var importer = AssetImporter.GetAtPath(m_path);
+				return !( importer is TextureImporter {textureType: TextureImporterType.Sprite} );
 			}
 		}
 

@@ -17,6 +17,9 @@ namespace Extend.Asset {
 		public AssetReference Result => new AssetReference(Asset);
 
 		public float Progress { get; private set; }
+		
+		public bool Cancel { get; set; }
+		
 		public string Location { get; set; }
 
 		[BlackList]
@@ -31,11 +34,16 @@ namespace Extend.Asset {
 		public delegate void OnAssetLoadComplete(AssetAsyncLoadHandle handle);
 
 		public event OnAssetLoadComplete OnComplete;
+		[BlackList]
 		public AssetInstance Asset { get; private set; }
 
 		[BlackList]
 		public void Complete() {
 			Progress = 1;
+			if( Cancel ) {
+				Result.Dispose();
+				return;
+			}
 			OnComplete?.Invoke(this);
 		}
 

@@ -73,8 +73,7 @@ namespace Extend.Asset.Editor.Process {
 		public void PostProcess() {
 			AssetDatabase.CreateAsset(m_collection, m_collectionPath);
 			AssetDatabase.Refresh();
-
-			BuildAssetRelation.AddNewAssetNode(m_collectionPath, "assets/shaders");
+			AssetNode.GetOrCreate(m_collectionPath, "assets/shaders");
 		}
 
 		public void Clear() {

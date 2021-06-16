@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using Extend.Asset.AssetProvider;
 using Extend.Common;
 using UnityEngine;
@@ -9,6 +10,7 @@ namespace Extend.Asset {
 		private AssetBundle AB { get; set; }
 		public string ABPath { get; }
 		private AssetBundleInstance[] m_dependencies;
+		private const int SYNC_LOAD_PRIORITY = 10;
 
 		public AssetBundleInstance(string abPath) {
 			ABPath = string.Intern(abPath);
@@ -81,8 +83,9 @@ namespace Extend.Asset {
 				}
 			}
 
-			var bundle = AssetBundle.LoadFromFile(AssetBundleLoadProvider.DetermineLocation(ABPath));
-			SetAssetBundle(bundle);
+			byte[] offsetData = System.Text.Encoding.UTF8.GetBytes(ABPath.GetHashCode().ToString());
+			var ab = AssetBundle.LoadFromFile(AssetBundleLoadProvider.DetermineLocation(ABPath), 0, (ulong)offsetData.Length);
+			SetAssetBundle(ab);
 		}
 
 		public void LoadAsync(Action callback) {
@@ -139,7 +142,8 @@ namespace Extend.Asset {
 				}
 			}
 
-			var req = AssetBundle.LoadFromFileAsync(AssetBundleLoadProvider.DetermineLocation(ABPath));
+			byte[] offsetData = System.Text.Encoding.UTF8.GetBytes(ABPath.GetHashCode().ToString());
+			var req = AssetBundle.LoadFromFileAsync(AssetBundleLoadProvider.DetermineLocation(ABPath), 0, (ulong)offsetData.Length);
 			req.completed += _ => {
 				selfLoaded = true;
 				SetAssetBundle(req.assetBundle);

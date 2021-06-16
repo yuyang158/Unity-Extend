@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using Extend.Common;
 using UnityEngine;
@@ -51,8 +52,18 @@ namespace Extend.Asset {
 
 		public PackedSprite.SpriteElement RequestIcon(string path) {
 			var directoryName = Path.GetDirectoryName(path);
-			var folderName = directoryName.Substring(directoryName.LastIndexOf('\\') + 1);
-			var size = int.Parse(folderName);
+			string folderName;
+			if( Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.WindowsPlayer ) {
+				folderName = directoryName.Substring(directoryName.LastIndexOf('\\') + 1);				
+			}
+			else {
+				folderName = directoryName.Substring(directoryName.LastIndexOf('/') + 1);
+			}
+			
+			if( !int.TryParse(folderName, out var size) ) {
+				Debug.LogError($"int parse error : {folderName}");
+				return null;
+			}
 
 			var packedSprite = m_packedSprites[size];
 			return packedSprite.Request(path);

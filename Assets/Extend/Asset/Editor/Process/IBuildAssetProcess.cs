@@ -26,6 +26,7 @@ namespace Extend.Asset.Editor.Process {
 			foreach( var type in typeCollection ) {
 				RegisterProcess(Activator.CreateInstance(type) as IBuildAssetProcess);
 			}
+
 			var files = Directory.GetFiles("Assets/Shaders", "*.shadervariants", SearchOption.AllDirectories);
 			foreach( var file in files ) {
 				File.Delete(file);
@@ -42,6 +43,8 @@ namespace Extend.Asset.Editor.Process {
 		}
 
 		public static void Process(AssetImporter importer) {
+			if( !importer )
+				return;
 			if( !extensionProcessesMap.TryGetValue(importer.GetType(), out var processes) ) {
 				return;
 			}
@@ -56,7 +59,7 @@ namespace Extend.Asset.Editor.Process {
 				process.PostProcess();
 			}
 		}
-		
+
 		public static void Clear() {
 			foreach( var process in extensionProcessesMap.Values.SelectMany(processes => processes) ) {
 				process.Clear();
