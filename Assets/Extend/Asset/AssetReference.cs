@@ -64,9 +64,7 @@ namespace Extend.Asset {
 		}
 
 		private T GetAsset<T>() where T : Object {
-			if( Asset == null ) {
-				Asset = AssetService.Get().LoadAssetWithGUID<T>(m_assetGUID);
-			}
+			Asset ??= AssetService.Get().LoadAssetWithGUID<T>(m_assetGUID);
 
 			if( Asset.Status != AssetRefObject.AssetStatus.DONE ) {
 				Debug.LogError($"Load failed : {Asset.AssetPath}   {Asset.Status}");

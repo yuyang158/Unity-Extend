@@ -79,8 +79,8 @@ namespace Extend.Asset.Editor {
 					return string.Empty;
 				}
 
-				var assetName = Path.GetDirectoryName(m_path) + "/" + Path.GetFileNameWithoutExtension(m_path);
-				return assetName;
+				var index = m_path.LastIndexOf('.');
+				return index == -1 ? m_path : m_path.Substring(0, index);
 			}
 		}
 
@@ -125,20 +125,14 @@ namespace Extend.Asset.Editor {
 				throw new Exception("Can not find asset for path : " + path);
 			}
 
-			if( AllNodes.TryGetValue(guid, out var node) ) {
-				return node;
-			}
+			return AllNodes.TryGetValue(guid, out var node) ? node : new AssetNode(path, guid, abName);
+		}
 
-			node = new AssetNode(path, guid, abName);
-			AllNodes.Add(guid, node);
-			if( path.Contains("/resources/") ) {
-				ResourcesNodes.Add(guid, node);
-			}
-			else if( Path.GetExtension(path) == ".spriteatlas" ) {
-				ResourcesNodes.Add(guid, node);
-			}
+		public void ForceAddToResourcesNode() {
+			if( ResourcesNodes.ContainsKey(m_guid) )
+				return;
 
-			return node;
+			ResourcesNodes.Add(m_guid, this);
 		}
 
 		private AssetNode(string path, string guid, string abName) {
@@ -153,7 +147,11 @@ namespace Extend.Asset.Editor {
 				throw new Exception("Path is invalid : " + path);
 			}
 
-			AssetCustomProcesses.Process(AssetImporter.GetAtPath(path));
+			AllNodes.Add(guid, this);
+			if( path.Contains("/resources/") ) {
+				ResourcesNodes.Add(guid, this);
+			}
+
 			if( !string.IsNullOrEmpty(abName) ) {
 				AssetBundleName = abName;
 			}
@@ -169,16 +167,17 @@ namespace Extend.Asset.Editor {
 			referenceNodes.Add(node);
 		}
 
+		private bool m_relationBuilt;
 		public void BuildRelation() {
-			var importer = AssetImporter.GetAtPath(AssetName);
-			if( importer && importer is TrueTypeFontImporter ) {
+			if( m_relationBuilt )
 				return;
-			}
-			
+			m_relationBuilt = true;
+
 			var dependencies = AssetDatabase.GetDependencies(AssetPath, false);
 			foreach( var filePath in dependencies ) {
 				var dependencyNode = BuildAssetRelation.GetNode(filePath);
 				dependencyNode?.AddReferenceNode(this);
+				dependencyNode?.BuildRelation();
 			}
 		}
 

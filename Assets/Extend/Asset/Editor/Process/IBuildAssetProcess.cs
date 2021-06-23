@@ -43,8 +43,6 @@ namespace Extend.Asset.Editor.Process {
 		}
 
 		public static void Process(AssetImporter importer) {
-			if( !importer )
-				return;
 			if( !extensionProcessesMap.TryGetValue(importer.GetType(), out var processes) ) {
 				return;
 			}

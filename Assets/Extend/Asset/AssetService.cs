@@ -55,7 +55,12 @@ namespace Extend.Asset {
 		[BlackList]
 		public void Initialize() {
 #if UNITY_EDITOR
-			m_provider = new ResourcesLoadProvider();
+			if( m_forceAssetBundleMode ) {
+				m_provider = new AssetBundleLoadProvider();
+			}
+			else {
+				m_provider = new ResourcesLoadProvider();
+			}
 #else
 			m_provider = new AssetBundleLoadProvider();
 #endif

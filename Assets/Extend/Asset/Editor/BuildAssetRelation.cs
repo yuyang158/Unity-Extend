@@ -25,7 +25,15 @@ namespace Extend.Asset.Editor {
 			if( Array.IndexOf(IgnoreExtensions, extension) >= 0 )
 				return null;
 
-			return !filePath.StartsWith("assets", true, CultureInfo.InvariantCulture) ? null : AssetNode.GetOrCreate(filePath);
+			var importer = AssetImporter.GetAtPath(filePath);
+			if( importer is TrueTypeFontImporter )
+				return null;
+			var node = !filePath.StartsWith("assets", true, CultureInfo.InvariantCulture) ? null : AssetNode.GetOrCreate(filePath);
+			if( importer ) {
+				AssetCustomProcesses.Process(importer);
+			}
+
+			return node;
 		}
 
 		public static IEnumerable<AssetNode> ResourcesNodes => AssetNode.ResourcesNodes.Values;
@@ -88,6 +96,7 @@ namespace Extend.Asset.Editor {
 
 							s_specialAB.Add(depNode.AssetName, s?.UnloadStrategy ?? BundleUnloadStrategy.Normal);
 						}
+						node.ForceAddToResourcesNode();
 					}
 				}
 			}
@@ -111,7 +120,8 @@ namespace Extend.Asset.Editor {
 				}
 				var scenePath = AssetDatabase.GetAssetPath(sceneAsset);
 				var sceneAbName = scenePath.Substring(0, scenePath.Length - 6).ToLower();
-				AssetNode.GetOrCreate(scenePath, sceneAbName);
+				var sceneNode = AssetNode.GetOrCreate(scenePath, sceneAbName);
+				sceneNode.ForceAddToResourcesNode();
 				var dependencies = AssetDatabase.GetDependencies(scenePath, false);
 				foreach( var dependency in dependencies ) {
 					if( Array.IndexOf(IgnoreExtensions, Path.GetExtension(dependency)) >= 0 )

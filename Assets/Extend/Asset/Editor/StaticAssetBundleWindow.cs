@@ -194,7 +194,7 @@ namespace Extend.Asset.Editor {
 				drawElementCallback = (rect, index, active, focused) => {
 					var sceneProp = scenesProp.GetArrayElementAtIndex(index);
 					EditorGUI.ObjectField(rect, sceneProp, GUIContent.none);
-				} 
+				}
 			};
 		}
 
@@ -258,12 +258,9 @@ namespace Extend.Asset.Editor {
 
 		private static string copyPath;
 
-		public static string CopyPath
-		{
-			get
-			{
-				if (string.IsNullOrEmpty(copyPath))
-				{
+		public static string CopyPath {
+			get {
+				if( string.IsNullOrEmpty(copyPath) ) {
 					MakeCopyDirectory(m_currentBuildTarget);
 				}
 
@@ -282,17 +279,15 @@ namespace Extend.Asset.Editor {
 				Directory.CreateDirectory(outputPath);
 			}
 		}
-		private static void MakeCopyDirectory(BuildTarget buildTarget)
-		{
+
+		private static void MakeCopyDirectory(BuildTarget buildTarget) {
 			buildRoot = $"{Application.streamingAssetsPath}/ABBuild";
-			if (!Directory.Exists(buildRoot))
-			{
+			if( !Directory.Exists(buildRoot) ) {
 				Directory.CreateDirectory(buildRoot);
 			}
 
 			copyPath = $"{buildRoot}/{buildTarget.ToString()}";
-			if (!Directory.Exists(copyPath))
-			{
+			if( !Directory.Exists(copyPath) ) {
 				Directory.CreateDirectory(copyPath);
 			}
 		}
@@ -339,18 +334,18 @@ namespace Extend.Asset.Editor {
 		/// build lua-like files(include '.lua' & '.proto')
 		/// </summary>
 		/// <param name="luaRootPath">absolute path</param>
-		private static void BuildLuaFile(string luaRootPath)
-		{
+		private static void BuildLuaFile(string luaRootPath) {
 			System.Diagnostics.Process process = new System.Diagnostics.Process();
 #if UNITY_EDITOR_WIN
-			process.StartInfo.WorkingDirectory = Path.Combine(Application.dataPath.Replace("Assets", ""), "xlua_build", "luac", "build64", "Release").Replace("/", @"\");
+			process.StartInfo.WorkingDirectory =
+				Path.Combine(Application.dataPath.Replace("Assets", ""), "xlua_build", "luac", "build64", "Release").Replace("/", @"\");
 			process.StartInfo.FileName = Path.Combine(process.StartInfo.WorkingDirectory, "build_lua.bat");
 			process.StartInfo.Arguments = luaRootPath.Replace("/", @"\");
-#else			
+#else
 			process.StartInfo.WorkingDirectory = Path.Combine(Application.dataPath.Replace("Assets", ""), "xlua_build", "luac", "build_unix");
 			process.StartInfo.FileName = "/bin/sh";
 			process.StartInfo.Arguments = Path.Combine(process.StartInfo.WorkingDirectory, "build_lua.sh") + " " + luaRootPath;
-#endif			
+#endif
 			process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
 			process.StartInfo.RedirectStandardOutput = true;
 			process.StartInfo.RedirectStandardError = true;
@@ -362,15 +357,14 @@ namespace Extend.Asset.Editor {
 			process.WaitForExit();
 			var output = process.StandardOutput.ReadToEnd();
 			var outputError = process.StandardError.ReadToEnd();
-			if (!string.IsNullOrEmpty(output))
-			{
+			if( !string.IsNullOrEmpty(output) ) {
 				Debug.Log(output);
 			}
 
-			if (!string.IsNullOrEmpty(outputError))
-			{
+			if( !string.IsNullOrEmpty(outputError) ) {
 				Debug.LogError(outputError);
 			}
+
 			process.Close();
 #if UNITY_EDITOR_WIN
 			DirectoryCopy($"{Application.dataPath}/../xlua_build/luac/build64/Release/Lua", $"{Application.dataPath}/Resources/Lua", true);
@@ -378,7 +372,7 @@ namespace Extend.Asset.Editor {
 			DirectoryCopy($"{Application.dataPath}/../xlua_build/luac/build_unix/Lua", $"{Application.dataPath}/Resources/Lua", true);
 #endif
 		}
-		
+
 		public static bool RebuildSelectedAssetBundles(BuildTarget target, bool appendLuaDir, int[] selectedIds) {
 			if( appendLuaDir ) {
 				BuildLuaFile(Path.Combine(Application.dataPath.Replace("Assets", ""), "Lua"));
@@ -394,7 +388,7 @@ namespace Extend.Asset.Editor {
 					if( !selectedIds.Contains(index) ) {
 						continue;
 					}
-					
+
 					var assetBundleName = parts[1];
 					var build = new AssetBundleBuild {
 						assetBundleName = assetBundleName
@@ -405,10 +399,11 @@ namespace Extend.Asset.Editor {
 					for( int i = 2; i < parts.Length; i++ ) {
 						build.assetNames[i - 2] = parts[i];
 					}
-					
+
 					builds.Add(build);
 				}
 			}
+
 			BuildPipeline.BuildAssetBundles(OutputPath, builds.ToArray(),
 				BuildAssetBundleOptions.DeterministicAssetBundle | BuildAssetBundleOptions.ChunkBasedCompression, target);
 			Directory.Delete($"{Application.dataPath}/Resources/Lua", true);
@@ -450,38 +445,37 @@ namespace Extend.Asset.Editor {
 						stream.WriteLine($"{i}\t{ctx.assetBundleName}\t{string.Join("\t", ctx.assetNames)}");
 					}
 				}
+
 				BuildPipeline.BuildAssetBundles(OutputPath, buildContext,
 					BuildAssetBundleOptions.DeterministicAssetBundle | BuildAssetBundleOptions.ChunkBasedCompression, target);
 				Directory.Delete($"{Application.dataPath}/Resources/Lua", true);
 				FinalClear();
 				//处理之前先删除streamingAssetsPath内的内容，以免有冗余的旧ab包打进安装包
-				if (Directory.Exists(CopyPath))
-				{
+				if( Directory.Exists(CopyPath) ) {
 					Directory.Delete(CopyPath, true);
 					Directory.CreateDirectory(CopyPath);
 				}
-				foreach (var item in buildContext)
-				{
+
+				foreach( var item in buildContext ) {
 					string abBuildOutPath = Path.Combine(OutputPath, item.assetBundleName);
 					string nameStrHash = item.assetBundleName.GetHashCode().ToString();
-					byte[] filedata = File.ReadAllBytes(abBuildOutPath);
 					byte[] offsetData = Encoding.UTF8.GetBytes(nameStrHash);
-					int offset = offsetData.Length;
-					int filelen = offset + filedata.Length;
-					byte[] buffer = new byte[filelen];
-					CopyData(buffer, offsetData, 0);
-					CopyData(buffer, filedata, offset);
-					//Debug.Log($"{CopyPath}    {item.assetBundleName}     {Path.Combine(CopyPath, item.assetBundleName)}");
 					string targetPath = Path.Combine(CopyPath, item.assetBundleName);
 					string directoryPath = Path.GetDirectoryName(targetPath);
-					if(!Directory.Exists(directoryPath))
-					{
-						Directory.CreateDirectory(directoryPath);
+					if( !Directory.Exists(directoryPath) ) {
+						Directory.CreateDirectory(directoryPath ?? string.Empty);
 					}
-					var fs = File.Open(targetPath, FileMode.OpenOrCreate, FileAccess.Write);
-					fs.Write(buffer, 0, filelen);
-					fs.Close();
+					using(var destFile = File.Open(targetPath, FileMode.OpenOrCreate, FileAccess.Write))
+					using( var sourceFile = new FileStream(abBuildOutPath, FileMode.Open) ) {
+						destFile.Write(offsetData, 0, offsetData.Length);
+						var buffer = new byte[1024];
+						while( sourceFile.Position < sourceFile.Length ) {
+							var size = sourceFile.Read(buffer, 0, buffer.Length);
+							destFile.Write(buffer, 0, size);
+						}
+					}
 				}
+
 				File.Copy($"{OutputPath}/package.conf", $"{CopyPath}/package.conf", true);
 				File.Copy($"{OutputPath}/{m_currentBuildTarget.ToString()}",
 					$"{CopyPath}/{m_currentBuildTarget.ToString()}", true);
@@ -495,10 +489,9 @@ namespace Extend.Asset.Editor {
 			finally {
 				AssetCustomProcesses.Shutdown();
 			}
-			return true;
 		}
-		static void CopyData(byte[] buffer, byte[] data, int offset)
-		{
+
+		static void CopyData(byte[] buffer, byte[] data, int offset) {
 			Array.Copy(data, 0, buffer, offset, data.Length);
 		}
 
@@ -508,7 +501,7 @@ namespace Extend.Asset.Editor {
 			foreach( var manifestFile in manifestFiles ) {
 				File.Delete(manifestFile);
 			}
-			
+
 			var manifestMetaFiles = Directory.GetFiles(OutputPath, "*.manifest.meta", SearchOption.AllDirectories);
 			foreach( var metaFile in manifestMetaFiles ) {
 				File.Delete(metaFile);
