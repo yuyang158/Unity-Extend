@@ -2,7 +2,7 @@
 
 namespace Extend.Common {
 	[RequireComponent(typeof(Animator))]
-	public class ProcessorTargetAnimator : ProcessorTargetBase {
+	public sealed class ProgressorTargetAnimator : ProgressorTargetBase {
 		[SerializeField]
 		private string m_parameterName;
 

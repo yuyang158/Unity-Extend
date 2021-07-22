@@ -5,7 +5,7 @@ using XLua;
 
 namespace Extend.Common {
 	[LuaCallCSharp]
-	public class Processor : MonoBehaviour {
+	public class Progressor : MonoBehaviour {
 		public float MinValue;
 		public float MaxValue = 1;
 
@@ -20,6 +20,7 @@ namespace Extend.Common {
 		public Ease Ease = DOTween.defaultEaseType;
 
 		private float m_displayValue;
+		private float m_time;
 
 		public float Value {
 			get => m_value;
@@ -37,14 +38,20 @@ namespace Extend.Common {
 					m_displayValue = value;
 					ApplyValue();
 				}
+				else {
+					m_time = ( m_value - MaxValue ) / ( MaxValue - MinValue ) * Duration;
+				}
 			}
 		}
 
 		[SerializeField, ReorderList]
-		private ProcessorTargetBase[] m_targets;
+		private ProgressorTargetBase[] m_targets;
 
 		private void OnEnable() {
 			m_displayValue = Value;
+		}
+
+		private void Start() {
 			ApplyValue();
 		}
 
@@ -52,7 +59,7 @@ namespace Extend.Common {
 			if( !enabled )
 				return;
 			foreach( var target in m_targets ) {
-				target.ApplyProgress(m_displayValue);
+				target.ApplyProgress(( m_displayValue - MinValue ) / ( MaxValue - MinValue ));
 			}
 		}
 
@@ -63,7 +70,7 @@ namespace Extend.Common {
 			DOTween.To(() => m_displayValue, x => {
 				m_displayValue = x;
 				ApplyValue();
-			}, Value, Duration).SetEase(Ease);
+			}, Value, m_time).SetEase(Ease);
 		}
 	}
 }
