@@ -369,8 +369,10 @@ namespace Extend.UI.Scroll {
 				itemTypeStart = 0;
 				itemTypeEnd = 0;
 				totalCount = 0;
-				for( var i = content.childCount - 1; i >= 0; i-- ) {
-					AssetService.Recycle(content.GetChild(i));
+				while( content.childCount > 0 ) {
+					var t = content.GetChild(0);
+					t.SetParent(null);
+					AssetService.Recycle(t);
 				}
 			}
 		}
@@ -472,7 +474,7 @@ namespace Extend.UI.Scroll {
 		}
 
 		public void RefillCellsFromEnd(int offset = 0, bool alignStart = false) {
-			if( !Application.isPlaying || CellAsset == null || !CellAsset.GUIDValid )
+			if( !Application.isPlaying )
 				return;
 
 			StopMovement();
@@ -518,7 +520,7 @@ namespace Extend.UI.Scroll {
 		}
 
 		public void RefillCells(int offset = 0, bool fillViewRect = false) {
-			if( !Application.isPlaying || !( CellAsset is {GUIDValid: true} ) )
+			if( !Application.isPlaying )
 				return;
 
 			StopMovement();
@@ -715,11 +717,17 @@ namespace Extend.UI.Scroll {
 				nextItem.SetSiblingIndex(itemIdx - itemTypeStart + deletedItemTypeStart);
 			}
 			else {
-				nextItem = CellAsset.Instantiate(content).transform as RectTransform;
+				if( CellAsset is {GUIDValid: false} ) {
+					var assetReference = dataSource.ProvideAssetReference(itemIdx);
+					nextItem = assetReference.Instantiate(content).transform as RectTransform;
+				}
+				else {
+					nextItem = CellAsset.Instantiate(content).transform as RectTransform;
+				}
 				nextItem.gameObject.SetActive(true);
 			}
 
-			dataSource.ProvideData(nextItem, itemIdx);
+			dataSource?.ProvideData(nextItem, itemIdx);
 			return nextItem;
 		}
 
