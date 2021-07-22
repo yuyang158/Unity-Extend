@@ -1,9 +1,8 @@
 ﻿using System;
-using Extend.Asset;
 using UnityEngine;
 using XLua;
 
-namespace Extend.LuaBindingEvent.AnimationEvent {
+namespace Extend.EventAsset {
 	[CreateAssetMenu(fileName = "EventInstance", menuName = "Event/Event Instance", order = 1), LuaCallCSharp]
 	public class EventInstance : ScriptableObject {
 		public string EventName;

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Extend.EventAsset;
+using UnityEngine;
 using XLua;
 
 namespace Extend.LuaBindingEvent.AnimationEvent {

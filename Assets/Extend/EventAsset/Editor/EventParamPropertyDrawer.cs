@@ -3,7 +3,7 @@ using Extend.Common.Editor;
 using UnityEditor;
 using UnityEngine;
 
-namespace Extend.LuaBindingEvent.Editor {
+namespace Extend.EventAsset.Editor {
 	[CustomPropertyDrawer(typeof(EventParam))]
 	public class EventParamPropertyDrawer : PropertyDrawer {
 		public override void OnGUI(Rect position, SerializedProperty paramProp, GUIContent label) {

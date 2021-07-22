@@ -1,0 +1,19 @@
+{
+    "name": "Extend.EventAsset.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:937e3e5d85b13234fa5ed62a2469315e",
+        "GUID:45fc0be54141d6044996cb19c30f85c3"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

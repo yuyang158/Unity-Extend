@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using Extend.Common;
+using Extend.EventAsset;
 using Extend.LuaUtil;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.EventSystems;
 using XLua;
 
 namespace Extend.LuaBindingEvent {
@@ -40,7 +40,7 @@ namespace Extend.LuaBindingEvent {
 			};
 		}
 
-		protected void TriggerPointerEvent(string eventName, IEnumerable<BindingEvent> events, PointerEventData data) {
+		protected void TriggerPointerEvent(string eventName, IEnumerable<BindingEvent> events, object data) {
 			if( m_selectable != null && !m_selectable.interactable )
 				return;
 

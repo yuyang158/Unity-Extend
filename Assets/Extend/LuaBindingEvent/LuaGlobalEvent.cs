@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Extend.Asset;
 using Extend.Asset.Attribute;
-using Extend.LuaBindingEvent.AnimationEvent;
+using Extend.EventAsset;
 using Extend.LuaUtil;
 using UnityEngine;
 using XLua;

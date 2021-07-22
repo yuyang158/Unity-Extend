@@ -1,0 +1,17 @@
+{
+    "name": "Extend.EventAsset",
+    "rootNamespace": "",
+    "references": [
+        "GUID:5244392fac2b89c4a9fa7a5b7a72a1b1",
+        "GUID:22784c00bfb32f049827a00b892b0d3c"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Extend.Common;
+using Extend.EventAsset;
 using Extend.LuaUtil;
 using UnityEngine;
 using XLua;

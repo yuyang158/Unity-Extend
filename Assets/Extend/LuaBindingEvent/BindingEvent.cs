@@ -1,26 +1,8 @@
 ﻿using System;
-using Extend.Asset;
-using Extend.LuaBindingEvent.AnimationEvent;
+using Extend.EventAsset;
 using XLua;
 
 namespace Extend.LuaBindingEvent {
-	[Serializable]
-	public class EventParam {
-		public enum ParamType : byte {
-			None,
-			Int,
-			Float,
-			String,
-			AssetRef
-		}
-
-		public int Int;
-		public float Float;
-		public string Str;
-		public AssetReference AssetRef;
-		public ParamType Type;
-	}
-
 	[Serializable]
 	public class LuaEmmyFunction {
 		public LuaBinding Binding;
