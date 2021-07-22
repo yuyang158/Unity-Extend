@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Extend.Common;
+using Unity.Collections;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -68,6 +69,11 @@ namespace Extend.Asset {
 				filterMode = FilterMode.Bilinear,
 				name = $"Packed Sprite Texture : {spriteSize}"
 			};
+			NativeArray<Color32> color32s = new NativeArray<Color32>(width * height, Allocator.Temp);
+			for( int i = 0; i < width * height; i++ ) {
+				color32s[i] = new Color32(0, 0, 0, 0);
+			}
+			m_packTexture.SetPixelData(color32s, 0);
 			m_spriteSize = spriteSize;
 
 			var sizeWithPadding = spriteSize + DEFAULT_PADDING;
@@ -119,17 +125,14 @@ namespace Extend.Asset {
 			if( packed ) {
 				m_inUsed[path] = element;
 			}
-			var loadHandle = AssetService.Get().LoadAsync(path, typeof(TextAsset));
-			loadHandle.OnComplete += handle => {
-				if( handle.Result.AssetStatus != AssetRefObject.AssetStatus.DONE ) {
+			
+			FileLoader.LoadFileAsync(path + ".bytes", bytes => {
+				if( bytes == null ) {
+					element.Trigger();
 					return;
 				}
-
-				var assetRef = handle.Result;
-				var textAsset = assetRef.GetTextAsset();
 				var texture = new Texture2D(m_spriteSize, m_spriteSize);
-				texture.LoadImage(textAsset.bytes, false);
-				assetRef.Dispose();
+				texture.LoadImage(bytes, false);
 
 				if( m_spriteSize != texture.width || m_spriteSize != texture.height ) {
 					Object.Destroy(texture);
@@ -150,7 +153,7 @@ namespace Extend.Asset {
 					}
 					element.Trigger();
 				}
-			};
+			});
 			return element;
 		}
 

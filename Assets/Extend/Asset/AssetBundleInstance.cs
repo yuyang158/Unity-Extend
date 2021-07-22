@@ -1,5 +1,4 @@
 using System;
-using System.Threading;
 using Extend.Asset.AssetProvider;
 using Extend.Common;
 using UnityEngine;
@@ -74,6 +73,9 @@ namespace Extend.Asset {
 			if( IsFinished )
 				throw new Exception($"Repeat loading : {ABPath}");
 
+			if( Status == AssetStatus.ASYNC_LOADING )
+				throw new Exception($"Async sync load perform in same asset bundle : {ABPath}");
+
 			Status = AssetStatus.ASYNC_LOADING;
 			if( m_dependencies != null ) {
 				foreach( var dependency in m_dependencies ) {
@@ -84,7 +86,7 @@ namespace Extend.Asset {
 			}
 
 			byte[] offsetData = System.Text.Encoding.UTF8.GetBytes(ABPath.GetHashCode().ToString());
-			var ab = AssetBundle.LoadFromFile(AssetBundleLoadProvider.DetermineLocation(ABPath), 0, (ulong)offsetData.Length);
+			var ab = AssetBundle.LoadFromFile(FileLoader.DetermineBundleLocation(ABPath), 0, (ulong)offsetData.Length);
 			SetAssetBundle(ab);
 		}
 
@@ -143,7 +145,7 @@ namespace Extend.Asset {
 			}
 
 			byte[] offsetData = System.Text.Encoding.UTF8.GetBytes(ABPath.GetHashCode().ToString());
-			var req = AssetBundle.LoadFromFileAsync(AssetBundleLoadProvider.DetermineLocation(ABPath), 0, (ulong)offsetData.Length);
+			var req = AssetBundle.LoadFromFileAsync(FileLoader.DetermineBundleLocation(ABPath), 0, (ulong)offsetData.Length);
 			req.completed += _ => {
 				selfLoaded = true;
 				SetAssetBundle(req.assetBundle);
