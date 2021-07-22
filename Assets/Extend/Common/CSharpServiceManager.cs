@@ -113,7 +113,7 @@ namespace Extend.Common {
 			}
 		}
 
-		public static void CleanUp() {
+		private static void CleanUp() {
 			Debug.LogWarning("Game Exit!");
 			updateableServices.Clear();
 			for( int i = services.Length - 1; i >= 0; i-- ) {

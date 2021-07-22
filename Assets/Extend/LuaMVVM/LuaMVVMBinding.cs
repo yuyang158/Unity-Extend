@@ -47,6 +47,7 @@ namespace Extend.LuaMVVM {
 		}
 
 		private void Awake() {
+			BindingOptions.Sort();
 			foreach( var option in BindingOptions.Options ) {
 				option.Prepare(gameObject);
 			}

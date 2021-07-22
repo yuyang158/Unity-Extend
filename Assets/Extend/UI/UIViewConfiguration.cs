@@ -61,6 +61,7 @@ namespace Extend.UI {
 			public CloseOption CloseMethod = CloseOption.None;
 
 			public string CloseButtonPath;
+
 			[BlackList]
 			public Guid ViewGuid;
 
@@ -88,7 +89,7 @@ namespace Extend.UI {
 
 		private Dictionary<string, Configuration> m_hashedConfigurations;
 		public static UIViewConfiguration GlobalInstance { get; private set; }
-		public const string FILE_PATH = "Config/UIViewConfiguration";
+		private const string FILE_PATH = "Config/UIViewConfiguration";
 
 		public Configuration FindWithGuid(Guid guid) {
 			return m_configurations.FirstOrDefault(configuration => configuration.ViewGuid == guid);
@@ -160,12 +161,25 @@ namespace Extend.UI {
 		}
 
 		public static UIViewConfiguration Load() {
+			List<Configuration> configurations = new List<Configuration>();
+#if UNITY_EDITOR
+			if( !File.Exists($"{Application.streamingAssetsPath}/{FILE_PATH}.xml") ) {
+				var newInstance = CreateInstance<UIViewConfiguration>();
+				newInstance.m_configurations = configurations.ToArray();
+				foreach( var configuration in configurations ) {
+					newInstance.m_guidHashedConfigurations.Add(configuration.ViewGuid, configuration);
+				}
+
+				GlobalInstance = newInstance;
+				return newInstance.ConvertData();
+			}
+#endif
 			var document = new XmlDocument();
 			using( var stream = FileLoader.LoadFileSync($"{FILE_PATH}.xml") ) {
 				document.Load(stream);
 			}
+
 			var rootElement = document.DocumentElement;
-			List<Configuration> configurations = new List<Configuration>();
 			foreach( XmlElement childElement in rootElement ) {
 				var configuration = new Configuration {
 					Name = childElement.GetAttribute("Name"),
@@ -201,6 +215,7 @@ namespace Extend.UI {
 			foreach( var configuration in configurations ) {
 				instance.m_guidHashedConfigurations.Add(configuration.ViewGuid, configuration);
 			}
+
 			GlobalInstance = instance;
 			return instance.ConvertData();
 		}

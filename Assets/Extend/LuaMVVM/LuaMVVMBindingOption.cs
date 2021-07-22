@@ -12,10 +12,14 @@ namespace Extend.LuaMVVM {
 	[Serializable]
 	public class LuaMVVMBindingOptions {
 		public LuaMVVMBindingOption[] Options;
+
+		public void Sort() {
+			Array.Sort(Options);
+		}
 	}
 
 	[Serializable]
-	public class LuaMVVMBindingOption {
+	public class LuaMVVMBindingOption : IComparable<LuaMVVMBindingOption> {
 		public enum BindMode : byte {
 			ONE_WAY,
 			TWO_WAY,
@@ -141,8 +145,20 @@ namespace Extend.LuaMVVM {
 			}
 		}
 
+		public int CompareTo(LuaMVVMBindingOption other) {
+			if( BindTargetProp == "SetActive" ) {
+				return -1;
+			}
+
+			if( other.BindTargetProp == "SetActive" ) {
+				return 1;
+			}
+
+			return BindTarget.GetInstanceID().CompareTo(other.BindTarget.GetInstanceID());
+		}
+
 		public override string ToString() {
-			return $"Binding {BindTarget}->{Path}";
+			return $"Binding {BindTarget}.{BindTargetProp} = {Path}";
 		}
 
 		public string GetExpressionKey() {

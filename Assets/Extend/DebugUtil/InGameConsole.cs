@@ -392,6 +392,7 @@ namespace Extend.DebugUtil {
 		}
 
 		public void Destroy() {
+			luaCommands.Clear();
 			// AssetService.Recycle(gameObject);
 		}
 	}

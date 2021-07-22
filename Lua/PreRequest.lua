@@ -37,8 +37,8 @@ SM.RegisterService(SM.SERVICE_TYPE.EVENT_BINDING, EventBindingService)
 return {
 	init = function()
 		UIService.AfterSceneLoaded()
-		UIService.Show("Login", function()
-		end)
+		-- UIService.Show("Login", function()
+		-- end)
 	end,
 	shutdown = function()
 		SM.Shutdown()
