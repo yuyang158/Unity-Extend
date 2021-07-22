@@ -12,7 +12,7 @@ namespace Extend.Asset.Editor {
 		private static void Init() {
 			EditorApplication.projectWindowItemOnGUI += (guid, rect) => {
 				var assetPath = AssetDatabase.GUIDToAssetPath(guid);
-				if( !assetPath.StartsWith("Assets/Resources/UI/Icon") )
+				if( !assetPath.StartsWith("Assets/StreamingAssets/UI/Icon") )
 					return;
 
 				if( Path.GetExtension(assetPath) != ".bytes" ) {
@@ -28,8 +28,13 @@ namespace Extend.Asset.Editor {
 
 				if( !m_cachedTexture.TryGetValue(guid, out var texture) ) {
 					texture = LoadIconTexture(assetPath);
+					if( texture == null ) {
+						Debug.LogError("Load texture error : " + assetPath);
+						return;
+					}
 					m_cachedTexture.Add(guid, texture);
 				}
+
 				EditorGUI.DrawTextureTransparent(rect, texture);
 			};
 		}
@@ -47,13 +52,13 @@ namespace Extend.Asset.Editor {
 		}
 
 		public static Texture2D LoadIconTexture(string assetPath) {
-			var asset = AssetDatabase.LoadAssetAtPath<TextAsset>(assetPath);
+			var bytes = File.ReadAllBytes(assetPath);
 			var tex = new Texture2D(2, 2);
-			tex.LoadImage(asset.bytes);
+			tex.LoadImage(bytes);
 			return tex;
 		}
 	}
-	
+
 	[CustomEditor(typeof(IconAssetAssignment))]
 	public class IconAssetAssignmentEditor : UnityEditor.Editor {
 		private string m_currentIcon;
@@ -68,8 +73,8 @@ namespace Extend.Asset.Editor {
 
 			if( m_currentIcon != m_iconAssignment.IconPath ) {
 				m_currentIcon = m_iconAssignment.IconPath;
-				var path = "Assets/Resources/" + m_currentIcon + ".bytes";
-				if( string.IsNullOrEmpty(AssetDatabase.AssetPathToGUID(path)) ) {
+				var path = "Assets/StreamingAssets/" + m_currentIcon + ".bytes";
+				if( !File.Exists(path) ) {
 					return;
 				}
 

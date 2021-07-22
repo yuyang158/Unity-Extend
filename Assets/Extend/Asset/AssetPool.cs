@@ -40,12 +40,12 @@ namespace Extend.Asset {
 			if( m_cached.Count == 0 ) {
 				m_cacheStart = Time.time;
 			}
-			
-			#if UNITY_DEBUG
+
+#if UNITY_DEBUG
 			if( m_cached.Contains(go) ) {
 				throw new Exception($"GameObject exist in pool {go.name}");
 			}
-			#endif
+#endif
 
 			if( m_cached.Count >= MaxSize ) {
 				Object.Destroy(go);
@@ -93,6 +93,7 @@ namespace Extend.Asset {
 			else {
 				go = Object.Instantiate(m_assetInstance.UnityObject, position, quaternion, parent) as GameObject;
 			}
+
 			var config = go.GetOrAddComponent<PoolCacheGO>();
 			config.SharedPool = this;
 			config.PrefabAsset = m_assetInstance;
@@ -103,7 +104,8 @@ namespace Extend.Asset {
 		public void Dispose() {
 			StatService.Get().Increase(StatService.StatName.IN_POOL_GO, -m_cached.Count);
 			m_cached.Clear();
-			Object.Destroy(PoolNode.gameObject);
+			if( PoolNode )
+				Object.Destroy(PoolNode.gameObject);
 		}
 
 		public void Update() {

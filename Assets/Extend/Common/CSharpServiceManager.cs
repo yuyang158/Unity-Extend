@@ -46,11 +46,11 @@ namespace Extend.Common {
 			}
 
 			Initialized = true;
-			var go = new GameObject("CSharpServiceManager");
+			var go = new GameObject("CSharpServiceManager", typeof(UnityMainThreadDispatcher));
 			DontDestroyOnLoad(go);
 			Instance = go.AddComponent<CSharpServiceManager>();
 
-			Application.quitting += Clear;
+			Application.quitting += CleanUp;
 		}
 
 		private static readonly IService[] services = new IService[64];
@@ -113,7 +113,8 @@ namespace Extend.Common {
 			}
 		}
 
-		public static void Clear() {
+		public static void CleanUp() {
+			Debug.LogWarning("Game Exit!");
 			updateableServices.Clear();
 			for( int i = services.Length - 1; i >= 0; i-- ) {
 				var service = services[i];
@@ -122,12 +123,7 @@ namespace Extend.Common {
 				Unregister(service.ServiceType);
 			}
 
-			Destroy(Instance.gameObject);
 			Initialized = false;
-		}
-
-		private void OnDestroy() {
-			Application.quitting -= Clear;
 		}
 	}
 }

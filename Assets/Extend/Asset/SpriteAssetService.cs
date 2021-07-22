@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using Extend.Common;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Extend.Asset {
 	public class SpriteAssetService : IService, IServiceUpdate {
@@ -50,20 +51,31 @@ namespace Extend.Asset {
 		private readonly Dictionary<string, AssetInstance> m_sprites = new Dictionary<string, AssetInstance>();
 		private readonly Dictionary<int, PackedSprite> m_packedSprites = new Dictionary<int, PackedSprite>();
 
+
+		private Sprite m_loadingSprite;
+		private Material m_rotationMat;
+
 		public PackedSprite.SpriteElement RequestIcon(string path) {
 			var directoryName = Path.GetDirectoryName(path);
 			string folderName;
 			if( Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.WindowsPlayer ) {
-				folderName = directoryName.Substring(directoryName.LastIndexOf('\\') + 1);				
+				folderName = directoryName.Substring(directoryName.LastIndexOf('\\') + 1);
 			}
 			else {
 				folderName = directoryName.Substring(directoryName.LastIndexOf('/') + 1);
 			}
-			
+
 			if( !int.TryParse(folderName, out var size) ) {
 				Debug.LogError($"int parse error : {folderName}");
 				return null;
 			}
+
+#if UNITY_EDITOR
+			if( !m_packedSprites.ContainsKey(size) ) {
+				Debug.LogError($"Not support texture size : {size}, {path}");
+				return null;
+			}
+#endif
 
 			var packedSprite = m_packedSprites[size];
 			return packedSprite.Request(path);
@@ -82,6 +94,7 @@ namespace Extend.Asset {
 					else {
 						ret = SpriteLoadingHandle.Create(assignment, spriteAsset, path);
 					}
+
 					return ret;
 				}
 			}
@@ -118,19 +131,39 @@ namespace Extend.Asset {
 		}
 
 		public void Initialize() {
-			m_packedSprites.Add(128, new PackedSprite(128));
-			m_packedSprites.Add(256, new PackedSprite(256));
+			m_packedSprites.Add(124, new PackedSprite(124));
+			m_packedSprites.Add(252, new PackedSprite(252, false, 2048));
+
+			using( var assetReference = AssetService.Get().Load("UI/Common/IconLoading", typeof(Sprite)) ) {
+				m_loadingSprite = assetReference.GetSprite();
+			}
+
+			using( var assetReference = AssetService.Get().Load("UI/Common/UIRotate", typeof(Material)) ) {
+				m_rotationMat = assetReference.GetMaterial();
+			}
+		}
+
+		public void ApplyLoadingFx(Image img) {
+			img.material = m_rotationMat;
+			img.sprite = m_loadingSprite;
+		}
+
+		public void ClearLoadingFx(Image img) {
+			img.material = null;
+			img.sprite = null;
 		}
 
 		public void Destroy() {
 			foreach( var spriteInstance in m_sprites.Values ) {
 				spriteInstance.Destroy();
 			}
+
 			m_sprites.Clear();
 
 			foreach( var packedSprite in m_packedSprites.Values ) {
 				packedSprite.Dispose();
 			}
+
 			m_packedSprites.Clear();
 		}
 

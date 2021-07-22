@@ -1,8 +1,7 @@
 ﻿using Extend.Asset;
-using Extend.LuaBindingEvent.AnimationEvent;
+using Extend.EventAsset;
 using Extend.Network.SocketClient;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using XLua;
 
 namespace Extend.LuaUtil {
@@ -31,19 +30,19 @@ namespace Extend.LuaUtil {
 	public delegate void DetachLuaProperty(LuaTable self, string path, WatchCallback callback);
 
 	[CSharpCallLua]
-	public delegate void NoneEventAction(LuaTable t, PointerEventData data);
+	public delegate void NoneEventAction(LuaTable t, object data);
 
 	[CSharpCallLua]
-	public delegate void IntEventAction(LuaTable t, PointerEventData data, int val);
+	public delegate void IntEventAction(LuaTable t, object data, int val);
 
 	[CSharpCallLua]
-	public delegate void FloatEventAction(LuaTable t, PointerEventData data, float val);
+	public delegate void FloatEventAction(LuaTable t, object data, float val);
 
 	[CSharpCallLua]
-	public delegate void StringEventAction(LuaTable t, PointerEventData data, string val);
+	public delegate void StringEventAction(LuaTable t, object data, string val);
 
 	[CSharpCallLua]
-	public delegate void AssetEventAction(LuaTable t, PointerEventData data, AssetReference val);
+	public delegate void AssetEventAction(LuaTable t, object data, AssetReference val);
 
 	[CSharpCallLua]
 	public delegate void PropertyChangedAction(Component sender, object value);
@@ -70,7 +69,7 @@ namespace Extend.LuaUtil {
 	public delegate void SetupLuaNewClassCallback(LuaTable classMeta, LuaTable parentClassMeta);
 
 	[CSharpCallLua]
-	public delegate void BindingEventDispatch(int id, PointerEventData eventData);
+	public delegate void BindingEventDispatch(int id, object eventData);
 
 	[CSharpCallLua]
 	public delegate void BindEvent(string eventName, GameObject go, LuaFunction func);

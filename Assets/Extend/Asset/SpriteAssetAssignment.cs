@@ -49,7 +49,6 @@ namespace Extend.Asset {
 			
 #if UNITY_EDITOR
 			if( !Common.CSharpServiceManager.Initialized ) {
-				Debug.LogError($"Asset : {m_spritePath} release after system destroy.");
 				return;
 			}
 #endif

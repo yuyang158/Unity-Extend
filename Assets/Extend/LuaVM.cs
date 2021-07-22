@@ -6,10 +6,14 @@ using Extend.Common;
 using Extend.LuaMVVM;
 using Extend.LuaUtil;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using XLua;
 using Debug = UnityEngine.Debug;
 
 namespace Extend {
+	[CSharpCallLua]
+	public delegate void SendCSharpMessage(string message, PointerEventData eventData);
+
 	public class LuaVM : IService, IServiceUpdate, IDisposable {
 		private LuaMemoryLeakChecker.Data leakData;
 #if !UNITY_EDITOR
@@ -20,6 +24,7 @@ namespace Extend {
 		private LuaEnv Default { get; set; }
 		public LuaTable Global => Default.Global;
 		public LuaTable DestroyedTableMeta { private set; get; }
+		public SendCSharpMessage SendCSharpMessage { get; private set; }
 
 		public static Action OnPreRequestLoaded;
 
@@ -41,8 +46,12 @@ namespace Extend {
 			return ret;
 		}
 
-		public object[] DoString(string code, string chunkName = "chuck") {
-			return Default.DoString(code, chunkName);
+		public object[] DoString(string code, string chunkName = "chuck", LuaTable env = null) {
+			return Default.DoString(code, chunkName, env);
+		}
+		
+		public object[] DoBindingString(string code, string chunkName = "chuck") {
+			return Default.DoString(code, chunkName, m_bindingEnv);
 		}
 
 		public int ServiceType => (int)CSharpServiceManager.ServiceType.LUA_SERVICE;
@@ -55,6 +64,7 @@ namespace Extend {
 		public LuaClassCache LuaClassCache { get; private set; }
 		public static Action OnVMCreated;
 		public static Action OnVMQuiting;
+		private LuaTable m_bindingEnv;
 
 		private static byte[] LoadFile(ref string filename, string extension) {
 #if UNITY_EDITOR
@@ -107,12 +117,14 @@ namespace Extend {
 				leakData = Default.StartMemoryLeakCheck();
 #endif
 			AssetService.Get().AddAfterDestroy(this);
-
 			DestroyedTableMeta = Global.Get<LuaTable>("DestroyedTableMeta");
 		}
 
 		public void StartUp() {
 			OnInit.Action<Func<string, byte[]>>(filename => LoadFile(ref filename, ".lua"));
+
+			SendCSharpMessage = Default.Global.GetInPath<SendCSharpMessage>("_CSMessageService.OnMessage");
+			m_bindingEnv = Default.Global.GetInPath<LuaTable>("_BindingEnv");
 		}
 
 		private GetGlobalVM m_getGlobalVMFunc;
@@ -149,6 +161,7 @@ namespace Extend {
 
 		public void Destroy() {
 			OnDestroy.Call();
+
 			TempBindingExpressCache.Clear();
 			OnVMQuiting?.Invoke();
 

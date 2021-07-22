@@ -456,6 +456,7 @@ namespace Extend.Asset.Editor {
 					Directory.CreateDirectory(CopyPath);
 				}
 
+				Debug.Log("Start Encryption & Copy.");
 				foreach( var item in buildContext ) {
 					string abBuildOutPath = Path.Combine(OutputPath, item.assetBundleName);
 					string nameStrHash = item.assetBundleName.GetHashCode().ToString();
@@ -476,6 +477,7 @@ namespace Extend.Asset.Editor {
 					}
 				}
 
+				Debug.Log("Start Copy package.conf");
 				File.Copy($"{OutputPath}/package.conf", $"{CopyPath}/package.conf", true);
 				File.Copy($"{OutputPath}/{m_currentBuildTarget.ToString()}",
 					$"{CopyPath}/{m_currentBuildTarget.ToString()}", true);

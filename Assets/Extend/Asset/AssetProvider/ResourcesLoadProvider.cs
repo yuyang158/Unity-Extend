@@ -34,6 +34,9 @@ namespace Extend.Asset.AssetProvider {
 			else {
 				var req = Resources.LoadAsync(loadHandle.Location, typ);
 				req.completed += operation => {
+					if( !req.asset ) {
+						Debug.LogError("Load fail for : " + loadHandle.Location);
+					}
 					loadHandle.Asset.SetAsset(operation.isDone ? req.asset : null, null);
 				};
 			}

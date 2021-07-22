@@ -5,7 +5,11 @@ using DG.Tweening;
 using UnityEngine;
 
 namespace Extend.Common {
+#if UNITY_DEBUG
+	public class StatService : IService, IServiceUpdate {
+#else
 	public class StatService : IService {
+#endif
 		public int ServiceType => (int)CSharpServiceManager.ServiceType.STAT;
 
 		public static StatService Get() {
@@ -20,6 +24,7 @@ namespace Extend.Common {
 			IN_USE_GO,
 			IN_POOL_GO,
 			ACTIVE_TWEEN,
+			MVVM_DISPATCH,
 			COUNT
 		}
 
@@ -30,7 +35,8 @@ namespace Extend.Common {
 			"Asset",
 			"In Used GO",
 			"In Pool GO",
-			"Active Tween Count"
+			"Active Tween Count",
+			"Mvvm Change"
 		};
 
 		private readonly long[] m_stats = new long[(int)StatName.COUNT];
@@ -66,6 +72,7 @@ namespace Extend.Common {
 				var type = (StatName)i;
 				LogStat("Stat", type.ToString(), m_stats[i].ToString());
 			}
+
 			m_writer.Close();
 		}
 
@@ -76,7 +83,7 @@ namespace Extend.Common {
 				builder.AppendLine($"{STAT_DESCRIPTIONS[i]} : {m_stats[i].ToString()}");
 			}
 		}
-		
+
 		public static void Upload() {
 			var releaseType = IniRead.SystemSetting.GetString("GAME", "Mode");
 			var qs = new NameValueCollection {
@@ -85,5 +92,16 @@ namespace Extend.Common {
 			var url = IniRead.SystemSetting.GetString("DEBUG", "LogUploadUrl");
 			Utility.HttpFileUpload(url, qs, Application.persistentDataPath + "/stat.log");
 		}
+
+#if UNITY_DEBUG
+		public void Update() {
+			var mvvmValueChangeCount = Get(StatName.MVVM_DISPATCH);
+			if( mvvmValueChangeCount > 100 ) {
+				Debug.LogWarning($"Current frame : {Time.frameCount} trigger mvvm value change : {mvvmValueChangeCount}");
+			}
+
+			Set(StatName.MVVM_DISPATCH, 0);
+		}
+#endif
 	}
 }

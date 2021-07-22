@@ -1,11 +1,7 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using DG.Tweening;
 using Extend.Common;
 using Extend.UI.Animation;
-using Extend.UI.Attributes;
 using UnityEngine;
 
 namespace Extend.UI {
@@ -71,6 +67,11 @@ namespace Extend.UI {
 			else if( Mode == AnimationMode.PUNCH ) {
 				m_punch.Editor_Recovery(transform);
 			}
+		}
+
+		public void Destroy() {
+			m_state?.Destroy();
+			m_punch?.Destroy();
 		}
 	}
 }

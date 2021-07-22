@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Reflection;
-using System.Text;
-using System.Text.RegularExpressions;
 using UnityEditor;
-using UnityEditor.Rendering;
 using UnityEngine;
 using XLua;
 
@@ -51,14 +48,13 @@ namespace Extend.Editor
                         // ide 需要事先设置命令好绑定
                         if (apppath.Contains("Rider"))
                         {
-                            string binpath = apppath.Replace("rider64.exe", "rider.bat");
-                            System.Diagnostics.Process.Start($"\"{binpath}\"", $"--line {lineStr} \"{filepath}\"");
+                            System.Diagnostics.Process.Start($"\"{apppath}\"", $"--line {lineStr} {filepath}");
                             return true;
                         }
                         else if (apppath.Contains("Code"))
                         {
                             string binpath = apppath.Replace("Code.exe", "bin/code");
-                            System.Diagnostics.Process.Start($"\"{binpath}\"", $"-n -g \"{filepath}:{lineStr}\"");
+                            System.Diagnostics.Process.Start($"\"{binpath}\"", $"-r -g \"{filepath}:{lineStr}\"");
                             return true;
                         }
                     }

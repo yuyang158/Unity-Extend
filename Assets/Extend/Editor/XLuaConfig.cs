@@ -137,12 +137,18 @@ public static class XLuaGenConfig {
 		typeof(TMP_InputField),
 		typeof(Tweener),
 		typeof(EventSystem),
-		typeof(Volume)
+		typeof(Volume),
+		typeof(LayerMask),
+		typeof(RaycastHit),
+		typeof(UnityEventBase),
+		typeof(UnityEvent),
+		typeof(Button.ButtonClickedEvent),
 	};
 
 	[LuaCallCSharp]
 	public static IEnumerable<Type> LuaCallCSharp {
-		get {
+		get
+		{
 			var namespaces = new List<string>() // 在这里添加名字空间
 			{
 				"UnityEngine",

@@ -43,7 +43,9 @@ namespace Extend.Asset {
 			else {
 				m_element?.Release();
 				m_img.enabled = true;
-				m_element = SpriteAssetService.Get().RequestIcon(m_iconPath);
+				var service = SpriteAssetService.Get();
+				service.ApplyLoadingFx(m_img);
+				m_element = service.RequestIcon(m_iconPath);
 				m_element.Acquire();
 				m_element.OnSpriteLoaded += OnSpriteLoaded;
 			}
@@ -54,6 +56,7 @@ namespace Extend.Asset {
 
 		private void OnSpriteLoaded(PackedSprite.SpriteElement element) {
 			m_element.OnSpriteLoaded -= OnSpriteLoaded;
+			SpriteAssetService.Get().ClearLoadingFx(m_img);
 			m_img.sprite = element.Sprite;
 		}
 

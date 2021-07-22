@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Extend.Asset;
 using Extend.Common;
 using Extend.LuaUtil;
 using TMPro;
@@ -231,6 +230,9 @@ namespace Extend.DebugUtil {
 		}
 
 		private void HandleLogThreaded(string message, string stacktrace, LogType type) {
+			if( type == LogType.Log )
+				return;
+
 			Log log;
 			if( m_queuedLogs.Count > maxLogCount ) {
 				log = m_queuedLogs.Dequeue();
@@ -390,7 +392,7 @@ namespace Extend.DebugUtil {
 		}
 
 		public void Destroy() {
-			AssetService.Recycle(gameObject);
+			// AssetService.Recycle(gameObject);
 		}
 	}
 

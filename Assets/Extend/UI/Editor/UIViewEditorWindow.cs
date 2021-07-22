@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Extend.UI.Editor.RelationGraph;
 using ListView;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
@@ -42,7 +43,8 @@ namespace Extend.UI.Editor {
 			new MultiColumnHeaderState.Column {headerContent = new GUIContent("Attach Layer"), width = 10, canSort = false},
 			new MultiColumnHeaderState.Column {headerContent = new GUIContent("Transition"), width = 10, canSort = false},
 			new MultiColumnHeaderState.Column {headerContent = new GUIContent("Close"), width = 10, canSort = false},
-			new MultiColumnHeaderState.Column {headerContent = new GUIContent("CloseButtonPath"), width = 10, canSort = false}
+			// new MultiColumnHeaderState.Column {headerContent = new GUIContent("Frame Rate"), width = 10, canSort = false},
+			new MultiColumnHeaderState.Column {headerContent = new GUIContent("Close Button Path"), width = 10, canSort = false}
 		}));
 
 		public List<TreeViewItem> GetData() {
@@ -68,6 +70,7 @@ namespace Extend.UI.Editor {
 			"AttachLayer",
 			"Transition",
 			"CloseMethod",
+			// "FrameRate",
 			"CloseButtonPath"
 		};
 
@@ -83,6 +86,7 @@ namespace Extend.UI.Editor {
 					if( nodeToSearch.parent == null ) {
 						return path;
 					}
+
 					path = $"{nodeToSearch.name}/{path}";
 					return path;
 				}
@@ -133,12 +137,14 @@ namespace Extend.UI.Editor {
 								error = "Can`t find node with name ebtn_close";
 								break;
 							}
+
 							var button = go.transform.Find(data.Configuration.CloseButtonPath).GetComponent<Button>();
 							if( !button ) {
 								error = "Need component Button : " + data.Configuration.CloseButtonPath;
 								data.Configuration.CloseButtonPath = "";
 								break;
 							}
+
 							serializedObject.UpdateIfRequiredOrScript();
 						}
 					}
@@ -152,13 +158,17 @@ namespace Extend.UI.Editor {
 			}
 
 			var fieldName = columnIndexToFieldName[columnIndex - 1];
-			if( columnIndex == columnIndexToFieldName.Length ) {
+			var prop = element.FindPropertyRelative(fieldName);
+			if( fieldName == "CloseButtonPath" ) {
 				if( data.Configuration.CloseMethod == CloseOption.Button ) {
 					EditorGUI.LabelField(rect, data.Configuration.CloseButtonPath);
 				}
 			}
+			else if( fieldName == "FrameRate" ) {
+				if(data.Configuration.FullScreen)
+					prop.intValue = EditorGUI.IntSlider(rect, prop.intValue, 15, 60);
+			}
 			else {
-				var prop = element.FindPropertyRelative(fieldName);
 				EditorGUI.PropertyField(rect, prop, GUIContent.none);
 			}
 		}
@@ -197,7 +207,8 @@ namespace Extend.UI.Editor {
 
 	public class UIViewEditorWindow : EditorWindow {
 		private static UIViewEditorWindow window;
-		private static ListView<UIViewTreeItem> listView;
+		private static ListView<UIViewTreeItem> m_listView;
+		private int m_currentSelection;
 
 		private UIViewDelegate _delegate;
 		private bool refreshFlag;
@@ -231,8 +242,8 @@ namespace Extend.UI.Editor {
 		private void Reset() {
 			var uiViewConfiguration = UIViewConfiguration.Load();
 			_delegate = new UIViewDelegate(uiViewConfiguration);
-			listView = new ListView<UIViewTreeItem>(_delegate);
-			listView.Refresh();
+			m_listView = new ListView<UIViewTreeItem>(_delegate);
+			m_listView.Refresh();
 			m_searchField = new SearchField();
 		}
 
@@ -253,11 +264,33 @@ namespace Extend.UI.Editor {
 			}
 
 			if( refreshFlag ) {
-				listView?.Refresh();
+				m_listView?.Refresh();
 			}
 
 			EditorGUI.BeginChangeCheck();
-			listView?.OnGUI(controlRect);
+			m_listView?.OnGUI(controlRect);
+			if( UIRelationGraph.Instance != null ) {
+				var selections = m_listView.GetSelection();
+				if( selections.Count > 0 ) {
+					var selection = selections[0];
+					if( m_currentSelection != selection ) {
+						foreach( var configuration in UIViewConfiguration.GlobalInstance.Configurations ) {
+							if( configuration.GetHashCode() == selection ) {
+								m_currentSelection = selection;
+								UIRelationGraph.Instance.ChangeSourceNode(configuration);
+								break;
+							}
+						}
+					}
+				}
+				else {
+					if( m_currentSelection != -1 ) {
+						m_currentSelection = -1;
+						UIRelationGraph.Instance.ChangeSourceNode(null);
+					}
+				}
+			}
+
 			if( EditorGUI.EndChangeCheck() ) {
 				_delegate.ApplyChange();
 			}
@@ -267,7 +300,7 @@ namespace Extend.UI.Editor {
 
 		private void ButtonsGUI() {
 			GUILayout.BeginHorizontal();
-			if( GUILayout.Button("Add") ) {
+			if( GUILayout.Button("New") ) {
 				_delegate.Add();
 				refreshFlag = true;
 			}
@@ -283,6 +316,10 @@ namespace Extend.UI.Editor {
 
 			if( GUILayout.Button("Save") ) {
 				_delegate.Save();
+			}
+
+			if( GUILayout.Button("Relation") ) {
+				UIRelationGraph.ShowWindow();
 			}
 
 			GUILayout.EndHorizontal();

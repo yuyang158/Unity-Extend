@@ -61,7 +61,7 @@ namespace Extend.Editor {
 				}
 			}
 		}
-
+		
 		[MenuItem("Tools/CI/Rebuild Android Asset Bundle")]
 		private static void RebuildAllABAndroid() {
 			RebuildAllABForPlatform(BuildTarget.Android);
@@ -112,7 +112,6 @@ namespace Extend.Editor {
 			if( EditorUserBuildSettings.activeBuildTarget != BuildTarget.Android ) {
 				EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Android, BuildTarget.Android);
 			}
-
 			EditorUserBuildSettings.androidBuildSystem = AndroidBuildSystem.Gradle;
 			EditorUserBuildSettings.exportAsGoogleAndroidProject = true;
 
@@ -150,7 +149,6 @@ namespace Extend.Editor {
 			if( EditorUserBuildSettings.activeBuildTarget != BuildTarget.iOS ) {
 				EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.iOS, BuildTarget.iOS);
 			}
-
 			EditorUserBuildSettings.iOSBuildConfigType = iOSBuildType.Release;
 			var buildPath = Application.dataPath + "/../iOSPlayer";
 			if( !Directory.Exists(buildPath) ) {
@@ -188,7 +186,7 @@ namespace Extend.Editor {
 			yield return new WaitForSeconds(1);
 			EditorApplication.Exit(0);
 		}
-
+		
 		[MenuItem("Tools/Asset/GUID Convert")]
 		public static void GUIDConvert() {
 			var input = InputWindow.CreateWindow("Input GUID");

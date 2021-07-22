@@ -16,7 +16,7 @@ namespace Extend.Editor {
 		public readonly List<LuaClassField> Fields = new List<LuaClassField>();
 		public readonly List<string> Methods = new List<string>();
 		public readonly List<string> DebugMethods = new List<string>();
-		
+
 		private LuaClassDescriptor baseClass;
 
 		public LuaClassDescriptor(TextReader reader) {
@@ -78,7 +78,13 @@ namespace Extend.Editor {
 					if( !match ) {
 						continue;
 					}
-					var methodName = line.Substring(methodStart.Length, line.IndexOf('(') - methodStart.Length);
+
+					var length = line.IndexOf('(') - methodStart.Length;
+					if( length < 0 ) {
+						continue;
+					}
+
+					var methodName = line.Substring(methodStart.Length, length);
 					if( !methodName.StartsWith("_") && methodName[0] == char.ToUpper(methodName[0]) ) {
 						if( methodName.StartsWith("DEBUG") ) {
 							DebugMethods.Add(methodName);
@@ -101,9 +107,21 @@ namespace Extend.Editor {
 	}
 
 	public static class LuaClassEditorFactory {
-		public static string LoadLuaTextFile(string path) {
+		private static string LoadLuaTextFile(string path) {
 			path = path.Replace('.', '/') + ".lua";
-			return File.Exists(path) ? File.ReadAllText(path) : null;
+			while( File.Exists(path) ) {
+				try {
+					using( var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read) )
+					using( var reader = new StreamReader(stream) ) {
+						return reader.ReadToEnd();
+					}
+				}
+				catch( Exception ) {
+					// ignored
+				}
+			}
+
+			return null;
 		}
 
 		private static readonly Dictionary<string, LuaClassDescriptor> descriptors = new Dictionary<string, LuaClassDescriptor>();

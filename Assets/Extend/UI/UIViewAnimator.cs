@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Extend.EventAsset;
+using UnityEngine;
 
 namespace Extend.UI {
 	[RequireComponent(typeof(Animator))]
@@ -12,6 +13,7 @@ namespace Extend.UI {
 		protected override void Awake() {
 			base.Awake();
 			m_animator = GetComponent<Animator>();
+			m_animator.enabled = false;
 		}
 
 		private void PlayHashAndUpdate(int hash) {
@@ -43,15 +45,15 @@ namespace Extend.UI {
 			PlayHashAndUpdate(LOOP_HASH);
 		}
 
-		public void OnEvent(string evt) {
-			if( evt == "Finish" ) {
-				m_animator.enabled = false;
-				if( ViewStatus == Status.Showing ) {
-					Loop();
-				}
-				else if( ViewStatus == Status.Hiding ) {
-					OnClosed();
-				}
+		public void OnEvent(EventInstance evt)
+		{
+			if (evt.EventName != "Finish") return;
+			m_animator.enabled = false;
+			if( ViewStatus == Status.Showing ) {
+				Loop();
+			}
+			else if( ViewStatus == Status.Hiding ) {
+				OnClosed();
 			}
 		}
 	}

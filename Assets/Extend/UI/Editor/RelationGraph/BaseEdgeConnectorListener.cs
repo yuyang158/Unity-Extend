@@ -17,7 +17,7 @@ namespace Extend.UI.Editor.RelationGraph {
 		public void OnDropOutsidePort(Edge edge, Vector2 position) {
 		}
 
-		public void OnDrop(UnityEditor.Experimental.GraphView.GraphView graphView, Edge edge) {
+		public void OnDrop(GraphView graphView, Edge edge) {
 			this.m_EdgesToCreate.Clear();
 			this.m_EdgesToCreate.Add(edge);
 			this.m_EdgesToDelete.Clear();

@@ -1,4 +1,6 @@
+#if !UNITY_EDITOR
 using System.Text;
+#endif
 using DG.Tweening;
 using Extend.Asset;
 using Extend.Common;

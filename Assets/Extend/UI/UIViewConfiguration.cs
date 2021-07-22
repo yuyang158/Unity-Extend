@@ -6,7 +6,6 @@ using System.Xml;
 using Extend.Asset;
 using Extend.Asset.Attribute;
 using UnityEngine;
-using UnityEngine.Serialization;
 using XLua;
 using Debug = UnityEngine.Debug;
 
@@ -67,6 +66,8 @@ namespace Extend.UI {
 
 			public UIViewRelation[] Relations;
 
+			public int FrameRate = 60;
+
 #if UNITY_EDITOR
 			public Configuration() {
 				ViewGuid = Guid.NewGuid();
@@ -81,7 +82,7 @@ namespace Extend.UI {
 		[SerializeField]
 		private Configuration[] m_configurations;
 
-		private Dictionary<Guid, Configuration> m_guidHashedConfigurations = new Dictionary<Guid, Configuration>();
+		private readonly Dictionary<Guid, Configuration> m_guidHashedConfigurations = new Dictionary<Guid, Configuration>();
 
 		public Configuration[] Configurations => m_configurations;
 
@@ -94,9 +95,7 @@ namespace Extend.UI {
 		}
 
 		private void OnEnable() {
-			if( m_configurations == null ) {
-				m_configurations = new[] {new Configuration()};
-			}
+			m_configurations ??= new[] {new Configuration()};
 		}
 
 		private UIViewConfiguration ConvertData() {
@@ -120,7 +119,7 @@ namespace Extend.UI {
 		public void Save() {
 #if UNITY_EDITOR
 			var document = new XmlDocument();
-			var filepath = $"Assets/Resources/{FILE_PATH}.xml";
+			var filepath = $"Assets/StreamingAssets/{FILE_PATH}.xml";
 			using( var writer = new FileStream(filepath, FileMode.OpenOrCreate) ) {
 				var declaration = document.CreateXmlDeclaration("1.0", "utf-8", null);
 				document.AppendChild(declaration);
@@ -137,6 +136,7 @@ namespace Extend.UI {
 					element.SetAttribute("AttachLayer", configuration.AttachLayer.ToString());
 					element.SetAttribute("CloseMethod", configuration.CloseMethod.ToString());
 					element.SetAttribute("CloseButtonPath", configuration.CloseButtonPath);
+					element.SetAttribute("FrameRate", configuration.FrameRate.ToString());
 
 					if( configuration.Relations != null && configuration.Relations.Length > 0 ) {
 						foreach( var relation in configuration.Relations ) {
@@ -161,22 +161,9 @@ namespace Extend.UI {
 
 		public static UIViewConfiguration Load() {
 			var document = new XmlDocument();
-#if UNITY_EDITOR
-			if( !File.Exists($"Assets/Resources/{FILE_PATH}.xml") ) {
-				var defaultInstance = CreateInstance<UIViewConfiguration>();
-				defaultInstance.m_configurations = new Configuration[0];
-				return defaultInstance.ConvertData();
-			}
-
-			using( var stream = File.OpenRead($"Assets/Resources/{FILE_PATH}.xml") ) {
+			using( var stream = FileLoader.LoadFileSync($"{FILE_PATH}.xml") ) {
 				document.Load(stream);
 			}
-#else
-			var assetRef = AssetService.Get().Load(FILE_PATH, typeof(TextAsset));
-			UnityEngine.Assertions.Assert.IsTrue(assetRef.AssetStatus == AssetRefObject.AssetStatus.DONE);
-			document.LoadXml(assetRef.GetTextAsset().text);
-			assetRef.Dispose();
-#endif
 			var rootElement = document.DocumentElement;
 			List<Configuration> configurations = new List<Configuration>();
 			foreach( XmlElement childElement in rootElement ) {
@@ -201,7 +188,7 @@ namespace Extend.UI {
 					configuration.Relations = new Configuration.UIViewRelation[count];
 					for( int i = 0; i < count; i++ ) {
 						var relationElement = childElement.ChildNodes[i] as XmlElement;
-						configuration.Relations[i] = new Configuration.UIViewRelation() {
+						configuration.Relations[i] = new Configuration.UIViewRelation {
 							Method = (Configuration.PreloadMethod)Enum.Parse(typeof(Configuration.PreloadMethod), relationElement.GetAttribute("Method")),
 							RelationViewGuid = Guid.Parse(relationElement.GetAttribute("Guid"))
 						};

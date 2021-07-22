@@ -10,6 +10,8 @@ namespace Extend.UI {
 		public event Action Hiding;
 		public event Action Hidden;
 
+		public bool ControlInteractable = true;
+
 		public enum Status {
 			Showing,
 			Loop,
@@ -36,10 +38,12 @@ namespace Extend.UI {
 				switch( viewStatus ) {
 					case Status.Showing:
 					case Status.Hiding:
-						CanvasGroup.interactable = false;
+						if(ControlInteractable)
+							CanvasGroup.interactable = false;
 						break;
 					case Status.Loop:
-						CanvasGroup.interactable = true;
+						if(ControlInteractable)
+							CanvasGroup.interactable = true;
 						break;
 					case Status.Hidden:
 						if( Canvas )
@@ -58,19 +62,30 @@ namespace Extend.UI {
 
 		protected abstract void OnShow();
 
-		public void Show() {
+		public void Show(Action shown = null) {
 			if( Canvas )
 				Canvas.enabled = true;
 			ViewStatus = Status.Showing;
 			Showing?.Invoke();
+			Showing = null;
+
+			if( shown != null ) {
+				Shown += shown;
+			}
+			
 			OnShow();
 		}
 
 		protected abstract void OnHide();
 
-		public void Hide() {
+		public void Hide(Action hidden = null) {
 			ViewStatus = Status.Hiding;
 			Hiding?.Invoke();
+			Hiding = null;
+
+			if( hidden != null ) {
+				Hidden += hidden;
+			}
 			OnHide();
 		}
 
@@ -79,19 +94,14 @@ namespace Extend.UI {
 		protected void Loop() {
 			ViewStatus = Status.Loop;
 			Shown?.Invoke();
-			OnLoop();
-		}
-
-		protected void ClearEvents() {
-			Showing = null;
 			Shown = null;
-			Hiding = null;
-			Hidden = null;
+			OnLoop();
 		}
 
 		protected virtual void OnClosed() {
 			ViewStatus = Status.Hidden;
 			Hidden?.Invoke();
+			Hidden = null;
 		}
 	}
 }

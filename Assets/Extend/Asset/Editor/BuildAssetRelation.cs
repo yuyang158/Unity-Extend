@@ -6,7 +6,6 @@ using System.Linq;
 using Extend.Asset.Editor.Process;
 using UnityEditor;
 using UnityEngine;
-using Zeus.Core.FileSystem;
 
 namespace Extend.Asset.Editor {
 	public static class BuildAssetRelation {
@@ -101,16 +100,10 @@ namespace Extend.Asset.Editor {
 				}
 			}
 
-			var resourcesFiles = Directory.GetFiles("Assets/Resources", "*", SearchOption.AllDirectories);
-			List<string> filteredFiles = new List<string>(resourcesFiles.Length);
-			filteredFiles.AddRange(resourcesFiles.Where(file => !file.Contains(".svn") && 
-				Array.IndexOf(IgnoreExtensions, Path.GetExtension(file)) == -1));
-			resourcesFiles = filteredFiles.ToArray();
-			var otherFiles = new string[abSetting.ExtraDependencyAssets.Length];
-			for( var i = 0; i < abSetting.ExtraDependencyAssets.Length; i++ ) {
-				var asset = abSetting.ExtraDependencyAssets[i];
+			foreach( var asset in abSetting.ExtraDependencyAssets ) {
 				var path = AssetDatabase.GetAssetPath(asset);
-				otherFiles[i] = path;
+				var extraNode = AssetNode.GetOrCreate(path);
+				extraNode.ForceAddToResourcesNode();
 			}
 
 			foreach( var sceneAsset in abSetting.Scenes ) {
@@ -135,8 +128,17 @@ namespace Extend.Asset.Editor {
 				}
 			}
 
-			resourcesFiles = resourcesFiles.Concat(otherFiles).ToArray();
 			EditorUtility.DisplayProgressBar("Process resources asset", "", 0);
+
+			var resourcesFiles = Directory.GetFiles("Assets/Resources", "*.meta", SearchOption.AllDirectories);
+			for( int i = 0; i < resourcesFiles.Length; i++ ) {
+				resourcesFiles[i] = resourcesFiles[i].Substring(0, resourcesFiles[i].Length - 5);
+			}
+			List<string> filteredFiles = new List<string>(resourcesFiles.Length);
+			filteredFiles.AddRange(resourcesFiles.Where(file => !file.Contains(".svn") && 
+			                                                    (File.GetAttributes(file) & FileAttributes.Directory) == 0 &&
+			                                                    Array.IndexOf(IgnoreExtensions, Path.GetExtension(file)) == -1));
+			resourcesFiles = filteredFiles.ToArray();
 			RelationProcess(resourcesFiles);
 			AssetCustomProcesses.PostProcess();
 
@@ -169,11 +171,8 @@ namespace Extend.Asset.Editor {
 		private static void RelationProcess(ICollection<string> resourcesFolderFiles) {
 			var progress = 0;
 			foreach( var filePath in resourcesFolderFiles ) {
-				var extension = Path.GetExtension(filePath);
 				progress++;
-				if( Array.IndexOf(IgnoreExtensions, extension) >= 0 || filePath.Contains(".svn") )
-					continue;
-				AssetNode.GetOrCreate(filePath);
+				GetNode(filePath);
 
 				if( progress % 5 == 0 ) {
 					EditorUtility.DisplayProgressBar("Process resources asset", $"{progress} / {resourcesFolderFiles.Count}",
@@ -214,26 +213,6 @@ namespace Extend.Asset.Editor {
 
 			//Debug.Log( sb.ToString() );
 			EditorUtility.ClearProgressBar();
-		}
-
-		public static void ExportRedundantFileCheckSumInfoByPath(BuildTarget target)
-		{
-			string packageConfPathDir = Path.Combine(Application.streamingAssetsPath, "ABBuild", $"{target}");
-			DirectoryInfo soundRoot = new DirectoryInfo(Path.Combine(Application.streamingAssetsPath, "Sounds"));
-			RedundantFileCheckSumInfo checkSumInfo = RedundantFileCheckSumInfo.CreateNewOrLoadInfos();
-			// 根据生成的package.conf文件，计算ab的md5值
-			foreach (var line in File.ReadLines($"{packageConfPathDir}/package.conf"))
-			{
-				var key = line.Split('|')[1];
-				var fullPath = Path.Combine($"{packageConfPathDir}", key);
-				checkSumInfo.Update(key, fullPath);
-			}
-			// 计算声音文件夹中的文件的md5值，可拓展
-			foreach (var fileInfo in soundRoot.GetFiles("*.*", SearchOption.AllDirectories).Where(fi => !fi.Name.EndsWith(".meta")))
-			{
-				checkSumInfo.Update(fileInfo.Name, fileInfo.FullName);
-			}
-			checkSumInfo.SaveFB();
 		}
 	}
 }

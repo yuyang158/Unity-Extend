@@ -50,6 +50,8 @@ namespace Extend.Editor {
 				matched = Activator.CreateInstance(dataBindType) as LuaBindingDataBase;
 				matched.FieldName = field.FieldName;
 				ArrayUtility.Add(ref binding.LuaData, matched);
+				serializedObject.Update();
+				EditorUtility.SetDirty(target);
 			}
 
 			isUsedBinding.Add(matched);
@@ -62,9 +64,7 @@ namespace Extend.Editor {
 		}
 
 		public override void OnInspectorGUI() {
-			if( binding.LuaData == null ) {
-				binding.LuaData = new LuaBindingDataBase[0];
-			}
+			binding.LuaData ??= new LuaBindingDataBase[0];
 
 			var luaPathProp = serializedObject.FindProperty("LuaFile");
 			if( string.IsNullOrEmpty(luaPathProp.stringValue) ) {

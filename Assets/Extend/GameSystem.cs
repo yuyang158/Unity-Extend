@@ -34,8 +34,10 @@ namespace Extend {
 #if !UNITY_EDITOR
 			var path = Path.Combine(Application.persistentDataPath, fileName + ".ini");
 			if( !File.Exists(path) ) {
-				using( var asset = AssetService.Get().Load($"Config/{fileName}", typeof(TextAsset)) ) {
-					File.WriteAllText(path, asset.GetTextAsset().text);
+				using( var stream = FileLoader.LoadFileSync($"Config/{fileName}.ini") ) {
+					var buffer = new byte[stream.Length];
+					stream.Read(buffer, 0, (int)stream.Length);
+					File.WriteAllBytes(path, buffer);
 				}
 			}
 
@@ -43,13 +45,12 @@ namespace Extend {
 				SystemSetting = IniRead.Parse(reader);
 			}
 #else
-			using( var asset = AssetService.Get().Load($"Config/{fileName}", typeof(TextAsset)) ) {
-				using( var reader = new StringReader(asset.GetTextAsset().text) ) {
+			using( var stream = FileLoader.LoadFileSync($"Config/{fileName}.ini") ) {
+				using( var reader = new StreamReader(stream) ) {
 					SystemSetting = IniRead.Parse(reader);
 				}
 			}
 #endif
-
 			IniRead.SystemSetting = SystemSetting;
 		}
 

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using DG.Tweening;
 
 namespace Extend.UI {
@@ -14,7 +15,7 @@ namespace Extend.UI {
 			set {
 				if( CurrentTweens != null ) {
 					foreach( var tween in CurrentTweens ) {
-						tween.Kill(true);
+						tween?.Complete();
 					}
 				}
 
@@ -24,15 +25,15 @@ namespace Extend.UI {
 
 		protected override void Awake() {
 			base.Awake();
-			if( ShowAnimation != null && ShowAnimation.Enabled ) {
+			if( ShowAnimation is {Enabled: true} ) {
 				ShowAnimation.CacheStartValue(transform);
 			}
 
-			if( HideAnimation != null && HideAnimation.Enabled ) {
+			if( HideAnimation is {Enabled: true} ) {
 				HideAnimation.CacheStartValue(transform);
 			}
 
-			if( LoopAnimation != null && LoopAnimation.Enabled ) {
+			if( LoopAnimation is {Enabled: true} ) {
 				LoopAnimation.CacheStartValue(transform);
 			}
 		}
@@ -85,6 +86,12 @@ namespace Extend.UI {
 
 		private void OnDisable() {
 			CurrentTweens = null;
+		}
+
+		private void OnDestroy() {
+			ShowAnimation?.Destroy();
+			HideAnimation?.Destroy();
+			LoopAnimation?.Destroy();
 		}
 	}
 }

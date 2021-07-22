@@ -8,6 +8,10 @@ using XLua;
 namespace Extend.LuaUtil {
 	[LuaCallCSharp]
 	public static class UnityExtension4XLua {
+		public static void SetActive(this Component component, bool active) {
+			component.gameObject.SetActive(active);
+		}
+		
 		public static LuaTable GetLuaBinding(this GameObject go, LuaTable classMeta) {
 			var bindings = go.GetComponents<LuaBinding>();
 			return FindInLuaBinding(classMeta, bindings);

@@ -19,8 +19,6 @@ namespace Extend.Asset.AssetProvider {
 
 		private static AssetBundleManifest m_manifest;
 		public static AssetBundleManifest Manifest => m_manifest;
-		private static string STREAMING_ASSET_PATH;
-		private static string PERSISTENT_DATA_PATH;
 		private readonly Dictionary<string, AssetPath> m_asset2ABMap = new Dictionary<string, AssetPath>();
 		private readonly Dictionary<string, string> m_guid2AssetPath = new Dictionary<string, string>();
 
@@ -50,35 +48,14 @@ namespace Extend.Asset.AssetProvider {
 #else
 			const string platform = "StandaloneWindows64";
 #endif
-			STREAMING_ASSET_PATH = Path.Combine(Application.streamingAssetsPath, "ABBuild", platform);
-			PERSISTENT_DATA_PATH = Path.Combine(Application.persistentDataPath, "ABBuild", platform);
 
-			var manifestPath = DetermineLocation(platform);
+			var manifestPath = FileLoader.DetermineBundleLocation(platform);
 			var manifestAB = AssetBundle.LoadFromFile(manifestPath);
 			m_manifest = manifestAB.LoadAsset<AssetBundleManifest>("AssetBundleManifest");
 			manifestAB.Unload(false);
 
-#if UNITY_ANDROID
-			var mapPath = DetermineLocation("package.conf", out var persistent);
-			TextReader reader;
-			if( persistent ) {
-				reader = new StreamReader(mapPath);
-			}
-			else {
-				var uwr = UnityWebRequest.Get(mapPath);
-				uwr.SendWebRequest();
-				while( !uwr.isDone ) {
-					Thread.Sleep(1);
-				}
-				reader = new StringReader(uwr.downloadHandler.text);
-				uwr.Dispose();
-			}
-			
-			using( reader ) {
-#else
-			var mapPath = DetermineLocation("package.conf");
-			using( var reader = new StreamReader(mapPath) ) {
-#endif
+			using( var stream = FileLoader.LoadBundleFileSync("package.conf") )
+			using( var reader = new StreamReader(stream) ) {
 				var line = reader.ReadLine();
 				while( !string.IsNullOrEmpty(line) ) {
 					var segments = line.Split('|');
@@ -122,12 +99,12 @@ namespace Extend.Asset.AssetProvider {
 
 		public override void ProvideAsync(AssetAsyncLoadHandle loadHandle, Type typ) {
 			if( !TryGetABContext(loadHandle.Location, out var abPathContext) ) {
+				Debug.LogError($"Not found asset bundle path for {loadHandle.Location}");
 				return;
 			}
+
 			var abInstance = FindOrCreateABInstance(abPathContext.ABName, loadHandle.Container);
-			abInstance.LoadAssetAsync(abPathContext.Path, unityObject => {
-				loadHandle.Asset.SetAsset(unityObject, abInstance);
-			}, typ);
+			abInstance.LoadAssetAsync(abPathContext.Path, unityObject => { loadHandle.Asset.SetAsset(unityObject, abInstance); }, typ);
 		}
 
 		private bool TryGetABContext(string path, out AssetPath context) {
@@ -141,7 +118,6 @@ namespace Extend.Asset.AssetProvider {
 		}
 
 		public override void ProvideSceneAsync(AssetAsyncLoadHandle loadHandle, bool add) {
-			
 		}
 
 		public override void ProvideScene(string path, AssetContainer container, bool add) {
@@ -189,26 +165,6 @@ namespace Extend.Asset.AssetProvider {
 
 		internal override string ConvertGUID2Path(string guid) {
 			return m_guid2AssetPath.TryGetValue(guid, out var path) ? path : null;
-		}
-
-		public string[] GetDirectDependencies(string abName) {
-			return m_manifest.GetDirectDependencies(abName);
-		}
-
-		public static string DetermineLocation(string path) {
-			var streamingAsset = Path.Combine(PERSISTENT_DATA_PATH, path);
-			return File.Exists(streamingAsset) ? streamingAsset : Path.Combine(STREAMING_ASSET_PATH, path);
-		}
-
-		public static string DetermineLocation(string path, out bool persistent) {
-			var streamingAsset = Path.Combine(PERSISTENT_DATA_PATH, path);
-			if( File.Exists(streamingAsset) ) {
-				persistent = true;
-				return streamingAsset;
-			}
-
-			persistent = false;
-			return Path.Combine(STREAMING_ASSET_PATH, path);
 		}
 	}
 }
