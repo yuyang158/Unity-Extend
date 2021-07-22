@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using Extend.Common;
 using Extend.LuaBindingEvent;
 using Extend.LuaMVVM.PropertyChangeInvoke;
 using Extend.LuaUtil;
@@ -67,6 +68,10 @@ namespace Extend.LuaMVVM {
 			}
 #endif
 
+#if UNITY_DEBUG
+			StatService.Get().Increase(StatService.StatName.MVVM_DISPATCH, 1);
+#endif
+
 			try {
 				if( m_propertyInfo == null ) {
 					BindTarget.gameObject.SetActive((bool)val);
@@ -83,18 +88,28 @@ namespace Extend.LuaMVVM {
 							m_propertyInfo.SetValue(BindTarget, (float)(double)val);
 						}
 					}
+					else if( m_propertyInfo.PropertyType == typeof(int) ) {
+						if( val is long i ) {
+							m_propertyInfo.SetValue(BindTarget, (int)i);
+						}
+						else {
+							m_propertyInfo.SetValue(BindTarget, (int)(double)val);
+						}
+					}
 					else {
 						m_propertyInfo.SetValue(BindTarget, val);
 					}
 				}
 			}
 			catch( Exception e ) {
-				Debug.LogError($"MVVM Set Property Error : {BindTarget}.{m_propertyInfo} = {val}");
+				Debug.LogError($"MVVM Set Property Error : {BindTarget}.{Path} = {val}");
 				Debug.LogError(e);
 			}
 		}
 
 		public void TryDetach() {
+			if( !CSharpServiceManager.Initialized )
+				return;
 			if( m_dataSource == null )
 				return;
 

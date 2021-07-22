@@ -11,7 +11,7 @@ namespace Extend.LuaMVVM {
 			var key = script.GetHashCode();
 			if( !m_cachedLuaFunctions.TryGetValue(key, out var tempFunc) ) {
 				var luaVM = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
-				tempFunc = luaVM.DoString(string.Format(LUA_TEMPLATE, script))[0] as LuaFunction;
+				tempFunc = luaVM.DoBindingString(string.Format(LUA_TEMPLATE, script), script)[0] as LuaFunction;
 				m_cachedLuaFunctions.Add(key, tempFunc);
 			}
 

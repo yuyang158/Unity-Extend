@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Extend.Common.Editor;
+using Extend.Common.Editor.InspectorGUI;
 using Extend.LuaBindingEvent;
 using UnityEditor;
 using UnityEditorInternal;
@@ -9,13 +10,28 @@ using UnityEngine;
 namespace Extend.LuaMVVM.Editor {
 	[CustomPropertyDrawer(typeof(LuaMVVMBindOptionsAttribute))]
 	public class LuaMVVMBindOptionsDrawer : PropertyDrawer {
-		private ReorderableList mvvmBindList;
+		private ReorderableList m_mvvmBindList;
+		private LuaMVVMBinding m_extraMVVMBinding;
+		private float m_optionsListHeight;
+		private float m_extraHeight;
+
 		public override float GetPropertyHeight(SerializedProperty property, GUIContent label) {
-			if( mvvmBindList == null )
+			if( m_mvvmBindList == null )
 				return 0;
-			return mvvmBindList.headerHeight + (mvvmBindList.elementHeight + EditorGUIUtility.standardVerticalSpacing) * (mvvmBindList.count == 0 ? 1 : mvvmBindList.count) + mvvmBindList.footerHeight + 5;
+			var lineHeight = m_mvvmBindList.headerHeight +
+			                 ( m_mvvmBindList.elementHeight + EditorGUIUtility.standardVerticalSpacing ) *
+			                 ( m_mvvmBindList.count == 0 ? 1 : m_mvvmBindList.count ) +
+			                 m_mvvmBindList.footerHeight + 5;
+
+			m_optionsListHeight = lineHeight;
+			if( m_extraMVVMBinding ) {
+				m_extraHeight = m_extraMVVMBinding.BindingOptions.Options.Length * UIEditorUtil.LINE_HEIGHT;
+				lineHeight += m_extraHeight + 10;
+			}
+
+			return lineHeight;
 		}
-		
+
 		private static Rect[] GetRowRects(Rect rect) {
 			var rects = new Rect[5];
 
@@ -49,16 +65,34 @@ namespace Extend.LuaMVVM.Editor {
 
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label) {
 			property = property.FindPropertyRelative("Options");
-			if( mvvmBindList != null ) {
-				mvvmBindList.serializedProperty = property;
-				mvvmBindList.DoList(position);
+			if( m_mvvmBindList != null ) {
+				m_mvvmBindList.serializedProperty = property;
+				m_mvvmBindList.DoList(position);
+
+				if( !m_extraMVVMBinding )
+					return;
+				position.yMin += m_optionsListHeight + 5;
+				GUI.Box(position, "");
+				position.yMin += 5;
+				position.height = UIEditorUtil.LINE_HEIGHT;
+				foreach( var option in m_extraMVVMBinding.BindingOptions.Options ) {
+					EditorGUI.TextField(position, $"{option.BindTarget.name}.{option.BindTargetProp}", option.Path);
+					position.y += UIEditorUtil.LINE_HEIGHT;
+				}
 				return;
 			}
 
-			mvvmBindList = new ReorderableList(property.serializedObject, property);
-			mvvmBindList.drawHeaderCallback += rect => { EditorGUI.LabelField(rect, "MVVM Binding"); };
-			mvvmBindList.elementHeight = UIEditorUtil.LINE_HEIGHT * 2;
-			mvvmBindList.drawElementCallback += (rect, index, active, focused) => {
+			m_mvvmBindList = new ReorderableList(property.serializedObject, property);
+			m_mvvmBindList.onAddCallback += list => {
+				var index = property.arraySize;
+				property.InsertArrayElementAtIndex(index);
+				var newElementProp = property.GetArrayElementAtIndex(index);
+				var bindModeProp = newElementProp.FindPropertyRelative("Mode");
+				bindModeProp.intValue = (int)LuaMVVMBindingOption.BindMode.ONE_TIME;
+			};
+			m_mvvmBindList.drawHeaderCallback += rect => { EditorGUI.LabelField(rect, "MVVM Binding"); };
+			m_mvvmBindList.elementHeight = UIEditorUtil.LINE_HEIGHT * 2;
+			m_mvvmBindList.drawElementCallback += (rect, index, active, focused) => {
 				rect.y++;
 				var subRects = GetRowRects(rect);
 				var enabledRect = subRects[0];
@@ -93,12 +127,14 @@ namespace Extend.LuaMVVM.Editor {
 								bindTargetProp.serializedObject.ApplyModifiedProperties();
 							});
 						}
+
 						menu.ShowAsContext();
 					}
 				}
+
 				var bindModeProp = prop.FindPropertyRelative("Mode");
 				EditorGUI.PropertyField(functionRect, bindModeProp, GUIContent.none);
-				
+
 				if( bindTargetProp.objectReferenceValue != null ) {
 					List<string> names;
 					if( bindModeProp.intValue == (int)LuaMVVMBindingOption.BindMode.EVENT ) {
@@ -117,19 +153,23 @@ namespace Extend.LuaMVVM.Editor {
 							names.Add("OnUp");
 							names.Add("OnDrag");
 						}
+						else if( typ == typeof(LuaBindingClickLongTapEvent) ) {
+							names.Add("OnClick");
+							names.Add("OnLongTap");
+						}
 					}
 					else {
 						var typ = bindTargetProp.objectReferenceValue.GetType();
 						var propertyInfos = typ.GetProperties();
-						names = new List<string>(128) { "SetActive" };
+						names = new List<string>(128) {"SetActive"};
 						foreach( var propertyInfo in propertyInfos ) {
-							if( propertyInfo.CanRead && propertyInfo.CanWrite && propertyInfo.PropertyType.IsPublic && 
+							if( propertyInfo.CanRead && propertyInfo.CanWrite && propertyInfo.PropertyType.IsPublic &&
 							    propertyInfo.GetCustomAttributes(typeof(ObsoleteAttribute), true).Length == 0 ) {
 								names.Add(propertyInfo.Name);
 							}
 						}
 					}
-					
+
 					var bindTargetPropProp = prop.FindPropertyRelative("BindTargetProp");
 					var nameArr = names.ToArray();
 					var select = EditorGUI.Popup(goRect, Array.IndexOf(nameArr, bindTargetPropProp.stringValue), nameArr);
@@ -140,12 +180,44 @@ namespace Extend.LuaMVVM.Editor {
 						bindTargetPropProp.stringValue = "";
 					}
 				}
-				
+
 				var bindPathProp = prop.FindPropertyRelative("Path");
 				EditorGUI.PropertyField(argRect, bindPathProp, GUIContent.none);
-				
+
 				var expressionProp = prop.FindPropertyRelative("m_expression");
 				EditorGUI.PropertyField(globalRect, expressionProp, GUIContent.none);
+			};
+
+			m_mvvmBindList.onSelectCallback += list => {
+				m_extraMVVMBinding = null;
+				if( list.index == -1 )
+					return;
+
+				if( list.index >= list.serializedProperty.arraySize ) {
+					return;
+				}
+
+				var mvvmProp = list.serializedProperty.GetArrayElementAtIndex(list.index);
+				var option = mvvmProp.GetPropertyObject() as LuaMVVMBindingOption;
+				if( !( option.BindTarget is IMVVMAssetReference refGetter ) )
+					return;
+
+				var assetRef = refGetter.GetMVVMReference();
+				if( !( assetRef is {GUIDValid: true} ) )
+					return;
+
+				var assetPath = AssetDatabase.GUIDToAssetPath(assetRef.AssetGUID);
+				if( string.IsNullOrEmpty(assetPath) )
+					return;
+
+				var go = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
+				if( !go )
+					return;
+
+				m_extraMVVMBinding = go.GetComponent<LuaMVVMBinding>();
+				if( !m_extraMVVMBinding && go.transform.childCount > 0 ) {
+					m_extraMVVMBinding = go.transform.GetChild(0).GetComponent<LuaMVVMBinding>();
+				}
 			};
 		}
 	}

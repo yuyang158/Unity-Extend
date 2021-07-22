@@ -1,12 +1,13 @@
 using System.Collections.Generic;
 using Extend.Asset;
 using Extend.Asset.Attribute;
+using Extend.Common;
 using UnityEngine;
 using XLua;
 
 namespace Extend.LuaMVVM {
 	[LuaCallCSharp]
-	public class LuaMVVMForEach : MonoBehaviour, ILuaMVVM {
+	public class LuaMVVMForEach : MonoBehaviour, ILuaMVVM, IMVVMAssetReference {
 		[AssetReferenceAssetType(AssetType = typeof(GameObject))]
 		public AssetReference Asset;
 
@@ -82,6 +83,8 @@ namespace Extend.LuaMVVM {
 		}
 
 		private void Recycle(GameObject go) {
+			if( !CSharpServiceManager.Initialized )
+				return;
 			var bindings = go.GetComponentsInChildren<ILuaMVVM>();
 			foreach( var binding in bindings ) {
 				binding.Detach();
@@ -106,6 +109,10 @@ namespace Extend.LuaMVVM {
 
 		[BlackList]
 		public void Detach() {
+		}
+
+		public AssetReference GetMVVMReference() {
+			return Asset;
 		}
 	}
 }

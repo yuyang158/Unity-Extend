@@ -8,9 +8,13 @@ namespace Extend.LuaMVVM {
 		[LuaMVVMBindOptions, BlackList]
 		public LuaMVVMBindingOptions BindingOptions;
 
+		[TextArea(3, 5)]
+		public string ExtraInfo;
+
 		private void OnDestroy() {
 			if( !CSharpServiceManager.Initialized )
 				return;
+			DataSource?.Dispose();
 			foreach( var option in BindingOptions.Options ) {
 				option.Destroy();
 			}
@@ -24,6 +28,7 @@ namespace Extend.LuaMVVM {
 		}
 		
 		public void SetDataContext(LuaTable dataSource) {
+			m_dataSource?.Dispose();
 			m_dataSource = dataSource;
 			foreach( var option in BindingOptions.Options ) {
 				option.Bind(dataSource);
