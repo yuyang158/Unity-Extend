@@ -1,16 +1,10 @@
 ﻿---@class MockService
 local M = {}
 
----@class MockContext
----@field data table @fake data
----@field filter function @whether trigger fake data by received package
----@field dataGen function @fake data provide function
----@field name string @server request name
+---@class MockContext table key protocName value args
 
 ---@type table<string, MockContext>
 local responseMocks = {}
----@type table<string, MockContext>
-local requestMocksAfterResponse = {}
 ---@type table<string, MockContext>
 local requestMocksAfterRequest = {}
 
@@ -18,67 +12,40 @@ function M.Init()
 end
 
 ---@param context MockContext
-function M.MockClientRequestResponse(requestName, context)
-	assert(not responseMocks[requestName])
-	responseMocks[requestName] = context
+function M.MockClientRequestResponse(protocName, context)
+	assert(not responseMocks[protocName])
+	responseMocks[protocName] = context
 end
 
 ---@param context MockContext
-function M.MockServerRequestAfterResponse(requestName, context)
-	requestMocksAfterResponse[requestName] = context
+function M.MockServerRequestAfterRequest(protocName, context)
+	requestMocksAfterRequest[protocName] = context
 end
 
----@param context MockContext
-function M.MockServerRequestAfterRequest(requestName, context)
-	requestMocksAfterRequest[requestName] = context
-end
-
----@param client SprotoClient
-function M.OnClientRequest(requestName, client, session, args)
-	local context = responseMocks[requestName]
+---@param client ProtocClient
+function M.OnClientRequest(protocName, client)
+	local context = responseMocks[protocName]
 	if context then
-		if context.filter and not context.filter(args) then
-			return
-		end
-		assert(context.data ~= nil or context.dataGen ~= nil)
-		if context.data then
-			client:_OnResponse(session, context.data)
-		else
-			client:_OnResponse(session, context.dataGen(args))
+		for key, value in pairs(context) do
+			client:_OnResponse(key, value)
 		end
 		return true
 	end
+
+	return false
 end
 
----@param client SprotoClient
-function M.OnServerResponse(requestName, client, args)
-	local context = requestMocksAfterResponse[requestName]
-	if context then
-		if context.filter and not context.filter(args) then
-			return
-		end
-
-		assert(context.data ~= nil or context.dataGen ~= nil)
-		if context.data then
-			client:_OnServerRequest(context.name, context.data)
-		else
-			client:_OnServerRequest(context.name, context.dataGen(args))
-		end
-	end
+---@param client ProtocClient
+function M.OnServerResponse(protocName, client)
+	M.OnServerRequest(protocName, client)
 end
 
----@param client SprotoClient
-function M.OnServerRequest(requestName, client, args)
-	local context = requestMocksAfterRequest[requestName]
+---@param client ProtocClient
+function M.OnServerRequest(protocName, client)
+	local context = requestMocksAfterRequest[protocName]
 	if context then
-		if context.filter and not context.filter(args) then
-			return
-		end
-		assert(context.data ~= nil or context.dataGen ~= nil)
-		if context.data then
-			client:_OnServerRequest(context.name, context.data)
-		else
-			client:_OnServerRequest(context.name, context.dataGen(args))
+		for key, value in pairs(context) do
+			client:_OnServerRequest(key, value)
 		end
 	end
 end

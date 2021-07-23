@@ -1,17 +1,24 @@
 ---@class integer
+local Integer = {}
+
+
 ---@class LuaBinding
----@field __CSBinding CS.Extend.LuaBinding
+---@field public __CSBinding CS.Extend.LuaBinding
+---@field public name string
+---@field public fullname string
+local LuaBinding = {}
 
 local newClassCallback;
 function class(super)
 	local class_type = {}
 	class_type.ctor = false
 	class_type.super = super
+	local meta = {
+		__index = class_type
+	}
 	class_type.new = function(...)
 		local obj = {}
-		setmetatable(obj, {
-			__index = class_type
-		})
+		setmetatable(obj, meta)
 		do
 			local create
 			create = function(c, ...)
@@ -37,7 +44,7 @@ function class(super)
 	end
 
 	newClassCallback(class_type, super)
-	return class_type
+	return class_type, meta
 end
 
 return function(callback)

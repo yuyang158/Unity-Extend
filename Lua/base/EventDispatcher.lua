@@ -4,6 +4,7 @@ local tpack, tunpack, tinsert, tremove, ipairs, assert = table.pack, table.unpac
 local M = class()
 
 function M:ctor()
+	self.wait4Remove = {}
 	self.listeners = {}
 end
 
@@ -61,12 +62,22 @@ function M:DispatchEvent(typ, ...)
 		end
 	end
 	self.dispatching = nil
+
+	if #self.wait4Remove > 0 then
+		for _, v in ipairs(self.wait4Remove) do
+			self:RemoveEventListener(v[1], v[2])
+		end
+		self.wait4Remove = {}
+	end
 end
 
 ---@param typ string
 ---@param func function
 function M:RemoveEventListener(typ, func)
-	assert(self.dispatching ~= typ)
+	if self.dispatching == typ then
+		tinsert(self.wait4Remove, {typ, func})
+		return
+	end
 	local typListeners = assert(self.listeners[typ], typ)
 	for i, v in ipairs(typListeners) do
 		if v.func == func then

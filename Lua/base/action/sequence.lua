@@ -39,4 +39,16 @@ function M:add(action)
 	insert(self.actions, action)
 end
 
+function M:reset()
+	self.current = 0
+end
+
+function M:interrupt()
+	self.current = 9999
+end
+
+function M:finished()
+	return self.actions[self.current] == nil
+end
+
 return M

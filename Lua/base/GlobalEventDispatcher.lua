@@ -1,4 +1,5 @@
 ﻿local EventDispatcher = require("base.EventDispatcher")
+---@class base.GlobalEventDispatcher
 local M = {}
 local global
 
