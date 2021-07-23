@@ -47,9 +47,14 @@ function M.Init()
 	end
 end
 
+---@return CS.UnityEngine.RectTransform
 function M.GetLayerRoot(name)
 	local layerEnum = assert(UILayer.__CastFrom(name), name)
 	return layers[layerEnum].transform
+end
+
+function M.GetContext(name)
+	
 end
 
 function M.GetLoadedUI(name)
@@ -166,7 +171,7 @@ end
 
 function M.Load(viewName, callback)
 	if contexts[viewName] then
-		warn("ui view is exist : ", viewName)
+		warn("ui view exist : ", viewName)
 		return
 	end
 
@@ -179,6 +184,9 @@ function M.Load(viewName, callback)
 	return context
 end
 
+---@alias Callback fun(err: string, go: CS.UnityEngine.GameObject)
+---@param viewName string
+---@param callback Callback
 function M.Show(viewName, callback)
 	local context;
 	context = M.Load(viewName, function(err, go)
@@ -193,7 +201,7 @@ function M.Hide(context)
 		local viewName = context
 		context = contexts[viewName]
 		if not context then
-			warn("View " .. viewName .. "not exist")
+			warn("View ", viewName, "not exist")
 			return
 		end
 		contexts[viewName] = nil

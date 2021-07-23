@@ -102,12 +102,11 @@ end
 function M:Hide()
 	assert(self.status == "show")
 	self.status = "hide"
+	assert(SM.GetService(SM.SERVICE_TYPE.UI).GetContext(self.viewName) == nil, self.viewName)
 
-	local hiddenCallback; hiddenCallback = function()
-		self.view:Hidden("-", hiddenCallback)
+	self.view:Hidden("+", function()
 		self:Destroy()
-	end
-	self.view:Hidden("+", hiddenCallback)
+	end)
 	if self.bg then
 		self.bg:Hide()
 	end
@@ -129,6 +128,7 @@ function M:Close()
 end
 
 function M:Destroy()
+	assert(SM.GetService(SM.SERVICE_TYPE.UI).GetContext(self.viewName) == nil, self.viewName)
 	self.status = "destroyed"
 	if self.bg then
 		AssetService.Recycle(self.bg)
