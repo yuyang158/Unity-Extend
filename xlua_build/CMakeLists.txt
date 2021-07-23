@@ -15,9 +15,19 @@ endif ()
 
 project(XLua)
 
+# add c++11 feature for rapidjson
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+if (WIN32)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Od")
+endif()
+
 if ( IOS )
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fembed-bitcode")
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fembed-bitcode")
+endif ()
+
+if ( APPLE )
+    set(CMAKE_CXX_STANDARD 11)
 endif ()
 
 option ( UINT_ESPECIALLY "using custom ulong" OFF )
@@ -39,6 +49,8 @@ endif()
 
 set(LUA_SRC_PATH lua-${LUA_VERSION}/src)
 set(LUAJIT_SRC_PATH luajit-2.1.0b3/src)
+set(RAPIDJSON_SRC_PATH rapidjson/src)
+set(LIBUV_HEADER_PATH luv/deps/libuv/include)
 
 if (USING_LUAJIT)
 	
@@ -49,6 +61,8 @@ if (USING_LUAJIT)
 		  lua-5.1.5/etc
 		  ${CMAKE_CURRENT_BINARY_DIR}
 		  ${THIRDPART_INC}
+		  ${RAPIDJSON_SRC_PATH}
+		  ${LIBUV_HEADER_PATH}
 	    )
 	    set ( LUA_CORE lua-5.1.5/src/lapi.c lua-5.1.5/src/lcode.c lua-5.1.5/src/ldebug.c lua-5.1.5/src/ldo.c lua-5.1.5/src/ldump.c lua-5.1.5/src/lfunc.c 
           lua-5.1.5/src/lgc.c lua-5.1.5/src/llex.c lua-5.1.5/src/lmem.c lua-5.1.5/src/lobject.c lua-5.1.5/src/lopcodes.c lua-5.1.5/src/lparser.c lua-5.1.5/src/lstate.c 
@@ -61,6 +75,8 @@ if (USING_LUAJIT)
 		  ${LUAJIT_SRC_PATH}
 		  ${CMAKE_CURRENT_BINARY_DIR}
 		  ${THIRDPART_INC}
+		  ${RAPIDJSON_SRC_PATH}
+		  ${LIBUV_HEADER_PATH}
 	    )
 
 	    set ( LUA_CORE )
@@ -70,13 +86,15 @@ if (USING_LUAJIT)
 else ()
 	set ( LUA_IDSIZE 120 CACHE STRING "gives the maximum size for the description of the source." )
 
-	configure_file ( ${LUA_SRC_PATH}/luaconf.h.in ${CMAKE_CURRENT_BINARY_DIR}/luaconf.h )
+	configure_file ( ${LUA_SRC_PATH}/luaconf.h ${CMAKE_CURRENT_BINARY_DIR}/luaconf.h )
 
 	include_directories(
 	    ${CMAKE_SOURCE_DIR}
 		${LUA_SRC_PATH}
 		${CMAKE_CURRENT_BINARY_DIR}
 		${THIRDPART_INC}
+		${RAPIDJSON_SRC_PATH}
+		${LIBUV_HEADER_PATH}
 	)
 
     aux_source_directory(${LUA_SRC_PATH} LUA_CORE)
@@ -91,57 +109,85 @@ else ()
 	#   ${LUA_SRC_PATH}/lutf8lib.c ${LUA_SRC_PATH}/loadlib.c )
 endif ()
 
-set ( LUA_SOCKET
-    luasocket/auxiliar.c
-    luasocket/buffer.c
-    luasocket/except.c
-    luasocket/inet.c
-    luasocket/io.c
-    luasocket/luasocket.c
-    luasocket/mime.c
-    luasocket/options.c
-    luasocket/select.c
-    luasocket/tcp.c
-    luasocket/timeout.c
-    luasocket/udp.c 
-)
-
-
-#begin lpeg
-set ( LPEG_SRC
-    lpeg/lpcap.c
-    lpeg/lpcode.c
-    lpeg/lpprint.c
-    lpeg/lptree.c
-    lpeg/lpvm.c
-)
-set_property(
-    SOURCE ${LPEG_SRC}
-    APPEND
-    PROPERTY COMPILE_DEFINITIONS
-    LUA_LIB
-)
-list(APPEND THIRDPART_INC  lpeg)
-set (THIRDPART_SRC ${THIRDPART_SRC} ${LPEG_SRC})
-#end lpeg
-
-#begin lua-sproto
- set (SPROTO_SRC sproto/sproto.c sproto/lsproto.c)
+#begin lua-rapidjson
+ set (RAPIDJSON_SRC 
+	rapidjson/src/Document.cpp
+    rapidjson/src/Schema.cpp
+    rapidjson/src/Userdata.hpp
+    rapidjson/src/file.hpp
+    rapidjson/src/luax.hpp
+    rapidjson/src/rapidjson.cpp
+    rapidjson/src/values.cpp
+    rapidjson/src/values.hpp
+ )
  set_property(
-     SOURCE ${SPROTO_SRC}
+	 SOURCE ${RAPIDJSON_SRC}
      APPEND
      PROPERTY COMPILE_DEFINITIONS
      LUA_LIB
  )
- list(APPEND THIRDPART_INC sproto)
- set (THIRDPART_SRC ${THIRDPART_SRC} ${SPROTO_SRC})
-#end lua-sproto
+ list(APPEND THIRDPART_INC rapidjson)
+ set (THIRDPART_SRC ${THIRDPART_SRC} ${RAPIDJSON_SRC})
+#end lua-rapidjson
 
-if ( WIN32 AND NOT CYGWIN )
-    list (APPEND LUA_SOCKET luasocket/wsocket.c)
-else ( )
-    list (APPEND LUA_SOCKET luasocket/usocket.c)
-endif ( )
+#begin sqlite
+ set (SQLITE_SRC 
+	sqlite/lsqlite3.c
+    sqlite/sqlite3.c
+ )
+ set_property(
+	 SOURCE ${SQLITE_SRC}
+     APPEND
+     PROPERTY COMPILE_DEFINITIONS
+     LUA_LIB
+ )
+ list(APPEND THIRDPART_INC sqlite)
+ set (THIRDPART_SRC ${THIRDPART_SRC} ${SQLITE_SRC})
+#end sqlite
+
+#begin lua-protobuf
+ set (PROTOBUF_SRC protobuf/pb.c)
+ set_property(
+	 SOURCE ${PROTOBUF_SRC}
+     APPEND
+     PROPERTY COMPILE_DEFINITIONS
+     LUA_LIB
+ )
+ list(APPEND THIRDPART_INC protobuf)
+ set (THIRDPART_SRC ${THIRDPART_SRC} ${PROTOBUF_SRC})
+#end lua-protobuf
+
+#begin lua-luv
+set (LUV_SRC luv/luv.c)
+set_property(
+	SOURCE ${LUV_SRC}
+	APPEND
+	PROPERTY COMPILE_DEFINITIONS
+	LUA_LIB
+)
+list(APPEND THIRDPART_INC luv)
+set (THIRDPART_SRC ${THIRDPART_SRC} ${LUV_SRC})
+
+add_subdirectory(luv/deps/libuv EXCLUDE_FROM_ALL)
+set(LIBUV_LIBRARIES uv_a)
+if(WIN32)
+	set_target_properties(uv_a PROPERTIES COMPILE_FLAGS "-fPIC -Od")
+else()
+	set_target_properties(uv_a PROPERTIES COMPILE_FLAGS "-fPIC")
+endif()
+list(APPEND THIRDPART_LIB ${LIBUV_LIBRARIES})
+#end lua-luv
+
+#begin lua-chronos
+set (CHRONOS_SRC chronos.c)
+set_property(
+	SOURCE ${CHRONOS_SRC}
+	APPEND
+	PROPERTY COMPILE_DEFINITIONS
+	LUA_LIB
+)
+set (THIRDPART_SRC ${THIRDPART_SRC} ${CHRONOS_SRC})
+#end lua-chronos
 
 set ( XLUA_CORE
     i64lib.c
