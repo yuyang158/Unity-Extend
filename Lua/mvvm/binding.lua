@@ -13,8 +13,6 @@ local function append_key(path, key)
 	if type(key) ~= 'number' and type(key) ~= 'string' then error('not support key type' .. type(key)) end
 	return (type(key) == 'number') and (path .. '[' .. key .. ']') or (path .. '.' .. key)
 end
-local parent
-local parent_key
 local current_dep
 local function build_computed(computed, source)
 	local _computed = {
@@ -49,7 +47,7 @@ local function build_computed(computed, source)
 			local getter = _computed.__getters[k]
 			if not getter then return end
 			current_dep = _computed.__deps[k]
-			local ret = getter(source)
+			local ret = getter(source, source.compute_roots[k])
 			local tmp = current_dep
 			current_dep = nil
 			tmp:fetch(source)
@@ -62,21 +60,32 @@ local function build_computed(computed, source)
 	})
 end
 
-local function build_data(data, path)
+local function build_data(data, path, self_callback, root)
+	-- ignore table with metatable
+	if getmetatable(data) then
+		return data
+	end
+	
 	local _data = {}
+	local callbacks = {}
 	for k, v in pairs(data) do
+		local cb = {}
+		callbacks[k] = cb
 		assert(type(k) == 'string' or type(k) == 'number', k)
 		if type(v) == 'table' then
-			_data[k] = build_data(v, append_key('', k))
+			_data[k] = build_data(v, append_key(path, k), cb, root)
 		else
 			_data[k] = v
 		end
 		data[k] = nil
 	end
 
-	local callbacks = {}
 	local methods = {
-		watch = function(_, p, cb)
+		watch = function(_, p, cb, expression)
+			if expression then
+				root.watch(root, p, cb)
+				return
+			end
 			local keys = util.parse_path(p)
 			if #keys == 1 then
 				return data.__watch(p, cb)
@@ -91,19 +100,15 @@ local function build_data(data, path)
 			end
 		end,
 		__watch = function(k, cb)
-			if not _data[k] then return false end
+			if _data[k] == nil then return false end
 			local cbs = callbacks[k]
-			if not cbs then
-				cbs = {}
-				callbacks[k] = cbs
-			end
 			tinsert(cbs, cb)
 			return true
 		end,
 		detach = function(_, k, cb)
 			local cbs = callbacks[k]
 			if not cbs then
-				return false
+				return root:detach(k, cb, true)
 			end
 			for i, v in ipairs(cbs) do
 				if v == cb then
@@ -113,9 +118,8 @@ local function build_data(data, path)
 			end
 		end,
 		__get = function(_, k)
-			parent_key = k
 			local val = _data[k]
-			if current_dep and val then
+			if current_dep and val ~= nil then
 				current_dep:record(append_key(path, k))
 			end
 			return val
@@ -126,32 +130,42 @@ local function build_data(data, path)
 			if oldVal == v then
 				return
 			end
-			
-			_data[k] = type(v) == "table" and build_data(v, append_key(path, k)) or v
-			local cbs = callbacks[k]
-			if not cbs then return oldVal == nil or v == nil end
+			local cbs
+			if not callbacks[k] then
+				cbs = {}
+				callbacks[k] = cbs
+			else
+				cbs = callbacks[k]
+			end
+			_data[k] = type(v) == "table" and build_data(v, append_key(path, k), cbs, root) or v
 			for _, cb in ipairs(cbs) do
-				cb(data, v)
+				cb(v)
 			end
 			return oldVal == nil or v == nil
 		end,
 		__notify = function(k, v)
 			local cbs = callbacks[k]
-			if not cbs then return end
 			for _, cb in ipairs(cbs) do
-				cb(data, v)
+				cb(v)
 			end
+		end,
+		__notify_self = function()
+			for _, cb in ipairs(self_callback) do
+				cb(data)
+			end
+		end,
+		setup_temp_getter = function(key, func)
+			root.compute_roots[key] = data
+			return root.setup_temp_getter(key, func)
 		end
 	}
 	return setmetatable(data, {
 		__index = function(_, k)
-			parent = data
 			return methods[k] or methods.__get(data, k)
 		end,
 		__newindex = function(_, k, v)
 			if methods.__set(data, k, v) then
-				local val = parent:__get(parent_key)
-				parent.__notify(parent_key, val)
+				data.__notify_self()
 			end
 		end,
 		__pairs = function()
@@ -172,9 +186,10 @@ function M.build(source)
 	local meta = getmetatable(source)
 	if meta and meta.__mark == mark then return end
 
-	local data = build_data(source.data, "")
+	source.compute_roots = {}
+	local data = build_data(source.data, "", nil, source)
 	local computed = build_computed(source.computed, source)
-	local mixins = source.mixins
+	local mixins  = source.mixins
 
 	source.data = nil
 	source.computed = nil
@@ -196,8 +211,10 @@ function M.build(source)
 				end
 			end
 		end,
-		detach = function(_, path, cb)
-			if compute_meta.__getters[path] then
+		detach = function(_, path, cb, compute)
+			if compute_meta.__getters[path] or compute then
+				compute_meta.__getters[path] = nil
+				compute_meta.__deps[path] = nil
 				local cbs = computed_cbs[path]
 				if not cbs then return end
 				for i, v in ipairs(cbs) do
@@ -219,19 +236,17 @@ function M.build(source)
 			local cbs = computed_cbs[key]
 			if not cbs then return end
 			for _, callback in ipairs(cbs) do
-				callback(source, val)
+				callback(val)
 			end
 		end,
 		get = function(_, k)
-			if computed then
-				local val = computed[k]
-				if val then return val end
-			end
-			local val = data:__get(k)
-			if not val and mixins then
+			local val = computed[k]
+			if val ~= nil then return val end
+			val = data:__get(k)
+			if val == nil and mixins then
 				for _, mixin in ipairs(mixins) do
 					val = mixin[k]
-					if val then return val end
+					if val ~= nil then return val end
 				end
 			end
 			return val
@@ -244,11 +259,14 @@ function M.build(source)
 			data:__set(k, v)
 		end,
 		setup_temp_getter = function(key, func)
-			assert(type(func) == "function")
+			assert(type(func) == "function", type(func))
 			local getter = compute_meta.__getters[key]
-			if getter then return end
-			compute_meta.__getters[key] = func
-			compute_meta.__deps[key] = dep.new(key)
+			if not getter then
+				compute_meta.__getters[key] = func
+				compute_meta.__deps[key] = dep.new(key)
+			end
+			assert(source[key] ~= nil, key)
+			return source[key]
 		end
 	}
 	return setmetatable(source, {
@@ -259,6 +277,11 @@ function M.build(source)
 			index.set(source, k, v)
 		end
 	})
+end
+
+_BindingEnv = {}
+function M.SetEnvVariable(param)
+	table.assign(_BindingEnv, param)
 end
 
 return M
