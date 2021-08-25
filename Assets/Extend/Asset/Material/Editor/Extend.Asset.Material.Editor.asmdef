@@ -1,0 +1,18 @@
+{
+    "name": "Extend.Asset.Material.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:6a0da544f723f5e48a17c73d49ed2f89"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
