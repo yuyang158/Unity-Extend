@@ -2,7 +2,8 @@
     "name": "Extend.Asset.Material.Editor",
     "rootNamespace": "",
     "references": [
-        "GUID:6a0da544f723f5e48a17c73d49ed2f89"
+        "GUID:6a0da544f723f5e48a17c73d49ed2f89",
+        "GUID:45fc0be54141d6044996cb19c30f85c3"
     ],
     "includePlatforms": [
         "Editor"

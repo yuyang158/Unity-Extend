@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Extend.Asset.Editor;
+using Extend.Asset.Editor.Process;
+using Extend.Common.Editor;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -20,15 +23,8 @@ namespace Extend.Asset.Editor.Process {
 			AssetDatabase.DeleteAsset(m_collectionPath);
 			foreach( var shaderPath in SpecialShaders ) {
 				var shader = AssetDatabase.LoadAssetAtPath<Shader>(shaderPath);
-
-				var type = typeof(ShaderUtil);
-				var getShaderGlobalKeywords = type.GetMethod("GetShaderGlobalKeywords", 
-					BindingFlags.Static | BindingFlags.NonPublic);
-				var globalKeywords = getShaderGlobalKeywords.Invoke(null, new object[] {shader}) as string[];
-
-				var getShaderLocalKeywords = type.GetMethod("GetShaderLocalKeywords", 
-					BindingFlags.Static | BindingFlags.NonPublic);
-				var localKeywords = getShaderLocalKeywords.Invoke(null, new object[] {shader}) as string[];
+				var globalKeywords = ShaderUtilExtend.GetGlobalShaderKeywords(shader);
+				var localKeywords = ShaderUtilExtend.GetLocalShaderKeywords(shader);
 				
 				m_shaderToGlobalKeywords.Add(shader, new Tuple<string[], string[]>(globalKeywords, localKeywords));
 			}
