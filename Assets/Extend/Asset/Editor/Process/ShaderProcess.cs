@@ -15,10 +15,19 @@ namespace Extend.Asset.Editor.Process {
 			new ShaderKeyword("FOG_EXP2"),
 			new ShaderKeyword("POINT_COOKIE"),
 			new ShaderKeyword("DIRECTIONAL_COOKIE"),
-			new ShaderKeyword("SHADOWS_SOFT"),
 			new ShaderKeyword("VERTEXLIGHT_ON"),
 			new ShaderKeyword("DYNAMICLIGHTMAP_ON"),
 			new ShaderKeyword("LOD_FADE_CROSSFADE")
+		};
+
+		private static readonly string[] URP_SKIP_KEYWORDS = {
+			"_MAIN_LIGHT_SHADOWS",
+			"_MAIN_LIGHT_SHADOWS_CASCADE",
+			// "_ADDITIONAL_LIGHTS",
+			// "_ADDITIONAL_LIGHTS_VERTEX",
+			// "_SCREEN_SPACE_OCCLUSION",
+			// "_ADDITIONAL_LIGHT_SHADOWS",
+			"_SHADOWS_SOFT"
 		};
 
 		private static readonly Dictionary<Shader, List<string[]>> m_shaderKeywordCollector = new Dictionary<Shader, List<string[]>>();
@@ -79,6 +88,9 @@ namespace Extend.Asset.Editor.Process {
 							m_filteredBuildInKeywords.Add(keywordName);
 						continue;
 					}
+					
+					if(URP_SKIP_KEYWORDS.Contains(keywordName))
+						continue;
 
 					bool inUsed = false;
 					foreach( var collectKeyword in collectKeywords ) {

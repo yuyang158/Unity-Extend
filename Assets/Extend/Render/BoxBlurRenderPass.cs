@@ -37,21 +37,21 @@ namespace Extend.Render {
 		private RenderTargetHandle m_source;
 
 		public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData) {
-			m_source = renderingData.cameraData.renderer.afterPostProcessTarget;
+			/*_source = renderingData.cameraData.renderer.afterPostProcessTarget;
 			if( m_material != null )
 				return;
 			var shader = Shader.Find("Hidden/PostProcessing/BoxBlur");
 			if( !shader )
 				return;
-			m_material = new Material(shader);
+			m_material = new Material(shader);*/
 		}
 
 		private static readonly int sourceTex = Shader.PropertyToID("_SourceTex");
 
 		public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData) {
 			var camera = renderingData.cameraData.camera;
-			if( camera.targetTexture == null && !PostProcessPass.PostProcessPassSetuped )
-				return;
+			//if( camera.targetTexture == null && !PostProcessPass.PostProcessPassSetuped )
+				//return;
 			if( !m_material )
 				return;
 

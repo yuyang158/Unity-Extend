@@ -14,7 +14,7 @@ namespace Extend.Asset.Editor.Process {
 	public class ShaderVariantProcess : IBuildAssetProcess {
 		public Type ProcessType => typeof(AssetImporter);
 
-		private static readonly string[] SpecialShaders = {"Assets/Shaders/Effect/Fx_2TextureBlend.shader"};
+		private static readonly string[] SpecialShaders = {};
 		private readonly Dictionary<Shader, Tuple<string[], string[]>> m_shaderToGlobalKeywords = new Dictionary<Shader, Tuple<string[], string[]>>();
 		private readonly ShaderVariantCollection m_collection = new ShaderVariantCollection();
 		private const string m_collectionPath = "Assets/Shaders/Special.shadervariants";

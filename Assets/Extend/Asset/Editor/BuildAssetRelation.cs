@@ -51,9 +51,18 @@ namespace Extend.Asset.Editor {
 			s_specialAB = new Dictionary<string, BundleUnloadStrategy>();
 			foreach( var setting in manualSettings ) {
 				Debug.LogWarning($"Setting Path : {setting.Path}");
-				var settingFiles = Directory.GetFiles(setting.Path, "*", SearchOption.AllDirectories);
+				if(string.IsNullOrEmpty(setting.Path))
+					continue;
+				string[] settingFiles;
+				try {
+					settingFiles = Directory.GetFiles(setting.Path, "*", SearchOption.AllDirectories);
+				}
+				catch( Exception e ) {
+					Console.WriteLine(e);
+					throw;
+				}
 				foreach( var filePath in settingFiles ) {
-					if( Array.IndexOf(IgnoreExtensions, Path.GetExtension(filePath)) >= 0 || filePath.Contains(".svn") )
+					if( Array.IndexOf(IgnoreExtensions, Path.GetExtension(filePath)) >= 0 || filePath.Contains(".svn") || filePath.Contains(".git") )
 						continue;
 					var abName = string.Empty;
 					var directoryName = Path.GetDirectoryName(filePath) ?? "";

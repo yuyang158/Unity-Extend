@@ -15,9 +15,5 @@ namespace Extend.Asset.Material.Editor {
 		}
 
 		public Shader3TierCombine[] Shaders;
-
-		private void OnEnable() {
-			Debug.Log("LOADED");
-		}
 	}
 }

@@ -29,24 +29,24 @@ namespace Extend.Render {
 			if( !camera.TryGetComponent<UniversalAdditionalCameraData>(out var cameraDataComponent) )
 				return;
 
-			var features = cameraDataComponent.scriptableRenderer.rendererFeatures;
+			/* ar features = cameraDataComponent.scriptableRenderer.rendererFeatures;
 			foreach( var feature in features ) {
 				if( feature.name == name ) {
 					feature.SetActive(active);
 				}
-			}
+			}*/
 		}
 
 		public T GetFeature<T>(Camera camera, string name) where T : ScriptableRendererFeature {
 			if( !camera.TryGetComponent<UniversalAdditionalCameraData>(out var cameraDataComponent) )
 				return null;
 
-			var features = cameraDataComponent.scriptableRenderer.rendererFeatures;
+			/*var features = cameraDataComponent.scriptableRenderer.rendererFeatures;
 			foreach( var feature in features ) {
 				if( feature.name == name ) {
 					return feature as T;
 				}
-			}
+			}*/
 
 			return null;
 		}

@@ -375,7 +375,7 @@ namespace Extend.Asset.Editor {
 
 		public static bool RebuildSelectedAssetBundles(BuildTarget target, bool appendLuaDir, int[] selectedIds) {
 			if( appendLuaDir ) {
-				BuildLuaFile(Path.Combine(Application.dataPath.Replace("Assets", ""), "Lua"));
+				//BuildLuaFile(Path.Combine(Application.dataPath.Replace("Assets", ""), "Lua"));
 				AssetDatabase.Refresh();
 			}
 
@@ -418,7 +418,7 @@ namespace Extend.Asset.Editor {
 			BuildAssetRelation.Clear();
 			var settings = settingRoot;
 			if( appendLuaDir ) {
-				BuildLuaFile(Path.Combine(Application.dataPath.Replace("Assets", ""), "Lua"));
+				// BuildLuaFile(Path.Combine(Application.dataPath.Replace("Assets", ""), "Lua"));
 				AssetDatabase.Refresh();
 
 				settings = CreateInstance<StaticABSettings>();
