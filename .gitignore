@@ -8,6 +8,7 @@ Assets/UnityLuaAPI*
 Assets/StreamingAssets/ABBuild*
 node_modules/
 Logs/
+[Pp]ackages/com.unity.render-pipelines.universal*
 
 # Visual Studio cache directory
 .vs/
