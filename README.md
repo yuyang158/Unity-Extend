@@ -120,3 +120,7 @@ print(b.c1, b.b1)
 ## LuaCheck集成
 * 选中Assets/Extend/Editor/LuaCheckSetting.asset 设置LuaCheck.exe的路径
 * 在Lua文件保存时，自动执行LuaCheck指令，并将结果输出到Console
+
+## 更多文档
+[更多文档](https://github.com/yuyang158/Unity-Extend/tree/master/Doc)
+
