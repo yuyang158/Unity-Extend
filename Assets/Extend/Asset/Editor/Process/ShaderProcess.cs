@@ -23,11 +23,13 @@ namespace Extend.Asset.Editor.Process {
 		private static readonly string[] URP_SKIP_KEYWORDS = {
 			"_MAIN_LIGHT_SHADOWS",
 			"_MAIN_LIGHT_SHADOWS_CASCADE",
-			// "_ADDITIONAL_LIGHTS",
-			// "_ADDITIONAL_LIGHTS_VERTEX",
-			// "_SCREEN_SPACE_OCCLUSION",
-			// "_ADDITIONAL_LIGHT_SHADOWS",
-			"_SHADOWS_SOFT"
+			"_ADDITIONAL_LIGHTS",
+			"_ADDITIONAL_LIGHTS_VERTEX",
+			"_SCREEN_SPACE_OCCLUSION",
+			"_ADDITIONAL_LIGHT_SHADOWS",
+			"_SHADOWS_SOFT",
+			"_EMISSION",
+			"_MIXED_LIGHTING_SUBTRACTIVE"
 		};
 
 		private static readonly Dictionary<Shader, List<string[]>> m_shaderKeywordCollector = new Dictionary<Shader, List<string[]>>();
