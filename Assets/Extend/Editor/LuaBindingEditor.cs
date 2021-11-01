@@ -64,7 +64,7 @@ namespace Extend.Editor {
 		}
 
 		public override void OnInspectorGUI() {
-			binding.LuaData ??= new LuaBindingDataBase[0];
+			binding.LuaData ??= Array.Empty<LuaBindingDataBase>();
 
 			var luaPathProp = serializedObject.FindProperty("LuaFile");
 			if( string.IsNullOrEmpty(luaPathProp.stringValue) ) {
