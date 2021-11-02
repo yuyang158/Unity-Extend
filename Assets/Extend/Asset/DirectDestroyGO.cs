@@ -8,6 +8,7 @@ namespace Extend.Asset {
 		}
 #endif
 		internal override void Recycle() {
+			transform.SetParent(null);
 			Destroy(gameObject);
 			base.Recycle();
 		}
