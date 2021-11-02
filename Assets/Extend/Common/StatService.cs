@@ -25,6 +25,8 @@ namespace Extend.Common {
 			IN_POOL_GO,
 			ACTIVE_TWEEN,
 			MVVM_DISPATCH,
+			CULL_PROCESS,
+			TOTAL_RENDERERS_TO_CULL,
 			COUNT
 		}
 
@@ -36,7 +38,9 @@ namespace Extend.Common {
 			"In Used GO",
 			"In Pool GO",
 			"Active Tween Count",
-			"Mvvm Change"
+			"Mvvm Change",
+			"Static Cull Count",
+			"Total Renderers To Cull"
 		};
 
 		private readonly long[] m_stats = new long[(int)StatName.COUNT];

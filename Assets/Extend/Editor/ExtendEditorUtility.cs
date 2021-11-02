@@ -149,7 +149,7 @@ namespace Extend.Editor {
 			if( EditorUserBuildSettings.activeBuildTarget != BuildTarget.iOS ) {
 				EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.iOS, BuildTarget.iOS);
 			}
-			EditorUserBuildSettings.iOSBuildConfigType = iOSBuildType.Release;
+			EditorUserBuildSettings.iOSXcodeBuildConfig = XcodeBuildConfig.Release;
 			var buildPath = Application.dataPath + "/../iOSPlayer";
 			if( !Directory.Exists(buildPath) ) {
 				Directory.CreateDirectory(buildPath);
