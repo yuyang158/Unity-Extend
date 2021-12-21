@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using Extend.Common;
 using Extend.UI.Fx;
 using UnityEngine;
@@ -19,6 +20,16 @@ namespace Extend.LuaUtil {
 
 		public static LuaTable GetLuaBinding(this Component component, LuaTable classMeta) {
 			var bindings = component.GetComponents<LuaBinding>();
+			return FindInLuaBinding(classMeta, bindings);
+		}
+
+		public static LuaTable GetLuaBindingInParent(this GameObject go, LuaTable classMeta) {
+			var bindings = go.GetComponentsInParent<LuaBinding>();
+			return FindInLuaBinding(classMeta, bindings);
+		}
+
+		public static LuaTable GetLuaBindingInParent(this Component component, LuaTable classMeta) {
+			var bindings = component.GetComponentsInParent<LuaBinding>();
 			return FindInLuaBinding(classMeta, bindings);
 		}
 
@@ -70,7 +81,11 @@ namespace Extend.LuaUtil {
 
 		public static void SetGray(this RectTransform transform, bool active) {
 			var grayScale = transform.GetOrAddComponent<UIGrayScale>();
-			grayScale.enabled = active;
+			grayScale.enabled = active;	
+		}
+
+		public static void ChangeOverrideAnimatorClip(AnimatorOverrideController controller, string clipName, AnimationClip clip) {
+			controller[clipName] = clip;
 		}
 
 		private static LuaTable FindInComponents(LuaTable classMeta, LuaBinding[] bindings) {

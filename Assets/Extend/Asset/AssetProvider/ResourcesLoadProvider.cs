@@ -61,7 +61,7 @@ namespace Extend.Asset.AssetProvider {
 			var dependencies = extraField.GetValue(abSetting) as Object[];
 			foreach (var dep in dependencies) {
 				var path = UnityEditor.AssetDatabase.GetAssetPath(dep);
-				m_extraDependencies.Add(path.Substring(0, path.LastIndexOf('.')), path);
+				m_extraDependencies.Add(path[..path.LastIndexOf('.')], path);
 			}
 			#endif
 		}
@@ -104,7 +104,7 @@ namespace Extend.Asset.AssetProvider {
 
 		private AssetInstance ProvideAsset(string path, AssetContainer container, Type typ) {
 			var hash = AssetInstance.GenerateHash(path);
-			if( container.TryGetAsset(hash) is AssetInstance asset && asset.IsFinished ) {
+			if( container.TryGetAsset(hash) is AssetInstance {IsFinished: true} asset ) {
 				return asset;
 			}
 

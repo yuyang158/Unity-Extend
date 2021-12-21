@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Extend.Common {
 	public static class Utility {
-		public static void       HttpFileUpload(string url, NameValueCollection qs, string filePath) {
+		public static void HttpFileUpload(string url, NameValueCollection qs, string filePath) {
 			var target = Application.persistentDataPath + "/upload.log";
 			File.Copy(filePath, target, true);
 

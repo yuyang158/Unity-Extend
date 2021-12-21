@@ -9,13 +9,13 @@ namespace Extend.Render {
 			public string passTag = "AdditionalUIRender";
 			public RenderPassEvent Event = RenderPassEvent.AfterRenderingPostProcessing;
 
-			public FilterSettings filterSettings = new FilterSettings();
+			public FilterSettings filterSettings = new();
 
 			public bool overrideDepthState;
 			public CompareFunction depthCompareFunction = CompareFunction.LessEqual;
 			public bool enableWrite = true;
 
-			public StencilStateData stencilSettings = new StencilStateData();
+			public StencilStateData stencilSettings = new();
 			public ClearFlag clearFlag;
 		}
 
@@ -30,7 +30,7 @@ namespace Extend.Render {
 			}
 		}
 
-		public AdditionalRenderSettings settings = new AdditionalRenderSettings();
+		public AdditionalRenderSettings settings = new();
 		private AdditionalUIRenderPass renderObjectsPass;
 
 		public override void Create() {

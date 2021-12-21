@@ -89,7 +89,6 @@ namespace Extend.Asset {
 #endif
 			return go;
 		}
-
 		public GameObject Instantiate(Vector3 position, Quaternion rotation, Transform parent) {
 			GameObject go;
 			if( m_pool == null ) {

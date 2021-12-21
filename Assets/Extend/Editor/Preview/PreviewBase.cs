@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿#if !UNITY_EDITOR
+using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -763,3 +764,4 @@ namespace Extend.Editor.Preview {
 		}
 	}
 }
+#endif

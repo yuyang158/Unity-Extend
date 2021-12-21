@@ -8,7 +8,7 @@ using XLua;
 
 [LuaCallCSharp]
 public static class RemoteCmdClient {
-	private static readonly TcpClient tcpClient = new TcpClient {NoDelay = true};
+	private static readonly TcpClient tcpClient = new() {NoDelay = true};
 
 	public static void Restart() {
 		try {

@@ -120,7 +120,7 @@ namespace Extend.DebugUtil {
 
 		private void OnEnable() {
 			Application.logMessageReceived += HandleLogThreaded;
-			m_drawCallCount = ProfilerRecorder.StartNew(ProfilerCategory.Render, "Draw Calls Count");
+			m_drawCallCount = ProfilerRecorder.StartNew(ProfilerCategory.Render, "Total Batches Count");
 			m_trianglesCount = ProfilerRecorder.StartNew(ProfilerCategory.Render, "Triangles Count");
 			m_verticesCount = ProfilerRecorder.StartNew(ProfilerCategory.Render, "Vertices Count");
 

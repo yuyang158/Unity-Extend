@@ -6,13 +6,14 @@ using System.Text;
 using Extend.Common;
 using Extend.Common.Editor;
 using UnityEditor;
+using UnityEditor.AssetImporters;
 using UnityEngine;
 using XLua;
 using Debug = UnityEngine.Debug;
 
 namespace Extend.Editor {
-	[UnityEditor.AssetImporters.ScriptedImporter(1, "lua"), InitializeOnLoad]
-	public class LuaScriptImporter : UnityEditor.AssetImporters.ScriptedImporter {
+	[ScriptedImporter(1, "lua"), InitializeOnLoad]
+	public class LuaScriptImporter : ScriptedImporter {
 		[MenuItem("XLua/hotfix")]
 		private static void Hotfix() {
 			if( !Application.isPlaying )
@@ -30,7 +31,7 @@ namespace Extend.Editor {
 			}
 		}
 
-		private static readonly List<string> modifiedModules = new List<string>();
+		private static readonly List<string> modifiedModules = new();
 		private static bool m_playing;
 
 		static LuaScriptImporter() {
@@ -44,28 +45,33 @@ namespace Extend.Editor {
 				}
 			};
 			Application.quitting += () => { modifiedModules.Clear(); };
-			var watcher = new FileSystemWatcher($"{Environment.CurrentDirectory}/Lua", "*.lua") {
-				IncludeSubdirectories = true
-			};
-			watcher.Changed += (sender, args) => {
-				EditorMainThreadDispatcher.PushAction(() => {
-					ExecLuaCheck(args.FullPath);
-				});
-				if( !m_playing )
-					return;
-				var path = args.FullPath;
-				var start = path.IndexOf("Lua", StringComparison.CurrentCulture) + 4;
-				var module = path.Substring(start, path.Length - start - 4).Replace('\\', '.');
-				lock( modifiedModules ) {
-					modifiedModules.Add(module);
-				}
-			};
 
-
-			watcher.EnableRaisingEvents = true;
+			var directories = Directory.GetDirectories($"{Environment.CurrentDirectory}\\Lua", "*", SearchOption.AllDirectories);
+			foreach( var directory in directories ) {
+				var watcher = new FileSystemWatcher(directory, "*.lua");
+				watcher.Changed += LuaFileChangedCallback;
+				watcher.EnableRaisingEvents = true;
+			}
+			var rootWatcher = new FileSystemWatcher($"{Environment.CurrentDirectory}\\Lua", "*.lua");
+			rootWatcher.Changed += LuaFileChangedCallback;
+			rootWatcher.EnableRaisingEvents = true;
 		}
 
-		public override void OnImportAsset(UnityEditor.AssetImporters.AssetImportContext ctx) {
+		private static void LuaFileChangedCallback(object _, FileSystemEventArgs args) {
+			EditorMainThreadDispatcher.PushAction(() => {
+				ExecLuaCheck(args.FullPath);
+			});
+			if( !m_playing )
+				return;
+			var path = args.FullPath;
+			var start = path.IndexOf("Lua", StringComparison.CurrentCulture) + 4;
+			var module = path.Substring(start, path.Length - start - 4).Replace('\\', '.');
+			lock( modifiedModules ) {
+				modifiedModules.Add(module);
+			}
+		}
+
+		public override void OnImportAsset(AssetImportContext ctx) {
 			if( Application.isPlaying ) {
 				var path = ctx.assetPath.Substring(21, ctx.assetPath.Length - 21 - 4);
 				var moduleName = path.Replace('/', '.');
@@ -96,29 +102,36 @@ namespace Extend.Editor {
 		}
 
 		private static void ExecLuaCheck(string luaPath) {
+			if( !File.Exists(luaPath) ) {
+				return;
+			}
+			
 			luaPath = luaPath.Replace('\\', '/');
 			var index = luaPath.IndexOf("Lua/", StringComparison.InvariantCulture);
 			var projectPath = luaPath.Substring(index + 4, luaPath.Length - index - 4 - 4);
 			LuaClassEditorFactory.ReloadDescriptor(projectPath);
 			var setting = LuaCheckSetting.GetOrCreateSettings();
 			if( setting.Active && !string.IsNullOrEmpty(setting.LuaCheckExecPath) && File.Exists(setting.LuaCheckExecPath) ) {
-				var proc = new Process {
-					StartInfo = new ProcessStartInfo {
-						FileName = setting.LuaCheckExecPath,
-						Arguments = $"{luaPath} --no-global --max-line-length {setting.MaxLineLength}",
-						UseShellExecute = false,
-						RedirectStandardOutput = true,
-						CreateNoWindow = true
+				EditorApplication.delayCall += () => {
+					// https://github.com/lunarmodules/luacheck
+					var proc = new Process {
+						StartInfo = new ProcessStartInfo {
+							FileName = setting.LuaCheckExecPath,
+							Arguments = $"{luaPath} --no-global --max-line-length {setting.MaxLineLength} --std lua54 --no-self",
+							UseShellExecute = false,
+							RedirectStandardOutput = true,
+							CreateNoWindow = true
+						}
+					};
+					proc.Start();
+					var builder = new StringBuilder(1024);
+					while( !proc.StandardOutput.EndOfStream ) {
+						var line = proc.StandardOutput.ReadLine();
+						builder.AppendLine(line);
 					}
-				};
-				proc.Start();
-				var builder = new StringBuilder(1024);
-				while( !proc.StandardOutput.EndOfStream ) {
-					var line = proc.StandardOutput.ReadLine();
-					builder.AppendLine(line);
-				}
 
-				Debug.Log(builder.ToString());
+					Debug.Log(builder.ToString());
+				};
 			}
 		}
 	}

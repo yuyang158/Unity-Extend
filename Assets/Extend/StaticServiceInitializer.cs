@@ -64,11 +64,9 @@ namespace Extend {
 				}
 			}
 
-			Application.targetFrameRate = 30;
+			Application.targetFrameRate = -1;
 			var maxInstantiateDuration = GameSystem.Get().SystemSetting.GetDouble("GAME", "MaxInstantiateDuration");
 			AssetService.Get().AfterSceneLoaded((float)maxInstantiateDuration);
-			var lua = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
-			lua.StartUp();
 		}
 	}
 }

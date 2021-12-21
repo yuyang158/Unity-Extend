@@ -1,17 +1,39 @@
 ﻿using System;
 using Extend.Common;
+using Extend.SceneManagement.Jobs;
 using UnityEngine;
 
 namespace Extend.SceneManagement.SpatialStructure {
+	public struct NodeIndexInstance {
+		public int MaterialIndex;
+		public int InstanceIndex;
+	}
+	
 	public abstract class TreeNode {
 		protected Bounds m_bounds;
 		protected TreeNode[] m_children;
-		private bool m_visible = true;
-		protected Renderer[] m_renderers;
+		private bool m_visible;
+		private NodeIndexInstance[] m_instances;
 
 		protected abstract bool HasChildren { get; }
-		
-		public void SetVisible(bool visible) {
+		private readonly DrawJobSchedule m_jobSchedule;
+
+		protected TreeNode(DrawJobSchedule jobSchedule) {
+			m_jobSchedule = jobSchedule;
+		}
+
+		protected void SetInstances(DrawInstance[] instances) {
+			m_instances = new NodeIndexInstance[instances.Length];
+			for( int i = 0; i < instances.Length; i++ ) {
+				var instance = instances[i];
+				m_instances[i] = new NodeIndexInstance {
+					MaterialIndex = instance.MaterialIndex,
+					InstanceIndex = instance.Index
+				};
+			}
+		}
+
+		private void SetVisible(bool visible) {
 			if( m_visible == visible ) {
 				foreach( var child in m_children ) {
 					child?.SetVisible(m_visible);
@@ -27,20 +49,22 @@ namespace Extend.SceneManagement.SpatialStructure {
 					}
 				}
 				else {
-					foreach( var renderer in m_renderers ) {
-						renderer.enabled = m_visible;
+					foreach( var instance in m_instances ) {
+						var meshMaterial = m_jobSchedule.GetMeshMaterial(instance.MaterialIndex);
+						meshMaterial.SetVisible(instance.InstanceIndex, m_visible);
 					}
 				}
 			}
 			else {
-				if( m_renderers == null ) {
+				if( m_instances == null ) {
 					foreach( var child in m_children ) {
 						child?.SetVisible(m_visible);
 					}
 				}
 				else {
-					foreach( var renderer in m_renderers ) {
-						renderer.enabled = m_visible;
+					foreach( var instance in m_instances ) {
+						var meshMaterial = m_jobSchedule.GetMeshMaterial(instance.MaterialIndex);
+						meshMaterial.SetVisible(instance.InstanceIndex, m_visible);
 					}
 				}
 			}
@@ -65,7 +89,14 @@ namespace Extend.SceneManagement.SpatialStructure {
 			}
 		}
 
-		public void DrawGizmo(DrawGizmoMode mode, int deep) {
+		public void DrawGizmo(DrawGizmoMode mode, int deep, bool onlyVisibleGizmo) {
+			if( onlyVisibleGizmo ) {
+				var planes = GeometryUtility.CalculateFrustumPlanes(Camera.main);
+				if( !GeometryUtility.TestPlanesAABB(planes, m_bounds) ) {
+					return;
+				}
+			}
+			
 			switch( mode ) {
 				case DrawGizmoMode.All:
 					Gizmos.DrawWireCube(m_bounds.center, m_bounds.size);
@@ -84,7 +115,7 @@ namespace Extend.SceneManagement.SpatialStructure {
 					throw new ArgumentOutOfRangeException(nameof(mode), mode, null);
 			}
 			foreach( var child in m_children ) {
-				child?.DrawGizmo(mode, deep + 1);
+				child?.DrawGizmo(mode, deep + 1, onlyVisibleGizmo);
 			}
 		}
 	}

@@ -11,7 +11,7 @@ namespace Extend.UI.i18n {
 		private int m_currentLang = -1;
 		private string m_currentLangName;
 		private string[] m_supportedLang;
-		private readonly Dictionary<string, string> m_languageText = new Dictionary<string, string>(10240);
+		private readonly Dictionary<string, string> m_languageText = new(10240);
 
 		public event Action OnLanguageChanged;
 
@@ -21,7 +21,7 @@ namespace Extend.UI.i18n {
 
 		private void RefreshLanguageText() {
 			var assetService = CSharpServiceManager.Get<AssetService>(CSharpServiceManager.ServiceType.ASSET_SERVICE);
-			using( var assetRef = assetService.Load("Config/static-i18n", typeof(TextAsset)) ) {
+			/*using( var assetRef = assetService.Load("Config/static-i18n", typeof(TextAsset)) ) {
 				var doc = new XmlDocument();
 				doc.LoadXml(assetRef.GetTextAsset().text);
 				var rootElement = doc.DocumentElement;
@@ -46,7 +46,7 @@ namespace Extend.UI.i18n {
 					var val = node.Attributes[m_currentLang].Value;
 					m_languageText.Add(key, val);
 				}
-			}
+			}*/
 		}
 
 		public void ChangeCurrentLanguage(string lang) {

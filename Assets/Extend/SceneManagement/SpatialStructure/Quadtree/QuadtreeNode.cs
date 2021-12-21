@@ -1,38 +1,40 @@
 ﻿using System.Collections.Generic;
 using Extend.Common;
+using Extend.SceneManagement.Jobs;
 using UnityEngine;
 
 namespace Extend.SceneManagement.SpatialStructure.Quadtree {
 	public class QuadtreeNode : TreeNode {
 		private const float MIN_BOUNDS_SIZE = 5f;
 
-		public QuadtreeNode(Renderer[] renderers, int deep) {
+		public QuadtreeNode(DrawJobSchedule jobSchedule, DrawInstance[] instances, int deep)
+			: base(jobSchedule) {
 			m_children = new TreeNode[4];
 			if( deep > 3 ) {
-				m_renderers = renderers;
+				SetInstances(instances);
 			}
 
-			if( renderers.Length == 1 ) {
-				m_renderers = renderers;
-				m_bounds = renderers[0].bounds;
+			if( instances.Length == 1 ) {
+				SetInstances(instances);
+				m_bounds = instances[0].Bounds;
 				return;
 			}
 
-			m_bounds = SpatialAbstract.CalculationBounds(renderers);
+			m_bounds = SpatialAbstract.CalculationBounds(instances);
 			var size = m_bounds.size;
 			if( deep > 7 || size.x < MIN_BOUNDS_SIZE || size.z < MIN_BOUNDS_SIZE ) {
-				m_renderers = renderers;
+				SetInstances(instances);
 				return;
 			}
 			
 			var subBounds = GetSubBounds(m_bounds);
-			var allRenderers = new List<Renderer>(renderers);
-			var overlappedRenderers = new List<Renderer>(renderers.Length);
+			var allRenderers = new List<DrawInstance>(instances);
+			var overlappedRenderers = new List<DrawInstance>(instances.Length);
 			for( int i = 0; i < subBounds.Length; i++ ) {
 				var subBound = subBounds[i];
 				for( int j = 0; j < allRenderers.Count; ) {
 					var renderer = allRenderers[j];
-					if( renderer.bounds.Intersects(subBound) ) {
+					if( renderer.Bounds.Intersects(subBound) ) {
 						allRenderers.RemoveSwapAt(j);
 						overlappedRenderers.Add(renderer);
 					}
@@ -42,12 +44,12 @@ namespace Extend.SceneManagement.SpatialStructure.Quadtree {
 				}
 
 				if( overlappedRenderers.Count > 0 ) {
-					m_children[i] = new QuadtreeNode(overlappedRenderers.ToArray(), deep + 1);
+					m_children[i] = new QuadtreeNode(jobSchedule, overlappedRenderers.ToArray(), deep + 1);
 				}
 				overlappedRenderers.Clear();
 
 				if( i == 0 && allRenderers.Count == 0 ) {
-					m_renderers = renderers;
+					SetInstances(instances);
 					m_children = new TreeNode[4];
 				}
 			}

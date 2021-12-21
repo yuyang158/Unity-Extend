@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: LuaCheckSetting
   m_EditorClassIdentifier: 
   m_luaCheckExecPath: D:/path/luacheck.exe
-  m_active: 0
+  m_active: 1
   m_maxLineLength: 170

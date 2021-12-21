@@ -12,7 +12,7 @@ using XLua;
 
 namespace Assets.SimpleSlider.Scripts {
 	[RequireComponent(typeof(ScrollRect))]
-	public class LuaMVVMHorizontalScrollSnap : LuaBindingEventBase, IBeginDragHandler, IEndDragHandler, IMVVMAssetReference {
+	public class LuaMVVMHorizontalScrollSnap : LuaBindingEventBase, IBeginDragHandler, IEndDragHandler, IMVVMAssetReference, ILuaMVVM {
 		[ReorderList, LabelText("On Page Changed ()"), SerializeField]
 		private List<BindingEvent> m_onPageChangedEvent;
 		public int SwipeThreshold = 50;
@@ -116,6 +116,18 @@ namespace Assets.SimpleSlider.Scripts {
 
 		public AssetReference GetMVVMReference() {
 			return Cell;
+		}
+
+		public void SetDataContext(LuaTable dataSource) {
+			LuaArrayData = dataSource;
+		}
+
+		public LuaTable GetDataContext() {
+			return LuaArrayData;
+		}
+
+		public void Detach() {
+			LuaArrayData = null;
 		}
 	}
 }

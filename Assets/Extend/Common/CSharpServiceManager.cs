@@ -115,6 +115,7 @@ namespace Extend.Common {
 
 		private static void CleanUp() {
 			Debug.LogWarning("Game Exit!");
+			Application.quitting -= CleanUp;
 			updateableServices.Clear();
 			for( int i = services.Length - 1; i >= 0; i-- ) {
 				var service = services[i];

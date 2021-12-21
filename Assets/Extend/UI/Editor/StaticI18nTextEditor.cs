@@ -21,7 +21,7 @@ namespace Extend.UI.Editor {
 		private StaticI18nText staticText;
 		private TextMeshProUGUI txt;
 
-		private readonly List<StaticText> existTexts = new List<StaticText>();
+		private readonly List<StaticText> existTexts = new();
 		private const string xmlConfigPath = "Assets/Resources/Config/static-i18n.xml";
 		private SerializedObject textMeshSlObject;
 		private SerializedProperty textMeshTextProp;

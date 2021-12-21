@@ -16,15 +16,14 @@ namespace Extend.Asset {
 		public int ServiceType => (int)CSharpServiceManager.ServiceType.ASSET_SERVICE;
 
 		[BlackList]
-		public AssetContainer Container { get; } = new AssetContainer();
+		public AssetContainer Container { get; } = new();
 
 		private AssetLoadProvider m_provider;
 		private Stopwatch m_stopwatch = new Stopwatch();
-		private readonly Stopwatch m_instantiateStopwatch = new Stopwatch();
+		private readonly Stopwatch m_instantiateStopwatch = new();
 		public Transform PoolRootNode { get; private set; }
 
-		private readonly Queue<AssetReference.InstantiateAsyncContext> m_deferInstantiates =
-			new Queue<AssetReference.InstantiateAsyncContext>(64);
+		private readonly Queue<AssetReference.InstantiateAsyncContext> m_deferInstantiates = new(64);
 
 		private readonly bool m_forceAssetBundleMode;
 		private float m_singleFrameMaxInstantiateDuration;
@@ -33,7 +32,7 @@ namespace Extend.Asset {
 			m_forceAssetBundleMode = forceABMode;
 		}
 
-		private readonly List<IDisposable> m_disposables = new List<IDisposable>();
+		private readonly List<IDisposable> m_disposables = new();
 
 		public void AddAfterDestroy(IDisposable disposable) {
 			m_disposables.Add(disposable);
@@ -169,6 +168,8 @@ namespace Extend.Asset {
 				return;
 			}
 #endif
+			var recyclable = go.GetComponent<IRecyclable>();
+			recyclable?.OnRecycle();
 			cache.Recycle();
 			StatService.Get().Increase(StatService.StatName.IN_USE_GO, -1);
 		}
@@ -207,10 +208,6 @@ namespace Extend.Asset {
 			return LoadAsync(path, typ);
 		}
 
-		/// <summary>
-		/// 只用于加载场景
-		/// </summary>
-		/// <param name="path">路径名（usage：Assets/Demos/CriWareDemo.unity）</param>
 		public void LoadScene(string path, bool add) {
 #if UNITY_DEBUG
 			var ticks = m_stopwatch.ElapsedTicks;
@@ -226,10 +223,6 @@ namespace Extend.Asset {
 #endif
 		}
 
-		/// <summary>
-		/// 只用于异步加载场景
-		/// </summary>
-		/// <param name="path">路径</param>
 		public AssetAsyncLoadHandle LoadSceneAsync(string path, bool add) {
 			path = m_provider.FormatScenePath(path);
 			var handle = new AssetAsyncLoadHandle(Container, m_provider, path);

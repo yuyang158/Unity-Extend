@@ -174,7 +174,7 @@ namespace Extend.Asset {
 			}
 			else {
 				var req = AB.LoadAssetAsync(assetPath, type);
-				req.completed += operation => { callback(req.asset); };
+				req.completed += _ => { callback(req.asset); };
 			}
 		}
 

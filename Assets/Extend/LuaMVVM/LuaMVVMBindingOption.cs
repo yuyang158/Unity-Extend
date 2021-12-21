@@ -136,8 +136,8 @@ namespace Extend.LuaMVVM {
 			m_dataSource.Dispose();
 			m_dataSource = null;
 
-			if( BindTarget is LuaMVVMForEach forEach ) {
-				forEach.LuaArrayData = null;
+			if( BindTarget is ILuaMVVM mvvm ) {
+				mvvm.Detach();
 			}
 
 			if( m_propertyChangeCallback != null ) {

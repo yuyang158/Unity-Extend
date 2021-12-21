@@ -30,14 +30,13 @@ namespace Extend.LuaMVVM {
 						context.Callback += go => {
 							var luaData = LuaArrayData.Get<int, LuaTable>(index + 1);
 							if( luaData == null ) {
-								Recycle(go);
+								AssetService.Recycle(go);
 							}
 							else {
 								var mvvm = go.GetComponent<ILuaMVVM>();
 								mvvm.SetDataContext(luaData);
 								m_items.Add(mvvm);
 							}
-
 							m_loadContexts.Remove(context);
 						};
 						m_loadContexts.Add(context);
@@ -51,25 +50,20 @@ namespace Extend.LuaMVVM {
 
 				while( m_items.Count > length ) {
 					var last = m_items.Count - 1;
-					AssetService.Recycle(m_items[last] as Component);
+					Recycle(m_items[last]);
 					m_items.RemoveAt(last);
 				}
 			}
 		}
 
-		private static void Recycle(GameObject go) {
-			var bindings = go.GetComponentsInChildren<ILuaMVVM>();
-			foreach( var binding in bindings ) {
-				binding.Detach();
-			}
-
-			AssetService.Recycle(go);
+		private static void Recycle(ILuaMVVM mvvm) {
+			mvvm.Detach();
+			AssetService.Recycle(mvvm as Component);
 		}
 
 		public void OnDestroy() {
 			foreach( var mvvm in m_items ) {
-				var component = mvvm as Component;
-				Recycle(component.gameObject);
+				Recycle(mvvm);
 			}
 
 			m_items.Clear();

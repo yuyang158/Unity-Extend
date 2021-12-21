@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Extend.Asset;
 using Extend.Common;
 using Extend.LuaBindingData;
 using Extend.LuaUtil;
@@ -8,12 +9,22 @@ using XLua;
 
 namespace Extend {
 	[CSharpCallLua, LuaCallCSharp]
-	public sealed class LuaBinding : MonoBehaviour {
+	public sealed class LuaBinding : MonoBehaviour, IRecyclable {
 		[LuaFileAttribute, BlackList]
 		public string LuaFile;
 
-		public LuaTable LuaInstance { get; private set; }
-		public LuaTable LuaClass { get; private set; }
+		public LuaTable LuaInstance { get; set; }
+
+		private LuaTable m_luaClass;
+
+		public LuaTable LuaClass {
+			get => m_luaClass;
+			set {
+				m_luaClass = value;
+				var luaVM = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
+				CachedClass = luaVM.GetLuaClass(m_luaClass);
+			}
+		}
 
 		public LuaClassCache.LuaClass CachedClass { get; private set; }
 
@@ -22,14 +33,13 @@ namespace Extend {
 				return;
 			var luaVM = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
 			var ret = luaVM.LoadFileAtPath(LuaFile);
-			if( !( ret[0] is LuaTable klass ) )
+			if( ret[0] is not LuaTable klass )
 				return;
 			LuaClass = klass;
-			CachedClass = luaVM.GetLuaClass(klass);
 
 			var constructor = CachedClass.GetLuaMethod<LuaBindingClassNew>("new");
 			var luaInstance = constructor?.Invoke(gameObject);
-			luaInstance.SetInPath("name", Path.GetFileName(LuaFile.Substring(LuaFile.LastIndexOf('.') + 1)));
+			luaInstance.SetInPath("name", Path.GetFileName(LuaFile[( LuaFile.LastIndexOf('.') + 1 )..]));
 			luaInstance.SetInPath("fullname", LuaFile);
 			Bind(luaInstance);
 
@@ -37,14 +47,20 @@ namespace Extend {
 			awake?.Invoke(luaInstance);
 		}
 
-		private void Start() {
+		public void Start() {
 			var start = CachedClass.GetLuaMethod<LuaUnityEventFunction>("start");
 			start?.Invoke(LuaInstance);
+		}
+
+		public void OnRecycle() {
+			var recycle = CachedClass.GetLuaMethod<LuaUnityEventFunction>("recycle");
+			recycle?.Invoke(LuaInstance);
 		}
 
 		private void OnDestroy() {
 			if( !CSharpServiceManager.Initialized )
 				return;
+
 			var destroy = CachedClass.GetLuaMethod<LuaUnityEventFunction>("destroy");
 			destroy?.Invoke(LuaInstance);
 #if UNITY_DEBUG

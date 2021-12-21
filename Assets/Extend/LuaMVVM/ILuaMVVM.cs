@@ -1,11 +1,8 @@
 ﻿using XLua;
 
 namespace Extend.LuaMVVM {
-	public interface ILuaMVVM {
+	public interface ILuaMVVM : IMVVMDetach {
 		void SetDataContext(LuaTable dataSource);
-
 		LuaTable GetDataContext();
-
-		void Detach();
 	}
 }

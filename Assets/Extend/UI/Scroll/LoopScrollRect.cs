@@ -364,6 +364,11 @@ namespace Extend.UI.Scroll {
 		}
 #endif
 
+		private static void Recycle(Component c) {
+			var mvvm = c.GetComponent<IMVVMDetach>();
+			mvvm?.Detach();
+		}
+
 		public void ClearCells() {
 			if( Application.isPlaying ) {
 				itemTypeStart = 0;
@@ -372,7 +377,7 @@ namespace Extend.UI.Scroll {
 				while( content.childCount > 0 ) {
 					var t = content.GetChild(0);
 					t.SetParent(null);
-					AssetService.Recycle(t);
+					Recycle(t);
 				}
 			}
 		}
@@ -466,7 +471,7 @@ namespace Extend.UI.Scroll {
 						itemTypeEnd++;
 					}
 					else {
-						AssetService.Recycle(content.GetChild(i));
+						Recycle(content.GetChild(i));
 						i--;
 					}
 				}
@@ -741,12 +746,12 @@ namespace Extend.UI.Scroll {
 		protected void ClearTempPool() {
 			while( deletedItemTypeStart > 0 ) {
 				deletedItemTypeStart--;
-				AssetService.Recycle(content.GetChild(0));
+				Recycle(content.GetChild(0));
 			}
 
 			while( deletedItemTypeEnd > 0 ) {
 				deletedItemTypeEnd--;
-				AssetService.Recycle(content.GetChild(content.childCount - 1));
+				Recycle(content.GetChild(content.childCount - 1));
 			}
 		}
 		//==========LoopScrollRect==========

@@ -8,7 +8,7 @@ using XLua;
 namespace Extend {
 	[LuaCallCSharp]
 	public class GameSystem : IService {
-		private readonly Dictionary<string, string> m_globalValues = new Dictionary<string, string>();
+		private readonly Dictionary<string, string> m_globalValues = new();
 		public IniRead SystemSetting { get; private set; }
 		public int ServiceType => (int)CSharpServiceManager.ServiceType.GAME_SYSTEM_SERVICE;
 

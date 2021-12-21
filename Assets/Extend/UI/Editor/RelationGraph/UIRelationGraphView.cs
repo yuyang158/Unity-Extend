@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Extend.Common;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
@@ -18,11 +19,9 @@ namespace Extend.UI.Editor.RelationGraph {
 				for( int i = 0; i < names.Length - 2; i++ ) {
 					entries.Add(new SearchTreeGroupEntry(new GUIContent(names[i])) {level = 1});
 					var layer = (UILayer)Enum.Parse(typeof(UILayer), names[i]);
-					foreach( var configuration in viewConfiguration.Configurations ) {
-						if( configuration.AttachLayer == layer ) {
-							entries.Add(new SearchTreeEntry(new GUIContent(configuration.Name)) {level = 2, userData = configuration});
-						}
-					}
+					entries.AddRange(from configuration in viewConfiguration.Configurations 
+						where configuration.AttachLayer == layer 
+						select new SearchTreeEntry(new GUIContent(configuration.Name)) {level = 2, userData = configuration});
 				}
 
 				return entries;
@@ -83,8 +82,8 @@ namespace Extend.UI.Editor.RelationGraph {
 			};
 		}
 
-		private readonly List<UIViewNode> m_nodes = new List<UIViewNode>();
-		private readonly List<Edge> m_edges = new List<Edge>();
+		private readonly List<UIViewNode> m_nodes = new();
+		private readonly List<Edge> m_edges = new();
 		private UISourceNode m_sourceNode;
 
 		public void ChangeSourceNode(UIViewConfiguration.Configuration configuration) {

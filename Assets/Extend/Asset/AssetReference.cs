@@ -62,6 +62,7 @@ namespace Extend.Asset {
 			}
 		}
 
+		[BlackList]
 		private T GetAsset<T>() where T : Object {
 			Asset ??= AssetService.Get().LoadAssetWithGUID<T>(m_assetGUID);
 
@@ -108,8 +109,7 @@ namespace Extend.Asset {
 			return GetAsset<AnimationClip>();
 		}
 
-		public Mesh GetMesh()
-		{
+		public Mesh GetMesh() {
 			return GetAsset<Mesh>();
 		}
 
@@ -124,10 +124,17 @@ namespace Extend.Asset {
 			return handle;
 		}
 
+		public AssetAsyncLoadHandle LoadAsyncWithPath(string path, Type typ) {
+			var handle = AssetService.Get().LoadAsync(path, typ);
+			Assert.IsNotNull(handle.Asset);
+			Asset = handle.Asset;
+			return handle;
+		}
+
 		public GameObject Instantiate(Transform parent = null, bool stayWorldPosition = false) {
 			Asset ??= AssetService.Get().LoadAssetWithGUID<GameObject>(m_assetGUID);
 
-			if( !( Asset is PrefabAssetInstance prefabAsset ) ) {
+			if( Asset is not PrefabAssetInstance prefabAsset ) {
 				Debug.LogError($"{Asset.AssetPath} is not a prefab!");
 				return null;
 			}
@@ -140,11 +147,9 @@ namespace Extend.Asset {
 		}
 
 		public GameObject Instantiate(Vector3 position, Quaternion rotation, Transform parent = null) {
-			if( Asset == null ) {
-				Asset = AssetService.Get().LoadAssetWithGUID<GameObject>(m_assetGUID);
-			}
+			Asset ??= AssetService.Get().LoadAssetWithGUID<GameObject>(m_assetGUID);
 
-			if( !( Asset is PrefabAssetInstance prefabAsset ) ) {
+			if( Asset is not PrefabAssetInstance prefabAsset ) {
 				Debug.LogError($"{Asset.AssetPath} is not a prefab!");
 				return null;
 			}
@@ -161,7 +166,12 @@ namespace Extend.Asset {
 				set {
 					m_ref = value;
 					if( !GetAssetReady() ) {
-						m_ref.LoadAsync(typeof(GameObject));
+						if( m_ctorType == 3 ) {
+							m_ref.LoadAsyncWithPath(m_path, typeof(GameObject));
+						}
+						else {
+							m_ref.LoadAsync(typeof(GameObject));
+						}
 					}
 				}
 				get => m_ref;
@@ -176,6 +186,7 @@ namespace Extend.Asset {
 			private readonly Quaternion m_rotation;
 
 			private readonly int m_ctorType;
+			private readonly string m_path;
 
 			public InstantiateAsyncContext(AssetReference reference, Transform parent, bool stayWorldPosition) {
 				m_ctorType = 1;
@@ -194,14 +205,21 @@ namespace Extend.Asset {
 				AssetService.Get().AddDeferInstantiateContext(this);
 			}
 
+			public InstantiateAsyncContext(AssetReference reference, string path) {
+				m_ctorType = 3;
+				m_path = path;
+				Ref = reference;
+				AssetService.Get().AddDeferInstantiateContext(this);
+			}
+
 			public bool GetAssetReady() {
-				return Ref.Asset != null && Ref.Asset.IsFinished;
+				return Ref.Asset is {IsFinished: true};
 			}
 
 			public void Instantiate() {
 				if( Cancel )
 					return;
-				if( !( Ref.Asset is PrefabAssetInstance prefabAsset ) ) {
+				if( Ref.Asset is not PrefabAssetInstance prefabAsset ) {
 					Debug.LogError($"{Ref.Asset.AssetPath} is not a prefab!");
 					return;
 				}
@@ -224,8 +242,12 @@ namespace Extend.Asset {
 			return new InstantiateAsyncContext(this, position, rotation, parent);
 		}
 
+		public InstantiateAsyncContext InstantiateAsyncWithPath(string path) {
+			return new InstantiateAsyncContext(this, path);
+		}
+
 		public void InitPool(string name, int prefer, int max) {
-			if( !( Asset is PrefabAssetInstance prefabAsset ) ) {
+			if( Asset is not PrefabAssetInstance prefabAsset ) {
 				Debug.LogError($"{Asset.AssetPath} is not a prefab!");
 				return;
 			}

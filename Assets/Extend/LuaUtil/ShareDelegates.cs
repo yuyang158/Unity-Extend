@@ -21,6 +21,9 @@ namespace Extend.LuaUtil {
 	public delegate void LuaUnityCollision2DEventFunction(LuaTable self, Collision2D collision);
 
 	[CSharpCallLua]
+	public delegate void LuaUnityCollisionEventFunction(LuaTable self, Collision collision);
+
+	[CSharpCallLua]
 	public delegate void WatchCallback(object val);
 
 	[CSharpCallLua]

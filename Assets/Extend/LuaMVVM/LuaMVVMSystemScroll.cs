@@ -9,7 +9,7 @@ using XLua;
 
 namespace Extend.LuaMVVM {
 	[RequireComponent(typeof(ScrollRect))]
-	public class LuaMVVMSystemScroll : LuaBindingEventBase, IMVVMAssetReference {
+	public class LuaMVVMSystemScroll : LuaBindingEventBase, IMVVMAssetReference, ILuaMVVM {
 		[ReorderList, LabelText("On Scroll End ()"), SerializeField]
 		private List<BindingEvent> m_onScrollEndEvent;
 
@@ -47,6 +47,18 @@ namespace Extend.LuaMVVM {
 
 		public AssetReference GetMVVMReference() {
 			return Cell;
+		}
+
+		public void SetDataContext(LuaTable dataSource) {
+			LuaArrayData = dataSource;
+		}
+
+		public LuaTable GetDataContext() {
+			return LuaArrayData;
+		}
+
+		public void Detach() {
+			LuaArrayData = null;
 		}
 	}
 }

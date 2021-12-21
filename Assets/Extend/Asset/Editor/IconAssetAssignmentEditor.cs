@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace Extend.Asset.Editor {
 	public class IconAssetAssignmentProjectPreview : AssetPostprocessor {
-		private static readonly Dictionary<string, Texture> m_cachedTexture = new Dictionary<string, Texture>(32);
+		private static readonly Dictionary<string, Texture> m_cachedTexture = new(32);
 
 		[InitializeOnLoadMethod]
 		private static void Init() {
@@ -32,6 +32,7 @@ namespace Extend.Asset.Editor {
 						Debug.LogError("Load texture error : " + assetPath);
 						return;
 					}
+
 					m_cachedTexture.Add(guid, texture);
 				}
 
@@ -71,17 +72,19 @@ namespace Extend.Asset.Editor {
 		public override void OnInspectorGUI() {
 			base.OnInspectorGUI();
 
-			if( m_currentIcon != m_iconAssignment.IconPath ) {
-				m_currentIcon = m_iconAssignment.IconPath;
-				var path = "Assets/StreamingAssets/" + m_currentIcon + ".bytes";
-				if( !File.Exists(path) ) {
-					return;
-				}
-
-				var tex = IconAssetAssignmentProjectPreview.LoadIconTexture(path);
-				var img = m_iconAssignment.GetComponent<Image>();
-				img.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.one * 0.5f);
+			if( m_currentIcon == m_iconAssignment.IconPath ) {
+				return;
 			}
+
+			m_currentIcon = m_iconAssignment.IconPath;
+			var path = "Assets/StreamingAssets/" + m_currentIcon + ".bytes";
+			if( !File.Exists(path) ) {
+				return;
+			}
+
+			var tex = IconAssetAssignmentProjectPreview.LoadIconTexture(path);
+			var img = m_iconAssignment.GetComponent<Image>();
+			img.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.one * 0.5f);
 		}
 	}
 }

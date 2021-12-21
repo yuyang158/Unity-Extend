@@ -8,6 +8,7 @@ using Extend.LuaUtil;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using XLua;
+using XLua.LuaDLL;
 using Debug = UnityEngine.Debug;
 
 namespace Extend {
@@ -49,12 +50,12 @@ namespace Extend {
 		public object[] DoString(string code, string chunkName = "chuck", LuaTable env = null) {
 			return Default.DoString(code, chunkName, env);
 		}
-		
+
 		public object[] DoBindingString(string code, string chunkName = "chuck") {
 			return Default.DoString(code, chunkName, m_bindingEnv);
 		}
 
-		public int ServiceType => (int)CSharpServiceManager.ServiceType.LUA_SERVICE;
+		public int ServiceType => (int) CSharpServiceManager.ServiceType.LUA_SERVICE;
 		private SetupLuaNewClassCallback m_newClassCallback;
 
 		private void OnLuaNewClass(LuaTable classMeta, LuaTable parentClassMeta) {
@@ -95,6 +96,17 @@ namespace Extend {
 
 		public void Initialize() {
 			Default = new LuaEnv();
+
+			Default.AddBuildin("rapidjson", Lua.LoadRapidJson);
+			Default.AddBuildin("chronos", Lua.LoadChronos);
+#if EMMY_CORE_SUPPORT
+			Default.AddBuildin("emmy_core", Lua.LoadEmmyCore);
+#endif
+			Default.AddBuildin("lpeg", Lua.LoadLpeg);
+			Default.AddBuildin("sproto.core", Lua.LoadSprotoCore);
+			Default.AddBuildin("luv", Lua.LoadLUV);
+			Lua.OverrideLogFunction(Default.rawL);
+
 			LuaClassCache = new LuaClassCache();
 			m_newClassCallback = OnLuaNewClass;
 #if UNITY_EDITOR
@@ -112,6 +124,8 @@ namespace Extend {
 			OnDestroy = ret.Get<LuaFunction>("shutdown");
 
 			OnPreRequestLoaded?.Invoke();
+
+			LoadFileAtPath("base.LuaBindingBase");
 #if UNITY_EDITOR
 			if( reportLeakMark )
 				leakData = Default.StartMemoryLeakCheck();

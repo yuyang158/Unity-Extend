@@ -58,7 +58,7 @@ namespace Extend.Asset {
 		public PackedSprite.SpriteElement RequestIcon(string path) {
 			var directoryName = Path.GetDirectoryName(path);
 			string folderName;
-			if( Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.WindowsPlayer ) {
+			if( Application.platform is RuntimePlatform.WindowsEditor or RuntimePlatform.WindowsPlayer ) {
 				folderName = directoryName.Substring(directoryName.LastIndexOf('\\') + 1);
 			}
 			else {

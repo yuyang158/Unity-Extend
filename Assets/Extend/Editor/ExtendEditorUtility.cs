@@ -1,19 +1,66 @@
 ﻿using System;
 using System.Collections;
 using System.IO;
+using System.Linq;
 using CSObjectWrapEditor;
 using Extend.Asset.Editor;
 using Extend.Common.Editor;
 using Unity.EditorCoroutines.Editor;
 using UnityEditor;
 using UnityEditor.Callbacks;
+using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Extend.Editor {
 	public static class ExtendEditorUtility {
 		[MenuItem("Tools/常用工具/打开Log目录")]
 		private static void OpenPersistencePath() {
 			EditorUtility.RevealInFinder(Application.persistentDataPath);
+		}
+		
+		[MenuItem("Tools/常用工具/Find Missing MonoBehaviour In Scene")]
+		private static void FindMissingMonoBehaviourInScene() {
+			for( int i = 0; i < SceneManager.sceneCount; i++ ) {
+				var scene = SceneManager.GetSceneAt(i);
+				var rootGameObjects = scene.GetRootGameObjects();
+				foreach( var rootGameObject in rootGameObjects ) {
+					FindMissingMonoBehaviourInTransform(rootGameObject.transform);
+				}
+			}
+		}
+		
+		[MenuItem("Tools/常用工具/Find Missing MonoBehaviour In Prefab")]
+		private static void FindMissingMonoBehaviourInPrefab() {
+			var prefabs = Directory.GetFiles(Application.dataPath, "*.prefab", SearchOption.AllDirectories);
+			for( int i = 0; i < prefabs.Length; i++ ) {
+				var prefabPath = prefabs[i][(Application.dataPath.Length - 6)..];
+				var go = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
+				FindMissingMonoBehaviourInTransform(go.transform, true);
+				EditorUtility.DisplayProgressBar("Missing Finding", $"Progress {i + 1} / {prefabs.Length}", (i + 1) / (float)prefabs.Length);
+			}
+			
+			EditorUtility.ClearProgressBar();
+		}
+
+		private static void FindMissingMonoBehaviourInTransform(Transform t, bool selectPrefabRoot = false) {
+			var components = t.GetComponents<Component>();
+			if( components.Any(component => !component) ) {
+				if( selectPrefabRoot ) {
+					var root = PrefabUtility.GetNearestPrefabInstanceRoot(t.gameObject);
+					Selection.activeObject = root;
+					EditorGUIUtility.PingObject(root);
+				}
+				else {
+					Selection.activeObject = t.gameObject;
+					EditorGUIUtility.PingObject(Selection.activeObject);
+				}
+				return;
+			}
+
+			for( int i = 0; i < t.childCount; i++ ) {
+				FindMissingMonoBehaviourInTransform(t.GetChild(i), selectPrefabRoot);
+			}
 		}
 
 		private static void RebuildAllABForPlatform(BuildTarget target) {

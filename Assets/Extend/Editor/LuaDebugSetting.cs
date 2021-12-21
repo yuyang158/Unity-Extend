@@ -16,11 +16,6 @@ namespace Extend.Editor {
 
 		public bool MvvmBreakEnabled => m_mvvmBreakEnabled;
 
-		[SerializeField]
-		private string m_emmyCoreLuaSearchPath;
-
-		public string EmmyCoreLuaSearchPath => m_emmyCoreLuaSearchPath;
-
 		public enum DebugMode {
 			None,
 			ConnectIDE,
@@ -101,7 +96,7 @@ namespace Extend.Editor {
 						m_mvvmWatchGOs[index] = EditorGUI.ObjectField(rect, m_mvvmWatchGOs[index],
 							typeof(GameObject), true) as GameObject;
 					},
-					onAddCallback = list => { m_mvvmWatchGOs.Add(null); },
+					onAddCallback = _ => { m_mvvmWatchGOs.Add(null); },
 					onRemoveCallback = list => {
 						if( list.index < 0 || list.index >= m_mvvmWatchGOs.Count )
 							return;
@@ -122,19 +117,13 @@ namespace Extend.Editor {
 						return;
 					case LuaDebugSetting.DebugMode.ConnectIDE:
 					case LuaDebugSetting.DebugMode.ListenAndWait:
-						if( string.IsNullOrEmpty(settingObj.EmmyCoreLuaSearchPath) ) {
-							Debug.LogWarning("If you want to debug lua, set the emmy_core search path.");
-							return;
-						}
-
-						initFunc.Call(settingObj.EmmyCoreLuaSearchPath);
+						initFunc.Call();
 						if( settingObj.Mode == LuaDebugSetting.DebugMode.ListenAndWait ) {
 							listenFunc.Call(settingObj.DebugPort);
 						}
 						else {
 							connectFunc.Call(settingObj.DebugPort);
 						}
-
 						m_debuggerConnected = true;
 						break;
 					case LuaDebugSetting.DebugMode.CoverageMode:
@@ -188,11 +177,6 @@ namespace Extend.Editor {
 							break;
 						default:
 							throw new ArgumentOutOfRangeException();
-					}
-
-					if( mode != LuaDebugSetting.DebugMode.None ) {
-						var emmyCoreLuaSearchPathProp = settings.FindProperty("m_emmyCoreLuaSearchPath");
-						EditorGUILayout.PropertyField(emmyCoreLuaSearchPathProp);
 					}
 
 					if( debugPortProp.intValue < 10000 ) {

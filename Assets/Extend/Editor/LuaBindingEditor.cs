@@ -24,7 +24,7 @@ namespace Extend.Editor {
 		};
 
 		private LuaClassDescriptor descriptor;
-		private readonly List<LuaBindingDataBase> isUsedBinding = new List<LuaBindingDataBase>();
+		private readonly List<LuaBindingDataBase> isUsedBinding = new();
 
 		private void OnEnable() {
 			binding = target as LuaBinding;
@@ -81,7 +81,7 @@ namespace Extend.Editor {
 				serializedObject.ApplyModifiedProperties();
 				return;
 			}
-
+			
 			isUsedBinding.Clear();
 			foreach( var field in descriptor.Fields.Where(field => !field.FieldName.StartsWith("_")) ) {
 				if( field.FieldType.Contains("[]") ) {

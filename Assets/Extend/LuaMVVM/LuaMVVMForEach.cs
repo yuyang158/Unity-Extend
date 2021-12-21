@@ -12,67 +12,8 @@ namespace Extend.LuaMVVM {
 		public AssetReference Asset;
 
 		private LuaTable m_arrayData;
-		private readonly List<GameObject> m_items = new List<GameObject>(16);
-		private readonly List<AssetReference.InstantiateAsyncContext> m_loadContexts = new List<AssetReference.InstantiateAsyncContext>(16);
-
-		public LuaTable LuaArrayData {
-			get => m_arrayData;
-			set {
-				m_arrayData = value;
-				int length = m_arrayData?.Length ?? 0;
-				if( !( Asset is {GUIDValid: true} ) ) {
-					if( length > transform.childCount ) {
-						Debug.LogError($"Data count greater then children count. {length} < {transform.childCount}");
-					}
-
-					for( var i = 0; i < transform.childCount; i++ ) {
-						var child = transform.GetChild(i);
-						if( i >= length ) {
-							child.gameObject.SetActive(false);
-						}
-						else {
-							child.gameObject.SetActive(true);
-							var mvvm = child.GetComponent<ILuaMVVM>();
-							mvvm.SetDataContext(m_arrayData.Get<int, LuaTable>(i + 1));
-						}
-					}
-				}
-				else {
-					for( int i = 0; i < length; i++ ) {
-						var index = i;
-						if( i >= m_items.Count + m_loadContexts.Count ) {
-							var context = Asset.InstantiateAsync(transform);
-							context.Callback += go => {
-								var luaData = LuaArrayData.Get<int, LuaTable>(index + 1);
-								if( luaData == null ) {
-									Recycle(go);
-								}
-								else {
-									var mvvm = go.GetComponent<ILuaMVVM>();
-									mvvm.SetDataContext(luaData);
-									m_items.Add(go);
-								}
-
-								m_loadContexts.Remove(context);
-							};
-							m_loadContexts.Add(context);
-						}
-						else if( i < m_items.Count ) {
-							var go = m_items[i];
-							var mvvm = go.GetComponent<ILuaMVVM>();
-							var luaData = LuaArrayData.Get<int, LuaTable>(index + 1);
-							mvvm.SetDataContext(luaData);
-						}
-					}
-
-					while( m_items.Count > length ) {
-						var last = m_items.Count - 1;
-						AssetService.Recycle(m_items[last]);
-						m_items.RemoveAt(last);
-					}
-				}
-			}
-		}
+		private readonly List<GameObject> m_items = new(16);
+		private readonly List<AssetReference.InstantiateAsyncContext> m_loadContexts = new(16);
 
 		public void SetDataContext(LuaTable dataSource) {
 			LuaArrayData = dataSource;
@@ -82,14 +23,84 @@ namespace Extend.LuaMVVM {
 			return LuaArrayData;
 		}
 
-		private void Recycle(GameObject go) {
-			if( !CSharpServiceManager.Initialized )
-				return;
-			var bindings = go.GetComponentsInChildren<ILuaMVVM>();
-			foreach( var binding in bindings ) {
-				binding.Detach();
+		public LuaTable LuaArrayData {
+			get => m_arrayData;
+			set {
+				m_arrayData = value;
+				int elementCount = m_arrayData?.Length ?? 0;
+				if( Asset is not {GUIDValid: true} ) {
+					SetupWithExistElement(elementCount);
+				}
+				else {
+					SetupWithAssetReference(elementCount);
+				}
+			}
+		}
+
+		private void SetupWithExistElement(int dataContextCount) {
+			if( dataContextCount > transform.childCount ) {
+				Debug.LogError($"Data count greater then children count. {dataContextCount} < {transform.childCount}");
 			}
 
+			for( var i = 0; i < transform.childCount; i++ ) {
+				var child = transform.GetChild(i);
+				var mvvm = child.GetComponent<ILuaMVVM>();
+				if( i >= dataContextCount ) {
+					child.gameObject.SetActive(false);
+					mvvm.Detach();
+				}
+				else {
+					child.gameObject.SetActive(true);
+					if( mvvm == null ) {
+						Debug.LogError($"ILuaMVVM not found in {child.name}.");
+						continue;
+					}
+					mvvm.SetDataContext(m_arrayData.Get<int, LuaTable>(i + 1));
+				}
+			}
+		}
+
+		private void SetupWithAssetReference(int dataContextCount) {
+			for( int i = 0; i < dataContextCount; i++ ) {
+				var index = i;
+				if( i >= m_items.Count + m_loadContexts.Count ) {
+					var context = Asset.InstantiateAsync(transform);
+					context.Callback += go => {
+						var luaData = LuaArrayData.Get<int, LuaTable>(index + 1);
+						if( luaData == null ) {
+							Recycle(go);
+						}
+						else {
+							var mvvm = go.GetComponent<ILuaMVVM>();
+							mvvm.SetDataContext(luaData);
+							m_items.Add(go);
+						}
+
+						m_loadContexts.Remove(context);
+					};
+					m_loadContexts.Add(context);
+				}
+				else if( i < m_items.Count ) {
+					var go = m_items[i];
+					var mvvm = go.GetComponent<ILuaMVVM>();
+					var luaData = LuaArrayData.Get<int, LuaTable>(index + 1);
+					mvvm.SetDataContext(luaData);
+				}
+			}
+
+			while( m_items.Count > dataContextCount ) {
+				var last = m_items.Count - 1;
+				Recycle(m_items[last]);
+				m_items.RemoveAt(last);
+			}
+		}
+
+		private static void Recycle(GameObject go) {
+			if( !CSharpServiceManager.Initialized )
+				return;
+
+			var mvvm = go.GetComponent<ILuaMVVM>();
+			mvvm.Detach();
 			AssetService.Recycle(go);
 		}
 
@@ -109,6 +120,7 @@ namespace Extend.LuaMVVM {
 
 		[BlackList]
 		public void Detach() {
+			LuaArrayData = null;
 		}
 
 		public AssetReference GetMVVMReference() {

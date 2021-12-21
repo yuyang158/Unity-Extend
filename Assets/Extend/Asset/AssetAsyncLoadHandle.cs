@@ -47,7 +47,7 @@ namespace Extend.Asset {
 			OnComplete?.Invoke(this);
 		}
 
-		private static readonly WaitForEndOfFrame frameEnd = new WaitForEndOfFrame();
+		private static readonly WaitForEndOfFrame frameEnd = new();
 
 		private IEnumerator AsyncLoadedAssetCallback() {
 			yield return frameEnd;

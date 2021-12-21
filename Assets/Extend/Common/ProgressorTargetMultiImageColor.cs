@@ -19,7 +19,7 @@ namespace Extend.Common {
 		public override void ApplyProgress(float value) {
 			var index = Mathf.FloorToInt(value * m_images.Length);
 			for( int i = 0; i < index; i++ ) {
-				m_images[i].color = i >= Colors.Length ? Colors[Colors.Length - 1] : Colors[i];
+				m_images[i].color = i >= Colors.Length ? Colors[^1] : Colors[i];
 			}
 			for (int i = index; i < m_previousIndex; i++)
 			{

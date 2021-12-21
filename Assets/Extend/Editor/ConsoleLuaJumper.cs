@@ -1,170 +1,88 @@
-﻿using System;
-using System.Reflection;
+﻿using System.Reflection;
 using UnityEditor;
+using UnityEditor.Callbacks;
 using UnityEngine;
-using XLua;
 
-namespace Extend.Editor
-{
-    public class ConsoleLuaJumper
-    {
-        private class LogEditorConfig
-        {
-            public string logScriptPath = "";   //自定义日志脚本路径
-            public string logTypeName = "";     //脚本type
-            public int instanceID = 0;
+namespace Extend.Editor {
+	public static class ConsoleLuaJumper {
+		[OnOpenAssetAttribute(0, OnOpenAssetAttributeMode.Execute)]
+		private static bool OnOpenAsset(int instanceID, int line) {
+			var stackTrace = GetStackTrace();
+			if( !string.IsNullOrEmpty(stackTrace) ) {
+				string traceFirstLine = GetTraceFirstLine(stackTrace);
+				ParseFilepathAndLineInFirstLine(traceFirstLine, out var filePath, out var lineStr);
+				if( string.IsNullOrEmpty(filePath) ) {
+					return false;
+				}
 
-            public LogEditorConfig(string logScriptPath, System.Type logType)
-            {
-                this.logScriptPath = logScriptPath;
-                this.logTypeName = logType.FullName;
-            }
-        }
+				string appPath = EditorPrefs.GetString("kScriptsDefaultApp_h2657262712");
+				// ide 需要事先设置命令好绑定
+				if( appPath.Contains("Rider") ) {
+					System.Diagnostics.Process.Start($"\"{appPath}\"", $"--line {lineStr} {filePath}");
+					return true;
+				}
 
-        //能够打印出日志的代码，可以根据需求，继续添加成一个列表
-        private static LogEditorConfig[] _logEditorConfig = new LogEditorConfig[]
-        {
-            new LogEditorConfig("Assets/XLua/Src/LuaEnv.cs",typeof(XLua.LuaEnv)),
-            new LogEditorConfig("Assets/XLua/Src/StaticLuaCallbacks.cs", typeof(StaticLuaCallbacks)),
-        };
+				if( appPath.Contains("Code") ) {
+					string binpath = appPath.Replace("Code.exe", "bin/code");
+					System.Diagnostics.Process.Start($"\"{binpath}\"", $"-r -g \"{filePath}:{lineStr}\"");
+					return true;
+				}
+			}
 
-        //处理从ConsoleWindow双击跳转
-        [UnityEditor.Callbacks.OnOpenAssetAttribute(-1)]
-        private static bool OnOpenAsset(int instanceID, int line)
-        {
-            for (int i = _logEditorConfig.Length - 1; i >= 0; --i)
-            {
-                var configTmp = _logEditorConfig[i];
-                UpdateLogInstanceID(configTmp);
-                if (instanceID == configTmp.instanceID)
-                {
-                    var stackTrace = GetStackTrace();
-                    if (!string.IsNullOrEmpty(stackTrace))
-                    {
-                        string traceFirstLine = GetTraceFirstLine(stackTrace);
-                        string lineStr, filepath;
-                        ParseFilepathAndLineInFirstLine(traceFirstLine, out filepath, out lineStr);
-                        string apppath = EditorPrefs.GetString("kScriptsDefaultApp_h2657262712");
-                        // ide 需要事先设置命令好绑定
-                        if (apppath.Contains("Rider"))
-                        {
-                            System.Diagnostics.Process.Start($"\"{apppath}\"", $"--line {lineStr} {filepath}");
-                            return true;
-                        }
-                        else if (apppath.Contains("Code"))
-                        {
-                            string binpath = apppath.Replace("Code.exe", "bin/code");
-                            System.Diagnostics.Process.Start($"\"{binpath}\"", $"-r -g \"{filepath}:{lineStr}\"");
-                            return true;
-                        }
-                    }
-                    break;
-                }
-            }
+			return false;
+		}
 
-            return false;//*/
-        }
-        /// <summary>
-        /// 打开指定文件，但是只能打开处于Assets文件夹下的文件
-        /// </summary>
-        /// <param name="filePath"></param>
-        /// <param name="line"></param>
-        /// <param name="column"></param>
-        static void OpenFileOnSpecificLineAndColumn(string filePath, int line, int column)
-        {
-            Assembly.GetAssembly(typeof(EditorApplication))
-                .GetType("UnityEditor.LogEntries")
-                .GetMethod(nameof(OpenFileOnSpecificLineAndColumn), BindingFlags.Static | BindingFlags.Public)
-                .Invoke(null, new object[] { filePath, line, column });
-        }
-        
-        /// <summary>
-        /// 反射出日志堆栈
-        /// </summary>
-        /// <returns></returns>
-        private static string GetStackTrace()
-        {
-            var consoleWindowType = typeof(EditorWindow).Assembly.GetType("UnityEditor.ConsoleWindow");
-            var fieldInfo = consoleWindowType.GetField("ms_ConsoleWindow", BindingFlags.Static | BindingFlags.NonPublic);
-            var consoleWindowInstance = fieldInfo.GetValue(null);
+		/// <summary>
+		/// 反射出日志堆栈
+		/// </summary>
+		/// <returns></returns>
+		private static string GetStackTrace() {
+			var consoleWindowType = typeof(EditorWindow).Assembly.GetType("UnityEditor.ConsoleWindow");
+			var fieldInfo = consoleWindowType.GetField("ms_ConsoleWindow", BindingFlags.Static | BindingFlags.NonPublic);
+			var consoleWindowInstance = fieldInfo.GetValue(null);
 
-            if (null != consoleWindowInstance)
-            {
-                if ((object)EditorWindow.focusedWindow == consoleWindowInstance)
-                {
-                    fieldInfo = consoleWindowType.GetField("m_ActiveText", BindingFlags.Instance | BindingFlags.NonPublic);
-                    string activeText = fieldInfo.GetValue(consoleWindowInstance).ToString();
-                    return activeText;
-                }
-            }
-            return "";
-        }
+			if( null != consoleWindowInstance ) {
+				if( (object) EditorWindow.focusedWindow == consoleWindowInstance ) {
+					fieldInfo = consoleWindowType.GetField("m_ActiveText", BindingFlags.Instance | BindingFlags.NonPublic);
+					string activeText = fieldInfo.GetValue(consoleWindowInstance).ToString();
+					return activeText;
+				}
+			}
 
-        private static void UpdateLogInstanceID(LogEditorConfig config)
-        {
-            if (config.instanceID > 0)
-            {
-                return;
-            }
+			return "";
+		}
 
-            var assetLoadTmp = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(config.logScriptPath);
-            if (null == assetLoadTmp)
-            {
-                throw new System.Exception("not find asset by path=" + config.logScriptPath);
-            }
-            config.instanceID = assetLoadTmp.GetInstanceID();
-        }
+		private static string GetTraceFirstLine(string allContent) {
+			string[] lines = allContent.Split('\n');
+			foreach( var t in lines ) {
+				if( t.Contains(".lua:") ) {
+					return t;
+				}
+			}
 
-        private static string GetTraceFirstLine(string allContent)
-        {
-            string[] lines = allContent.Split('\n');
-            for (int i = 0; i < lines.Length; i++)
-            {
-                if (lines[i].Contains(".lua:"))
-                {
-                    return lines[i];
-                }
-            }
-            return string.Empty;
-        }
-        
-        private static void ParseFilepathAndLineInFirstLine(string firstLine, out string filepath, out string line)
-        {
-            string[] parts = firstLine.Split(':');
-            for (int i = 0; i < parts.Length; i++)
-            {
-                if (Int32.TryParse(parts[i], out int result))
-                {
-                    line = parts[i];
-                    int startIdx = 0;
-                    for (int j = parts[i - 1].Length - 1; j >= 0; j--)
-                    {
-                        if (!Char.IsLetter(parts[i - 1][j]) && !parts[i - 1][j].Equals('/') && !parts[i - 1][j].Equals('.'))
-                        {
-                            startIdx = j + 1;
-                            break;
-                        }
-                    }
+			return string.Empty;
+		}
 
-                    filepath = Application.dataPath.Replace("Assets", "Lua/") + parts[i - 1].Substring(startIdx);
-                    return;
-                }
-            }
-            filepath = string.Empty;
-            line = string.Empty;
-        }
-        /*
-        public static string InsertHyperLink(string origin)
-        {
-            string path;
-            int line;
-            ParserLuaStackLine(origin, out path, out line);
-            StringBuilder textWithHyperLink = new StringBuilder();
-            textWithHyperLink.Append('\t');
-            textWithHyperLink.Append("<a href=\"" + path + "\"" + " line=\"" + line + "\">");
-            textWithHyperLink.Append(filePath + ":" + lineString);
-            textWithHyperLink.Append("</a>)\n");
-        }
-        */
-    }
+		private static void ParseFilepathAndLineInFirstLine(string firstLine, out string filepath, out string line) {
+			string[] parts = firstLine.Split(':');
+			for( int i = 0; i < parts.Length; i++ ) {
+				if( int.TryParse(parts[i], out _) ) {
+					line = parts[i];
+					int startIdx = 0;
+					for( int j = parts[i - 1].Length - 1; j >= 0; j-- ) {
+						if( !char.IsLetter(parts[i - 1][j]) && !parts[i - 1][j].Equals('/') && !parts[i - 1][j].Equals('.') ) {
+							startIdx = j + 1;
+							break;
+						}
+					}
+
+					filepath = Application.dataPath.Replace("Assets", "Lua/") + parts[i - 1][startIdx..];
+					return;
+				}
+			}
+
+			filepath = string.Empty;
+			line = string.Empty;
+		}
+	}
 }

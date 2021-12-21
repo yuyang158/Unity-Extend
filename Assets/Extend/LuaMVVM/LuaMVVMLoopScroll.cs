@@ -11,7 +11,7 @@ namespace Extend.LuaMVVM {
 	public delegate AssetReference ProvideAssetReferenceCallback(LuaTable t, int index);
 	
 	[RequireComponent(typeof(LoopScrollRect))]
-	public class LuaMVVMLoopScroll : LuaBindingEventBase, ILoopScrollDataProvider, IMVVMAssetReference {
+	public class LuaMVVMLoopScroll : LuaBindingEventBase, ILoopScrollDataProvider, IMVVMAssetReference, ILuaMVVM {
 		[ReorderList, LabelText("On Scroll Value Changed ()"), SerializeField]
 		private List<BindingEvent> m_onScrollValueChanged;
 
@@ -32,10 +32,9 @@ namespace Extend.LuaMVVM {
 			get => m_arrayData;
 			set {
 				m_arrayData?.Dispose();
-
 				m_arrayData = value;
 
-				if( !( m_scroll.CellAsset is {GUIDValid: true} ) ) {
+				if( m_scroll.CellAsset is not {GUIDValid: true} ) {
 					m_scroll.ClearCells();
 				}
 				
@@ -64,6 +63,18 @@ namespace Extend.LuaMVVM {
 		public AssetReference GetMVVMReference() {
 			var scrollRect = GetComponent<LoopScrollRect>();
 			return scrollRect.CellAsset;
+		}
+
+		public void SetDataContext(LuaTable dataSource) {
+			LuaArrayData = dataSource;
+		}
+
+		public LuaTable GetDataContext() {
+			return LuaArrayData;
+		}
+
+		public void Detach() {
+			LuaArrayData = null;
 		}
 	}
 }

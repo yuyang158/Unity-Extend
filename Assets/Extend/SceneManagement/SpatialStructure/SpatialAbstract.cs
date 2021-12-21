@@ -1,4 +1,7 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
+using Extend.SceneManagement.Jobs;
+using UnityEngine;
 
 namespace Extend.SceneManagement.SpatialStructure {
 	public enum DrawGizmoMode {
@@ -8,18 +11,41 @@ namespace Extend.SceneManagement.SpatialStructure {
 	}
 	
 	public abstract class SpatialAbstract : MonoBehaviour {
-		public abstract void CullVisible(Camera renderCamera);
+		[SerializeField]
+		protected bool m_onlyVisibleGizmo;
 
-		public abstract void Build();
-		
+		public abstract void CullVisible(Plane[] frustumPlanes);
+
+		public DrawJobSchedule JobSchedule { get; private set; }
+
+		private void Awake() {
+			JobSchedule = new DrawJobSchedule();
+		}
+
+		private void OnDestroy() {
+			JobSchedule.Dispose();
+		}
+
+		public virtual void Build(DrawJobSchedule jobSchedule) {
+			JobSchedule.Prepare();
+			var renderers = GetComponentsInChildren<MeshRenderer>();
+			foreach( var r in renderers ) {
+				var meshFilter = r.GetComponent<MeshFilter>();
+				var sharedMesh = meshFilter.sharedMesh;
+				JobSchedule.ConvertRenderer(sharedMesh, r);
+				r.enabled = false;
+				Destroy(r.gameObject);
+			}
+		}
+
 		public abstract int RendererCount { get; }
-		
-		public static Bounds CalculationBounds(Renderer[] renderers) {
+
+		public static Bounds CalculationBounds(DrawInstance[] instances) {
 			var min = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
 			var max = new Vector3(float.MinValue, float.MinValue, float.MinValue);
 
-			foreach( var render in renderers ) {
-				var boundsMin = render.bounds.min;
+			foreach( var instance in instances ) {
+				var boundsMin = instance.Bounds.min;
 				if( min.x > boundsMin.x ) {
 					min.x = boundsMin.x;
 				}
@@ -32,7 +58,7 @@ namespace Extend.SceneManagement.SpatialStructure {
 					min.z = boundsMin.z;
 				}
 
-				var boundsMax = render.bounds.max;
+				var boundsMax = instance.Bounds.max;
 				if( max.x < boundsMax.x ) {
 					max.x = boundsMax.x;
 				}

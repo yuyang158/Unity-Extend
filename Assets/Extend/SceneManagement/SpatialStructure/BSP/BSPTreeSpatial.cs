@@ -1,4 +1,5 @@
 ﻿using Extend.Common;
+using Extend.SceneManagement.Jobs;
 using UnityEngine;
 
 namespace Extend.SceneManagement.SpatialStructure.BSP {
@@ -8,31 +9,22 @@ namespace Extend.SceneManagement.SpatialStructure.BSP {
 
 		[SerializeField]
 		private DrawGizmoMode m_gizmoMode = DrawGizmoMode.Leaf;
-		
-		private readonly Plane[] m_frustumPlanes = new Plane[6];
 
-		private void Awake() {
-			for( int i = 0; i < m_frustumPlanes.Length; i++ ) {
-				m_frustumPlanes[i] = new Plane();
-			}
-		}
-		
-		public override void CullVisible(Camera renderCamera) {
-			GeometryUtility.CalculateFrustumPlanes(renderCamera, m_frustumPlanes);
-			m_root?.Cull(m_frustumPlanes);
+		public override void CullVisible(Plane[] frustumPlanes) {
+			m_root?.Cull(frustumPlanes);
 		}
 
 		[Button(ButtonSize.Medium)]
-		public override void Build() {
-			var renderers = GetComponentsInChildren<Renderer>();
-			m_rendererCount = renderers.Length;
-			m_root = new BSPTreeNode(renderers, 0);
+		public override void Build(DrawJobSchedule jobSchedule) {
+			base.Build(jobSchedule);
+			m_root = new BSPTreeNode(jobSchedule, JobSchedule.Instances.ToArray(), 0);
+			JobSchedule.AfterBuild();
 		}
 
 		public override int RendererCount => m_rendererCount;
-		
+
 		private void OnDrawGizmosSelected() {
-			m_root?.DrawGizmo(m_gizmoMode, 0);
+			m_root?.DrawGizmo(m_gizmoMode, 0, m_onlyVisibleGizmo);
 		}
 	}
 }
