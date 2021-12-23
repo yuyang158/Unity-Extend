@@ -4,7 +4,13 @@
 TagManager:
   serializedVersion: 2
   tags:
+  - Fly
+  - Enemy
+  - Waypoint
+  - LevelGoal
   - UIRoot
+  - Animal
+  - Water
   layers:
   - Default
   - TransparentFX
@@ -12,21 +18,21 @@ TagManager:
   - 
   - Water
   - UI
-  - 
-  - 
-  - SceneUI
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - Ground
+  - Wall
+  - Obstacle
+  - Player
+  - Enemy
+  - Friend
+  - EnemyJudgementArea
   - 
   - 
   - 
   - 
   - 
+  - 
+  - 
+  - Animal
   - 
   - 
   - 
