@@ -10,6 +10,7 @@ namespace Extend.SceneManagement.Jobs {
 		public int MaterialIndex;
 		public int Index;
 		public bool Visible;
+		public int InstanceID;
 	}
 
 	public interface IMatrixBuildJob {
@@ -46,6 +47,10 @@ namespace Extend.SceneManagement.Jobs {
 			}
 		}
 
+		public Matrix4x4 GetWorldMatrix(int index) {
+			return m_instances[index].World;
+		}
+
 		public Matrix4x4[] GetVisibleWorldArray() {
 			return m_visibleInstances.ToArray();
 		}
@@ -62,6 +67,11 @@ namespace Extend.SceneManagement.Jobs {
 			var instance = m_instances[index];
 			instance.Visible = visible;
 			m_instances[index] = instance;
+		}
+		
+		public bool GetVisible(int index) {
+			var instance = m_instances[index];
+			return instance.Visible;
 		}
 
 		public void Dispose() {

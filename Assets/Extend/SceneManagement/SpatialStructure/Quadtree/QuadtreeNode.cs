@@ -10,10 +10,6 @@ namespace Extend.SceneManagement.SpatialStructure.Quadtree {
 		public QuadtreeNode(DrawJobSchedule jobSchedule, DrawInstance[] instances, int deep)
 			: base(jobSchedule) {
 			m_children = new TreeNode[4];
-			if( deep > 3 ) {
-				SetInstances(instances);
-			}
-
 			if( instances.Length == 1 ) {
 				SetInstances(instances);
 				m_bounds = instances[0].Bounds;
@@ -28,12 +24,19 @@ namespace Extend.SceneManagement.SpatialStructure.Quadtree {
 			}
 			
 			var subBounds = GetSubBounds(m_bounds);
+			var biggerRenderers = new List<DrawInstance>(instances.Length);
 			var allRenderers = new List<DrawInstance>(instances);
 			var overlappedRenderers = new List<DrawInstance>(instances.Length);
 			for( int i = 0; i < subBounds.Length; i++ ) {
 				var subBound = subBounds[i];
 				for( int j = 0; j < allRenderers.Count; ) {
 					var renderer = allRenderers[j];
+					if( renderer.Bounds.extents.magnitude > subBound.extents.magnitude ) {
+						allRenderers.RemoveSwapAt(j);
+						biggerRenderers.Add(renderer);
+						continue;
+					}
+					
 					if( renderer.Bounds.Intersects(subBound) ) {
 						allRenderers.RemoveSwapAt(j);
 						overlappedRenderers.Add(renderer);
@@ -48,11 +51,11 @@ namespace Extend.SceneManagement.SpatialStructure.Quadtree {
 				}
 				overlappedRenderers.Clear();
 
-				if( i == 0 && allRenderers.Count == 0 ) {
-					SetInstances(instances);
-					m_children = new TreeNode[4];
+				if( allRenderers.Count == 0 ) {
+					break;
 				}
 			}
+			SetInstances(biggerRenderers.ToArray());
 		}
 
 		protected override bool HasChildren => m_children[0] != null || m_children[1] != null || m_children[2] != null || m_children[3] != null;

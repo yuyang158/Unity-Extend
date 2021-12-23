@@ -13,7 +13,7 @@ namespace Extend.Asset {
 	[LuaCallCSharp]
 	public class AssetService : IService, IServiceUpdate {
 		[BlackList]
-		public int ServiceType => (int)CSharpServiceManager.ServiceType.ASSET_SERVICE;
+		public int ServiceType => (int) CSharpServiceManager.ServiceType.ASSET_SERVICE;
 
 		[BlackList]
 		public AssetContainer Container { get; } = new();
@@ -83,6 +83,7 @@ namespace Extend.Asset {
 						reference.Dispose();
 						return;
 					}
+
 					callback(atlas);
 				};
 			};
@@ -98,12 +99,13 @@ namespace Extend.Asset {
 			Container.Clear();
 
 			Resources.UnloadUnusedAssets();
+#if !UNITY_EDITOR
 			var bundles = AssetBundle.GetAllLoadedAssetBundles();
 			foreach( var bundle in bundles ) {
 				Debug.LogError($"Unreleased asset bundle : {bundle.name}");
 			}
-
 			AssetBundle.UnloadAllAssetBundles(true);
+#endif
 		}
 
 		public void FullCollect() {

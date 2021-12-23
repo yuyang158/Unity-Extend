@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using Extend.LuaUtil;
 using Unity.Jobs;
 using UnityEngine;
 using UnityEngine.Rendering;
+using Object = UnityEngine.Object;
 
 namespace Extend.SceneManagement.Jobs {
 	public class BatchMeshMaterial : IComparable {
@@ -17,6 +19,12 @@ namespace Extend.SceneManagement.Jobs {
 
 		private DrawMatrixBuildSingleJob[] m_buildJob;
 		private JobHandle[] m_jobHandle;
+		private Material m_transparentMaterial;
+		private static readonly int SrcBlend = Shader.PropertyToID("_SrcBlend");
+		private static readonly int DstBlend = Shader.PropertyToID("_DstBlend");
+		private static readonly int ZWrite = Shader.PropertyToID("_ZWrite");
+		private static readonly int BaseColor = Shader.PropertyToID("_BaseColor");
+		private static readonly int Surface = Shader.PropertyToID("_Surface");
 
 		public void Build() {
 			var count = Mathf.CeilToInt(Instances.Count / 1024.0f);
@@ -24,14 +32,7 @@ namespace Extend.SceneManagement.Jobs {
 			m_jobHandle = new JobHandle[count];
 			for( int i = 0; i < count; i++ ) {
 				m_buildJob[i] = new DrawMatrixBuildSingleJob();
-				DrawInstance[] instances;
-				if( i + 1 == count ) {
-					instances = new DrawInstance[Instances.Count - i * 1024];
-				}
-				else {
-					instances = new DrawInstance[1024];
-				}
-
+				DrawInstance[] instances = i + 1 == count ? new DrawInstance[Instances.Count - i * 1024] : new DrawInstance[1024];
 				Instances.CopyTo(i * 1024, instances, 0, instances.Length);
 				m_buildJob[i].Init(instances);
 			}
@@ -43,17 +44,24 @@ namespace Extend.SceneManagement.Jobs {
 			m_buildJob[jobIndex].SetVisible(index % 1024, visible);
 		}
 
+		public bool GetVisible(int index) {
+			var jobIndex = Mathf.FloorToInt(index / 1024.0f);
+			return m_buildJob[jobIndex].GetVisible(index % 1024);
+		}
+
 		public int CompareTo(object other) {
-			var meshMaterial = (BatchMeshMaterial) other;
+			var meshMaterial = (BatchMeshMaterial)other;
 			return Material.renderQueue.CompareTo(meshMaterial.Material.renderQueue);
 		}
 
 		public void Dispose() {
+			if( m_transparentMaterial ) {
+				Object.Destroy(m_transparentMaterial);
+			}
 			foreach( var job in m_buildJob ) {
 				job.Dispose();
 			}
 		}
-
 
 		public void Schedule() {
 			for( int i = 0; i < m_buildJob.Length; i++ ) {
@@ -63,25 +71,60 @@ namespace Extend.SceneManagement.Jobs {
 			}
 		}
 
-		public void Complete() {
-			for( int i = 0; i < m_buildJob.Length; i++ ) {
-				m_jobHandle[i].Complete();
-				var job = m_buildJob[i];
+		public void Draw() {
+			foreach( var job in m_buildJob ) {
 				if( job.GetVisibleCount() == 0 ) {
 					continue;
 				}
 				
 				var visibleCount = job.GetVisibleCount();
 				var matrixArray = job.GetVisibleWorldArray();
-				Graphics.DrawMeshInstanced(Mesh,
-					SubMeshIndex,
-					Material,
-					matrixArray,
-					visibleCount > 1000 ? 1000 : visibleCount,
-					m_emptyBlock,
-					ShadowCastingMode,
-					ReceiveShadow,
-					0);
+				if( visibleCount == 1 ) {
+					Graphics.DrawMesh(Mesh, matrixArray[0], Material, 0, Camera.main, SubMeshIndex, m_emptyBlock, ShadowCastingMode, ReceiveShadow);
+				}
+				else {
+					Graphics.DrawMeshInstanced(Mesh,
+						SubMeshIndex,
+						Material,
+						matrixArray,
+						visibleCount,
+						m_emptyBlock,
+						ShadowCastingMode,
+						ReceiveShadow,
+						0);
+				}
+			}
+		}
+
+		public void DrawOneMesh(int index) {
+			var jobIndex = Mathf.FloorToInt(index / 1024.0f);
+			var worldMatrix = m_buildJob[jobIndex].GetWorldMatrix(index % 1024);
+			Graphics.DrawMesh(Mesh, worldMatrix, Material, 0, Camera.main, SubMeshIndex, m_emptyBlock, ShadowCastingMode, ReceiveShadow);
+		}
+
+		public void DrawOneMeshInTransparent(int index) {
+			var jobIndex = Mathf.FloorToInt(index / 1024.0f);
+			var worldMatrix = m_buildJob[jobIndex].GetWorldMatrix(index % 1024);
+			if( m_transparentMaterial == null ) {
+				m_transparentMaterial = new Material(Material);
+				m_transparentMaterial.SetFloat(Surface, 1);
+				m_transparentMaterial.SetOverrideTag("RenderType", "Transparent");
+				m_transparentMaterial.SetInt(SrcBlend, (int)BlendMode.SrcAlpha);
+				m_transparentMaterial.SetInt(DstBlend, (int)BlendMode.OneMinusSrcAlpha);
+				m_transparentMaterial.SetInt(ZWrite, 0);
+				var baseColor = m_transparentMaterial.GetColor(BaseColor);
+				baseColor.a = 0.1f;
+				// m_transparentMaterial.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+				m_transparentMaterial.SetColor(BaseColor, baseColor);
+				m_transparentMaterial.renderQueue = (int)RenderQueue.Transparent;
+				m_transparentMaterial.enableInstancing = false;
+			}
+			Graphics.DrawMesh(Mesh, worldMatrix, m_transparentMaterial, 0, Camera.main, SubMeshIndex, m_emptyBlock, ShadowCastingMode, false);
+		}
+
+		public void Complete() {
+			for( int i = 0; i < m_buildJob.Length; i++ ) {
+				m_jobHandle[i].Complete();
 			}
 		}
 	}
@@ -114,6 +157,12 @@ namespace Extend.SceneManagement.Jobs {
 				meshMaterial.Complete();
 			}
 		}
+		
+		public void Draw() {
+			foreach( var meshMaterial in m_meshMaterials ) {
+				meshMaterial.Draw();
+			}
+		}
 
 		public BatchMeshMaterial GetMeshMaterial(int index) {
 			return m_meshMaterials[index];
@@ -125,6 +174,8 @@ namespace Extend.SceneManagement.Jobs {
 				return;
 			}
 
+			var batchMeshMaterialMap = renderer.AddComponent<BatchMeshMaterialMap>();
+			batchMeshMaterialMap.CombinedIDs = new int[mesh.subMeshCount];
 			for( int subMeshIndex = 0; subMeshIndex < mesh.subMeshCount; subMeshIndex++ ) {
 				var material = renderer.sharedMaterials[subMeshIndex];
 				var hash = ComputeHash(mesh, material);
@@ -151,8 +202,10 @@ namespace Extend.SceneManagement.Jobs {
 					World = renderer.localToWorldMatrix,
 					Bounds = renderer.bounds,
 					MaterialIndex = meshMaterial.MeshMaterialIndex,
-					Index = meshMaterial.Instances.Count
+					Index = meshMaterial.Instances.Count,
+					InstanceID = renderer.gameObject.GetInstanceID()
 				};
+				batchMeshMaterialMap.CombinedIDs[subMeshIndex] = instance.MaterialIndex * BatchMeshMaterialMap.MESH_MATERIAL_OFFSET + instance.Index;
 				meshMaterial.Instances.Add(instance);
 				Instances.Add(instance);
 			}

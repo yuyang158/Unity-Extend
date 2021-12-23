@@ -8,7 +8,7 @@ namespace Extend.SceneManagement.SpatialStructure {
 		public int MaterialIndex;
 		public int InstanceIndex;
 	}
-	
+
 	public abstract class TreeNode {
 		protected Bounds m_bounds;
 		protected TreeNode[] m_children;
@@ -35,54 +35,28 @@ namespace Extend.SceneManagement.SpatialStructure {
 
 		private void SetVisible(bool visible) {
 			if( m_visible == visible ) {
-				foreach( var child in m_children ) {
-					child?.SetVisible(m_visible);
-				}
 				return;
 			}
 
 			m_visible = visible;
-			if( m_visible ) {
-				if( HasChildren ) {
-					foreach( var child in m_children ) {
-						child?.SetVisible(m_visible);
-					}
-				}
-				else {
-					foreach( var instance in m_instances ) {
-						var meshMaterial = m_jobSchedule.GetMeshMaterial(instance.MaterialIndex);
-						meshMaterial.SetVisible(instance.InstanceIndex, m_visible);
-					}
-				}
+			foreach( var instance in m_instances ) {
+				var meshMaterial = m_jobSchedule.GetMeshMaterial(instance.MaterialIndex);
+				meshMaterial.SetVisible(instance.InstanceIndex, m_visible);
 			}
-			else {
-				if( m_instances == null ) {
-					foreach( var child in m_children ) {
-						child?.SetVisible(m_visible);
-					}
-				}
-				else {
-					foreach( var instance in m_instances ) {
-						var meshMaterial = m_jobSchedule.GetMeshMaterial(instance.MaterialIndex);
-						meshMaterial.SetVisible(instance.InstanceIndex, m_visible);
-					}
+			if( !m_visible ) {
+				foreach( var child in m_children ) {
+					child?.SetVisible(m_visible);
 				}
 			}
 		}
-		
-		
+
 		public void Cull(Plane[] frustumPlanes) {
 			StatService.Get().Increase(StatService.StatName.CULL_PROCESS, 1);
 			if( GeometryUtility.TestPlanesAABB(frustumPlanes, m_bounds) ) {
-				if( HasChildren ) {
-					m_visible = true;
-					foreach( var child in m_children ) {
-						child?.Cull(frustumPlanes);
-					}
+				foreach( var child in m_children ) {
+					child?.Cull(frustumPlanes);
 				}
-				else {
-					SetVisible(true);
-				}
+				SetVisible(true);
 			}
 			else {
 				SetVisible(false);
@@ -96,7 +70,7 @@ namespace Extend.SceneManagement.SpatialStructure {
 					return;
 				}
 			}
-			
+
 			switch( mode ) {
 				case DrawGizmoMode.All:
 					Gizmos.DrawWireCube(m_bounds.center, m_bounds.size);
@@ -105,15 +79,18 @@ namespace Extend.SceneManagement.SpatialStructure {
 					if( !HasChildren ) {
 						Gizmos.DrawWireCube(m_bounds.center, m_bounds.size);
 					}
+
 					break;
 				case DrawGizmoMode.DeepGreater3:
 					if( deep > 3 || !HasChildren ) {
 						Gizmos.DrawWireCube(m_bounds.center, m_bounds.size);
 					}
+
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(mode), mode, null);
 			}
+
 			foreach( var child in m_children ) {
 				child?.DrawGizmo(mode, deep + 1, onlyVisibleGizmo);
 			}

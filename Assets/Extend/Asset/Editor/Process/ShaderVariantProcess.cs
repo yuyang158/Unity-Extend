@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using Extend.Asset.Editor;
 using Extend.Asset.Editor.Process;
 using Extend.Common.Editor;
@@ -97,6 +98,22 @@ namespace Extend.Asset.Editor.Process {
 				return;
 
 			Debug.Log(AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(Selection.activeObject)));
+		}
+		
+		[MenuItem("Tools/Asset/Show Instance ID")]
+		private static void ShowInstanceID() {
+			if( !Selection.activeObject )
+				return;
+
+			var go = Selection.activeObject as GameObject;
+			if(!go)
+				return;
+			var builder = new StringBuilder();
+			builder.AppendLine($"GameObject : {go.GetInstanceID()}");
+			foreach( var c in go.GetComponents<Component>() ) {
+				builder.AppendLine($"{c.GetType().FullName} : {c.GetInstanceID()}");
+			}
+			Debug.Log(builder.ToString());
 		}
 	}
 }

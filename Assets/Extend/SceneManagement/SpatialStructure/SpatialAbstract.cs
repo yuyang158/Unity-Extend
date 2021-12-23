@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Extend.SceneManagement.Jobs;
+﻿using Extend.SceneManagement.Jobs;
 using UnityEngine;
 
 namespace Extend.SceneManagement.SpatialStructure {
@@ -13,6 +11,7 @@ namespace Extend.SceneManagement.SpatialStructure {
 	public abstract class SpatialAbstract : MonoBehaviour {
 		[SerializeField]
 		protected bool m_onlyVisibleGizmo;
+		protected int m_totalRendererCount;
 
 		public abstract void CullVisible(Plane[] frustumPlanes);
 
@@ -28,17 +27,16 @@ namespace Extend.SceneManagement.SpatialStructure {
 
 		public virtual void Build(DrawJobSchedule jobSchedule) {
 			JobSchedule.Prepare();
-			var renderers = GetComponentsInChildren<MeshRenderer>();
-			foreach( var r in renderers ) {
-				var meshFilter = r.GetComponent<MeshFilter>();
+			var meshRenderers = GetComponentsInChildren<MeshRenderer>();
+			foreach( var meshRenderer in meshRenderers ) {
+				var meshFilter = meshRenderer.GetComponent<MeshFilter>();
 				var sharedMesh = meshFilter.sharedMesh;
-				JobSchedule.ConvertRenderer(sharedMesh, r);
-				r.enabled = false;
-				Destroy(r.gameObject);
+				JobSchedule.ConvertRenderer(sharedMesh, meshRenderer);
+				meshRenderer.enabled = false;
 			}
 		}
 
-		public abstract int RendererCount { get; }
+		public int RendererCount => m_totalRendererCount;
 
 		public static Bounds CalculationBounds(DrawInstance[] instances) {
 			var min = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
