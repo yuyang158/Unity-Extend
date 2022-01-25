@@ -1,4 +1,4 @@
-NDK=/home/goh-client/xlua_build/android-ndk-r21d
+NDK=/home/leonard/svn/android-ndk-r21e
 
 if [ ! -d "$NDK" ]; then
     echo "Please set ANDROID_NDK environment to the root of NDK."

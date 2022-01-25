@@ -110,51 +110,36 @@ else ()
 endif ()
 
 #begin lua-rapidjson
- set (RAPIDJSON_SRC 
+set (RAPIDJSON_SRC 
 	rapidjson/src/Document.cpp
-    rapidjson/src/Schema.cpp
-    rapidjson/src/Userdata.hpp
-    rapidjson/src/file.hpp
-    rapidjson/src/luax.hpp
-    rapidjson/src/rapidjson.cpp
-    rapidjson/src/values.cpp
-    rapidjson/src/values.hpp
- )
- set_property(
+   rapidjson/src/Schema.cpp
+   rapidjson/src/Userdata.hpp
+   rapidjson/src/file.hpp
+   rapidjson/src/luax.hpp
+   rapidjson/src/rapidjson.cpp
+   rapidjson/src/values.cpp
+   rapidjson/src/values.hpp
+)
+set_property(
 	 SOURCE ${RAPIDJSON_SRC}
-     APPEND
-     PROPERTY COMPILE_DEFINITIONS
-     LUA_LIB
- )
- list(APPEND THIRDPART_INC rapidjson)
- set (THIRDPART_SRC ${THIRDPART_SRC} ${RAPIDJSON_SRC})
+    APPEND
+    PROPERTY COMPILE_DEFINITIONS
+    LUA_LIB
+)
+list(APPEND THIRDPART_INC rapidjson)
+set (THIRDPART_SRC ${THIRDPART_SRC} ${RAPIDJSON_SRC})
 #end lua-rapidjson
 
-#begin sqlite
- set (SQLITE_SRC 
-	sqlite/lsqlite3.c
-    sqlite/sqlite3.c
- )
- set_property(
-	 SOURCE ${SQLITE_SRC}
-     APPEND
-     PROPERTY COMPILE_DEFINITIONS
-     LUA_LIB
- )
- list(APPEND THIRDPART_INC sqlite)
- set (THIRDPART_SRC ${THIRDPART_SRC} ${SQLITE_SRC})
-#end sqlite
-
 #begin lua-protobuf
- set (PROTOBUF_SRC protobuf/pb.c)
- set_property(
-	 SOURCE ${PROTOBUF_SRC}
-     APPEND
-     PROPERTY COMPILE_DEFINITIONS
-     LUA_LIB
- )
- list(APPEND THIRDPART_INC protobuf)
- set (THIRDPART_SRC ${THIRDPART_SRC} ${PROTOBUF_SRC})
+# set (PROTOBUF_SRC protobuf/pb.c)
+# set_property(
+#	 SOURCE ${PROTOBUF_SRC}
+#     APPEND
+#     PROPERTY COMPILE_DEFINITIONS
+#     LUA_LIB
+# )
+# list(APPEND THIRDPART_INC protobuf)
+# set (THIRDPART_SRC ${THIRDPART_SRC} ${PROTOBUF_SRC})
 #end lua-protobuf
 
 #begin lua-luv
