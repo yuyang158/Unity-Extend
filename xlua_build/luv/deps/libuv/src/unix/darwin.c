@@ -280,14 +280,18 @@ static int uv__get_cpu_speed(uint64_t* speed) {
                                                     NULL,
                                                     0);
         if (freq_ref) {
-          uint32_t freq;
+          const UInt8* freq_ref_ptr = pCFDataGetBytePtr(freq_ref);
           CFIndex len = pCFDataGetLength(freq_ref);
-          CFRange range;
-          range.location = 0;
-          range.length = len;
+          if (len == 8)
+            memcpy(speed, freq_ref_ptr, 8);
+          else if (len == 4) {
+            uint32_t v;
+            memcpy(&v, freq_ref_ptr, 4);
+            *speed = v;
+          } else {
+            *speed = 0;
+          }
 
-          pCFDataGetBytes(freq_ref, range, (UInt8*)&freq);
-          *speed = freq;
           pCFRelease(freq_ref);
           pCFRelease(data);
           break;
@@ -302,12 +306,13 @@ static int uv__get_cpu_speed(uint64_t* speed) {
   pIOObjectRelease(it);
 
   err = 0;
-out:
+
   if (device_type_str != NULL)
     pCFRelease(device_type_str);
   if (clock_frequency_str != NULL)
     pCFRelease(clock_frequency_str);
 
+out:
   if (core_foundation_handle != NULL)
     dlclose(core_foundation_handle);
 

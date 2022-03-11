@@ -265,8 +265,11 @@ int uv_cpu_info(uv_cpu_info_t** cpu_infos, int* count) {
 
 
 int uv__sendmmsg(int fd, struct uv__mmsghdr* mmsg, unsigned int vlen) {
-#if __FreeBSD__ >= 11
-  return sendmmsg(fd, mmsg, vlen, /* flags */ 0);
+#if __FreeBSD__ >= 11 && !defined(__DragonFly__)
+  return sendmmsg(fd,
+                  (struct mmsghdr*) mmsg,
+                  vlen,
+                  0 /* flags */);
 #else
   return errno = ENOSYS, -1;
 #endif
@@ -274,9 +277,28 @@ int uv__sendmmsg(int fd, struct uv__mmsghdr* mmsg, unsigned int vlen) {
 
 
 int uv__recvmmsg(int fd, struct uv__mmsghdr* mmsg, unsigned int vlen) {
-#if __FreeBSD__ >= 11
-  return recvmmsg(fd, mmsg, vlen, 0 /* flags */, NULL /* timeout */);
+#if __FreeBSD__ >= 11 && !defined(__DragonFly__)
+  return recvmmsg(fd,
+                  (struct mmsghdr*) mmsg,
+                  vlen,
+                  0 /* flags */,
+                  NULL /* timeout */);
 #else
   return errno = ENOSYS, -1;
+#endif
+}
+
+ssize_t
+uv__fs_copy_file_range(int fd_in,
+                       off_t* off_in,
+                       int fd_out,
+                       off_t* off_out,
+                       size_t len,
+                       unsigned int flags)
+{
+#if __FreeBSD__ >= 13 && !defined(__DragonFly__)
+	return copy_file_range(fd_in, off_in, fd_out, off_out, len, flags);
+#else
+	return errno = ENOSYS, -1;
 #endif
 }

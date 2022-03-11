@@ -58,20 +58,6 @@ struct uv__stream_select_s {
   fd_set* swrite;
   size_t swrite_sz;
 };
-
-/* Due to a possible kernel bug at least in OS X 10.10 "Yosemite",
- * EPROTOTYPE can be returned while trying to write to a socket that is
- * shutting down. If we retry the write, we should get the expected EPIPE
- * instead.
- */
-# define RETRY_ON_WRITE_ERROR(errno) (errno == EINTR || errno == EPROTOTYPE)
-# define IS_TRANSIENT_WRITE_ERROR(errno, send_handle) \
-    (errno == EAGAIN || errno == EWOULDBLOCK || errno == ENOBUFS || \
-     (errno == EMSGSIZE && send_handle != NULL))
-#else
-# define RETRY_ON_WRITE_ERROR(errno) (errno == EINTR)
-# define IS_TRANSIENT_WRITE_ERROR(errno, send_handle) \
-    (errno == EAGAIN || errno == EWOULDBLOCK || errno == ENOBUFS)
 #endif /* defined(__APPLE__) */
 
 static void uv__stream_connect(uv_stream_t*);
@@ -658,11 +644,11 @@ int uv_listen(uv_stream_t* stream, int backlog, uv_connection_cb cb) {
 
   switch (stream->type) {
   case UV_TCP:
-    err = uv_tcp_listen((uv_tcp_t*)stream, backlog, cb);
+    err = uv__tcp_listen((uv_tcp_t*)stream, backlog, cb);
     break;
 
   case UV_NAMED_PIPE:
-    err = uv_pipe_listen((uv_pipe_t*)stream, backlog, cb);
+    err = uv__pipe_listen((uv_pipe_t*)stream, backlog, cb);
     break;
 
   default:
@@ -866,18 +852,32 @@ static int uv__try_write(uv_stream_t* stream,
 
     do
       n = sendmsg(uv__stream_fd(stream), &msg, 0);
-    while (n == -1 && RETRY_ON_WRITE_ERROR(errno));
+    while (n == -1 && errno == EINTR);
   } else {
     do
       n = uv__writev(uv__stream_fd(stream), iov, iovcnt);
-    while (n == -1 && RETRY_ON_WRITE_ERROR(errno));
+    while (n == -1 && errno == EINTR);
   }
 
   if (n >= 0)
     return n;
 
-  if (IS_TRANSIENT_WRITE_ERROR(errno, send_handle))
+  if (errno == EAGAIN || errno == EWOULDBLOCK || errno == ENOBUFS)
     return UV_EAGAIN;
+
+#ifdef __APPLE__
+  /* macOS versions 10.10 and 10.15 - and presumbaly 10.11 to 10.14, too -
+   * have a bug where a race condition causes the kernel to return EPROTOTYPE
+   * because the socket isn't fully constructed. It's probably the result of
+   * the peer closing the connection and that is why libuv translates it to
+   * ECONNRESET. Previously, libuv retried until the EPROTOTYPE error went
+   * away but some VPN software causes the same behavior except the error is
+   * permanent, not transient, turning the retry mechanism into an infinite
+   * loop. See https://github.com/libuv/libuv/pull/482.
+   */
+  if (errno == EPROTOTYPE)
+    return UV_ECONNRESET;
+#endif  /* __APPLE__ */
 
   return UV__ERR(errno);
 }
@@ -926,10 +926,9 @@ static void uv__write(uv_stream_t* stream) {
   }
 
   req->error = n;
+  // XXX(jwn): this must call uv__stream_flush_write_queue(stream, n) here, since we won't generate any more events
   uv__write_req_finish(req);
   uv__io_stop(stream->loop, &stream->io_watcher, POLLOUT);
-  if (!uv__io_active(&stream->io_watcher, POLLIN))
-    uv__handle_stop(stream);
   uv__stream_osx_interrupt_select(stream);
 }
 
@@ -1012,8 +1011,7 @@ static void uv__stream_eof(uv_stream_t* stream, const uv_buf_t* buf) {
   stream->flags |= UV_HANDLE_READ_EOF;
   stream->flags &= ~UV_HANDLE_READING;
   uv__io_stop(stream->loop, &stream->io_watcher, POLLIN);
-  if (!uv__io_active(&stream->io_watcher, POLLOUT))
-    uv__handle_stop(stream);
+  uv__handle_stop(stream);
   uv__stream_osx_interrupt_select(stream);
   stream->read_cb(stream, UV_EOF, buf);
 }
@@ -1198,12 +1196,12 @@ static void uv__read(uv_stream_t* stream) {
 #endif
       } else {
         /* Error. User should call uv_close(). */
+        stream->flags &= ~(UV_HANDLE_READABLE | UV_HANDLE_WRITABLE);
         stream->read_cb(stream, UV__ERR(errno), &buf);
         if (stream->flags & UV_HANDLE_READING) {
           stream->flags &= ~UV_HANDLE_READING;
           uv__io_stop(stream->loop, &stream->io_watcher, POLLIN);
-          if (!uv__io_active(&stream->io_watcher, POLLOUT))
-            uv__handle_stop(stream);
+          uv__handle_stop(stream);
           uv__stream_osx_interrupt_select(stream);
         }
       }
@@ -1286,6 +1284,7 @@ int uv_shutdown(uv_shutdown_t* req, uv_stream_t* stream, uv_shutdown_cb cb) {
   req->cb = cb;
   stream->shutdown_req = req;
   stream->flags |= UV_HANDLE_SHUTTING;
+  stream->flags &= ~UV_HANDLE_WRITABLE;
 
   uv__io_start(stream->loop, &stream->io_watcher, POLLOUT);
   uv__stream_osx_interrupt_select(stream);
@@ -1522,6 +1521,14 @@ int uv_write(uv_write_t* req,
 int uv_try_write(uv_stream_t* stream,
                  const uv_buf_t bufs[],
                  unsigned int nbufs) {
+  return uv_try_write2(stream, bufs, nbufs, NULL);
+}
+
+
+int uv_try_write2(uv_stream_t* stream,
+                  const uv_buf_t bufs[],
+                  unsigned int nbufs,
+                  uv_stream_t* send_handle) {
   int err;
 
   /* Connecting or already writing some data */
@@ -1532,7 +1539,7 @@ int uv_try_write(uv_stream_t* stream,
   if (err < 0)
     return err;
 
-  return uv__try_write(stream, bufs, nbufs, NULL);
+  return uv__try_write(stream, bufs, nbufs, send_handle);
 }
 
 
@@ -1542,15 +1549,12 @@ int uv__read_start(uv_stream_t* stream,
   assert(stream->type == UV_TCP || stream->type == UV_NAMED_PIPE ||
       stream->type == UV_TTY);
 
-  /* The UV_HANDLE_READING flag is irrelevant of the state of the tcp - it just
-   * expresses the desired state of the user.
-   */
+  /* The UV_HANDLE_READING flag is irrelevant of the state of the stream - it
+   * just expresses the desired state of the user. */
   stream->flags |= UV_HANDLE_READING;
+  stream->flags &= ~UV_HANDLE_READ_EOF;
 
   /* TODO: try to do the read inline? */
-  /* TODO: keep track of tcp state. If we've gotten a EOF then we should
-   * not start the IO watcher.
-   */
   assert(uv__stream_fd(stream) >= 0);
   assert(alloc_cb);
 
@@ -1571,8 +1575,7 @@ int uv_read_stop(uv_stream_t* stream) {
 
   stream->flags &= ~UV_HANDLE_READING;
   uv__io_stop(stream->loop, &stream->io_watcher, POLLIN);
-  if (!uv__io_active(&stream->io_watcher, POLLOUT))
-    uv__handle_stop(stream);
+  uv__handle_stop(stream);
   uv__stream_osx_interrupt_select(stream);
 
   stream->read_cb = NULL;
