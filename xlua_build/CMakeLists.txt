@@ -30,6 +30,12 @@ if ( APPLE )
     set(CMAKE_CXX_STANDARD 11)
 endif ()
 
+IF (CMAKE_BUILD_TYPE STREQUAL Debug)
+    ADD_DEFINITIONS(-DDEBUG)
+ELSE ()
+    ADD_DEFINITIONS(-DNDEBUG)
+ENDIF()
+
 option ( UINT_ESPECIALLY "using custom ulong" OFF )
 option ( USING_LUAJIT "using luajit" OFF )
 option ( GC64 "using gc64" OFF )
@@ -174,6 +180,17 @@ set_property(
 set (THIRDPART_SRC ${THIRDPART_SRC} ${CHRONOS_SRC})
 #end lua-chronos
 
+#begin lsqlite3
+set (LSQLITE3_SRC lsqlite3/lsqlite3.c lsqlite3/sqlite3.c)
+set_property(
+	SOURCE ${LSQLITE3_SRC}
+	APPEND
+	PROPERTY COMPILE_DEFINITIONS
+	LUA_LIB
+)
+set (THIRDPART_SRC ${THIRDPART_SRC} ${LSQLITE3_SRC})
+#end lsqlite3
+
 set ( XLUA_CORE
     i64lib.c
     xlua.c
@@ -298,3 +315,9 @@ else ( )
         )
     endif()
 endif ( )
+
+#begin emmy debugger
+add_subdirectory(EmmyDebugger/build_script/xlua_emmy_core)
+add_dependencies(xlua emmy_core)
+target_link_libraries(xlua PRIVATE emmy_core)
+#end emmy debugger

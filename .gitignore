@@ -64,3 +64,6 @@ Assets/Editor/ExcelFileList.asset.meta
 Assets/Extend/Editor/LuaDebugSetting.asset
 Assets/Extend/Editor/LuaDebugSetting.asset.meta
 UpgradeLog.htm
+
+xlua_build/build32_54
+xlua_build/build64_54
