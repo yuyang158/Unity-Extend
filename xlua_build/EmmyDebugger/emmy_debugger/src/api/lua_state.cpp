@@ -1,4 +1,4 @@
-#include "emmy_debugger/api/lua_state.h"
+﻿#include "emmy_debugger/api/lua_state.h"
 #include "emmy_debugger/lua_version.h"
 
 #ifdef EMMY_USE_LUA_SOURCE
@@ -43,10 +43,24 @@ switch(luaVersion){ \
 
 lua_State* GetMainState(lua_State* L)
 {
-	return GetMainState_lua54(L);
+	LuaSwitchDo(
+		GetMainState_luaJIT(L),
+		GetMainState_lua51(L),
+		GetMainState_lua52(L),
+		GetMainState_lua53(L),
+		GetMainState_lua54(L),
+		nullptr
+	);
 }
 
 std::vector<lua_State*> FindAllCoroutine(lua_State* L)
 {
-	return FindAllCoroutine_lua54(L);
+	LuaSwitchDo(
+		std::vector<lua_State*>(),
+		FindAllCoroutine_lua51(L),
+		FindAllCoroutine_lua52(L),
+		FindAllCoroutine_lua53(L),
+		FindAllCoroutine_lua54(L),
+		std::vector<lua_State*>()
+	);
 }
