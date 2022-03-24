@@ -44,9 +44,9 @@ namespace Extend.UI.Scroll {
 
 		protected LoopScrollRectDirection direction = LoopScrollRectDirection.Horizontal;
 
-		private bool m_ContentSpaceInit = false;
-		private float m_ContentSpacing = 0;
-		protected GridLayoutGroup m_GridLayout = null;
+		private bool m_ContentSpaceInit;
+		private float m_ContentSpacing;
+		protected GridLayoutGroup m_GridLayout;
 
 		protected float contentSpacing {
 			get {
@@ -72,8 +72,8 @@ namespace Extend.UI.Scroll {
 			}
 		}
 
-		private bool m_ContentConstraintCountInit = false;
-		private int m_ContentConstraintCount = 0;
+		private bool m_ContentConstraintCountInit;
+		private int m_ContentConstraintCount;
 
 		protected int contentConstraintCount {
 			get {
@@ -99,19 +99,13 @@ namespace Extend.UI.Scroll {
 		}
 
 		// the first line
-		protected int StartLine {
-			get { return Mathf.CeilToInt((float)( itemTypeStart ) / contentConstraintCount); }
-		}
+		protected int StartLine => Mathf.CeilToInt((float)( itemTypeStart ) / contentConstraintCount);
 
 		// how many lines we have for now
-		protected int CurrentLines {
-			get { return Mathf.CeilToInt((float)( itemTypeEnd - itemTypeStart ) / contentConstraintCount); }
-		}
+		protected int CurrentLines => Mathf.CeilToInt((float)( itemTypeEnd - itemTypeStart ) / contentConstraintCount);
 
 		// how many lines we have in total
-		protected int TotalLines {
-			get { return Mathf.CeilToInt((float)( totalCount ) / contentConstraintCount); }
-		}
+		protected int TotalLines => Mathf.CeilToInt((float)( totalCount ) / contentConstraintCount);
 
 		protected virtual bool UpdateItems(Bounds viewBounds, Bounds contentBounds) {
 			return false;
@@ -138,71 +132,71 @@ namespace Extend.UI.Scroll {
 		private RectTransform m_Content;
 
 		public RectTransform content {
-			get { return m_Content; }
-			set { m_Content = value; }
+			get => m_Content;
+			set => m_Content = value;
 		}
 
 		[SerializeField]
 		private bool m_Horizontal = true;
 
 		public bool horizontal {
-			get { return m_Horizontal; }
-			set { m_Horizontal = value; }
+			get => m_Horizontal;
+			set => m_Horizontal = value;
 		}
 
 		[SerializeField]
 		private bool m_Vertical = true;
 
 		public bool vertical {
-			get { return m_Vertical; }
-			set { m_Vertical = value; }
+			get => m_Vertical;
+			set => m_Vertical = value;
 		}
 
 		[SerializeField]
 		private MovementType m_MovementType = MovementType.Elastic;
 
 		public MovementType movementType {
-			get { return m_MovementType; }
-			set { m_MovementType = value; }
+			get => m_MovementType;
+			set => m_MovementType = value;
 		}
 
 		[SerializeField]
 		private float m_Elasticity = 0.1f; // Only used for MovementType.Elastic
 
 		public float elasticity {
-			get { return m_Elasticity; }
-			set { m_Elasticity = value; }
+			get => m_Elasticity;
+			set => m_Elasticity = value;
 		}
 
 		[SerializeField]
 		private bool m_Inertia = true;
 
 		public bool inertia {
-			get { return m_Inertia; }
-			set { m_Inertia = value; }
+			get => m_Inertia;
+			set => m_Inertia = value;
 		}
 
 		[SerializeField]
 		private float m_DecelerationRate = 0.135f; // Only used when inertia is enabled
 
 		public float decelerationRate {
-			get { return m_DecelerationRate; }
-			set { m_DecelerationRate = value; }
+			get => m_DecelerationRate;
+			set => m_DecelerationRate = value;
 		}
 
 		[SerializeField]
 		private float m_ScrollSensitivity = 1.0f;
 
 		public float scrollSensitivity {
-			get { return m_ScrollSensitivity; }
-			set { m_ScrollSensitivity = value; }
+			get => m_ScrollSensitivity;
+			set => m_ScrollSensitivity = value;
 		}
 
 		[SerializeField]
 		private RectTransform m_Viewport;
 
 		public RectTransform viewport {
-			get { return m_Viewport; }
+			get => m_Viewport;
 			set {
 				m_Viewport = value;
 				SetDirtyCaching();
@@ -213,7 +207,7 @@ namespace Extend.UI.Scroll {
 		private Scrollbar m_HorizontalScrollbar;
 
 		public Scrollbar horizontalScrollbar {
-			get { return m_HorizontalScrollbar; }
+			get => m_HorizontalScrollbar;
 			set {
 				if( m_HorizontalScrollbar )
 					m_HorizontalScrollbar.onValueChanged.RemoveListener(SetHorizontalNormalizedPosition);
@@ -228,7 +222,7 @@ namespace Extend.UI.Scroll {
 		private Scrollbar m_VerticalScrollbar;
 
 		public Scrollbar verticalScrollbar {
-			get { return m_VerticalScrollbar; }
+			get => m_VerticalScrollbar;
 			set {
 				if( m_VerticalScrollbar )
 					m_VerticalScrollbar.onValueChanged.RemoveListener(SetVerticalNormalizedPosition);
@@ -243,7 +237,7 @@ namespace Extend.UI.Scroll {
 		private ScrollbarVisibility m_HorizontalScrollbarVisibility;
 
 		public ScrollbarVisibility horizontalScrollbarVisibility {
-			get { return m_HorizontalScrollbarVisibility; }
+			get => m_HorizontalScrollbarVisibility;
 			set {
 				m_HorizontalScrollbarVisibility = value;
 				SetDirtyCaching();
@@ -254,7 +248,7 @@ namespace Extend.UI.Scroll {
 		private ScrollbarVisibility m_VerticalScrollbarVisibility;
 
 		public ScrollbarVisibility verticalScrollbarVisibility {
-			get { return m_VerticalScrollbarVisibility; }
+			get => m_VerticalScrollbarVisibility;
 			set {
 				m_VerticalScrollbarVisibility = value;
 				SetDirtyCaching();
@@ -265,7 +259,7 @@ namespace Extend.UI.Scroll {
 		private float m_HorizontalScrollbarSpacing;
 
 		public float horizontalScrollbarSpacing {
-			get { return m_HorizontalScrollbarSpacing; }
+			get => m_HorizontalScrollbarSpacing;
 			set {
 				m_HorizontalScrollbarSpacing = value;
 				SetDirty();
@@ -276,7 +270,7 @@ namespace Extend.UI.Scroll {
 		private float m_VerticalScrollbarSpacing;
 
 		public float verticalScrollbarSpacing {
-			get { return m_VerticalScrollbarSpacing; }
+			get => m_VerticalScrollbarSpacing;
 			set {
 				m_VerticalScrollbarSpacing = value;
 				SetDirty();
@@ -284,11 +278,11 @@ namespace Extend.UI.Scroll {
 		}
 
 		[SerializeField]
-		private ScrollRectEvent m_OnValueChanged = new ScrollRectEvent();
+		private ScrollRectEvent m_OnValueChanged = new();
 
 		public ScrollRectEvent onValueChanged {
-			get { return m_OnValueChanged; }
-			set { m_OnValueChanged = value; }
+			get => m_OnValueChanged;
+			set => m_OnValueChanged = value;
 		}
 
 		// The offset from handle position to mouse down position
@@ -313,8 +307,8 @@ namespace Extend.UI.Scroll {
 		private Vector2 m_Velocity;
 
 		public Vector2 velocity {
-			get { return m_Velocity; }
-			set { m_Velocity = value; }
+			get => m_Velocity;
+			set => m_Velocity = value;
 		}
 
 		private bool m_Dragging;
@@ -324,14 +318,14 @@ namespace Extend.UI.Scroll {
 		private Bounds m_PrevViewBounds;
 
 		[NonSerialized]
-		private bool m_HasRebuiltLayout = false;
+		private bool m_HasRebuiltLayout;
 
 		private bool m_HSliderExpand;
 		private bool m_VSliderExpand;
 		private float m_HSliderHeight;
 		private float m_VSliderWidth;
 
-		[System.NonSerialized]
+		[NonSerialized]
 		private RectTransform m_Rect;
 
 		private RectTransform rectTransform {
@@ -706,8 +700,8 @@ namespace Extend.UI.Scroll {
 			return size;
 		}
 
-		int deletedItemTypeStart = 0;
-		int deletedItemTypeEnd = 0;
+		int deletedItemTypeStart;
+		int deletedItemTypeEnd;
 
 		protected RectTransform GetFromTempPool(int itemIdx) {
 			RectTransform nextItem = null;
@@ -1029,7 +1023,7 @@ namespace Extend.UI.Scroll {
 		}
 
 		public Vector2 normalizedPosition {
-			get { return new Vector2(horizontalNormalizedPosition, verticalNormalizedPosition); }
+			get => new Vector2(horizontalNormalizedPosition, verticalNormalizedPosition);
 			set {
 				SetNormalizedPosition(value.x, 0);
 				SetNormalizedPosition(value.y, 1);
@@ -1053,7 +1047,7 @@ namespace Extend.UI.Scroll {
 					return 0.5f;
 				//==========LoopScrollRect==========
 			}
-			set { SetNormalizedPosition(value, 0); }
+			set => SetNormalizedPosition(value, 0);
 		}
 
 		public float verticalNormalizedPosition {
@@ -1073,7 +1067,7 @@ namespace Extend.UI.Scroll {
 					return 0.5f;
 				//==========LoopScrollRect==========
 			}
-			set { SetNormalizedPosition(value, 1); }
+			set => SetNormalizedPosition(value, 1);
 		}
 
 		private void SetHorizontalNormalizedPosition(float value) {
@@ -1150,31 +1144,19 @@ namespace Extend.UI.Scroll {
 		public virtual void CalculateLayoutInputVertical() {
 		}
 
-		public virtual float minWidth {
-			get { return -1; }
-		}
+		public virtual float minWidth => -1;
 
-		public virtual float preferredWidth {
-			get { return -1; }
-		}
+		public virtual float preferredWidth => -1;
 
 		public virtual float flexibleWidth { get; private set; }
 
-		public virtual float minHeight {
-			get { return -1; }
-		}
+		public virtual float minHeight => -1;
 
-		public virtual float preferredHeight {
-			get { return -1; }
-		}
+		public virtual float preferredHeight => -1;
 
-		public virtual float flexibleHeight {
-			get { return -1; }
-		}
+		public virtual float flexibleHeight => -1;
 
-		public virtual int layoutPriority {
-			get { return -1; }
-		}
+		public virtual int layoutPriority => -1;
 
 		public virtual void SetLayoutHorizontal() {
 			m_Tracker.Clear();

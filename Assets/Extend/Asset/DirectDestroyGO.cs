@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.AddressableAssets;
 
 namespace Extend.Asset {
 	public class DirectDestroyGO : AssetServiceManagedGO {
@@ -10,6 +11,7 @@ namespace Extend.Asset {
 		internal override void Recycle() {
 			transform.SetParent(null);
 			Destroy(gameObject);
+			// Addressables.ReleaseInstance(gameObject);
 			base.Recycle();
 		}
 	}

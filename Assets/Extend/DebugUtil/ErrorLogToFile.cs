@@ -9,7 +9,7 @@ namespace Extend.DebugUtil {
 	public class ErrorLogToFile : IService {
 		public int ServiceType => (int)CSharpServiceManager.ServiceType.ERROR_LOG_TO_FILE;
 		private TextWriter m_writer;
-		private readonly AutoResetEvent m_autoEvent = new AutoResetEvent(false);
+		private readonly AutoResetEvent m_autoEvent = new(false);
 		private Thread m_writeThread;
 		private bool m_exit;
 

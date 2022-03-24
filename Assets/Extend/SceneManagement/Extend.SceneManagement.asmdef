@@ -1,0 +1,21 @@
+{
+    "name": "Extend.SceneManagement",
+    "rootNamespace": "",
+    "references": [
+        "GUID:22784c00bfb32f049827a00b892b0d3c",
+        "GUID:8a2eafa29b15f444eb6d74f94a930e1d",
+        "GUID:2665a8d13d1b3f18800f46e256720795",
+        "GUID:1d0fc5bbd1c29f14db9bb80201319de6",
+        "GUID:e0cd26848372d4e5c891c569017e11f1",
+        "GUID:5244392fac2b89c4a9fa7a5b7a72a1b1"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

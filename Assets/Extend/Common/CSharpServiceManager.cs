@@ -33,7 +33,8 @@ namespace Extend.Common {
 			IN_GAME_CONSOLE,
 			LUA_SERVICE,
 			I18N,
-			GRAPHICS_INSTANCING,
+			SCENE_LOAD,
+			DEBUG_DRAW,
 			COUNT
 		}
 
@@ -46,15 +47,17 @@ namespace Extend.Common {
 			}
 
 			Initialized = true;
-			var go = new GameObject("CSharpServiceManager", typeof(UnityMainThreadDispatcher));
-			DontDestroyOnLoad(go);
-			Instance = go.AddComponent<CSharpServiceManager>();
-
 			Application.quitting += CleanUp;
 		}
 
+		public static void InitializeServiceGameObject() {
+			var go = new GameObject("CSharpServiceManager", typeof(UnityMainThreadDispatcher), typeof(CSharpServiceManager));
+			DontDestroyOnLoad(go);
+			Instance = go.GetComponent<CSharpServiceManager>();
+		}
+
 		private static readonly IService[] services = new IService[64];
-		private static readonly List<IServiceUpdate> updateableServices = new List<IServiceUpdate>();
+		private static readonly List<IServiceUpdate> updateableServices = new();
 
 		public static void Register(IService service) {
 			Assert.IsTrue(Initialized);
@@ -114,7 +117,6 @@ namespace Extend.Common {
 		}
 
 		private static void CleanUp() {
-			Debug.LogWarning("Game Exit!");
 			Application.quitting -= CleanUp;
 			updateableServices.Clear();
 			for( int i = services.Length - 1; i >= 0; i-- ) {
@@ -125,6 +127,7 @@ namespace Extend.Common {
 			}
 
 			Initialized = false;
+			Debug.LogWarning("Game Exit!");
 		}
 	}
 }

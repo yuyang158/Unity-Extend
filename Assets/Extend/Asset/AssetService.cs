@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Extend.Asset.AssetProvider;
 using Extend.Common;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.SceneManagement;
 using UnityEngine.U2D;
 using XLua;
 using Debug = UnityEngine.Debug;
@@ -18,20 +19,12 @@ namespace Extend.Asset {
 		[BlackList]
 		public AssetContainer Container { get; } = new();
 
-		private AssetLoadProvider m_provider;
-		private Stopwatch m_stopwatch = new Stopwatch();
+		private Stopwatch m_stopwatch = new();
 		private readonly Stopwatch m_instantiateStopwatch = new();
 		public Transform PoolRootNode { get; private set; }
 
 		private readonly Queue<AssetReference.InstantiateAsyncContext> m_deferInstantiates = new(64);
-
-		private readonly bool m_forceAssetBundleMode;
 		private float m_singleFrameMaxInstantiateDuration;
-
-		public AssetService(bool forceABMode = false) {
-			m_forceAssetBundleMode = forceABMode;
-		}
-
 		private readonly List<IDisposable> m_disposables = new();
 
 		public void AddAfterDestroy(IDisposable disposable) {
@@ -53,20 +46,7 @@ namespace Extend.Asset {
 
 		[BlackList]
 		public void Initialize() {
-#if UNITY_EDITOR
-			if( m_forceAssetBundleMode ) {
-				m_provider = new AssetBundleLoadProvider();
-			}
-			else {
-				m_provider = new ResourcesLoadProvider();
-			}
-#else
-			m_provider = new AssetBundleLoadProvider();
-#endif
-
-			m_provider.Initialize();
 			m_stopwatch = new Stopwatch();
-
 			var poolGO = new GameObject("Pool");
 			Object.DontDestroyOnLoad(poolGO);
 			poolGO.SetActive(false);
@@ -74,7 +54,7 @@ namespace Extend.Asset {
 
 			SpriteAtlasManager.atlasRequested += (atlasName, callback) => {
 				Debug.LogWarning("Request Atlas : " + atlasName);
-				var handle = LoadAsync("Assets/SpriteAtlas/" + atlasName, typeof(SpriteAtlas));
+				var handle = LoadAsync<SpriteAtlas>("Assets/SpriteAtlas/" + atlasName + ".spriteatlas");
 				handle.OnComplete += loadHandle => {
 					var reference = loadHandle.Result;
 					var atlas = reference.GetObject() as SpriteAtlas;
@@ -99,13 +79,6 @@ namespace Extend.Asset {
 			Container.Clear();
 
 			Resources.UnloadUnusedAssets();
-#if !UNITY_EDITOR
-			var bundles = AssetBundle.GetAllLoadedAssetBundles();
-			foreach( var bundle in bundles ) {
-				Debug.LogError($"Unreleased asset bundle : {bundle.name}");
-			}
-			AssetBundle.UnloadAllAssetBundles(true);
-#endif
 		}
 
 		public void FullCollect() {
@@ -115,14 +88,20 @@ namespace Extend.Asset {
 		[BlackList]
 		public void Update() {
 			Container.Collect();
-
 			if( m_deferInstantiates.Count > 0 ) {
 				m_instantiateStopwatch.Restart();
 				var context = m_deferInstantiates.Peek();
+#if ASSET_LOG
+				Debug.LogWarning($"Defer instantiate queue : {context}");
+#endif
 				while( true ) {
 					if( !context.GetAssetReady() ) {
 						break;
 					}
+
+#if ASSET_LOG
+					Debug.LogWarning($"Async instantiate : {context}");
+#endif
 
 					context.Instantiate();
 					m_deferInstantiates.Dequeue();
@@ -138,21 +117,97 @@ namespace Extend.Asset {
 			}
 		}
 
-		public bool Exist(string path) {
-			path = m_provider.FormatAssetPath(path);
-			return m_provider.Exist(path);
+		private static void FormatPath(ref string path) {
+			if( path.StartsWith("Assets") ) {
+				return;
+			}
+
+			path = "Assets/Res/" + path;
 		}
 
-		public AssetReference Load(string path, Type typ) {
+		public bool Exist(string path) {
+			FormatPath(ref path);
+			foreach( var locator in Addressables.ResourceLocators ) {
+				if( locator.Locate(path, typeof(Object), out _) ) {
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		public AssetAsyncLoadHandle LoadGameObjectAsync(string path) {
+			return LoadAsync<GameObject>(path);
+		}
+
+		public AssetAsyncLoadHandle LoadSpriteAsync(string path) {
+			return LoadAsync<Sprite>(path);
+		}
+
+		public AssetAsyncLoadHandle LoadMaterialAsync(string path) {
+			return LoadAsync<Material>(path);
+		}
+
+		public AssetAsyncLoadHandle LoadMeshAsync(string path) {
+			return LoadAsync<Mesh>(path);
+		}
+
+		public AssetAsyncLoadHandle LoadTextureAsync(string path) {
+			return LoadAsync<Texture>(path);
+		}
+
+		public AssetAsyncLoadHandle LoadAnimationClipAsync(string path) {
+			return LoadAsync<AnimationClip>(path);
+		}
+
+		public AssetAsyncLoadHandle LoadAnimatorControllerAsync(string path) {
+			return LoadAsync<RuntimeAnimatorController>(path);
+		}
+
+		[BlackList]
+		public AssetAsyncLoadHandle LoadAsync<T>(string path) where T : Object {
+#if ASSET_LOG
+			Debug.LogWarning($"Async load asset : {path}");
+#endif
+			FormatPath(ref path);
+			var handle = Addressables.LoadAssetAsync<T>(path);
+			return new AssetAsyncLoadHandle(Container, handle);
+		}
+
+		public AssetReference LoadGameObject(string path) {
+			return Load<GameObject>(path);
+		}
+
+		public AssetReference LoadSprite(string path) {
+			return Load<Sprite>(path);
+		}
+
+		public AssetReference LoadMaterial(string path) {
+			return Load<Material>(path);
+		}
+
+		public AssetReference LoadMesh(string path) {
+			return Load<Mesh>(path);
+		}
+
+		public AssetReference LoadTexture(string path) {
+			return Load<Texture>(path);
+		}
+
+		[BlackList]
+		public AssetReference Load<T>(string path) where T : Object {
 #if UNITY_DEBUG
 			var ticks = m_stopwatch.ElapsedTicks;
 			m_stopwatch.Start();
 #endif
 #if ASSET_LOG
-			Debug.LogWarning($"Sync Load Asset {path}");
+			Debug.LogWarning($"Sync load asset : {path}");
 #endif
-			path = m_provider.FormatAssetPath(path);
-			var assetRef = m_provider.Provide(path, Container, typ);
+			FormatPath(ref path);
+			var handle = Addressables.LoadAssetAsync<T>(path);
+			handle.WaitForCompletion();
+			var assetRef = new AssetReference(handle);
+
 #if UNITY_DEBUG
 			var time = m_stopwatch.ElapsedTicks - ticks;
 			m_stopwatch.Stop();
@@ -181,55 +236,45 @@ namespace Extend.Asset {
 		}
 
 		internal void AddDeferInstantiateContext(AssetReference.InstantiateAsyncContext context) {
+#if ASSET_LOG
+			Debug.LogWarning($"Enqueue context : {context}");
+#endif
 			m_deferInstantiates.Enqueue(context);
 		}
 
-		internal AssetInstance LoadAssetWithGUID<T>(string guid) where T : Object {
+		public SceneInstance LoadScene(string path, bool additive) {
 #if UNITY_DEBUG
 			var ticks = m_stopwatch.ElapsedTicks;
 			m_stopwatch.Start();
 #endif
-			var assetRef = m_provider.ProvideAssetWithGUID<T>(guid, Container, out var path);
+			var handle = Addressables.LoadSceneAsync(path, additive ? LoadSceneMode.Additive : LoadSceneMode.Single);
+			handle.WaitForCompletion();
+			var scene = new SceneInstance(handle);
 #if UNITY_DEBUG
 			var time = m_stopwatch.ElapsedTicks - ticks;
 			m_stopwatch.Stop();
 			var statService = CSharpServiceManager.Get<StatService>(CSharpServiceManager.ServiceType.STAT);
 			statService.LogStat("AssetLoad", path, ( time / 10000.0f ).ToString("0.000"));
 #endif
-			return assetRef;
+			return scene;
 		}
 
-		public AssetAsyncLoadHandle LoadAsync(string path, Type typ) {
-			var handle = new AssetAsyncLoadHandle(Container, m_provider, path);
-			handle.Execute(typ);
-			return handle;
+		public void LoadSceneAsync(string path, bool additive, Action<SceneInstance> callback = null) {
+			var handle = Addressables.LoadSceneAsync(path, additive ? LoadSceneMode.Additive : LoadSceneMode.Single);
+			handle.Completed += _ => { callback.Invoke(new SceneInstance(handle)); };
 		}
 
-		internal AssetAsyncLoadHandle LoadAsyncWithGUID(string guid, Type typ) {
-			var path = m_provider.ConvertGUID2Path(guid);
-			return LoadAsync(path, typ);
-		}
-
-		public void LoadScene(string path, bool add) {
-#if UNITY_DEBUG
-			var ticks = m_stopwatch.ElapsedTicks;
-			m_stopwatch.Start();
-#endif
-			path = m_provider.FormatScenePath(path);
-			m_provider.ProvideScene(path, Container, add);
-#if UNITY_DEBUG
-			var time = m_stopwatch.ElapsedTicks - ticks;
-			m_stopwatch.Stop();
-			var statService = CSharpServiceManager.Get<StatService>(CSharpServiceManager.ServiceType.STAT);
-			statService.LogStat("AssetLoad", path, ( time / 10000.0f ).ToString("0.000"));
-#endif
-		}
-
-		public AssetAsyncLoadHandle LoadSceneAsync(string path, bool add) {
-			path = m_provider.FormatScenePath(path);
-			var handle = new AssetAsyncLoadHandle(Container, m_provider, path);
-			m_provider.ProvideSceneAsync(handle, add);
-			return handle;
-		}
+		/*public Shader LoadShader(string path) {
+			AssetReference shaderRef;
+			if( IsAssetBundleMode() ) {
+				shaderRef = Load(path, typeof(Shader));
+			}
+			else {
+				shaderRef = Load(path + ".shader", typeof(Shader));
+			}
+			var shader = shaderRef.GetShader();
+			shaderRef.Dispose();
+			return shader;
+		}*/
 	}
 }

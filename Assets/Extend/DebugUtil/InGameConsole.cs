@@ -49,7 +49,7 @@ namespace Extend.DebugUtil {
 		[SerializeField]
 		private TMP_InputField m_cmdInput;
 
-		private static readonly Dictionary<LogType, Color> logTypeColors = new Dictionary<LogType, Color> {
+		private static readonly Dictionary<LogType, Color> logTypeColors = new() {
 			{LogType.Assert, Color.white},
 			{LogType.Error, Color.red},
 			{LogType.Exception, Color.red},
@@ -57,7 +57,7 @@ namespace Extend.DebugUtil {
 			{LogType.Warning, Color.yellow},
 		};
 
-		private readonly Queue<Log> m_queuedLogs = new Queue<Log>();
+		private readonly Queue<Log> m_queuedLogs = new();
 
 		private LuaVM luaVM;
 		private bool m_showConsoleWhenError;
@@ -146,7 +146,7 @@ namespace Extend.DebugUtil {
 			m_scrollToEnd = m_logScroll.verticalNormalizedPosition < 0.0000001f;
 		}
 
-		private readonly Queue<string> m_cmdHistory = new Queue<string>();
+		private readonly Queue<string> m_cmdHistory = new();
 		private int m_historyIndex = -1;
 
 		private int HistoryIndex {
@@ -191,7 +191,7 @@ namespace Extend.DebugUtil {
 			HistoryIndex = -1;
 		}
 
-		private readonly List<LuaCommandMatch> m_matches = new List<LuaCommandMatch>();
+		private readonly List<LuaCommandMatch> m_matches = new();
 
 		public void OnInputCommandChanged() {
 			foreach( Transform child in m_suggestContentRoot ) {
@@ -261,7 +261,7 @@ namespace Extend.DebugUtil {
 			}
 		}
 
-		private readonly StringBuilder builder = new StringBuilder(4096);
+		private readonly StringBuilder builder = new(4096);
 
 		private void Update() {
 			builder.Clear();
@@ -341,7 +341,7 @@ namespace Extend.DebugUtil {
 			public LuaCommandDelegate Command;
 		}
 
-		private static readonly List<LuaCommand> luaCommands = new List<LuaCommand>();
+		private static readonly List<LuaCommand> luaCommands = new();
 
 		public int ServiceType => (int)CSharpServiceManager.ServiceType.IN_GAME_CONSOLE;
 

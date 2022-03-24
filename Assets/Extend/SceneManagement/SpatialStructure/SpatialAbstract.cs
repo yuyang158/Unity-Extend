@@ -1,4 +1,8 @@
-﻿using Extend.SceneManagement.Jobs;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Extend.SceneManagement.Culling;
+using Extend.SceneManagement.Jobs;
 using UnityEngine;
 
 namespace Extend.SceneManagement.SpatialStructure {
@@ -7,13 +11,56 @@ namespace Extend.SceneManagement.SpatialStructure {
 		Leaf,
 		DeepGreater3
 	}
-	
+
+	[Flags]
+	public enum SpecialControlFlag {
+		ParticleSystem = 1,
+		Light = 2,
+		VisualEffect = 4
+	}
+
+	public class SpecialSceneElement {
+		private readonly SpecialControlFlag m_type;
+		public readonly Bounds Bounds;
+		private readonly Component m_component;
+		public SpecialSceneElement(SpecialControlFlag type, Bounds bounds, Component component) {
+			m_type = type;
+			Bounds = bounds;
+			m_component = component;
+			SetVisible(false);
+		}
+
+		public void SetVisible(bool visible) {
+			switch( m_type ) {
+				case SpecialControlFlag.ParticleSystem:
+					var ps = (ParticleSystem)m_component;
+					var renderer = ps.GetComponent<ParticleSystemRenderer>();
+					if( visible ) {
+						ps.Play();
+					}
+					else {
+						ps.Stop();
+					}
+					renderer.enabled = visible;
+					break;
+				case SpecialControlFlag.Light:
+					((Light)m_component).enabled = visible;
+					break;
+				case SpecialControlFlag.VisualEffect:
+					break;
+				default:
+					throw new ArgumentOutOfRangeException();
+			}
+		}
+	}
+
 	public abstract class SpatialAbstract : MonoBehaviour {
 		[SerializeField]
 		protected bool m_onlyVisibleGizmo;
-		protected int m_totalRendererCount;
+		[SerializeField]
+		private SpecialControlFlag m_control;
 
-		public abstract void CullVisible(Plane[] frustumPlanes);
+		public int RendererCount { get; private set; }
 
 		public DrawJobSchedule JobSchedule { get; private set; }
 
@@ -25,7 +72,11 @@ namespace Extend.SceneManagement.SpatialStructure {
 			JobSchedule.Dispose();
 		}
 
-		public virtual void Build(DrawJobSchedule jobSchedule) {
+		public abstract void CullVisible(CullMethodBase cullMethod);
+
+		public abstract void Build();
+
+		protected List<SpecialSceneElement> BuildCollect() {
 			JobSchedule.Prepare();
 			var meshRenderers = GetComponentsInChildren<MeshRenderer>();
 			foreach( var meshRenderer in meshRenderers ) {
@@ -34,9 +85,29 @@ namespace Extend.SceneManagement.SpatialStructure {
 				JobSchedule.ConvertRenderer(sharedMesh, meshRenderer);
 				meshRenderer.enabled = false;
 			}
-		}
 
-		public int RendererCount => m_totalRendererCount;
+			RendererCount = JobSchedule.Instances.Count;
+			List<SpecialSceneElement> sceneElements = new List<SpecialSceneElement>(256);
+			if( ( m_control & SpecialControlFlag.Light ) != 0 ) {
+				var lights = GetComponentsInChildren<Light>();
+				sceneElements.AddRange(from lightComponent in lights 
+					where lightComponent.type is not (LightType.Area or LightType.Directional) 
+					let bounds = new Bounds(lightComponent.transform.position, new Vector3(lightComponent.range, 0, lightComponent.range)) 
+					select new SpecialSceneElement(SpecialControlFlag.Light, bounds, lightComponent));
+			}
+
+			if( ( m_control & SpecialControlFlag.ParticleSystem ) != 0 ) {
+				var pss = GetComponentsInChildren<ParticleSystemRenderer>();
+				foreach( var ps in pss ) {
+					var extends = ps.bounds.extents;
+					extends.y = 0;
+					sceneElements.Add(new SpecialSceneElement(SpecialControlFlag.ParticleSystem,
+						new Bounds(ps.transform.position, extends), ps.GetComponent<ParticleSystem>()));
+				}
+			}
+
+			return sceneElements;
+		}
 
 		public static Bounds CalculationBounds(DrawInstance[] instances) {
 			var min = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
@@ -51,7 +122,7 @@ namespace Extend.SceneManagement.SpatialStructure {
 				if( min.y > boundsMin.y ) {
 					min.y = boundsMin.y;
 				}
-				
+
 				if( min.z > boundsMin.z ) {
 					min.z = boundsMin.z;
 				}

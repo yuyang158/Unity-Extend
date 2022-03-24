@@ -1,5 +1,6 @@
 ﻿using System;
 using Extend.Common;
+using Extend.EventAsset;
 using UnityEngine;
 using XLua;
 
@@ -7,13 +8,12 @@ namespace Extend.LuaUtil {
 	[RequireComponent(typeof(Animator)), LuaCallCSharp]
 	public class AnimatorParameterLuaCommunicator : MonoBehaviour {
 		public LuaTable ParameterSummary { get; private set; }
-		private Animator Animator { get; set; }
+		public Animator Animator { get; private set; }
 
 		private void Awake() {
 			Animator = GetComponent<Animator>();
 			var luaVM = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
 			ParameterSummary = luaVM.NewTable();
-
 			foreach( var parameter in Animator.parameters ) {
 				var context = luaVM.NewTable();
 				ParameterSummary.Set(parameter.name, context);
@@ -61,17 +61,31 @@ namespace Extend.LuaUtil {
 		public void SetFloat(int nameHash, float v) {
 			Animator.SetFloat(nameHash, v);
 		}
-		
+
 		public void SetInteger(int nameHash, int v) {
 			Animator.SetInteger(nameHash, v);
 		}
-		
+
 		public void SetBool(int nameHash, bool v) {
 			Animator.SetBool(nameHash, v);
 		}
 
 		public void SetTrigger(int nameHash) {
 			Animator.SetTrigger(nameHash);
+		}
+
+		public void ChangeAnimatorController(RuntimeAnimatorController controller) {
+			Animator.runtimeAnimatorController = controller;
+		}
+
+		public void ChangeClip(string clipName, AnimationClip clip) {
+			var controller = Animator.runtimeAnimatorController as AnimatorOverrideController;
+			controller[clipName] = clip;
+		}
+
+		public void OnEvent(EventInstance evt) {
+			var callback = ParameterSummary.Get<Action<LuaTable, object>>(evt.EventName);
+			callback?.Invoke(ParameterSummary, evt.Value);
 		}
 	}
 }

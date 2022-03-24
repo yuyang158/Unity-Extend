@@ -22,7 +22,7 @@ namespace Extend.SceneManagement.SpatialStructure.Quadtree {
 				SetInstances(instances);
 				return;
 			}
-			
+
 			var subBounds = GetSubBounds(m_bounds);
 			var biggerRenderers = new List<DrawInstance>(instances.Length);
 			var allRenderers = new List<DrawInstance>(instances);
@@ -36,7 +36,7 @@ namespace Extend.SceneManagement.SpatialStructure.Quadtree {
 						biggerRenderers.Add(renderer);
 						continue;
 					}
-					
+
 					if( renderer.Bounds.Intersects(subBound) ) {
 						allRenderers.RemoveSwapAt(j);
 						overlappedRenderers.Add(renderer);
@@ -49,12 +49,14 @@ namespace Extend.SceneManagement.SpatialStructure.Quadtree {
 				if( overlappedRenderers.Count > 0 ) {
 					m_children[i] = new QuadtreeNode(jobSchedule, overlappedRenderers.ToArray(), deep + 1);
 				}
+
 				overlappedRenderers.Clear();
 
 				if( allRenderers.Count == 0 ) {
 					break;
 				}
 			}
+
 			SetInstances(biggerRenderers.ToArray());
 		}
 
@@ -66,17 +68,17 @@ namespace Extend.SceneManagement.SpatialStructure.Quadtree {
 			var min = parent.min;
 			var max = new Vector3(parent.center.x, parent.max.y, parent.center.z);
 			bounds[0].SetMinMax(min, max);
-			
+
 			bounds[1] = new Bounds();
 			min = new Vector3(parent.min.x, parent.min.y, parent.center.z);
 			max = new Vector3(parent.center.x, parent.max.y, parent.max.z);
 			bounds[1].SetMinMax(min, max);
-			
+
 			bounds[2] = new Bounds();
 			min = new Vector3(parent.center.x, parent.min.y, parent.min.z);
 			max = new Vector3(parent.max.x, parent.max.y, parent.center.z);
 			bounds[2].SetMinMax(min, max);
-			
+
 			bounds[3] = new Bounds();
 			min = new Vector3(parent.center.x, parent.min.y, parent.center.z);
 			max = parent.max;

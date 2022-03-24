@@ -106,7 +106,7 @@ namespace Extend.LuaMVVM {
 				}
 			}
 			catch( Exception e ) {
-				Debug.LogError($"MVVM Set Property Error : {BindTarget}.{Path} = {val}");
+				Debug.LogError($"MVVM Set Property Error : {BindTarget}.{BindTargetProp} = {Path}:{val}");
 				Debug.LogError(e);
 			}
 		}
@@ -191,7 +191,7 @@ namespace Extend.LuaMVVM {
 						return;
 					}
 
-					bindingValue = dataContext.GetInPath<object>(Path);
+					bindingValue = Path == "self" ? dataContext : dataContext.GetInPath<object>(Path);
 				}
 			}
 			catch( Exception e ) {
@@ -226,7 +226,6 @@ namespace Extend.LuaMVVM {
 					}
 
 					SetPropertyValue(bindingValue);
-
 					break;
 				}
 				case BindMode.ONE_WAY_TO_SOURCE:

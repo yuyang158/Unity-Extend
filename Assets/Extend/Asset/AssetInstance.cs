@@ -1,37 +1,37 @@
 using Extend.Common;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
+using UnityEngine.SceneManagement;
 
 namespace Extend.Asset {
-	public class AssetInstance : AssetRefObject {
+	internal class AssetInstance : AssetRefObject {
 		public Object UnityObject { get; private set; }
-		private AssetBundleInstance RefAssetBundle { get; set; }
-		public string AssetPath { get; }
-
+		protected AsyncOperationHandle m_handle { get; }
 		public float CreateTime;
 
-		public AssetInstance(string assetPath) {
-			if( string.IsNullOrEmpty(assetPath) ) {
-				Debug.LogError("Asset path is empty");
-				return;
-			}
-			AssetPath = string.Intern(assetPath);
+		public AssetInstance(AsyncOperationHandle handle) {
+			m_handle = handle;
 			AssetService.Get().Container.Put(this);
+			m_debugNameCache = handle.DebugName;
+
+			if( m_handle.IsDone ) {
+				SetAsset(m_handle.Result as Object);
+			}
+			else {
+				m_handle.Completed += _ => {
+					SetAsset(m_handle.Result as Object);
+				};
+			}
+			Addressables.ResourceManager.Acquire(m_handle);
 		}
 
-		public virtual void SetAsset(Object unityObj, AssetBundleInstance refAssetBundle) {
+		protected virtual void SetAsset(Object unityObj) {
 			UnityObject = unityObj;
-			if( refAssetBundle != null ) {
-				RefAssetBundle = refAssetBundle;
-				RefAssetBundle.IncRef();
-			}
 			Status = UnityObject ? AssetStatus.DONE : AssetStatus.FAIL;
 			if( Status == AssetStatus.DONE ) {
 				StatService.Get().Increase(StatService.StatName.ASSET_COUNT, 1);
 				CreateTime = Time.realtimeSinceStartup;
-#if UNITY_DEBUG
-				var service = CSharpServiceManager.Get<AssetFullStatService>(CSharpServiceManager.ServiceType.ASSET_FULL_STAT);
-				service.OnAssetLoaded(this);
-#endif
 			}
 		}
 
@@ -42,15 +42,10 @@ namespace Extend.Asset {
 		public override void Destroy() {
 			if( Status == AssetStatus.DONE ) {
 				StatService.Get().Increase(StatService.StatName.ASSET_COUNT, -1);
-#if UNITY_DEBUG
-				var service = CSharpServiceManager.Get<AssetFullStatService>(CSharpServiceManager.ServiceType.ASSET_FULL_STAT);
-				service.OnAssetUnloaded(this);
-#endif
 			}
 			Status = AssetStatus.DESTROYED;
 			UnityObject = null;
-			RefAssetBundle?.Release();
-			RefAssetBundle = null;
+			Addressables.ResourceManager.Release(m_handle);
 		}
 		
 		public static int GenerateHash(string path) {
@@ -58,11 +53,7 @@ namespace Extend.Asset {
 		}
 
 		public override int GetHashCode() {
-			return GenerateHash(AssetPath);
-		}
-
-		public override string ToString() {
-			return AssetPath;
+			return m_handle.GetHashCode();
 		}
 	}
 }

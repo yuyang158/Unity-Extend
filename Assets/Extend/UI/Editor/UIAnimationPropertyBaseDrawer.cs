@@ -24,7 +24,7 @@ namespace Extend.UI.Editor {
 				height += 5 * UIEditorUtil.LINE_HEIGHT;
 			}
 			else {
-				height += UIEditorUtil.LINE_HEIGHT * 4 + ( SingleDoTweenHeight + EditorGUIUtility.standardVerticalSpacing ) 
+				height += UIEditorUtil.LINE_HEIGHT * 3 + ( SingleDoTweenHeight + EditorGUIUtility.standardVerticalSpacing ) 
 				          * animationModeActiveCount;
 			}
 			return height;
@@ -180,6 +180,7 @@ namespace Extend.UI.Editor {
 
 			DOTweenEditorPreview.Start();
 			previewGO = GameObject.Find("-[ DOTween Preview ► ]-");
+			if(!previewGO) return;
 			previewGO.hideFlags |= HideFlags.DontSave;
 		}
 

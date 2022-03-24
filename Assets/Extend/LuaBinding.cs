@@ -70,6 +70,10 @@ namespace Extend {
 			LuaInstance?.Dispose();
 			LuaInstance = null;
 
+			if( LuaData == null ) {
+				return;
+			}
+
 			foreach( var binding in LuaData ) {
 				binding.Destroy();
 			}
@@ -78,6 +82,11 @@ namespace Extend {
 		public void Bind(LuaTable instance) {
 			LuaInstance = instance;
 			LuaInstance.SetInPath("__CSBinding", this);
+
+			if( LuaData == null ) {
+				return;
+			}
+
 			foreach( var binding in LuaData ) {
 				binding.ApplyToLuaInstance(instance);
 			}

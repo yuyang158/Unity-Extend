@@ -139,7 +139,7 @@ namespace Extend.UI {
 					element.SetAttribute("CloseButtonPath", configuration.CloseButtonPath);
 					element.SetAttribute("FrameRate", configuration.FrameRate.ToString());
 
-					if( configuration.Relations != null && configuration.Relations.Length > 0 ) {
+					if( configuration.Relations is {Length: > 0} ) {
 						foreach( var relation in configuration.Relations ) {
 							var relationElement = document.CreateElement("Relation");
 							relationElement.SetAttribute("Guid", relation.RelationViewGuid.ToString());
@@ -153,6 +153,7 @@ namespace Extend.UI {
 
 				document.Save(writer);
 			}
+			Debug.Log($"{filepath} saved.");
 #endif
 		}
 

@@ -76,7 +76,7 @@ namespace Extend.LuaMVVM {
 							m_items.Add(go);
 						}
 
-						m_loadContexts.Remove(context);
+						m_loadContexts.RemoveSwap(context);
 					};
 					m_loadContexts.Add(context);
 				}

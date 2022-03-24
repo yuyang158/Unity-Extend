@@ -11,6 +11,9 @@ namespace Extend.Asset {
 			DESTROYED
 		}
 
+		protected string m_debugNameCache;
+		public string DebugNameCache => m_debugNameCache;
+
 		private AssetStatus m_status = AssetStatus.NONE;
 		public AssetStatus Status {
 			get => m_status;
@@ -20,7 +23,7 @@ namespace Extend.Asset {
 			}
 		}
 
-		public bool IsFinished => m_status == AssetStatus.DONE || m_status == AssetStatus.FAIL;
+		public bool IsFinished => m_status is AssetStatus.DONE or AssetStatus.FAIL;
 
 		public event Action<AssetRefObject> OnStatusChanged;
 

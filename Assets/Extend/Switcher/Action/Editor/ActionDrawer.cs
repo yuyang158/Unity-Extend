@@ -9,7 +9,7 @@ namespace Extend.Switcher.Action.Editor {
 		public abstract void OnEditorGUI(Rect rect, SerializedProperty property);
 		public abstract float GetEditorHeight(SerializedProperty property);
 
-		private static readonly Dictionary<Type, ActionDrawer> m_drawers = new Dictionary<Type, ActionDrawer>();
+		private static readonly Dictionary<Type, ActionDrawer> m_drawers = new();
 
 		static ActionDrawer() {
 			m_drawers.Add(typeof(AnimatorSwitcherAction), new AnimatorSwitcherActionDrawer());
@@ -40,7 +40,7 @@ namespace Extend.Switcher.Action.Editor {
 		private static readonly GUIContent m_gameObjectTitle = new GUIContent("Game Object Active");
 		public override void OnEditorGUI(Rect rect, SerializedProperty property) {
 			var goProp = property.FindPropertyRelative("m_go");
-			rect.xMax -= 20;
+			rect.xMax -= 25;
 			rect.height = EditorGUIUtility.singleLineHeight;
 			EditorGUI.PropertyField(rect, goProp, m_gameObjectTitle);
 
@@ -48,7 +48,7 @@ namespace Extend.Switcher.Action.Editor {
 			var toggleRect = rect;
 			toggleRect.xMin = rect.xMax;
 			toggleRect.xMax += 20;
-			activeProp.boolValue = EditorGUI.Toggle(toggleRect, activeProp.boolValue);
+			activeProp.boolValue = EditorGUI.ToggleLeft(toggleRect, GUIContent.none, activeProp.boolValue);
 		}
 
 		public override float GetEditorHeight(SerializedProperty property) {

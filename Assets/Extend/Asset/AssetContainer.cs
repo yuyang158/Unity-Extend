@@ -14,15 +14,13 @@ namespace Extend.Asset {
 	public class AssetContainer {
 		private readonly List<AssetRefObject> m_assets = new(1024);
 		private readonly Dictionary<int, AssetRefObject> m_hashAssetDic = new(1024);
-		private int m_tickIndex;
+		private int m_checkStartIndex;
 		private const float MAX_ASSET_ZERO_REF_DURATION = 10;
 		private const int SINGLE_FRAME_CHECK_COUNT = 1;
 		private readonly Dictionary<string, BundleUnloadStrategy> m_abStrategy = new();
 
 		public AssetContainer() {
-			Application.lowMemory += () => {
-				Collect(true);
-			};
+			Application.lowMemory += () => { Collect(true); };
 		}
 
 		public void Put(AssetRefObject asset) {
@@ -32,27 +30,8 @@ namespace Extend.Asset {
 				Debug.LogError("An asset with same hash code has already been add.");
 				return;
 			}
+
 			m_hashAssetDic.Add(asset.GetHashCode(), asset);
-		}
-
-		public void PutAB(AssetBundleInstance ab) {
-			if( m_abStrategy.TryGetValue(ab.ABPath, out var strategy) ) {
-				if( strategy == BundleUnloadStrategy.Normal ) {
-					m_assets.Add(ab);
-				}
-			}
-			else {
-				m_assets.Add(ab);
-			}
-
-			m_hashAssetDic.Add(ab.GetHashCode(), ab);
-		}
-
-		public void AddAssetBundleStrategy(string path, BundleUnloadStrategy strategy) {
-			if( m_abStrategy.ContainsKey(path) )
-				return;
-
-			m_abStrategy.Add(path, strategy);
 		}
 
 		public AssetRefObject TryGetAsset(int hash) {
@@ -68,39 +47,47 @@ namespace Extend.Asset {
 		}
 
 		public void Collect(bool ignoreTime = false) {
-			for( var i = m_tickIndex; i < m_tickIndex + SINGLE_FRAME_CHECK_COUNT; i++ ) {
+			for( var i = m_checkStartIndex; i < m_checkStartIndex + SINGLE_FRAME_CHECK_COUNT; ) {
 				if( i >= m_assets.Count ) {
-					m_tickIndex = 0;
+					m_checkStartIndex = 0;
 					return;
 				}
 
 				var asset = m_assets[i];
 				if( asset.Status == AssetRefObject.AssetStatus.DONE && asset.GetRefCount() <= 0 &&
 				    ( ignoreTime || Time.time - asset.ZeroRefTimeStart > MAX_ASSET_ZERO_REF_DURATION ) ) {
-					asset.Destroy();
+#if ASSET_LOG
+					Debug.LogWarning("Release : " + asset.DebugNameCache);
+#endif
+					try {
+						asset.Destroy();
+					}
+					catch( Exception e ) {
+						Debug.LogException(e);
+					}
+
 					m_assets.RemoveSwapAt(i);
 					m_hashAssetDic.Remove(asset.GetHashCode());
-					i--;
+				}
+				else {
+					i++;
 				}
 			}
 
-			m_tickIndex += SINGLE_FRAME_CHECK_COUNT;
+			m_checkStartIndex += SINGLE_FRAME_CHECK_COUNT;
 		}
 
 		public void FullCollect() {
-			m_tickIndex = 0;
+			m_checkStartIndex = 0;
 			do {
 				Collect(true);
-			} while( m_tickIndex != 0 );
+			} while( m_checkStartIndex != 0 );
 
 			Resources.UnloadUnusedAssets();
 			GC.Collect();
 		}
 
 		public void Clear() {
-			foreach( var asset in m_assets ) {
-				asset.Destroy();
-			}
 			m_assets.Clear();
 			m_hashAssetDic.Clear();
 		}

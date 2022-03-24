@@ -8,7 +8,9 @@
         "Unity.RenderPipelines.Universal.Runtime",
         "Extend.Render",
         "Extend.EventAsset",
-        "Demigiant.Modules"
+        "Demigiant.Modules",
+        "Unity.Addressables",
+        "Unity.ResourceManager"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

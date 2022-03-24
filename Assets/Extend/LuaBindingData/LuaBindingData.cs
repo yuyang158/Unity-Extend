@@ -1,8 +1,9 @@
 using System;
+using UnityEngine.Scripting;
 using XLua;
 
 namespace Extend.LuaBindingData {
-	[Serializable, UnityEngine.Scripting.Preserve]
+	[Serializable, Preserve]
 	public abstract class LuaBindingDataBase {
 		public string FieldName;
 		[NonSerialized]
@@ -15,10 +16,10 @@ namespace Extend.LuaBindingData {
 
 #if UNITY_EDITOR
 		protected UnityEngine.GUIContent editorContent;
-		public virtual void OnPropertyDrawer(UnityEditor.SerializedProperty prop) {
+		public virtual void OnPropertyDrawer(UnityEditor.SerializedProperty prop, string displayName) {
 			if( editorContent == null || string.IsNullOrEmpty(editorContent.text) ) {
 				var name = UnityEditor.ObjectNames.NicifyVariableName(FieldName);
-				editorContent = new UnityEngine.GUIContent(name);
+				editorContent = string.IsNullOrEmpty(displayName) ? new UnityEngine.GUIContent(name) : new UnityEngine.GUIContent(displayName);
 			}
 			
 			UnityEditor.EditorGUILayout.PropertyField(prop, editorContent);

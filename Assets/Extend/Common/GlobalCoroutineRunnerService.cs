@@ -25,6 +25,7 @@ namespace Extend.Common {
 		}
 
 		public void StopAllCoroutines() {
+			if(!m_service) return;
 			m_service.StopAllCoroutines();
 		}
 

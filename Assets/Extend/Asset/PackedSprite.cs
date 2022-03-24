@@ -126,7 +126,7 @@ namespace Extend.Asset {
 				m_inUsed[path] = element;
 			}
 			
-			FileLoader.LoadFileAsync(path + ".bytes", bytes => {
+			FileLoader.LoadFileAsync(path, bytes => {
 				if( bytes == null ) {
 					element.Trigger();
 					return;

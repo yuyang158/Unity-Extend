@@ -1,4 +1,10 @@
-﻿using System;
+﻿#if !UNITY_EDITOR
+#define LOAD_FROM_PACK
+using System.Collections.Generic;
+using ICSharpCode.SharpZipLib.Zip;
+#endif
+
+using System;
 using System.IO;
 using System.Text;
 using Extend.Asset;
@@ -17,8 +23,9 @@ namespace Extend {
 
 	public class LuaVM : IService, IServiceUpdate, IDisposable {
 		private LuaMemoryLeakChecker.Data leakData;
-#if !UNITY_EDITOR
+#if LOAD_FROM_PACK
 		private static readonly string LUA_DEBUG_DIRECTORY = Application.persistentDataPath + "/Lua/";
+		private static readonly Dictionary<string, byte[]> m_unzipLuaFiles = new(2048);
 #endif
 		private LuaFunction OnDestroy;
 		private LuaFunction OnInit;
@@ -68,7 +75,7 @@ namespace Extend {
 		private LuaTable m_bindingEnv;
 
 		private static byte[] LoadFile(ref string filename, string extension) {
-#if UNITY_EDITOR
+#if !LOAD_FROM_PACK
 			filename = filename.Replace('.', '/') + extension;
 			var path = $"{Application.dataPath}/../Lua/{filename}";
 			if( File.Exists(path) ) {
@@ -85,16 +92,45 @@ namespace Extend {
 				filename += extension;
 				return File.ReadAllBytes(hotfix);
 			}
-			
-			var service = CSharpServiceManager.Get<AssetService>(CSharpServiceManager.ServiceType.ASSET_SERVICE);
-			var assetRef = service.Load($"Lua/{filename}", typeof(TextAsset));
-			if( assetRef.AssetStatus != AssetRefObject.AssetStatus.DONE )
-				return null;
-			return assetRef.GetTextAsset().bytes;
+
+			var zipName = filename;
+			if( m_unzipLuaFiles.TryGetValue(zipName, out var code) ) {
+				m_unzipLuaFiles.Remove(zipName);
+				return code;
+			}
+
+			Debug.LogWarning($"{zipName} not found in packed lua.");
+			return null;
 #endif
 		}
 
 		public void Initialize() {
+#if LOAD_FROM_PACK
+			Debug.LogWarning("Load from packed lua.");
+			using( var stream = FileLoader.LoadFileSync("Lua.zip") )
+			using( var zipFile = new ZipFile(stream) ) {
+				zipFile.Password = Application.productName;
+				var buffer = new byte[1024];
+				foreach( ZipEntry zipEntry in zipFile ) {
+					if( !zipEntry.IsFile ) {
+						continue;
+					}
+
+					using( var zipStream = zipFile.GetInputStream(zipEntry) )
+					using( var outputStream = new MemoryStream() ) {
+						int count;
+						do {
+							count = zipStream.Read(buffer, 0, 1024);
+							if( count > 0 ) {
+								outputStream.Write(buffer, 0, count);
+							}
+						} while( count > 0 );
+						m_unzipLuaFiles.Add(zipEntry.Name, outputStream.ToArray());
+					}
+				}
+			}
+#endif
+
 			Default = new LuaEnv();
 
 			Default.AddBuildin("rapidjson", Lua.LoadRapidJson);
@@ -105,6 +141,8 @@ namespace Extend {
 			Default.AddBuildin("lpeg", Lua.LoadLpeg);
 			Default.AddBuildin("sproto.core", Lua.LoadSprotoCore);
 			Default.AddBuildin("luv", Lua.LoadLUV);
+			Default.AddBuildin("lsqlite", Lua.LoadLSqlite3);
+
 			Lua.OverrideLogFunction(Default.rawL);
 
 			LuaClassCache = new LuaClassCache();

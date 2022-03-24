@@ -12,12 +12,13 @@ using UnityEngine;
 using UnityEngine.Rendering;
 
 namespace Extend.Asset.Editor.Process {
+	// ReSharper disable once ClassNeverInstantiated.Global
 	public class ShaderVariantProcess : IBuildAssetProcess {
 		public Type ProcessType => typeof(AssetImporter);
 
 		private static readonly string[] SpecialShaders = {};
-		private readonly Dictionary<Shader, Tuple<string[], string[]>> m_shaderToGlobalKeywords = new Dictionary<Shader, Tuple<string[], string[]>>();
-		private readonly ShaderVariantCollection m_collection = new ShaderVariantCollection();
+		private readonly Dictionary<Shader, Tuple<string[], string[]>> m_shaderToGlobalKeywords = new();
+		private readonly ShaderVariantCollection m_collection = new();
 		private const string m_collectionPath = "Assets/Shaders/Special.shadervariants";
 
 		public ShaderVariantProcess() {
@@ -70,7 +71,6 @@ namespace Extend.Asset.Editor.Process {
 		public void PostProcess() {
 			AssetDatabase.CreateAsset(m_collection, m_collectionPath);
 			AssetDatabase.Refresh();
-			AssetNode.GetOrCreate(m_collectionPath, "assets/shaders");
 		}
 
 		public void Clear() {

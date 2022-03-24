@@ -30,6 +30,17 @@ namespace Extend.Editor {
 				modifiedModules.Clear();
 			}
 		}
+		
+		[MenuItem("XLua/Reload Config")]
+		private static void ReloadConfig() {
+			if( !Application.isPlaying )
+				return;
+
+			var luaVm = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
+			var serviceTable = luaVm.LoadFileAtPath("ConfigService")[0] as LuaTable;
+			var func = serviceTable.Get<Action>("Reload");
+			func.Invoke();
+		}
 
 		private static readonly List<string> modifiedModules = new();
 		private static bool m_playing;
@@ -46,6 +57,9 @@ namespace Extend.Editor {
 			};
 			Application.quitting += () => { modifiedModules.Clear(); };
 
+			if( Directory.Exists($"{Environment.CurrentDirectory}\\Lua") == false ) {
+				return;
+			}
 			var directories = Directory.GetDirectories($"{Environment.CurrentDirectory}\\Lua", "*", SearchOption.AllDirectories);
 			foreach( var directory in directories ) {
 				var watcher = new FileSystemWatcher(directory, "*.lua");

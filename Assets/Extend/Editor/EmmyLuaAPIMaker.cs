@@ -15,18 +15,16 @@ using XLua;
 
 public static class EmmyLuaAPIMaker {
 	#region member
-
 	private static readonly string m_apiDir = Application.dataPath + "/../UnityLuaAPI";
 	private static string m_argsText;
-
 	#endregion
-
 
 	[MenuItem("Tools/程序/EmmyLua/Generate All API")]
 	public static void GenAll() {
 		GenCSApi();
-		// GenConfigApi();
+		GenConfigApi();
 		// GenerateProtocolBufApi();
+		EditorUtility.ClearProgressBar();
 		Debug.Log("转换完成");
 	}
 
@@ -215,7 +213,9 @@ public static class EmmyLuaAPIMaker {
 			Directory.CreateDirectory(path);
 		}
 
-		foreach( var t in classList ) {
+		for( int i = 0; i < classList.Count; i++ ) {
+			var t = classList[i];
+			EditorUtility.DisplayProgressBar("CS Type", t.FullName, i / (float)classList.Count);
 			string name = TypeDecl(t);
 			GlobalAPI.AddType(name);
 			try {
@@ -236,7 +236,6 @@ public static class EmmyLuaAPIMaker {
 					if( IsObsolete(field) ) {
 						continue;
 					}
-
 					WriteField(sw, field.FieldType, field.Name);
 				}
 
@@ -245,7 +244,6 @@ public static class EmmyLuaAPIMaker {
 					if( IsObsolete(property) ) {
 						continue;
 					}
-
 					WriteField(sw, property.PropertyType, property.Name);
 				}
 
@@ -264,7 +262,7 @@ public static class EmmyLuaAPIMaker {
 				int delta;
 				if( constructors.Count > 0 ) {
 					WriteCtorComment(sw, constructors);
-					paramInfos = constructors[constructors.Count - 1].GetParameters();
+					paramInfos = constructors[^1].GetParameters();
 					delta = paramInfos.Length - constructors[0].GetParameters().Length;
 					WriteFun(sw, delta, paramInfos, t, "", name, true);
 					isDefineTable = true;
@@ -296,7 +294,6 @@ public static class EmmyLuaAPIMaker {
 						list = new List<MethodInfo>();
 						methodDict.Add(methodName, list);
 					}
-
 					list.Add(method);
 				}
 
@@ -315,33 +312,34 @@ public static class EmmyLuaAPIMaker {
 						if( right.IsDefined(typeof(ExtensionAttribute), false) ) {
 							rightLen--;
 						}
-
 						return leftLen - rightLen;
 					});
 					WriteFunComment(sw, list);
-					paramInfos = list[list.Count - 1].GetParameters();
+					paramInfos = list[^1].GetParameters();
 
-					if( list[list.Count - 1].IsDefined(typeof(ExtensionAttribute), false) ) {
+					if( list[^1].IsDefined(typeof(ExtensionAttribute), false) ) {
 						var newParamInfos = new List<ParameterInfo>(paramInfos);
 						newParamInfos.RemoveAt(0);
 						paramInfos = newParamInfos.ToArray();
 					}
 
-					delta = paramInfos.Length - list[0].GetParameters().Length;
-					WriteFun(sw, delta, paramInfos, list[0].ReturnType, list[0].Name, name, list[0].IsStatic);
+					var methodInfo = list[0];
+					delta = paramInfos.Length - methodInfo.GetParameters().Length;
+					var staticMethod = methodInfo.IsDefined(typeof(ExtensionAttribute), false) == false && methodInfo.IsStatic;
+					WriteFun(sw, delta, paramInfos, list[0].ReturnType, list[0].Name, name, staticMethod);
 				}
 
 				itr.Dispose();
-
-				if( methods.Count != 0 || isDefineTable ) {
-					sw.WriteLine("return " + name);
-				}
 
 				#endregion
 
 				var events = t.GetEvents();
 				foreach( var eventInfo in events ) {
 					WriteEvent(sw, eventInfo.AddMethod.GetParameters(), eventInfo.Name, name);
+				}
+
+				if( methods.Count != 0 || isDefineTable ) {
+					sw.WriteLine("return " + name);
 				}
 
 				//清空缓冲区
@@ -354,14 +352,6 @@ public static class EmmyLuaAPIMaker {
 				Debug.LogError(name + "\n" + e.Message);
 			}
 		}
-		/*string zipName = path + ".zip";
-		if (File.Exists(zipName))
-		{
-		    File.Delete(zipName);
-		}
-		GlobalAPI.WriteToFile();*/
-		//ZipTool.ZipDirectory(path, zipName, 7);
-		//Directory.Delete(path, true);
 	}
 
 	public class GlobalAPI {
@@ -393,7 +383,7 @@ public static class EmmyLuaAPIMaker {
 			self = "";
 			string[] nameList = fullName.Split(new char[] {'.'});
 			if( nameList.Length > 0 ) {
-				self = nameList[nameList.Length - 1];
+				self = nameList[^1];
 			}
 
 			if( nameList.Length > 1 ) {
@@ -569,13 +559,13 @@ public static class EmmyLuaAPIMaker {
 		Type t;
 		if( method is MethodInfo info ) {
 			t = info.ReturnType;
-			string tStr = typeof(void) == t ? "void" : ConvertToLuaType(t);
-			sw.WriteLine("---@overload fun({0}): {1}", argsStr, tStr);
+			string tStr = typeof(void) == t ? "" : ": " + ConvertToLuaType(t);
+			sw.WriteLine("---@overload fun({0}){1}", argsStr, tStr);
 		}
 		else if( method is ConstructorInfo ) {
 			t = method.ReflectedType;
-			string tStr = typeof(void) == t ? "void" : ConvertToLuaType(t);
-			sw.WriteLine("---@overload fun({0}): {1}", argsStr, tStr);
+			string tStr = typeof(void) == t ? "" : ": " + ConvertToLuaType(t);
+			sw.WriteLine("---@overload fun({0}){1}", argsStr, tStr);
 		}
 	}
 
@@ -605,12 +595,7 @@ public static class EmmyLuaAPIMaker {
 		}
 
 		for( int i = 0, imax = paramInfos.Length; i < imax; i++ ) {
-			if( imax - i <= delta ) {
-				sw.WriteLine($"---@param optional {ReplaceLuaKeyWord(paramInfos[i].Name)} {ConvertToLuaType(paramInfos[i].ParameterType)}");
-			}
-			else {
-				sw.WriteLine($"---@param {ReplaceLuaKeyWord(paramInfos[i].Name)} {ConvertToLuaType(paramInfos[i].ParameterType)}");
-			}
+			sw.WriteLine($"---@param {ReplaceLuaKeyWord(paramInfos[i].Name)} {ConvertToLuaType(paramInfos[i].ParameterType)}");
 		}
 
 		string argsStr = "";
@@ -666,10 +651,10 @@ public static class EmmyLuaAPIMaker {
 						}
 					}
 
-					result = $"(fun({parameterStr}):{returnStr})";
+					result = $"fun({parameterStr})" + (returnStr == "void" ? "" : $": {returnStr}");
 				}
 				else {
-					result = "(fun():void)";
+					result = "fun()";
 				}
 			}
 			else if( methodReturnType == typeof(Type) ) {
@@ -725,24 +710,29 @@ public static class EmmyLuaAPIMaker {
 	#endregion
 
 	private static void GenConfigApi() {
-		var xlsxDir = Application.dataPath + "/Resources/Xlsx";
+		var xlsxDir = Application.dataPath + "/Res/Xlsx";
 		var extendRelations = new Dictionary<string, string>();
-		var lines = File.ReadAllLines(xlsxDir + "/extendsInfo.tsv");
-		for( int i = 2; i < lines.Length; i++ ) {
-			var line = lines[i];
-			var segments = line.Split('\t');
-			var baseName = segments[1];
-			var extendTypeNames = segments[2].Split(',');
-			foreach( var typeName in extendTypeNames ) {
-				extendRelations.Add(typeName, baseName);
+		var extendConfigFile = xlsxDir + "/extendsInfo.tsv"; 
+		if( File.Exists(extendConfigFile) ) {
+			var lines = File.ReadAllLines(extendConfigFile);
+			for( int i = 2; i < lines.Length; i++ ) {
+				var line = lines[i];
+				var segments = line.Split('\t');
+				var baseName = segments[1];
+				var extendTypeNames = segments[2].Split(',');
+				foreach( var typeName in extendTypeNames ) {
+					extendRelations.Add(typeName, baseName);
+				}
 			}
 		}
 
 		var tsvFiles = Directory.GetFiles(xlsxDir, "*.tsv");
-		foreach( var tsvFile in tsvFiles ) {
+		for( int i = 0; i < tsvFiles.Length; i++ ) {
+			var tsvFile = tsvFiles[i];
 			if( tsvFile.Contains("_i18n") )
 				continue;
 
+			EditorUtility.DisplayProgressBar("Xlsx process", tsvFile, i / (float)tsvFiles.Length);
 			var className = Path.GetFileNameWithoutExtension(tsvFile);
 			if( className == "extendsInfo" )
 				continue;
@@ -760,10 +750,9 @@ public static class EmmyLuaAPIMaker {
 						writer.WriteLine($"---@class Config_{className}");
 					}
 
-					for( int i = 0; i < keys.Length; i++ ) {
-						var key = keys[i];
-						var type = types[i];
-
+					for( int j = 0; j < keys.Length; j++ ) {
+						var key = keys[j];
+						var type = types[j];
 						writer.WriteLine($"---@field public {key} {ConvertTsvType(type, key)}");
 					}
 				}
@@ -783,6 +772,7 @@ public static class EmmyLuaAPIMaker {
 			"translate" => "string",
 			"asset" => "CS.Extend.Asset.AssetReference",
 			"js" => "fun():number",
+			"color" => "CS.UnityEngine.Color",
 			_ => throw new Exception($"Unknown type : {tsvType} : {key}")
 		};
 	}

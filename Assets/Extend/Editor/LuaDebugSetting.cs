@@ -5,6 +5,7 @@ using Extend.LuaMVVM;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
+using UnityToolbarExtender;
 using XLua;
 
 namespace Extend.Editor {
@@ -54,6 +55,7 @@ namespace Extend.Editor {
 		}
 	}
 
+	[InitializeOnLoad]
 	internal static class LuaMVVMDebugSettingIMGUIRegister {
 		private static bool m_debuggerConnected;
 		private static LuaFunction m_debugFunc;
@@ -63,7 +65,7 @@ namespace Extend.Editor {
 		[InitializeOnEnterPlayMode]
 		private static void Setup() {
 			var settingObj = LuaDebugSetting.GetOrCreateSettings();
-			LuaMVVMBindingOption.DebugCheckCallback += go => {
+			LuaMVVMBindingOption.DebugCheckCallback = go => {
 				if( settingObj.MvvmBreakEnabled && m_debuggerConnected && m_mvvmWatchGOs.Contains(go) ) {
 					m_debugFunc.Call();
 				}
@@ -147,8 +149,24 @@ namespace Extend.Editor {
 			};
 		}
 
-		private static readonly GUIContent m_connectPortText = new GUIContent("Connect Port");
-		private static readonly GUIContent m_listenPortText = new GUIContent("Listen Port");
+		private static readonly GUIContent m_connectPortText = new("Connect Port");
+		private static readonly GUIContent m_listenPortText = new("Listen Port");
+
+		static LuaMVVMDebugSettingIMGUIRegister() {
+			ToolbarExtender.RightToolbarGUI.Add(OnToolbarGUI);
+		}
+
+		private static void OnToolbarGUI() {
+			EditorGUI.BeginChangeCheck();
+			var settings = LuaDebugSetting.GetSerializedSettings();
+			var debuggerConnectionModeProp = settings.FindProperty("m_debugMode");
+			EditorGUIUtility.labelWidth = 80;
+			EditorGUIUtility.fieldWidth = 120;
+			EditorGUILayout.PropertyField(debuggerConnectionModeProp);
+			if( EditorGUI.EndChangeCheck() ) {
+				settings.ApplyModifiedProperties();
+			}
+		}
 
 		[SettingsProvider]
 		public static SettingsProvider CreateLuaCheckSettingProvider() {
@@ -156,6 +174,7 @@ namespace Extend.Editor {
 				label = "Setup Lua Debug",
 				guiHandler = search => {
 					EditorGUI.indentLevel = 1;
+					EditorGUI.BeginChangeCheck();
 					var settings = LuaDebugSetting.GetSerializedSettings();
 					var debuggerConnectionModeProp = settings.FindProperty("m_debugMode");
 					EditorGUILayout.PropertyField(debuggerConnectionModeProp);
@@ -190,7 +209,9 @@ namespace Extend.Editor {
 						m_mvvmWatchGUI?.DoLayoutList();
 					}
 
-					settings.ApplyModifiedProperties();
+					if( EditorGUI.EndChangeCheck() ) {
+						settings.ApplyModifiedProperties();
+					}
 				}
 			};
 			return provider;

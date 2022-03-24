@@ -18,7 +18,9 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 using UnityEngine.UI;
+using UnityEngine.VFX;
 using XLua;
 
 //配置的详细介绍请看Doc下《XLua的配置.doc》
@@ -145,7 +147,13 @@ public static class XLuaGenConfig {
 		typeof(UnityEvent),
 		typeof(Button.ButtonClickedEvent),
 		typeof(IAstarAI),
-		typeof(AstarPath)
+		typeof(AstarPath),
+		typeof(Seeker),
+		typeof(Path),
+		typeof(CameraExtensions),
+		typeof(IMDrawAxis),
+		typeof(EventSystem),
+		typeof(PointerEventData)
 	};
 
 	[LuaCallCSharp]
@@ -169,7 +177,9 @@ public static class XLuaGenConfig {
 				typeof(Vector2),
 				typeof(Vector3),
 				typeof(Vector4),
-				typeof(Quaternion)
+				typeof(Color),
+				typeof(Quaternion),
+				typeof(TweenCallback)
 			};
 
 			unityTypes = unityTypes.Concat(basicMathValueType);
@@ -219,6 +229,7 @@ public static class XLuaGenConfig {
 					typeof(Action<float>),
 					typeof(Action<bool>),
 					typeof(WaitForSeconds),
+					typeof(VisualEffect),
 					typeof(System.Collections.IEnumerator)
 				});
 			return list;

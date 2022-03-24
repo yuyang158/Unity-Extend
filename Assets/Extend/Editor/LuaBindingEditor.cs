@@ -88,7 +88,7 @@ namespace Extend.Editor {
 					CheckBinding<LuaBindingUOArrayData>(field);
 				}
 				else if( field.FieldType.StartsWith("CS.") ) {
-					var typeName = field.FieldType.Substring(3);
+					var typeName = field.FieldType[3..];
 					var type = String2TypeCache.GetType(typeName);
 					if( type == null ) {
 						EditorGUILayout.HelpBox($"Can not find type : {typeName}", MessageType.Error);
@@ -97,7 +97,7 @@ namespace Extend.Editor {
 						if( field.FieldType == "CS.Extend.Asset.AssetReference" ) {
 							var match = CheckBinding<LuaBindingAssetReferenceData>(field);
 							if( !string.IsNullOrEmpty(field.Comment) && field.Comment.StartsWith("CS.") ) {
-								match.AssetType = String2TypeCache.GetType(field.Comment.Substring(3));
+								match.AssetType = String2TypeCache.GetType(field.Comment[3..]);
 							}
 						}
 						else {
@@ -133,7 +133,10 @@ namespace Extend.Editor {
 				var arrElem = binding.LuaData[i];
 				var elementProp = luaDataProp.GetArrayElementAtIndex(i);
 				var dataProp = elementProp.FindPropertyRelative("Data");
-				arrElem.OnPropertyDrawer(dataProp);
+				var fieldNameProp = elementProp.FindPropertyRelative("FieldName");
+				var fieldName = fieldNameProp.stringValue;
+				var field = descriptor.FindField(fieldName);
+				arrElem.OnPropertyDrawer(dataProp, field.Comment);
 			}
 
 			if( Application.isPlaying ) {

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using Extend.Common;
 using UnityEngine;
@@ -9,32 +8,31 @@ using UnityEngine.UI;
 namespace Extend.Asset {
 	public class SpriteAssetService : IService, IServiceUpdate {
 		public class SpriteLoadingHandle {
-			public static SpriteLoadingHandle Create(SpriteAssetAssignment assignment, AssetInstance asset, string path) {
-				return new SpriteLoadingHandle(asset, assignment, path);
+			public static SpriteLoadingHandle Create(SpriteAssetAssignment assignment, AssetAsyncLoadHandle loadHandle, string path) {
+				return new SpriteLoadingHandle(loadHandle, assignment, path);
 			}
 
 			private readonly string m_path;
-			private readonly AssetInstance m_asset;
+			private readonly AssetReference m_assetRef;
 			private readonly WeakReference<SpriteAssetAssignment> m_assignment;
 
-			private SpriteLoadingHandle(AssetInstance asset, SpriteAssetAssignment assignment, string path) {
-				m_asset = asset;
+			public AssetReference AssetReference => m_assetRef;
+
+			private SpriteLoadingHandle(AssetAsyncLoadHandle loadHandle, SpriteAssetAssignment assignment, string path) {
+				loadHandle.OnComplete += OnAssetStatusChanged;
 				m_path = path;
 				m_assignment = new WeakReference<SpriteAssetAssignment>(assignment);
-				m_asset.OnStatusChanged += OnAssetStatusChanged;
 			}
 
-			private void OnAssetStatusChanged(AssetRefObject _) {
-				if( m_asset.IsFinished ) {
-					m_asset.OnStatusChanged -= OnAssetStatusChanged;
+			private void OnAssetStatusChanged(AssetAsyncLoadHandle loadHandle) {
+				if( m_assetRef.IsFinished ) {
 					if( m_assignment.TryGetTarget(out var assignment) ) {
-						TryApplySprite(assignment, m_asset);
+						TryApplySprite(assignment, m_assetRef);
 					}
 				}
 			}
 
 			public void GiveUp() {
-				m_asset.OnStatusChanged -= OnAssetStatusChanged;
 			}
 
 			public override string ToString() {
@@ -42,33 +40,27 @@ namespace Extend.Asset {
 			}
 		}
 
-		public int ServiceType => (int)CSharpServiceManager.ServiceType.SPRITE_ASSET_SERVICE;
+		public int ServiceType => (int) CSharpServiceManager.ServiceType.SPRITE_ASSET_SERVICE;
 
 		public static SpriteAssetService Get() {
 			return CSharpServiceManager.Get<SpriteAssetService>(CSharpServiceManager.ServiceType.SPRITE_ASSET_SERVICE);
 		}
 
-		private readonly Dictionary<string, AssetInstance> m_sprites = new Dictionary<string, AssetInstance>();
-		private readonly Dictionary<int, PackedSprite> m_packedSprites = new Dictionary<int, PackedSprite>();
-
+		private readonly Dictionary<string, AssetReference> m_sprites = new();
+		private readonly Dictionary<int, PackedSprite> m_packedSprites = new();
 
 		private Sprite m_loadingSprite;
 		private Material m_rotationMat;
 
 		public PackedSprite.SpriteElement RequestIcon(string path) {
-			var directoryName = Path.GetDirectoryName(path);
-			string folderName;
-			if( Application.platform is RuntimePlatform.WindowsEditor or RuntimePlatform.WindowsPlayer ) {
-				folderName = directoryName.Substring(directoryName.LastIndexOf('\\') + 1);
-			}
-			else {
-				folderName = directoryName.Substring(directoryName.LastIndexOf('/') + 1);
-			}
+			path = path.Replace('\\', '/');
+			string folderName = path[..path.IndexOf('/')];
 
 			if( !int.TryParse(folderName, out var size) ) {
 				Debug.LogError($"int parse error : {folderName}");
 				return null;
 			}
+			path = "UI/Icon/" + path;
 
 #if UNITY_EDITOR
 			if( !m_packedSprites.ContainsKey(size) ) {
@@ -83,34 +75,29 @@ namespace Extend.Asset {
 
 		public SpriteLoadingHandle RequestSprite(SpriteAssetAssignment assignment, string path, bool sync = false) {
 			SpriteLoadingHandle ret = null;
-			if( m_sprites.TryGetValue(path, out var spriteAsset) ) {
-				if( spriteAsset.Status == AssetRefObject.AssetStatus.DESTROYED ) {
-					m_sprites.Remove(path);
+			if( m_sprites.TryGetValue(path, out var assetRef) ) {
+				if( assetRef.IsFinished ) {
+					TryApplySprite(assignment, assetRef);
 				}
 				else {
-					if( spriteAsset.IsFinished ) {
-						TryApplySprite(assignment, spriteAsset);
-					}
-					else {
-						ret = SpriteLoadingHandle.Create(assignment, spriteAsset, path);
-					}
-
-					return ret;
+					var loadHandle = assetRef.LoadAsync<Sprite>();
+					ret = SpriteLoadingHandle.Create(assignment, loadHandle, path);
 				}
+
+				return ret;
 			}
 
 			if( sync ) {
-				var reference = AssetService.Get().Load(path, typeof(Sprite));
-				spriteAsset = reference.Asset;
-				TryApplySprite(assignment, spriteAsset);
+				assetRef = AssetService.Get().Load<Sprite>(path);
+				TryApplySprite(assignment, assetRef);
 			}
 			else {
-				var loadHandle = AssetService.Get().LoadAsync(path, typeof(Sprite));
-				spriteAsset = loadHandle.Asset;
-				ret = SpriteLoadingHandle.Create(assignment, spriteAsset, path);
+				var loadHandle = AssetService.Get().LoadAsync<Sprite>(path);
+				ret = SpriteLoadingHandle.Create(assignment, loadHandle, path);
+				assetRef = loadHandle.Result;
 			}
 
-			m_sprites.Add(path, spriteAsset);
+			m_sprites.Add(path, assetRef);
 			return ret;
 		}
 
@@ -120,27 +107,26 @@ namespace Extend.Asset {
 				return;
 			}
 
-			spriteAsset.Release();
+			spriteAsset.Dispose();
 		}
 
-		private static void TryApplySprite(SpriteAssetAssignment assignment, AssetInstance spriteAsset) {
-			if( spriteAsset.Status == AssetRefObject.AssetStatus.DONE ) {
-				spriteAsset.IncRef();
-				assignment.Apply(spriteAsset.UnityObject as Sprite);
+		private static void TryApplySprite(SpriteAssetAssignment assignment, AssetReference assetRef) {
+			if( assetRef.IsFinished ) {
+				assignment.Apply(assetRef.GetSprite());
 			}
 		}
+
+		private AssetReference m_iconLoadingRef;
+		private AssetReference m_rotateMatRef;
 
 		public void Initialize() {
-			m_packedSprites.Add(124, new PackedSprite(124));
-			m_packedSprites.Add(252, new PackedSprite(252, false, 2048));
+			m_packedSprites.Add(128, new PackedSprite(128, false, 2048));
 
-			using( var assetReference = AssetService.Get().Load("UI/Common/IconLoading", typeof(Sprite)) ) {
-				m_loadingSprite = assetReference.GetSprite();
-			}
+			m_iconLoadingRef = AssetService.Get().Load<Sprite>("UI/Common/IconLoading.png");
+			m_loadingSprite = m_iconLoadingRef.GetSprite();
 
-			using( var assetReference = AssetService.Get().Load("UI/Common/UIRotate", typeof(Material)) ) {
-				m_rotationMat = assetReference.GetMaterial();
-			}
+			m_rotateMatRef = AssetService.Get().Load<Material>("UI/Common/UIRotate.mat");
+			m_rotationMat = m_rotateMatRef.GetMaterial();
 		}
 
 		public void ApplyLoadingFx(Image img) {
@@ -154,8 +140,8 @@ namespace Extend.Asset {
 		}
 
 		public void Destroy() {
-			foreach( var spriteInstance in m_sprites.Values ) {
-				spriteInstance.Destroy();
+			foreach( var assetReference in m_sprites.Values ) {
+				assetReference.Dispose();
 			}
 
 			m_sprites.Clear();
@@ -165,6 +151,8 @@ namespace Extend.Asset {
 			}
 
 			m_packedSprites.Clear();
+			m_iconLoadingRef.Dispose();
+			m_rotateMatRef.Dispose();
 		}
 
 		public void Update() {

@@ -1,80 +1,81 @@
 using System;
 using UnityEngine;
-using UnityEngine.Assertions;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 using XLua;
-using Debug = UnityEngine.Debug;
 using Object = UnityEngine.Object;
+using AddressableReference = UnityEngine.AddressableAssets.AssetReference;
 
 namespace Extend.Asset {
 	[CSharpCallLua]
 	public delegate void OnInstantiateComplete(GameObject go);
 
 	[Serializable, LuaCallCSharp]
-	public class AssetReference : IDisposable, ICloneable {
+	public class AssetReference : IDisposable {
 		[SerializeField, HideInInspector]
-		private string m_assetGUID;
+		private AddressableReference m_assetRef;
 
-#if UNITY_EDITOR
-		[BlackList]
-		public string AssetGUID => m_assetGUID;
-#endif
-		public AssetRefObject.AssetStatus AssetStatus => Asset?.Status ?? AssetRefObject.AssetStatus.NONE;
-		public bool IsFinished => Asset?.IsFinished ?? false;
 		private AssetInstance m_asset;
 
-		public AssetInstance Asset {
+		internal AssetInstance Asset {
 			get => m_asset;
 			private set {
-				if( m_asset == value )
-					return;
-
 				m_asset?.Release();
 				m_asset = value;
 				m_asset?.IncRef();
 			}
 		}
 
+		public bool IsFinished => Asset is {IsFinished: true};
+		public string AssetGUID => m_assetRef.AssetGUID;
+
 		public AssetReference() {
-			m_asset = null;
 		}
 
-		public AssetReference(AssetInstance instance) {
-			Asset = instance;
+		public AssetReference(string guid) {
+			m_assetRef = new AddressableReference(guid);
 		}
 
-		public AssetReference(string assetGUID) {
-			m_assetGUID = assetGUID;
-#if UNITY_EDITOR
-			var path = UnityEditor.AssetDatabase.GUIDToAssetPath(assetGUID);
-			if( string.IsNullOrEmpty(path) ) {
-				Debug.LogError($"GUID is not valid {assetGUID}");
-			}
-#endif
+		public AssetReference(AsyncOperationHandle handle) {
+			Asset = AssetService.Get().Container.TryGetAsset(handle.GetHashCode()) as AssetInstance;
+			Asset ??= handle.Result is GameObject ? new PrefabAssetInstance(handle) : new AssetInstance(handle);
+			Addressables.ResourceManager.Release(handle);
 		}
 
 		public bool GUIDValid {
 			get {
 #if UNITY_EDITOR
-				return !string.IsNullOrEmpty(UnityEditor.AssetDatabase.GUIDToAssetPath(m_assetGUID));
+				var path = UnityEditor.AssetDatabase.GUIDToAssetPath(m_assetRef.AssetGUID);
+				return !string.IsNullOrEmpty(path);
 #else
-				return !string.IsNullOrEmpty(m_assetGUID);
+				return m_assetRef.IsValid();
 #endif
 			}
 		}
 
 		[BlackList]
 		private T GetAsset<T>() where T : Object {
-			Asset ??= AssetService.Get().LoadAssetWithGUID<T>(m_assetGUID);
-
-			if( Asset.Status != AssetRefObject.AssetStatus.DONE ) {
-				Debug.LogError($"Load failed : {Asset.AssetPath}   {Asset.Status}");
+			if( Asset != null ) {
+				return Asset.UnityObject as T;
 			}
+
+			if( !m_assetRef.IsDone ) {
+				var handle = m_assetRef.LoadAssetAsync<T>();
+				handle.WaitForCompletion();
+			}
+
+			Asset = AssetService.Get().Container.TryGetAsset(m_assetRef.OperationHandle.GetHashCode()) as AssetInstance;
+			Asset ??= typeof(T) == typeof(GameObject) ? new PrefabAssetInstance(m_assetRef.OperationHandle) : new AssetInstance(m_assetRef.OperationHandle);
 
 			return Asset.UnityObject as T;
 		}
 
 		public Object GetObject() {
 			return GetAsset<Object>();
+		}
+
+		public Shader GetShader() {
+			return GetAsset<Shader>();
 		}
 
 		public Sprite GetSprite() {
@@ -117,29 +118,30 @@ namespace Extend.Asset {
 			return GetAsset<T>();
 		}
 
-		public AssetAsyncLoadHandle LoadAsync(Type typ) {
-			var handle = AssetService.Get().LoadAsyncWithGUID(m_assetGUID, typ);
-			Assert.IsNotNull(handle.Asset);
-			Asset = handle.Asset;
-			return handle;
-		}
-
-		public AssetAsyncLoadHandle LoadAsyncWithPath(string path, Type typ) {
-			var handle = AssetService.Get().LoadAsync(path, typ);
-			Assert.IsNotNull(handle.Asset);
-			Asset = handle.Asset;
-			return handle;
-		}
-
-		public GameObject Instantiate(Transform parent = null, bool stayWorldPosition = false) {
-			Asset ??= AssetService.Get().LoadAssetWithGUID<GameObject>(m_assetGUID);
-
-			if( Asset is not PrefabAssetInstance prefabAsset ) {
-				Debug.LogError($"{Asset.AssetPath} is not a prefab!");
+		[BlackList]
+		public AssetAsyncLoadHandle LoadAsync<T>() where T : Object {
+			if( IsFinished ) {
 				return null;
 			}
 
-			return prefabAsset.Instantiate(parent, stayWorldPosition);
+			var handle = Addressables.LoadAssetAsync<T>(m_assetRef);
+			var loadHandle = new AssetAsyncLoadHandle(AssetService.Get().Container, handle);
+			loadHandle.OnComplete += _ => {
+				Asset = loadHandle.Asset;
+				Addressables.Release(handle);
+#if ASSET_LOG
+				Debug.LogWarning($"Load reference asset callback : {Asset.UnityObject}");
+#endif
+			};
+#if ASSET_LOG
+			Debug.LogWarning($"Async reference load asset : {m_assetRef.OperationHandle.DebugName}");
+#endif
+			return loadHandle;
+		}
+
+		public GameObject Instantiate(Transform parent = null, bool stayWorldPosition = false) {
+			GetGameObject();
+			return Asset is not PrefabAssetInstance prefabAsset ? null : prefabAsset.Instantiate(parent, stayWorldPosition);
 		}
 
 		public GameObject Instantiate(Vector3 position) {
@@ -147,10 +149,8 @@ namespace Extend.Asset {
 		}
 
 		public GameObject Instantiate(Vector3 position, Quaternion rotation, Transform parent = null) {
-			Asset ??= AssetService.Get().LoadAssetWithGUID<GameObject>(m_assetGUID);
-
+			GetGameObject();
 			if( Asset is not PrefabAssetInstance prefabAsset ) {
-				Debug.LogError($"{Asset.AssetPath} is not a prefab!");
 				return null;
 			}
 
@@ -166,12 +166,7 @@ namespace Extend.Asset {
 				set {
 					m_ref = value;
 					if( !GetAssetReady() ) {
-						if( m_ctorType == 3 ) {
-							m_ref.LoadAsyncWithPath(m_path, typeof(GameObject));
-						}
-						else {
-							m_ref.LoadAsync(typeof(GameObject));
-						}
+						m_ref.LoadAsync<GameObject>();
 					}
 				}
 				get => m_ref;
@@ -186,7 +181,6 @@ namespace Extend.Asset {
 			private readonly Quaternion m_rotation;
 
 			private readonly int m_ctorType;
-			private readonly string m_path;
 
 			public InstantiateAsyncContext(AssetReference reference, Transform parent, bool stayWorldPosition) {
 				m_ctorType = 1;
@@ -205,28 +199,27 @@ namespace Extend.Asset {
 				AssetService.Get().AddDeferInstantiateContext(this);
 			}
 
-			public InstantiateAsyncContext(AssetReference reference, string path) {
-				m_ctorType = 3;
-				m_path = path;
-				Ref = reference;
-				AssetService.Get().AddDeferInstantiateContext(this);
-			}
-
 			public bool GetAssetReady() {
-				return Ref.Asset is {IsFinished: true};
+				return Ref.IsFinished;
 			}
 
 			public void Instantiate() {
 				if( Cancel )
 					return;
 				if( Ref.Asset is not PrefabAssetInstance prefabAsset ) {
-					Debug.LogError($"{Ref.Asset.AssetPath} is not a prefab!");
 					return;
 				}
 
-				var go = m_ctorType == 1 ? prefabAsset.Instantiate(m_parent, m_stayWorldPosition) : 
-					prefabAsset.Instantiate(m_position, m_rotation, m_parent);
+				if( !Ref.IsFinished ) {
+					return;
+				}
+
+				var go = m_ctorType == 1 ? prefabAsset.Instantiate(m_parent, m_stayWorldPosition) : prefabAsset.Instantiate(m_position, m_rotation, m_parent);
 				Callback?.Invoke(go);
+			}
+
+			public override string ToString() {
+				return $"Context : {Ref.Asset}";
 			}
 		}
 
@@ -242,13 +235,8 @@ namespace Extend.Asset {
 			return new InstantiateAsyncContext(this, position, rotation, parent);
 		}
 
-		public InstantiateAsyncContext InstantiateAsyncWithPath(string path) {
-			return new InstantiateAsyncContext(this, path);
-		}
-
 		public void InitPool(string name, int prefer, int max) {
 			if( Asset is not PrefabAssetInstance prefabAsset ) {
-				Debug.LogError($"{Asset.AssetPath} is not a prefab!");
 				return;
 			}
 
@@ -260,22 +248,21 @@ namespace Extend.Asset {
 		}
 
 		public override int GetHashCode() {
-			return m_assetGUID.GetHashCode();
+			return m_assetRef.GetHashCode();
 		}
 
 		public override bool Equals(object obj) {
-			var other = (AssetReference)obj;
-			return other != null && other.m_assetGUID == m_assetGUID;
-		}
-
-		public object Clone() {
-			return new AssetReference(Asset) {
-				m_assetGUID = m_assetGUID
-			};
+			var other = (AssetReference) obj;
+			return other != null && other.m_assetRef == m_assetRef;
 		}
 
 		public void Dispose() {
 			Asset = null;
+			if( m_assetRef == null || !m_assetRef.IsValid() )
+				return;
+
+			m_assetRef.ReleaseAsset();
+			m_assetRef = null;
 		}
 	}
 }

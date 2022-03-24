@@ -8,7 +8,7 @@ using UnityEngine.UI;
 using XLua;
 
 namespace Extend.LuaMVVM {
-	[RequireComponent(typeof(ScrollRect))]
+	[RequireComponent(typeof(ScrollRect)), LuaCallCSharp]
 	public class LuaMVVMSystemScroll : LuaBindingEventBase, IMVVMAssetReference, ILuaMVVM {
 		[ReorderList, LabelText("On Scroll End ()"), SerializeField]
 		private List<BindingEvent> m_onScrollEndEvent;
@@ -41,6 +41,9 @@ namespace Extend.LuaMVVM {
 		}
 
 		private void OnDestroy() {
+			if( !CSharpServiceManager.Initialized ) {
+				return;
+			}
 			m_component.OnDestroy();
 			Cell.Dispose();
 		}

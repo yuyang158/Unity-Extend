@@ -20,10 +20,10 @@ namespace Extend.LuaBindingData {
 
 #if UNITY_EDITOR
 		private UnityEditorInternal.ReorderableList reList;
-		public override void OnPropertyDrawer(UnityEditor.SerializedProperty prop) {
+		public override void OnPropertyDrawer(UnityEditor.SerializedProperty prop, string displayName) {
 			if( editorContent == null || string.IsNullOrEmpty(editorContent.text) ) {
 				var name = UnityEditor.ObjectNames.NicifyVariableName(FieldName);
-				editorContent = new UnityEngine.GUIContent(name);
+				editorContent = string.IsNullOrEmpty(displayName) ? new UnityEngine.GUIContent(name) : new UnityEngine.GUIContent(displayName);
 			}
 
 			if( reList == null ) {

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Extend.Common;
+using Extend.SceneManagement.Culling;
 using Extend.SceneManagement.Modifier;
 using Extend.SceneManagement.SpatialStructure;
 using UnityEngine;
@@ -7,22 +8,26 @@ using UnityEngine.Profiling;
 using XLua;
 
 namespace Extend.SceneManagement {
-	[LuaCallCSharp]
+	[LuaCallCSharp, DisallowMultipleComponent]
 	public class SceneArrangement : MonoBehaviour {
 		[SerializeField]
 		private SpatialAbstract m_spatial;
-
-		public SpatialAbstract Spatial => m_spatial;
-
+		[SerializeField]
+		private CullMethodBase m_cullMethod;
 		[SerializeField, Range(0, 4)]
 		private float m_updateTriggerThreshold = 0.25f;
+		[SerializeField]
+		private bool m_forceNoDraw;
 
-		private Vector3 m_cameraRecordPosition = Vector3.negativeInfinity;
+		public SpatialAbstract Spatial => m_spatial;
+		public CullMethodBase CullMode => m_cullMethod;
+
+		private Vector3 m_recordPosition = Vector3.negativeInfinity;
 		private readonly Plane[] m_frustumPlanes = new Plane[6];
 		private readonly List<ISceneModifier> m_modifiers = new();
 
 		private void Start() {
-			m_spatial.Build(m_spatial.JobSchedule);
+			m_spatial.Build();
 			for( int i = 0; i < 6; i++ ) {
 				m_frustumPlanes[i] = new Plane();
 			}
@@ -37,12 +42,10 @@ namespace Extend.SceneManagement {
 			StatService.Get().Set(StatService.StatName.TOTAL_RENDERERS_TO_CULL, m_spatial.RendererCount);
 
 			Profiler.BeginSample("Scene Culling");
-			var main = Camera.main;
 
-			if( Vector3.SqrMagnitude(main.transform.position - m_cameraRecordPosition) > m_updateTriggerThreshold ) {
-				GeometryUtility.CalculateFrustumPlanes(main, m_frustumPlanes);
-				m_cameraRecordPosition = main.transform.position;
-				m_spatial.CullVisible(m_frustumPlanes);
+			if( Vector3.SqrMagnitude(m_cullMethod.BoundsCenter - m_recordPosition) > m_updateTriggerThreshold ) {
+				m_recordPosition = m_cullMethod.BoundsCenter;
+				m_spatial.CullVisible(m_cullMethod);
 			}
 			m_spatial.JobSchedule.Schedule();
 			Profiler.EndSample();
@@ -54,6 +57,9 @@ namespace Extend.SceneManagement {
 				modifier.Update(this);
 			}
 
+			if( m_forceNoDraw ) {
+				return;
+			}
 			m_spatial.JobSchedule.Draw();
 		}
 	}

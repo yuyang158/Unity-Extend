@@ -11,22 +11,22 @@ namespace Extend.LuaBindingData {
 
 		public override void ApplyToLuaInstance(LuaTable instance) {
 			if( !Data ) {
-				Debug.LogWarning($"Field {FieldName} value is null!");
+				Debug.LogError($"Field {FieldName} value is null!");
 				return;
 			}
 			instance.Set(FieldName, Data);
 		}
 
 #if UNITY_EDITOR
-		public override void OnPropertyDrawer(UnityEditor.SerializedProperty prop) {
+		public override void OnPropertyDrawer(UnityEditor.SerializedProperty prop, string displayName) {
 			if( editorContent == null || string.IsNullOrEmpty(editorContent.text) ) {
 				var name = UnityEditor.ObjectNames.NicifyVariableName(FieldName);
-				editorContent = new GUIContent(name);
+				editorContent = string.IsNullOrEmpty(displayName) ? new GUIContent(name) : new GUIContent(displayName);
 			}
 
 			Type type;
 			if( FieldType.StartsWith("CS.") ) {
-				var typeName = FieldType.Substring(3);
+				var typeName = FieldType[3..];
 				type = String2TypeCache.GetType(typeName);
 			}
 			else {

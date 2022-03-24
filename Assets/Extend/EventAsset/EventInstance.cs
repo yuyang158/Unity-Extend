@@ -20,7 +20,7 @@ namespace Extend.EventAsset {
 					case EventParam.ParamType.String:
 						return Param.Str;
 					case EventParam.ParamType.AssetRef:
-						return Param.AssetRef.Clone();
+						return Param.AssetRef;
 					default:
 						throw new ArgumentOutOfRangeException();
 				}

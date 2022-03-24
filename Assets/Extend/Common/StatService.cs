@@ -100,7 +100,7 @@ namespace Extend.Common {
 #if UNITY_DEBUG
 		public void Update() {
 			var mvvmValueChangeCount = Get(StatName.MVVM_DISPATCH);
-			if( mvvmValueChangeCount > 100 ) {
+			if( mvvmValueChangeCount > 200 ) {
 				Debug.LogWarning($"Current frame : {Time.frameCount} trigger mvvm value change : {mvvmValueChangeCount}");
 			}
 

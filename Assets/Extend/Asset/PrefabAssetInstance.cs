@@ -1,17 +1,19 @@
 ﻿using System;
 using Extend.Common;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 using Object = UnityEngine.Object;
 
 namespace Extend.Asset {
-	public class PrefabAssetInstance : AssetInstance {
+	internal class PrefabAssetInstance : AssetInstance {
 		private AssetPool m_pool;
 		private bool m_autoRecyclePrefab;
 #if UNITY_EDITOR
 		private int m_transformCount;
 #endif
 
-		public PrefabAssetInstance(string assetPath) : base(assetPath) {
+		public PrefabAssetInstance(AsyncOperationHandle handle) : base(handle) {
 		}
 
 #if UNITY_EDITOR
@@ -23,7 +25,7 @@ namespace Extend.Asset {
 		}
 #endif
 
-		public override void SetAsset(Object unityObj, AssetBundleInstance refAssetBundle) {
+		protected override void SetAsset(Object unityObj) {
 			if( unityObj ) {
 				var prefab = unityObj as GameObject;
 				var cacheConfig = prefab.GetComponent<PoolCacheGO>();
@@ -43,7 +45,7 @@ namespace Extend.Asset {
 #endif
 			}
 
-			base.SetAsset(unityObj, refAssetBundle);
+			base.SetAsset(unityObj);
 		}
 
 		public void InitPool(string name, int prefer, int max) {
@@ -78,17 +80,16 @@ namespace Extend.Asset {
 				autoRecycle.ResetAll();
 			}
 
+#if ASSET_LOG
+			Debug.LogWarning($"Instantiate {UnityObject} parent : {parent}");
+#endif
 			StatService.Get().Increase(StatService.StatName.IN_USE_GO, 1);
 #if UNITY_EDITOR
 			StatService.Get().LogStat("Instantiate", UnityObject.name, m_transformCount);
 #endif
-
-#if UNITY_DEBUG
-			var service = CSharpServiceManager.Get<AssetFullStatService>(CSharpServiceManager.ServiceType.ASSET_FULL_STAT);
-			service.OnInstantiateGameObject(go);
-#endif
 			return go;
 		}
+
 		public GameObject Instantiate(Vector3 position, Quaternion rotation, Transform parent) {
 			GameObject go;
 			if( m_pool == null ) {
@@ -108,13 +109,12 @@ namespace Extend.Asset {
 				autoRecycle.ResetAll();
 			}
 
+#if ASSET_LOG
+			Debug.LogWarning($"Instantiate {UnityObject} parent : {parent}");
+#endif
 			StatService.Get().Increase(StatService.StatName.IN_USE_GO, 1);
 #if UNITY_EDITOR
 			StatService.Get().LogStat("Instantiate", UnityObject.name, m_transformCount);
-#endif
-#if UNITY_DEBUG
-			var service = CSharpServiceManager.Get<AssetFullStatService>(CSharpServiceManager.ServiceType.ASSET_FULL_STAT);
-			service.OnInstantiateGameObject(go);
 #endif
 			return go;
 		}

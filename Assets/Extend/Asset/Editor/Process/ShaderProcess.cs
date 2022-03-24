@@ -11,35 +11,43 @@ namespace Extend.Asset.Editor.Process {
 		public int callbackOrder => 0;
 
 		public static readonly ShaderKeyword[] STRIP_BUILD_IN_KEYWORDS = {
-			new("FOG_EXP"),
-			new("FOG_EXP2"),
-			new("POINT_COOKIE"),
-			new("DIRECTIONAL_COOKIE"),
-			new("VERTEXLIGHT_ON"),
-			new("DYNAMICLIGHTMAP_ON"),
-			new("LOD_FADE_CROSSFADE")
+			new("_ADDITIONAL_LIGHTS_VERTEX")
 		};
 
 		private static readonly string[] URP_SKIP_KEYWORDS = {
+			"INSTANCING_ON",
 			"_MAIN_LIGHT_SHADOWS",
 			"_MAIN_LIGHT_SHADOWS_CASCADE",
+			"_MAIN_LIGHT_SHADOWS_SCREEN",
 			"_ADDITIONAL_LIGHTS",
-			"_ADDITIONAL_LIGHTS_VERTEX",
+			// "_ADDITIONAL_LIGHTS_VERTEX",
 			"_SCREEN_SPACE_OCCLUSION",
 			"_ADDITIONAL_LIGHT_SHADOWS",
+			"_REFLECTION_PROBE_BLENDING",
+			"_REFLECTION_PROBE_BOX_PROJECTION",
 			"_SHADOWS_SOFT",
 			"_EMISSION",
-			"_MIXED_LIGHTING_SUBTRACTIVE"
+			"_MIXED_LIGHTING_SUBTRACTIVE",
+			"_LIGHT_LAYERS",
+			"_LIGHT_COOKIES",
+			"_DBUFFER_MRT1",
+			"_DBUFFER_MRT2",
+			"_DBUFFER_MRT3",
+
+			//GBUFFER
+			"_GBUFFER_NORMALS_OCT",
+			"_RENDER_PASS_ENABLED",
+			"_CASTING_PUNCTUAL_LIGHT_SHADOW",
+			"PROCEDURAL_INSTANCING_ON",
+
+			// FOG
+			"FOG_EXP2"
 		};
 
 		private static readonly Dictionary<Shader, List<string[]>> m_shaderKeywordCollector = new();
-		private static readonly List<string> m_filteredBuildInKeywords = new();
 
 		public static void Clear() {
 			m_shaderKeywordCollector.Clear();
-
-			Debug.LogWarning("Builtin keywords : " + string.Join(";", m_filteredBuildInKeywords));
-			m_filteredBuildInKeywords.Clear();
 		}
 
 		public static bool AddInUsedShaderKeywords(Shader shader, string[] keywords) {
@@ -63,8 +71,17 @@ namespace Extend.Asset.Editor.Process {
 			return newKeyword;
 		}
 
+		private static readonly string[] m_ignoreShaderNames = {"VolumetricFog", "Hidden"};
 		public void OnProcessShader(Shader shader, ShaderSnippetData snippet, IList<ShaderCompilerData> data) {
 			Debug.Log($"Before Shader {shader.name} --> {data.Count}");
+			if( data.Count == 1 ) {
+				return;
+			}
+
+			if( m_ignoreShaderNames.Any(shaderName => shader.name.IndexOf(shaderName, StringComparison.Ordinal) != -1) ) {
+				return;
+			}
+			
 			if( !m_shaderKeywordCollector.TryGetValue(shader, out var collectKeywords) ) {
 				if( m_shaderKeywordCollector.Count == 0 ) {
 					return;
@@ -85,12 +102,6 @@ namespace Extend.Asset.Editor.Process {
 					}
 
 					var keywordName = shaderKeyword.name;
-					if( !keywordName.StartsWith("_") ) {
-						if( !m_filteredBuildInKeywords.Contains(keywordName) )
-							m_filteredBuildInKeywords.Add(keywordName);
-						continue;
-					}
-					
 					if(URP_SKIP_KEYWORDS.Contains(keywordName))
 						continue;
 

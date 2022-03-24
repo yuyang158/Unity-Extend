@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Extend.Asset;
+using Extend.Common;
 using TMPro;
 using UnityEngine;
 using XLua;
@@ -20,6 +21,7 @@ namespace Extend.LuaMVVM {
 					SpriteElement.OnSpriteLoaded -= OnSpriteLoaded;
 					SpriteElement.Release();
 				}
+
 				m_spriteElement = value;
 				if( m_spriteElement != null ) {
 					m_spriteElement.OnSpriteLoaded += OnSpriteLoaded;
@@ -53,7 +55,7 @@ namespace Extend.LuaMVVM {
 						option.SpriteElement = null;
 					}
 				}
-				
+
 				m_arrayData?.Dispose();
 				m_arrayData = value;
 
@@ -69,6 +71,7 @@ namespace Extend.LuaMVVM {
 					if( !string.IsNullOrEmpty(iconPath) ) {
 						option.SpriteElement = SpriteAssetService.Get().RequestIcon(iconPath);
 					}
+
 					data.Dispose();
 					optionsData.Add(option);
 				}
@@ -90,6 +93,10 @@ namespace Extend.LuaMVVM {
 		}
 
 		private void OnDestroy() {
+			if( !CSharpServiceManager.Initialized ) {
+				return;
+			}
+
 			Detach();
 		}
 	}

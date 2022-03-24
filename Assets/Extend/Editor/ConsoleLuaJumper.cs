@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Extend.Editor {
 	public static class ConsoleLuaJumper {
-		[OnOpenAssetAttribute(0, OnOpenAssetAttributeMode.Execute)]
+		[OnOpenAssetAttribute(0)]
 		private static bool OnOpenAsset(int instanceID, int line) {
 			var stackTrace = GetStackTrace();
 			if( !string.IsNullOrEmpty(stackTrace) ) {
@@ -42,7 +42,7 @@ namespace Extend.Editor {
 			var consoleWindowInstance = fieldInfo.GetValue(null);
 
 			if( null != consoleWindowInstance ) {
-				if( (object) EditorWindow.focusedWindow == consoleWindowInstance ) {
+				if( EditorWindow.focusedWindow.Equals(consoleWindowInstance) ) {
 					fieldInfo = consoleWindowType.GetField("m_ActiveText", BindingFlags.Instance | BindingFlags.NonPublic);
 					string activeText = fieldInfo.GetValue(consoleWindowInstance).ToString();
 					return activeText;

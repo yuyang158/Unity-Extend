@@ -1,5 +1,5 @@
 ﻿using Extend.Common;
-using Extend.SceneManagement.Jobs;
+using Extend.SceneManagement.Culling;
 using UnityEngine;
 
 namespace Extend.SceneManagement.SpatialStructure.BSP {
@@ -9,16 +9,16 @@ namespace Extend.SceneManagement.SpatialStructure.BSP {
 		[SerializeField]
 		private DrawGizmoMode m_gizmoMode = DrawGizmoMode.Leaf;
 
-		public override void CullVisible(Plane[] frustumPlanes) {
-			m_root?.Cull(frustumPlanes);
+		public override void CullVisible(CullMethodBase cullMethod) {
+			m_root?.Cull(cullMethod);
 		}
 
 		[Button(ButtonSize.Medium)]
-		public override void Build(DrawJobSchedule jobSchedule) {
-			base.Build(jobSchedule);
-			m_totalRendererCount = JobSchedule.Instances.Count;
-			m_root = new BSPTreeNode(jobSchedule, JobSchedule.Instances.ToArray(), 0);
+		public override void Build() {
+			var specialSceneElements = BuildCollect();
+			m_root = new BSPTreeNode(JobSchedule, JobSchedule.Instances.ToArray(), 0);
 			JobSchedule.AfterBuild();
+			m_root.ProcessSpecialSceneElement(specialSceneElements);
 		}
 		
 		private void OnDrawGizmosSelected() {

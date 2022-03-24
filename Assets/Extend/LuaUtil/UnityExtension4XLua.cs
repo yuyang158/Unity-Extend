@@ -88,6 +88,20 @@ namespace Extend.LuaUtil {
 			controller[clipName] = clip;
 		}
 
+		public static int GetRendererMaterialCount(this Renderer renderer) {
+			return renderer.sharedMaterials.Length;
+		}
+
+		public static Material GetRendererMaterial(this Renderer renderer, int index) {
+			return renderer.sharedMaterials[index];
+		}
+		
+		public static void SetRendererMaterial(this Renderer renderer, int index, Material material) {
+			var materials = renderer.sharedMaterials;
+			materials[index] = material;
+			renderer.sharedMaterials = materials;
+		}
+
 		private static LuaTable FindInComponents(LuaTable classMeta, LuaBinding[] bindings) {
 			var luaVm = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
 			var t = luaVm.NewTable();

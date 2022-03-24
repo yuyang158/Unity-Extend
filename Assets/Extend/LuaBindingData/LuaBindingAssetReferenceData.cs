@@ -18,10 +18,10 @@ namespace Extend.LuaBindingData {
 		}
 
 #if UNITY_EDITOR
-		public override void OnPropertyDrawer(UnityEditor.SerializedProperty prop) {
+		public override void OnPropertyDrawer(UnityEditor.SerializedProperty prop, string displayName) {
 			if( editorContent == null || string.IsNullOrEmpty(editorContent.text) ) {
 				var name = UnityEditor.ObjectNames.NicifyVariableName(FieldName);
-				editorContent = new UnityEngine.GUIContent(name);
+				editorContent = string.IsNullOrEmpty(displayName) ? new UnityEngine.GUIContent(name) : new UnityEngine.GUIContent(displayName);
 			}
 
 			editorContent.tooltip = AssetType == null ? string.Empty : AssetType.FullName;

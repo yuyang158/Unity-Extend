@@ -3,13 +3,17 @@ using System.Collections;
 using System.IO;
 using System.Linq;
 using CSObjectWrapEditor;
-using Extend.Asset.Editor;
 using Extend.Common.Editor;
 using Unity.EditorCoroutines.Editor;
+using Unity.SharpZipLib.Utils;
 using UnityEditor;
+using UnityEditor.AddressableAssets;
+using UnityEditor.AddressableAssets.Build;
+using UnityEditor.AddressableAssets.Settings;
+using UnityEditor.Build.Reporting;
 using UnityEditor.Callbacks;
-using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.SceneManagement;
 
 namespace Extend.Editor {
@@ -63,73 +67,12 @@ namespace Extend.Editor {
 			}
 		}
 
-		private static void RebuildAllABForPlatform(BuildTarget target) {
-			Debug.LogWarning($"Rebuild all ab for platform {target}");
-
-			int[] specify = null;
-			foreach( var arg in Environment.GetCommandLineArgs() ) {
-				if( arg.StartsWith("specify") ) {
-					var parts = arg.Split('=');
-					if( parts.Length == 1 )
-						break;
-					if( string.IsNullOrEmpty(parts[1]) )
-						break;
-
-					var ids = parts[1].Split(';');
-					specify = new int[ids.Length];
-					for( int i = 0; i < ids.Length; i++ ) {
-						specify[i] = int.Parse(ids[i]);
-					}
-
-					break;
-				}
-			}
-
-			try {
-				bool success = specify != null && specify.Length > 0
-					? StaticAssetBundleWindow.RebuildSelectedAssetBundles(target, true, specify)
-					: StaticAssetBundleWindow.RebuildAllAssetBundles(target, true);
-				if( success ) {
-					Debug.LogWarning($"Rebuild all ab for platform {target} success");
-					if( Application.isBatchMode ) {
-						EditorApplication.Exit(0);
-					}
-				}
-				else {
-					if( Application.isBatchMode )
-						EditorApplication.Exit(1);
-				}
-			}
-			catch( Exception e ) {
-				Debug.LogException(e);
-				EditorUtility.ClearProgressBar();
-				if( Application.isBatchMode ) {
-					EditorApplication.Exit(1);
-				}
-			}
-		}
-		
-		[MenuItem("Tools/CI/Rebuild Android Asset Bundle")]
-		private static void RebuildAllABAndroid() {
-			RebuildAllABForPlatform(BuildTarget.Android);
-		}
-
-		[MenuItem("Tools/CI/Rebuild iOS Asset Bundle")]
-		private static void RebuildAllABiOS() {
-			RebuildAllABForPlatform(BuildTarget.iOS);
-		}
-
-		[MenuItem("Tools/CI/Rebuild Windows Asset Bundle")]
-		private static void RebuildAllABWindows() {
-			RebuildAllABForPlatform(BuildTarget.StandaloneWindows64);
-		}
-
 		private static void GenerateXLua() {
 			Generator.ClearAll();
 			Generator.GenAll();
 		}
 
-		private static void CheckMatchParam(ref BuildOptions options, string argToMatch, BuildOptions enumValue) {
+		private static void CheckEnvParamMatch(ref BuildOptions options, string argToMatch, BuildOptions enumValue) {
 			if( Array.IndexOf(Environment.GetCommandLineArgs(), argToMatch) != -1 ) {
 				options |= enumValue;
 				Debug.Log($"Add Build Option {enumValue}");
@@ -138,12 +81,12 @@ namespace Extend.Editor {
 
 		private static BuildOptions AnalyseCommandLineArgs() {
 			var options = BuildOptions.None;
-			CheckMatchParam(ref options, "dev", BuildOptions.Development);
-			CheckMatchParam(ref options, "debug", BuildOptions.AllowDebugging);
-			CheckMatchParam(ref options, "scriptOnly", BuildOptions.BuildScriptsOnly);
-			CheckMatchParam(ref options, "compress", BuildOptions.CompressWithLz4);
-			CheckMatchParam(ref options, "deep", BuildOptions.EnableDeepProfilingSupport);
-			CheckMatchParam(ref options, "strict", BuildOptions.StrictMode);
+			CheckEnvParamMatch(ref options, "dev", BuildOptions.Development);
+			CheckEnvParamMatch(ref options, "debug", BuildOptions.AllowDebugging);
+			CheckEnvParamMatch(ref options, "scriptOnly", BuildOptions.BuildScriptsOnly);
+			CheckEnvParamMatch(ref options, "compress", BuildOptions.CompressWithLz4);
+			CheckEnvParamMatch(ref options, "deep", BuildOptions.EnableDeepProfilingSupport);
+			CheckEnvParamMatch(ref options, "strict", BuildOptions.StrictMode);
 			return options;
 		}
 
@@ -151,6 +94,41 @@ namespace Extend.Editor {
 			Debug.LogWarning($"Command Line : {Environment.CommandLine}");
 			Debug.LogWarning($"Current Platform : {EditorUserBuildSettings.activeBuildTarget}");
 		}
+		
+		private static string buildScript 
+			= "Assets/AddressableAssetsData/DataBuilders/BuildScriptPackedMode.asset";
+		private static string profileName = "DBLikeProfile";
+		public static void ChangeSettings() {
+			string defines = "";
+			string[] args = Environment.GetCommandLineArgs();
+
+			foreach (var arg in args)
+				if (arg.StartsWith("-defines=", StringComparison.CurrentCulture))
+					defines = arg.Substring(("-defines=".Length));
+
+			var buildSettings = EditorUserBuildSettings.selectedBuildTargetGroup;
+			PlayerSettings.SetScriptingDefineSymbolsForGroup(buildSettings, defines);
+		}
+		
+		private static void BuildContentAndPlayer(string playerOutputPath) {
+			var settings = AddressableAssetSettingsDefaultObject.Settings;
+			settings.activeProfileId = settings.profileSettings.GetProfileId(profileName);
+
+			var builder = AssetDatabase.LoadAssetAtPath<ScriptableObject>(buildScript) as IDataBuilder;
+			settings.ActivePlayerDataBuilderIndex = settings.DataBuilders.IndexOf((ScriptableObject)builder);
+
+			/*AddressableAssetSettings.BuildPlayerContent(out var result);
+
+			if (!string.IsNullOrEmpty(result.Error))
+				throw new Exception(result.Error);*/
+
+			var buildReport = BuildPipeline.BuildPlayer(EditorBuildSettings.scenes,
+					playerOutputPath, EditorUserBuildSettings.activeBuildTarget, BuildOptions.None);
+
+			if (buildReport.summary.result != BuildResult.Succeeded)
+				throw new Exception(buildReport.summary.ToString());
+		}
+
 
 		[MenuItem("Tools/CI/Build Android Player")]
 		private static void ExportAndroid() {
@@ -167,17 +145,10 @@ namespace Extend.Editor {
 				Directory.CreateDirectory(buildPath);
 			}
 
-			var buildOptions = new BuildPlayerOptions {
-				options = AnalyseCommandLineArgs(),
-				target = BuildTarget.Android,
-				locationPathName = buildPath,
-				// scenes = CollectScenesPath()
-				scenes = new string[0]
-			};
 			Debug.Log("Gen XLUA Wrap");
 			GenerateXLua();
 			Debug.Log($"Start Build Player To : {buildPath}");
-			BuildPipeline.BuildPlayer(buildOptions);
+			BuildContentAndPlayer(buildPath);
 			Debug.Log("Build Player Finished");
 
 			if( Application.isBatchMode ) {
@@ -185,9 +156,25 @@ namespace Extend.Editor {
 			}
 		}
 
-		[PostProcessBuild(1)]
-		private static void PostProcessIOSProject(BuildTarget target, string path) {
+		[MenuItem("Tools/CI/Build Win Player")]
+		private static void ExportWin() {
+			Debug.Log("Start Export Win Project");
+			ExportPlayerPrepare();
+			if( EditorUserBuildSettings.activeBuildTarget != BuildTarget.StandaloneWindows64 ) {
+				EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Standalone, BuildTarget.StandaloneWindows64);
+			}
+			var buildPath = Application.dataPath + "/../WinPlayer";
+			Debug.Log("Gen XLUA Wrap");
+			GenerateXLua();
+			Debug.Log($"Start Build Player To : {buildPath}");
+			BuildContentAndPlayer(buildPath);
+			Debug.Log("Build Player Finished");
+
+			if( Application.isBatchMode ) {
+				EditorCoroutineUtility.StartCoroutineOwnerless(DelayExit());
+			}
 		}
+
 
 		[MenuItem("Tools/CI/Build iOS Player")]
 		private static void ExportIOS() {
@@ -207,7 +194,7 @@ namespace Extend.Editor {
 				target = BuildTarget.iOS,
 				locationPathName = buildPath,
 				// scenes = CollectScenesPath()
-				scenes = new string[0]
+				scenes = Array.Empty<string>()
 			};
 			Debug.Log("Gen XLUA Wrap");
 			GenerateXLua();
@@ -251,6 +238,17 @@ namespace Extend.Editor {
 				return;
 
 			Debug.Log(string.Join(";", mat.shaderKeywords));
+		}
+
+		[MenuItem("Tools/Asset/Lua Pack Zip")]
+		private static void PackLuaZip() {
+			ZipUtility.CompressFolderToZip("./Lua.zip", Application.productName, $"{Application.dataPath}/../Lua");
+			File.Copy("./Lua.zip", Application.streamingAssetsPath + "/Lua.zip", true);
+		}
+
+		[MenuItem("Tools/Addressable/Clear Output Directory")]
+		private static void ClearOutputDirectory() {
+			
 		}
 	}
 }

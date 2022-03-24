@@ -26,6 +26,7 @@ namespace Extend.UI.Editor {
 		private readonly UIViewConfiguration configurationContext;
 		private readonly SerializedObject serializedObject;
 		private int selectedIndex = -1;
+		private const string m_closeButtonName = "ButtonClosePanel";
 
 		public UIViewDelegate(UIViewConfiguration context) {
 			configurationContext = context;
@@ -104,8 +105,11 @@ namespace Extend.UI.Editor {
 			}
 
 			var configurations = serializedObject.FindProperty("m_configurations");
-			var element = configurations.GetArrayElementAtIndex(index);
+			if( configurations == null ) {
+				return;
+			}
 
+			var element = configurations.GetArrayElementAtIndex(index);
 			if( columnIndex == 0 ) {
 				var error = string.Empty;
 				do {
@@ -115,13 +119,13 @@ namespace Extend.UI.Editor {
 						break;
 					}
 
-					if( !data.Configuration.FullScreen ) {
+					/*if( !data.Configuration.FullScreen ) {
 						var bg = data.Configuration.BackgroundFx;
 						if( bg is {GUIDValid: false} ) {
 							error = "Background is required for a non-full screen view";
 							break;
 						}
-					}
+					}*/
 
 					if( data.Configuration.UIView is {GUIDValid: false} ) {
 						error = "UI View can not be empty";
@@ -132,9 +136,9 @@ namespace Extend.UI.Editor {
 						var path = AssetDatabase.GUIDToAssetPath(data.Configuration.UIView.AssetGUID);
 						var go = AssetDatabase.LoadAssetAtPath<GameObject>(path);
 						if( string.IsNullOrEmpty(data.Configuration.CloseButtonPath) || !go.transform.Find(data.Configuration.CloseButtonPath) ) {
-							data.Configuration.CloseButtonPath = FindNodeWithName(go.transform, "ebtn_close");
+							data.Configuration.CloseButtonPath = FindNodeWithName(go.transform, m_closeButtonName);
 							if( string.IsNullOrEmpty(data.Configuration.CloseButtonPath) ) {
-								error = "Can`t find node with name ebtn_close";
+								error = $"Can`t find node with name {m_closeButtonName}";
 								break;
 							}
 

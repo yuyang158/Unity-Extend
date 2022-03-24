@@ -47,7 +47,10 @@ namespace Extend.Common.Editor.InspectorGUI {
 					},
 					elementHeightCallback = index => {
 						var element = property.GetArrayElementAtIndex(index);
-						if( element.propertyType == SerializedPropertyType.Generic ) {
+						if( element == null ) {
+							return UIEditorUtil.LINE_HEIGHT;
+						}
+						if( element is {propertyType: SerializedPropertyType.Generic} ) {
 							var depth = element.depth;
 							var count = 0;
 							foreach( SerializedProperty child in element ) {

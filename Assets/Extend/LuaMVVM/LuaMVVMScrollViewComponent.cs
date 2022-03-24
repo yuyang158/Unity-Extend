@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Extend.Asset;
+using Extend.Common;
 using UnityEngine;
 using UnityEngine.UI;
 using XLua;
@@ -15,8 +16,8 @@ namespace Extend.LuaMVVM {
 		}
 		
 		private LuaTable m_arrayData;
-		private readonly List<ILuaMVVM> m_items = new List<ILuaMVVM>(16);
-		private readonly List<AssetReference.InstantiateAsyncContext> m_loadContexts = new List<AssetReference.InstantiateAsyncContext>(16);
+		private readonly List<ILuaMVVM> m_items = new(16);
+		private readonly List<AssetReference.InstantiateAsyncContext> m_loadContexts = new(16);
 
 		public LuaTable LuaArrayData {
 			get => m_arrayData;
@@ -26,18 +27,27 @@ namespace Extend.LuaMVVM {
 				for( int i = 0; i < length; i++ ) {
 					var index = i;
 					if( i >= m_items.Count + m_loadContexts.Count ) {
-						var context = m_cell.InstantiateAsync(m_scroll.content);
+						AssetReference.InstantiateAsyncContext context;
+						if( m_cell is not {GUIDValid: true} ) {
+							var luaBindValue = m_arrayData.Get<int, LuaTable>(i + 1);
+							var assetRef = luaBindValue.GetInPath<AssetReference>("assetRef");
+							context = assetRef.InstantiateAsync(m_scroll.content);
+						}
+						else {
+							context = m_cell.InstantiateAsync(m_scroll.content);
+						}
 						context.Callback += go => {
 							var luaData = LuaArrayData.Get<int, LuaTable>(index + 1);
 							if( luaData == null ) {
 								AssetService.Recycle(go);
 							}
 							else {
+								go.name = index.ToString();
 								var mvvm = go.GetComponent<ILuaMVVM>();
 								mvvm.SetDataContext(luaData);
 								m_items.Add(mvvm);
 							}
-							m_loadContexts.Remove(context);
+							m_loadContexts.RemoveSwap(context);
 						};
 						m_loadContexts.Add(context);
 					}
@@ -56,7 +66,7 @@ namespace Extend.LuaMVVM {
 			}
 		}
 
-		private static void Recycle(ILuaMVVM mvvm) {
+		private static void Recycle(IMVVMDetach mvvm) {
 			mvvm.Detach();
 			AssetService.Recycle(mvvm as Component);
 		}

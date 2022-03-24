@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Extend.LuaUtil;
 using Unity.Jobs;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -174,7 +173,7 @@ namespace Extend.SceneManagement.Jobs {
 				return;
 			}
 
-			var batchMeshMaterialMap = renderer.AddComponent<BatchMeshMaterialMap>();
+			var batchMeshMaterialMap = renderer.gameObject.AddComponent<BatchMeshMaterialMap>();
 			batchMeshMaterialMap.CombinedIDs = new int[mesh.subMeshCount];
 			for( int subMeshIndex = 0; subMeshIndex < mesh.subMeshCount; subMeshIndex++ ) {
 				var material = renderer.sharedMaterials[subMeshIndex];

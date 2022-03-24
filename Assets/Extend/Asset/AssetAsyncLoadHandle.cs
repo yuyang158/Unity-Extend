@@ -1,89 +1,55 @@
 using System;
 using System.Collections;
-using Extend.Asset.AssetProvider;
 using Extend.Common;
 using UnityEngine;
+using UnityEngine.ResourceManagement.AsyncOperations;
 using XLua;
 
 namespace Extend.Asset {
 	[LuaCallCSharp, CSharpCallLua]
 	public class AssetAsyncLoadHandle : IEnumerator {
-		public AssetAsyncLoadHandle(AssetContainer container, AssetLoadProvider provider, string path) {
+		private AsyncOperationHandle m_handle;
+		public AssetAsyncLoadHandle(AssetContainer container, AsyncOperationHandle handle) {
 			Container = container;
-			Provider = provider;
-			Location = string.Intern(Provider.FormatAssetPath(path));
+			m_handle = handle;
+			m_handle.Completed += Complete;
 		}
 
-		public AssetReference Result => new AssetReference(Asset);
+		public AssetReference Result => new(m_handle);
 
-		public float Progress { get; private set; }
+		public float Progress => m_handle.PercentComplete;
 		
 		public bool Cancel { get; set; }
-		
-		public string Location { get; set; }
 
 		[BlackList]
 		public AssetContainer Container { get; }
 
 		[BlackList]
-		public AssetLoadProvider Provider { get; }
-
-		[BlackList]
-		public int AssetHashCode => AssetInstance.GenerateHash(Location);
+		public int AssetHashCode => m_handle.GetHashCode();
 
 		public delegate void OnAssetLoadComplete(AssetAsyncLoadHandle handle);
-
 		public event OnAssetLoadComplete OnComplete;
-		[BlackList]
-		public AssetInstance Asset { get; private set; }
 
 		[BlackList]
-		public void Complete() {
-			Progress = 1;
+		internal AssetInstance Asset { get; private set; }
+
+		[BlackList]
+		private void Complete(AsyncOperationHandle handle) {
+#if ASSET_LOG
+			Debug.LogWarning($"Asset {handle.DebugName} load complete : {handle.Status}");
+#endif
+			Asset = Container.TryGetAsset(handle.GetHashCode()) as AssetInstance ?? 
+			        (handle.Result is GameObject ? new PrefabAssetInstance(handle) : new AssetInstance(handle));
 			if( Cancel ) {
-				Result.Dispose();
+				Asset.Release();
 				return;
 			}
 			OnComplete?.Invoke(this);
 		}
 
-		private static readonly WaitForEndOfFrame frameEnd = new();
-
-		private IEnumerator AsyncLoadedAssetCallback() {
-			yield return frameEnd;
-			Complete();
-		}
-
-		[BlackList]
-		public void Execute(Type typ) {
-			var hashCode = AssetInstance.GenerateHash(Location);
-			Asset = Container.TryGetAsset(hashCode) as AssetInstance;
-			if( Asset == null ) {
-				Asset = typ == typeof(GameObject) ? new PrefabAssetInstance(Location) : new AssetInstance(Location);
-			}
-			else if( Asset.IsFinished ) {
-				var service = CSharpServiceManager.Get<GlobalCoroutineRunnerService>(CSharpServiceManager.ServiceType.COROUTINE_SERVICE);
-				service.StartCoroutine(AsyncLoadedAssetCallback());
-				return;
-			}
-
-			Asset.OnStatusChanged += OnAssetReady;
-			if( Asset.Status == AssetRefObject.AssetStatus.ASYNC_LOADING )
-				return;
-			Asset.Status = AssetRefObject.AssetStatus.ASYNC_LOADING;
-			Provider.ProvideAsync(this, typ);
-		}
-
-		private void OnAssetReady(AssetRefObject asset) {
-			if( asset.IsFinished ) {
-				asset.OnStatusChanged -= OnAssetReady;
-				Complete();
-			}
-		}
-
 		[BlackList]
 		public override string ToString() {
-			return $"Load {Location}";
+			return $"Load {m_handle.DebugName}";
 		}
 
 		[BlackList]

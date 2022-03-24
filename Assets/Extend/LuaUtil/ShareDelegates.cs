@@ -2,6 +2,7 @@
 using Extend.EventAsset;
 using Extend.Network.SocketClient;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using XLua;
 
 namespace Extend.LuaUtil {
@@ -13,6 +14,9 @@ namespace Extend.LuaUtil {
 
 	[CSharpCallLua]
 	public delegate void LuaUnityEventFunction(LuaTable self);
+
+	[CSharpCallLua]
+	public delegate void LuaUnityDragEventFunction(LuaTable self, PointerEventData eventData);
 
 	[CSharpCallLua]
 	public delegate LuaTable LuaUnityReturnTableFunc(LuaTable self);

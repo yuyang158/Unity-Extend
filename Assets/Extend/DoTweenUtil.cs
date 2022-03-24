@@ -30,7 +30,7 @@ namespace Extend {
 			return t.DOFade(end, duration).SetAutoKill(autoKill).SetDelay(delay);
 		}
 
-		public static void KillTween(Tween t) {
+		public static void KillTween(DG.Tweening.Tween t) {
 			t.Kill();
 		}
 

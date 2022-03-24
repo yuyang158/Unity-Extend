@@ -22,10 +22,10 @@ namespace Extend.LuaUtil {
 
 		public static LuaTable LoadConfigFile(string filename) {
 			var service = CSharpServiceManager.Get<AssetService>(CSharpServiceManager.ServiceType.ASSET_SERVICE);
-			var path = CONFIG_PATH_PREFIX + filename;
+			var path = CONFIG_PATH_PREFIX + filename + ".tsv";
 			if( !service.Exist(path) )
 				return null;
-			var assetRef = service.Load( CONFIG_PATH_PREFIX + filename, typeof(TextAsset) );
+			var assetRef = service.Load<TextAsset>(path);
 			var asset = assetRef.GetTextAsset();
 			using( var reader = new StringReader( asset.text ) ) {
 				var keys = reader.ReadLine();

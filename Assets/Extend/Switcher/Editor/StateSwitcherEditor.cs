@@ -32,7 +32,7 @@ namespace Extend.Switcher.Editor {
 						}
 
 						var switcher = target as StateSwitcher;
-						if( Array.Find(switcher.States, state => state.StateName == stateName) != null ) {
+						if( switcher.States != null && Array.Find(switcher.States, state => state.StateName == stateName) != null ) {
 							EditorUtility.DisplayDialog("ERROR", $"Duplicate state name : {stateName}", "OK");
 							return;
 						}
@@ -69,7 +69,7 @@ namespace Extend.Switcher.Editor {
 		}
 
 		private static void OnMenuClicked(object ctx) {
-			var pair = (KeyValuePair<Type, SerializedProperty>)ctx;
+			var pair = (KeyValuePair<Type, SerializedProperty>) ctx;
 			var property = pair.Value;
 			var index = property.arraySize;
 			property.InsertArrayElementAtIndex(index);
@@ -121,9 +121,7 @@ namespace Extend.Switcher.Editor {
 					drawer.OnEditorGUI(rect, elementPropAtIndex);
 					EditorGUI.indentLevel -= 1;
 				},
-				drawHeaderCallback = rect => {
-					EditorGUI.LabelField(rect, "Action List");
-				} 
+				drawHeaderCallback = rect => { EditorGUI.LabelField(rect, "Action List"); }
 			};
 		}
 

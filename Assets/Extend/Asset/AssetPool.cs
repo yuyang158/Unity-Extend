@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Extend.Common;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using Object = UnityEngine.Object;
 
 namespace Extend.Asset {
@@ -48,6 +49,7 @@ namespace Extend.Asset {
 #endif
 
 			if( m_cached.Count >= MaxSize ) {
+				// Addressables.ReleaseInstance(go);
 				Object.Destroy(go);
 				return;
 			}
@@ -103,6 +105,9 @@ namespace Extend.Asset {
 
 		public void Dispose() {
 			StatService.Get().Increase(StatService.StatName.IN_POOL_GO, -m_cached.Count);
+			/*foreach( var go in m_cached ) {
+				Addressables.ReleaseInstance(go);
+			}*/
 			m_cached.Clear();
 			if( PoolNode )
 				Object.Destroy(PoolNode.gameObject);
@@ -116,6 +121,7 @@ namespace Extend.Asset {
 				return;
 
 			if( Time.time - m_cacheStart > 30 ) {
+				// Addressables.ReleaseInstance(m_cached[0]);
 				Object.Destroy(m_cached[0]);
 				StatService.Get().Increase(StatService.StatName.IN_POOL_GO, -1);
 				m_cached.RemoveSwapAt(0);
