@@ -1,0 +1,17 @@
+{
+	"log_database": {
+		"host": "127.0.0.1",
+		"port": 3306,
+		"user": "root",
+		"password": "123456",
+		"database": "upload"
+	},
+	"lua_remote_debug_url": "http://127.0.0.1:4100/",
+	"host_url": "http://127.0.0.1:5020/",
+	"im": {
+		"wechat": {
+			"notifyBaseUrl": "",
+			"notifyUrlPath": ""
+		}
+	}
+}
