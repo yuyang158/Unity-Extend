@@ -127,8 +127,6 @@ namespace XLua
                 AddBuildin("socket.core", StaticLuaCallbacks.LoadSocketCore);
                 AddBuildin("socket", StaticLuaCallbacks.LoadSocketCore);
 #endif
-                AddBuildin("lpeg", StaticLuaCallbacks.LoadLpeg);
-                AddBuildin("sproto.core", StaticLuaCallbacks.LoadSprotoCore);
                 AddBuildin("CS", StaticLuaCallbacks.LoadCS);
 
                 LuaAPI.lua_newtable(rawL); //metatable of indexs and newindexs functions

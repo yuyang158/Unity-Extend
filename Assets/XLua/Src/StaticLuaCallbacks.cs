@@ -662,18 +662,6 @@ namespace XLua
             return LuaAPI.luaopen_socket_core(L);
         }
 #endif
-        
-        [MonoPInvokeCallback(typeof(LuaCSFunction))]
-        internal static int LoadSprotoCore(RealStatePtr L)
-        {
-            return LuaAPI.luaopen_sproto_core(L);
-        }
-        
-        [MonoPInvokeCallback(typeof(LuaCSFunction))]
-        internal static int LoadLpeg(RealStatePtr L)
-        {
-            return LuaAPI.luaopen_lpeg(L);
-        }
 
         [MonoPInvokeCallback(typeof(LuaCSFunction))]
         internal static int LoadCS(RealStatePtr L)

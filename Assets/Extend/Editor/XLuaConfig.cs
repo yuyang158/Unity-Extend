@@ -12,7 +12,6 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Linq;
 using DG.Tweening;
-using Pathfinding;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -146,12 +145,7 @@ public static class XLuaGenConfig {
 		typeof(UnityEventBase),
 		typeof(UnityEvent),
 		typeof(Button.ButtonClickedEvent),
-		typeof(IAstarAI),
-		typeof(AstarPath),
-		typeof(Seeker),
-		typeof(Path),
 		typeof(CameraExtensions),
-		typeof(IMDrawAxis),
 		typeof(EventSystem),
 		typeof(PointerEventData)
 	};
