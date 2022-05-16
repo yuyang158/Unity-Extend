@@ -27,11 +27,7 @@ app.use(
 )
 
 app.use((req, res, next) => {
-  if (req.query.whoami !== "bing") {
-    next(new Error("invalid user"))
-  } else {
-    next()
-  }
+  next()
 })
 
 app.use("/file", fileUploadRouter)

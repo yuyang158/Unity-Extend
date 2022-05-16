@@ -25,7 +25,7 @@ Router.post("/upload/log", (req, res) => {
     const filename = `${device}-${os}-${version}-${other}-${guid}.log`.replace(
       /[/\\?%*:|"<>]/g,
       " "
-    ).trim()
+    ).replace(/ /g, '')
     file.mv(`./log/${filename}`)
 
     sqlConnection.query(
@@ -43,7 +43,7 @@ Router.post("/upload/log", (req, res) => {
     if(req.query.mention) {
       mentionList = req.query.mention.split('|')
     }
-    im.notify(config.get('host_url') + `download/file?filename=${filename}`, config.get('host_url') + 'file/log', mentionList)
+    im.notify(config.get('host_url') + `file/download?filename=${filename}`, config.get('host_url') + filename, config.get('host_url') + 'file/log', mentionList)
   }
 
   res.send("ok").end()
@@ -124,9 +124,10 @@ Router.get("/count/*", (req, res) => {
   )
 })
 
-Router.get("/download/file", (req, res) => {
+Router.get("/download", (req, res) => {
   const filename = req.query.filename
   const p = path.resolve(`log/${filename}`)
+  console.log(`download : ${p}`)
   res.download(p)
 })
 
