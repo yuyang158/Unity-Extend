@@ -43,6 +43,7 @@
 
 <script>
 import { getList, getMaxId } from '@/api/log'
+import serverDef from '@/api/server-def'
 import Pagination from '@/components/Pagination'
 
 export default {
@@ -63,7 +64,7 @@ export default {
   },
   methods: {
     download(row) {
-      window.open(`http://private-tunnel.site:4888/${row.path}`, '_blank')
+      window.open(`${serverDef.web}${row.path}`, '_blank')
     },
     fetchData() {
       this.listLoading = true

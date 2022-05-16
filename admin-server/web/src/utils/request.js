@@ -2,10 +2,11 @@ import axios from 'axios'
 import { Message } from 'element-ui'
 import store from '@/store'
 import { getToken } from '@/utils/auth'
+import serverDef from '@/api/server-def'
 
 // create an axios instance
 const service = axios.create({
-  baseURL: 'http://private-tunnel.site:4888/', // url = base url + request url
+  baseURL: serverDef.web, // url = base url + request url
   // withCredentials: true, // send cookies when cross-domain requests
   timeout: 5000 // request timeout
 })

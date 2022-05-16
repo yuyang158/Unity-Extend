@@ -25,7 +25,7 @@ Router.post("/upload/log", (req, res) => {
     const filename = `${device}-${os}-${version}-${other}-${guid}.log`.replace(
       /[/\\?%*:|"<>]/g,
       " "
-    )
+    ).trim()
     file.mv(`./log/${filename}`)
 
     sqlConnection.query(
