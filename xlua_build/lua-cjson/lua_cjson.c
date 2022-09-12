@@ -969,6 +969,14 @@ static void json_next_string_token(json_parse_t *json, json_token_t *token)
  * json_is_invalid_number() may pass numbers which cause strtod()
  * to generate an error.
  */
+#ifdef _MSC_VER 
+ //not #if defined(_WIN32) || defined(_WIN64) because we have strncasecmp in mingw
+#define strncasecmp _strnicmp
+#define strcasecmp _stricmp
+
+#define snprintf _snprintf
+#endif
+
 static int json_is_invalid_number(json_parse_t *json)
 {
     const char *p = json->ptr;
