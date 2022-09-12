@@ -55,7 +55,7 @@ endif()
 
 set(LUA_SRC_PATH lua-${LUA_VERSION}/src)
 set(LUAJIT_SRC_PATH luajit-2.1.0b3/src)
-set(RAPIDJSON_SRC_PATH rapidjson/src)
+set(LUACJSON_SRC_PATH lua-cjson)
 set(LIBUV_HEADER_PATH luv/deps/libuv/include)
 
 if (USING_LUAJIT)
@@ -67,7 +67,7 @@ if (USING_LUAJIT)
 		  lua-5.1.5/etc
 		  ${CMAKE_CURRENT_BINARY_DIR}
 		  ${THIRDPART_INC}
-		  ${RAPIDJSON_SRC_PATH}
+		  ${LUACJSON_SRC_PATH}
 		  ${LIBUV_HEADER_PATH}
 	    )
 	    set ( LUA_CORE lua-5.1.5/src/lapi.c lua-5.1.5/src/lcode.c lua-5.1.5/src/ldebug.c lua-5.1.5/src/ldo.c lua-5.1.5/src/ldump.c lua-5.1.5/src/lfunc.c 
@@ -81,7 +81,7 @@ if (USING_LUAJIT)
 		  ${LUAJIT_SRC_PATH}
 		  ${CMAKE_CURRENT_BINARY_DIR}
 		  ${THIRDPART_INC}
-		  ${RAPIDJSON_SRC_PATH}
+		  ${LUACJSON_SRC_PATH}
 		  ${LIBUV_HEADER_PATH}
 	    )
 
@@ -99,7 +99,7 @@ else ()
 		${LUA_SRC_PATH}
 		${CMAKE_CURRENT_BINARY_DIR}
 		${THIRDPART_INC}
-		${RAPIDJSON_SRC_PATH}
+		${LUACJSON_SRC_PATH}
 		${LIBUV_HEADER_PATH}
 	)
 
@@ -115,38 +115,23 @@ else ()
 	#   ${LUA_SRC_PATH}/lutf8lib.c ${LUA_SRC_PATH}/loadlib.c )
 endif ()
 
-#begin lua-rapidjson
-set (RAPIDJSON_SRC 
-	rapidjson/src/Document.cpp
-   rapidjson/src/Schema.cpp
-   rapidjson/src/Userdata.hpp
-   rapidjson/src/file.hpp
-   rapidjson/src/luax.hpp
-   rapidjson/src/rapidjson.cpp
-   rapidjson/src/values.cpp
-   rapidjson/src/values.hpp
+#begin lua-cjson
+set (CJSON_SRC 
+   lua-cjson/lua_cjson.c
+   lua-cjson/strbuf.c
+   lua-cjson/g_fmt.c
+   lua-cjson/fpconv.c
+   lua-cjson/dtoa.c
 )
 set_property(
-	 SOURCE ${RAPIDJSON_SRC}
+	 SOURCE ${CJSON_SRC}
     APPEND
     PROPERTY COMPILE_DEFINITIONS
     LUA_LIB
 )
-list(APPEND THIRDPART_INC rapidjson)
-set (THIRDPART_SRC ${THIRDPART_SRC} ${RAPIDJSON_SRC})
-#end lua-rapidjson
-
-#begin lua-protobuf
-# set (PROTOBUF_SRC protobuf/pb.c)
-# set_property(
-#	 SOURCE ${PROTOBUF_SRC}
-#     APPEND
-#     PROPERTY COMPILE_DEFINITIONS
-#     LUA_LIB
-# )
-# list(APPEND THIRDPART_INC protobuf)
-# set (THIRDPART_SRC ${THIRDPART_SRC} ${PROTOBUF_SRC})
-#end lua-protobuf
+list(APPEND THIRDPART_INC lua-cjson)
+set (THIRDPART_SRC ${THIRDPART_SRC} ${CJSON_SRC})
+#end lua-cjson
 
 #begin lua-luv
 set (LUV_SRC luv/luv.c)
