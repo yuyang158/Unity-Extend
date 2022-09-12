@@ -1,8 +1,12 @@
 cmake_minimum_required(VERSION 3.4)
-project(libuv LANGUAGES C)
 
 cmake_policy(SET CMP0057 NEW) # Enable IN_LIST operator
 cmake_policy(SET CMP0064 NEW) # Support if (TEST) operator
+if(POLICY CMP0091)
+  cmake_policy(SET CMP0091 NEW) # Enable MSVC_RUNTIME_LIBRARY setting
+endif()
+
+project(libuv LANGUAGES C)
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
@@ -125,6 +129,7 @@ set(uv_sources
     src/inet.c
     src/random.c
     src/strscpy.c
+    src/strtok.c
     src/threadpool.c
     src/timer.c
     src/uv-common.c
@@ -219,7 +224,6 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Android")
        src/unix/linux-inotify.c
        src/unix/linux-syscalls.c
        src/unix/procfs-exepath.c
-       src/unix/pthread-fixes.c
        src/unix/random-getentropy.c
        src/unix/random-getrandom.c
        src/unix/random-sysctl-linux.c
@@ -269,6 +273,11 @@ if(CMAKE_SYSTEM_NAME STREQUAL "GNU")
        src/unix/hurd.c)
 endif()
 
+if(CMAKE_SYSTEM_NAME STREQUAL "kFreeBSD")
+  list(APPEND uv_defines _GNU_SOURCE)
+  list(APPEND uv_libraries dl freebsd-glue)
+endif()
+
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   list(APPEND uv_defines _GNU_SOURCE _POSIX_C_SOURCE=200112)
   list(APPEND uv_libraries dl rt)
@@ -310,7 +319,6 @@ if(CMAKE_SYSTEM_NAME STREQUAL "OS390")
   list(APPEND uv_defines _XOPEN_SOURCE=600)
   list(APPEND uv_defines _XOPEN_SOURCE_EXTENDED)
   list(APPEND uv_sources
-       src/unix/pthread-fixes.c
        src/unix/os390.c
        src/unix/os390-syscalls.c
        src/unix/os390-proctitle.c)
@@ -458,7 +466,6 @@ if(LIBUV_BUILD_TESTS)
        test/test-async-null-cb.c
        test/test-async.c
        test/test-barrier.c
-       test/test-callback-order.c
        test/test-callback-stack.c
        test/test-close-fd.c
        test/test-close-order.c
@@ -557,10 +564,12 @@ if(LIBUV_BUILD_TESTS)
        test/test-spawn.c
        test/test-stdio-over-pipes.c
        test/test-strscpy.c
+       test/test-strtok.c
        test/test-tcp-alloc-cb-fail.c
        test/test-tcp-bind-error.c
        test/test-tcp-bind6-error.c
        test/test-tcp-close-accept.c
+       test/test-tcp-close-after-read-timeout.c
        test/test-tcp-close-while-connecting.c
        test/test-tcp-close.c
        test/test-tcp-close-reset.c
@@ -574,6 +583,7 @@ if(LIBUV_BUILD_TESTS)
        test/test-tcp-open.c
        test/test-tcp-read-stop.c
        test/test-tcp-read-stop-start.c
+       test/test-tcp-rst.c
        test/test-tcp-shutdown-after-write.c
        test/test-tcp-try-write.c
        test/test-tcp-try-write-error.c
