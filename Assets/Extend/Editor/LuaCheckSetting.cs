@@ -3,8 +3,6 @@ using UnityEngine;
 
 namespace Extend.Editor {
 	public class LuaCheckSetting : ScriptableObject {
-		public const string SETTING_PATH = "Assets/Extend/Editor/LuaCheckSetting.asset";
-
 		[SerializeField]
 		private string m_luaCheckExecPath;
 
@@ -19,16 +17,24 @@ namespace Extend.Editor {
 		private int m_maxLineLength = 140;
 
 		public int MaxLineLength => m_maxLineLength;
+		private static LuaCheckSetting m_setting;
 
 		internal static LuaCheckSetting GetOrCreateSettings() {
-			var settings = AssetDatabase.LoadAssetAtPath<LuaCheckSetting>(SETTING_PATH);
-			if( !settings ) {
-				settings = CreateInstance<LuaCheckSetting>();
-				AssetDatabase.CreateAsset(settings, SETTING_PATH);
-				AssetDatabase.SaveAssets();
+			if( !m_setting ) {
+				var setting = CreateInstance<LuaCheckSetting>();
+				setting.m_active = EditorPrefs.GetBool("LuaCheckSetting.m_active", false);
+				setting.m_luaCheckExecPath = EditorPrefs.GetString("LuaCheckSetting.m_luaCheckExecPath", "");
+				setting.m_maxLineLength = EditorPrefs.GetInt("LuaCheckSetting.m_maxLineLength", 140);
+				m_setting = setting;
 			}
 
-			return settings;
+			return m_setting;
+		}
+
+		internal static void Save() {
+			EditorPrefs.SetBool("LuaCheckSetting.m_active", m_setting.m_active);
+			EditorPrefs.SetString("LuaCheckSetting.m_luaCheckExecPath", m_setting.m_luaCheckExecPath);
+			EditorPrefs.SetInt("LuaCheckSetting.m_maxLineLength", m_setting.m_maxLineLength);
 		}
 
 		internal static SerializedObject GetSerializedSettings() {
@@ -43,6 +49,7 @@ namespace Extend.Editor {
 				label = "Setup Lua Check",
 				guiHandler = search => {
 					var settings = LuaCheckSetting.GetSerializedSettings();
+					EditorGUI.BeginChangeCheck();
 					var activeProp = settings.FindProperty("m_active");
 					EditorGUILayout.PropertyField(activeProp);
 
@@ -58,7 +65,10 @@ namespace Extend.Editor {
 					EditorGUILayout.EndHorizontal();
 
 					EditorGUILayout.PropertyField(settings.FindProperty("m_maxLineLength"));
-					settings.ApplyModifiedProperties();
+					if( EditorGUI.EndChangeCheck() ) {
+						settings.ApplyModifiedProperties();
+						LuaCheckSetting.Save();
+					}
 				}
 			};
 			return provider;

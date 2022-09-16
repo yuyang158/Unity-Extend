@@ -82,8 +82,8 @@ namespace Extend.UI.Editor.RelationGraph {
 			};
 		}
 
-		private readonly List<UIViewNode> m_nodes = new();
-		private readonly List<Edge> m_edges = new();
+		private readonly List<UIViewNode> m_nodes = new List<UIViewNode>();
+		private readonly List<Edge> m_edges = new List<Edge>();
 		private UISourceNode m_sourceNode;
 
 		public void ChangeSourceNode(UIViewConfiguration.Configuration configuration) {

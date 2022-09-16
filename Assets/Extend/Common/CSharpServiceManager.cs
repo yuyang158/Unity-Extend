@@ -15,6 +15,10 @@ namespace Extend.Common {
 		void Update();
 	}
 
+	public interface IServiceLateUpdate {
+		void LateUpdate();
+	}
+
 	[CSharpCallLua]
 	public delegate void LuaCommandDelegate(string[] param);
 
@@ -24,6 +28,7 @@ namespace Extend.Common {
 			STAT,
 			ASSET_FULL_STAT,
 			ASSET_SERVICE,
+			SCENE_LOAD,
 			GAME_SYSTEM_SERVICE,
 			RENDER_FEATURE,
 			SPRITE_ASSET_SERVICE,
@@ -33,9 +38,11 @@ namespace Extend.Common {
 			IN_GAME_CONSOLE,
 			LUA_SERVICE,
 			I18N,
-			SCENE_LOAD,
 			DEBUG_DRAW,
-			COUNT
+			DOWNLOAD,
+			VERSION,
+			SFX,
+			COUNT,
 		}
 
 		public static bool Initialized { get; private set; }
@@ -56,20 +63,24 @@ namespace Extend.Common {
 			Instance = go.GetComponent<CSharpServiceManager>();
 		}
 
-		private static readonly IService[] services = new IService[64];
-		private static readonly List<IServiceUpdate> updateableServices = new();
+		private static readonly IService[] m_services = new IService[64];
+		private static readonly List<IServiceUpdate> m_updateableServices = new List<IServiceUpdate>();
+		private static readonly List<IServiceLateUpdate> m_lateUpdateableServices = new List<IServiceLateUpdate>();
 
 		public static void Register(IService service) {
 			Assert.IsTrue(Initialized);
-			if( services[service.ServiceType] != null ) {
+			if( m_services[service.ServiceType] != null ) {
 				throw new Exception($"Service {service.ServiceType} exist.");
 			}
 
 			try {
-				services[service.ServiceType] = service;
+				m_services[service.ServiceType] = service;
 				service.Initialize();
 				if( service is IServiceUpdate update ) {
-					updateableServices.Add(update);
+					m_updateableServices.Add(update);
+				}
+				if( service is IServiceLateUpdate lateUpdate ) {
+					m_lateUpdateableServices.Add(lateUpdate);
 				}
 			}
 			catch( Exception e ) {
@@ -79,14 +90,14 @@ namespace Extend.Common {
 
 		public static void Unregister(int type) {
 			Assert.IsTrue(Initialized);
-			if( services[type] != null ) {
-				var service = services[type];
+			if( m_services[type] != null ) {
+				var service = m_services[type];
 				if( service is IServiceUpdate update ) {
-					updateableServices.Remove(update);
+					m_updateableServices.Remove(update);
 				}
 
 				service.Destroy();
-				services[type] = null;
+				m_services[type] = null;
 			}
 		}
 
@@ -96,7 +107,7 @@ namespace Extend.Common {
 		
 		public static T Get<T>(int index) where T : class {
 			Assert.IsTrue(Initialized);
-			var service = services[index];
+			var service = m_services[index];
 			if( service == null ) {
 				Debug.LogError($"Service {index} not exist!");
 			}
@@ -106,21 +117,27 @@ namespace Extend.Common {
 		
 		public static T TryGetAtIndex<T>(int index) where T : class {
 			Assert.IsTrue(Initialized);
-			var service = services[index];
+			var service = m_services[index];
 			return (T)service;
 		}
 
 		private void Update() {
-			foreach( var service in updateableServices ) {
+			foreach( var service in m_updateableServices ) {
 				service.Update();
+			}
+		}
+
+		private void LateUpdate() {
+			foreach( var updateableService in m_lateUpdateableServices ) {
+				updateableService.LateUpdate();
 			}
 		}
 
 		private static void CleanUp() {
 			Application.quitting -= CleanUp;
-			updateableServices.Clear();
-			for( int i = services.Length - 1; i >= 0; i-- ) {
-				var service = services[i];
+			m_updateableServices.Clear();
+			for( int i = m_services.Length - 1; i >= 0; i-- ) {
+				var service = m_services[i];
 				if( service == null )
 					continue;
 				Unregister(service.ServiceType);

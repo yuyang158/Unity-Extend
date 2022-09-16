@@ -34,7 +34,7 @@ namespace Extend.LuaMVVM {
 				m_arrayData?.Dispose();
 				m_arrayData = value;
 
-				if( m_scroll.CellAsset is not {GUIDValid: true} ) {
+				if( !(m_scroll.CellAsset is {GUIDValid: true}) ) {
 					m_scroll.ClearCells();
 				}
 				

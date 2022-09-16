@@ -1,21 +1,31 @@
-﻿using System;
-using Extend.LuaUtil;
+﻿using Extend.LuaUtil;
 using UnityEngine;
+using XLua;
 
 namespace Extend {
+	[LuaCallCSharp]
 	public class LuaCollisionBinding : MonoBehaviour {
 		private LuaBinding m_binding;
+
 		private LuaUnityCollisionEventFunction m_collisionEnter;
 		private LuaUnityCollisionEventFunction m_collisionExit;
 
 		private NoneEventAction m_triggerEnter;
 		private NoneEventAction m_triggerExit;
 
+		public void AssignLuaBinding(LuaBinding binding) {
+			m_binding = binding;
+		}
+
 		private void Awake() {
-			m_binding = GetComponent<LuaBinding>();
+			m_binding ??= GetComponent<LuaBinding>();
 		}
 
 		private void Start() {
+			if (m_binding == null)
+			{
+				return;
+			}
 			m_collisionEnter = m_binding.GetLuaMethod<LuaUnityCollisionEventFunction>("collision_enter");
 			m_collisionExit = m_binding.GetLuaMethod<LuaUnityCollisionEventFunction>("collision_exit");
 			m_triggerEnter = m_binding.GetLuaMethod<NoneEventAction>("trigger_enter");

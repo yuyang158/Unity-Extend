@@ -24,7 +24,7 @@ namespace Extend.Editor {
 		};
 
 		private LuaClassDescriptor descriptor;
-		private readonly List<LuaBindingDataBase> isUsedBinding = new();
+		private readonly List<LuaBindingDataBase> isUsedBinding = new List<LuaBindingDataBase>();
 
 		private void OnEnable() {
 			binding = target as LuaBinding;
@@ -88,7 +88,7 @@ namespace Extend.Editor {
 					CheckBinding<LuaBindingUOArrayData>(field);
 				}
 				else if( field.FieldType.StartsWith("CS.") ) {
-					var typeName = field.FieldType[3..];
+					var typeName = field.FieldType.Substring(3);
 					var type = String2TypeCache.GetType(typeName);
 					if( type == null ) {
 						EditorGUILayout.HelpBox($"Can not find type : {typeName}", MessageType.Error);
@@ -97,7 +97,7 @@ namespace Extend.Editor {
 						if( field.FieldType == "CS.Extend.Asset.AssetReference" ) {
 							var match = CheckBinding<LuaBindingAssetReferenceData>(field);
 							if( !string.IsNullOrEmpty(field.Comment) && field.Comment.StartsWith("CS.") ) {
-								match.AssetType = String2TypeCache.GetType(field.Comment[3..]);
+								match.AssetType = String2TypeCache.GetType(field.Comment.Substring(3));
 							}
 						}
 						else {

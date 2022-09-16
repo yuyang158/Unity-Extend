@@ -9,19 +9,18 @@ namespace Extend.Common {
 		private class Section {
 			public string Name { get; }
 
-			public Dictionary<string, string> KeyValue { get; } = new();
+			public Dictionary<string, string> KeyValue { get; } = new Dictionary<string, string>();
 
 			public Section(string n) {
 				Name = n;
 			}
 		}
 
-		private readonly List<Section> iniSections = new();
+		private readonly List<Section> iniSections = new List<Section>();
 		[BlackList]
 		public static IniRead Parse(TextReader reader) {
 			var ini_reader = new IniRead();
-			string line;
-			while( ( line = reader.ReadLine() ) != null ) {
+			while( reader.ReadLine() is { } line ) {
 				line = TrimComment(line);
 				if( line.Length == 0 ) continue;
 				if( line.StartsWith("[") && line.Contains("]") ) {
@@ -36,8 +35,8 @@ namespace Extend.Common {
 
 				if( line.Contains("=") ) {
 					var index = line.IndexOf('=');
-					var key = line[..index].Trim();
-					var value = line[(index + 1)..].Trim();
+					var key = line.Substring(0, index).Trim();
+					var value = line.Substring(index + 1).Trim();
 					ini_reader.iniSections.Last().KeyValue.Add(key, value);
 				}
 			}
@@ -48,7 +47,7 @@ namespace Extend.Common {
 		private static string TrimComment(string s) {
 			if( s.Contains(";") ) {
 				var index = s.IndexOf(';');
-				s = s[..index].Trim();
+				s = s.Substring(0, index).Trim();
 			}
 
 			return s;
@@ -63,12 +62,16 @@ namespace Extend.Common {
 			return s.KeyValue.TryGetValue(key, out val);
 		}
 
+		public bool SectionExist(string section) {
+			return iniSections.Find(x => x.Name == section) != null;
+		}
+
 		public int GetInt(string section, string key) {
 			return FindOne(section, key, out var val) ? int.Parse(val) : default;
 		}
 
 		public bool GetBool(string section, string key) {
-			return FindOne(section, key, out var val) && val is "true" or "1";
+			return FindOne(section, key, out var val) && (val == "true" || val == "1");
 		}
 
 		public string GetString(string section, string key) {

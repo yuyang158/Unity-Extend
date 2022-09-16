@@ -51,8 +51,10 @@ namespace Extend.LuaBindingData {
 						if(string.IsNullOrEmpty(path))
 							return;
 
-						UnityEditor.EditorUtility.DisplayDialog("ERROR", $"{FieldName} should use AssetReference to a non scene object!", "OK");
-						elemProp.objectReferenceValue = null;
+						if( path.EndsWith(".prefab") ) {
+							UnityEditor.EditorUtility.DisplayDialog("ERROR", $"{FieldName} should use AssetReference to a non scene object!", "OK");
+							elemProp.objectReferenceValue = null;
+						}
 					}
 				};
 			}

@@ -6,8 +6,8 @@ namespace Extend.LuaUtil {
 	public class LuaClassCache {
 		public class LuaClass {
 			public LuaTable ClassMetaTable;
-			public readonly List<LuaTable> ChildClasses = new();
-			private readonly Dictionary<string, Delegate> m_cachedMethods = new();
+			public readonly List<LuaTable> ChildClasses = new List<LuaTable>();
+			private readonly Dictionary<string, Delegate> m_cachedMethods = new Dictionary<string, Delegate>();
 
 			public T GetLuaMethod<T>(string methodName) where T : Delegate {
 				if( m_cachedMethods.TryGetValue(methodName, out var m) ) {
@@ -20,7 +20,7 @@ namespace Extend.LuaUtil {
 			}
 		}
 
-		private readonly Dictionary<LuaTable, LuaClass> m_cachedClasses = new(256);
+		private readonly Dictionary<LuaTable, LuaClass> m_cachedClasses = new Dictionary<LuaTable, LuaClass>(256);
 
 		public void Register(LuaTable classMeta, LuaTable parentClassMeta = null) {
 			if( parentClassMeta != null ) {

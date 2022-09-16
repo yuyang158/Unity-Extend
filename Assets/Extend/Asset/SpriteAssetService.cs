@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using Extend.Common;
 using UnityEngine;
 using UnityEngine.UI;
@@ -11,21 +10,35 @@ namespace Extend.Asset {
 			public static SpriteLoadingHandle Create(SpriteAssetAssignment assignment, AssetAsyncLoadHandle loadHandle, string path) {
 				return new SpriteLoadingHandle(loadHandle, assignment, path);
 			}
+			
+			public static SpriteLoadingHandle Create(SpriteAssetAssignment assignment, AssetReference assetRef) {
+				return new SpriteLoadingHandle(assetRef, assignment);
+			}
 
 			private readonly string m_path;
-			private readonly AssetReference m_assetRef;
+			private AssetReference m_assetRef;
+			private AssetAsyncLoadHandle m_loadHandle;
 			private readonly WeakReference<SpriteAssetAssignment> m_assignment;
-
-			public AssetReference AssetReference => m_assetRef;
 
 			private SpriteLoadingHandle(AssetAsyncLoadHandle loadHandle, SpriteAssetAssignment assignment, string path) {
 				loadHandle.OnComplete += OnAssetStatusChanged;
 				m_path = path;
 				m_assignment = new WeakReference<SpriteAssetAssignment>(assignment);
+				m_loadHandle = loadHandle;
+			}
+			
+			
+			private SpriteLoadingHandle(AssetReference assetRef, SpriteAssetAssignment assignment) {
+				m_assetRef = assetRef;
+				m_assignment = new WeakReference<SpriteAssetAssignment>(assignment);
+				
+				TryApplySprite(assignment, m_assetRef);
 			}
 
 			private void OnAssetStatusChanged(AssetAsyncLoadHandle loadHandle) {
-				if( m_assetRef.IsFinished ) {
+				m_loadHandle = null;
+				if( loadHandle.Asset.Status == AssetRefObject.AssetStatus.DONE ) {
+					m_assetRef = loadHandle.Result;
 					if( m_assignment.TryGetTarget(out var assignment) ) {
 						TryApplySprite(assignment, m_assetRef);
 					}
@@ -33,6 +46,10 @@ namespace Extend.Asset {
 			}
 
 			public void GiveUp() {
+				if( m_loadHandle != null ) {
+					m_loadHandle.Cancel = true;
+				}
+				m_assetRef?.Dispose();
 			}
 
 			public override string ToString() {
@@ -46,15 +63,14 @@ namespace Extend.Asset {
 			return CSharpServiceManager.Get<SpriteAssetService>(CSharpServiceManager.ServiceType.SPRITE_ASSET_SERVICE);
 		}
 
-		private readonly Dictionary<string, AssetReference> m_sprites = new();
-		private readonly Dictionary<int, PackedSprite> m_packedSprites = new();
+		private readonly Dictionary<int, PackedSprite> m_packedSprites = new Dictionary<int, PackedSprite>();
 
 		private Sprite m_loadingSprite;
 		private Material m_rotationMat;
 
 		public PackedSprite.SpriteElement RequestIcon(string path) {
 			path = path.Replace('\\', '/');
-			string folderName = path[..path.IndexOf('/')];
+			string folderName = path.Substring(0, path.IndexOf('/'));
 
 			if( !int.TryParse(folderName, out var size) ) {
 				Debug.LogError($"int parse error : {folderName}");
@@ -75,39 +91,16 @@ namespace Extend.Asset {
 
 		public SpriteLoadingHandle RequestSprite(SpriteAssetAssignment assignment, string path, bool sync = false) {
 			SpriteLoadingHandle ret = null;
-			if( m_sprites.TryGetValue(path, out var assetRef) ) {
-				if( assetRef.IsFinished ) {
-					TryApplySprite(assignment, assetRef);
-				}
-				else {
-					var loadHandle = assetRef.LoadAsync<Sprite>();
-					ret = SpriteLoadingHandle.Create(assignment, loadHandle, path);
-				}
-
-				return ret;
-			}
-
 			if( sync ) {
-				assetRef = AssetService.Get().Load<Sprite>(path);
-				TryApplySprite(assignment, assetRef);
+				var assetRef = AssetService.Get().Load<Sprite>(path);
+				ret = SpriteLoadingHandle.Create(assignment, assetRef);
 			}
 			else {
 				var loadHandle = AssetService.Get().LoadAsync<Sprite>(path);
 				ret = SpriteLoadingHandle.Create(assignment, loadHandle, path);
-				assetRef = loadHandle.Result;
 			}
 
-			m_sprites.Add(path, assetRef);
 			return ret;
-		}
-
-		public void Release(string key) {
-			if( !m_sprites.TryGetValue(key, out var spriteAsset) ) {
-				Debug.LogWarning($"Not found sprite key : {key}");
-				return;
-			}
-
-			spriteAsset.Dispose();
 		}
 
 		private static void TryApplySprite(SpriteAssetAssignment assignment, AssetReference assetRef) {
@@ -140,12 +133,6 @@ namespace Extend.Asset {
 		}
 
 		public void Destroy() {
-			foreach( var assetReference in m_sprites.Values ) {
-				assetReference.Dispose();
-			}
-
-			m_sprites.Clear();
-
 			foreach( var packedSprite in m_packedSprites.Values ) {
 				packedSprite.Dispose();
 			}

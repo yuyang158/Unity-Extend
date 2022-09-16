@@ -13,9 +13,9 @@ namespace Extend.Editor {
 
 	public class LuaClassDescriptor {
 		public string ClassName;
-		public readonly List<LuaClassField> Fields = new();
-		public readonly List<string> Methods = new();
-		public readonly List<string> DebugMethods = new();
+		public readonly List<LuaClassField> Fields = new List<LuaClassField>();
+		public readonly List<string> Methods = new List<string>();
+		public readonly List<string> DebugMethods = new List<string>();
 
 		private LuaClassDescriptor baseClass;
 
@@ -53,8 +53,8 @@ namespace Extend.Editor {
 					var comment = string.Empty;
 					var index = line.LastIndexOf("@", StringComparison.Ordinal);
 					if( index >= 4 ) {
-						declareField = line[..index];
-						comment = line[(index + 1)..];
+						declareField = line.Substring(0, index);
+						comment = line.Substring(index + 1);
 						if( comment.StartsWith("ignore") ) {
 							continue;
 						}
@@ -131,7 +131,7 @@ namespace Extend.Editor {
 			return null;
 		}
 
-		private static readonly Dictionary<string, LuaClassDescriptor> descriptors = new();
+		private static readonly Dictionary<string, LuaClassDescriptor> descriptors = new Dictionary<string, LuaClassDescriptor>();
 
 		public static LuaClassDescriptor GetDescriptor(string className) {
 			className = className.Replace('.', '/');

@@ -6,16 +6,15 @@ using System.Text;
 using Extend.Common;
 using Extend.Common.Editor;
 using UnityEditor;
-using UnityEditor.AssetImporters;
 using UnityEngine;
 using XLua;
 using Debug = UnityEngine.Debug;
 
 namespace Extend.Editor {
-	[ScriptedImporter(1, "lua"), InitializeOnLoad]
-	public class LuaScriptImporter : ScriptedImporter {
+	[InitializeOnLoad]
+	public class LuaScriptImporter {
 		[MenuItem("XLua/hotfix")]
-		private static void Hotfix() {
+		public static void Hotfix() {
 			if( !Application.isPlaying )
 				return;
 
@@ -42,7 +41,7 @@ namespace Extend.Editor {
 			func.Invoke();
 		}
 
-		private static readonly List<string> modifiedModules = new();
+		private static readonly List<string> modifiedModules = new List<string>();
 		private static bool m_playing;
 
 		static LuaScriptImporter() {
@@ -85,41 +84,11 @@ namespace Extend.Editor {
 			}
 		}
 
-		public override void OnImportAsset(AssetImportContext ctx) {
-			if( Application.isPlaying ) {
-				var path = ctx.assetPath.Substring(21, ctx.assetPath.Length - 21 - 4);
-				var moduleName = path.Replace('/', '.');
-				lock( modifiedModules ) {
-					modifiedModules.Add(moduleName);
-				}
-			}
-
-			ExecLuaCheck(ctx.assetPath);
-			var text = File.ReadAllText(ctx.assetPath);
-			var asset = new TextAsset(text);
-			using( var reader = new StringReader(asset.text) ) {
-				var line = reader.ReadLine();
-				while( line != null ) {
-					if( line.StartsWith("---@class") ) {
-						var statements = line.Split(' ');
-						var className = statements[1];
-						LuaClassEditorFactory.ReloadDescriptor(className);
-						break;
-					}
-
-					line = reader.ReadLine();
-				}
-			}
-
-			ctx.AddObjectToAsset("main obj", asset);
-			ctx.SetMainObject(asset);
-		}
-
 		private static void ExecLuaCheck(string luaPath) {
 			if( !File.Exists(luaPath) ) {
 				return;
 			}
-			
+
 			luaPath = luaPath.Replace('\\', '/');
 			var index = luaPath.IndexOf("Lua/", StringComparison.InvariantCulture);
 			var projectPath = luaPath.Substring(index + 4, luaPath.Length - index - 4 - 4);

@@ -5,7 +5,7 @@ using Extend.Network.SocketClient;
 namespace Extend.Network {
 	public class NetworkService : IService, IServiceUpdate {
 		public int ServiceType => (int)CSharpServiceManager.ServiceType.NETWORK_SERVICE;
-		private readonly List<AutoReconnectTcpClient> m_clients = new();
+		private readonly List<AutoReconnectTcpClient> m_clients = new List<AutoReconnectTcpClient>();
 
 		public void RegisterTcpClient(AutoReconnectTcpClient client) {
 			m_clients.Add(client);

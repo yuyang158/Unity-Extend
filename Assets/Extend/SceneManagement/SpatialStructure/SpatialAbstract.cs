@@ -91,7 +91,7 @@ namespace Extend.SceneManagement.SpatialStructure {
 			if( ( m_control & SpecialControlFlag.Light ) != 0 ) {
 				var lights = GetComponentsInChildren<Light>();
 				sceneElements.AddRange(from lightComponent in lights 
-					where lightComponent.type is not (LightType.Area or LightType.Directional) 
+					where lightComponent.type != LightType.Area && lightComponent.type != LightType.Directional 
 					let bounds = new Bounds(lightComponent.transform.position, new Vector3(lightComponent.range, 0, lightComponent.range)) 
 					select new SpecialSceneElement(SpecialControlFlag.Light, bounds, lightComponent));
 			}

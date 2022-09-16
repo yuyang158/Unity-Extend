@@ -10,8 +10,6 @@ using XLua;
 
 namespace Extend.Editor {
 	public class LuaDebugSetting : ScriptableObject {
-		private const string SETTING_PATH = "Assets/Extend/Editor/LuaDebugSetting.asset";
-
 		[SerializeField]
 		private bool m_mvvmBreakEnabled;
 
@@ -38,20 +36,25 @@ namespace Extend.Editor {
 		private string[] m_coverageCheckFiles;
 
 		public string[] CoverageCheckFiles => m_coverageCheckFiles;
+		private static LuaDebugSetting m_setting;
 
 		public static LuaDebugSetting GetOrCreateSettings() {
-			var settings = AssetDatabase.LoadAssetAtPath<LuaDebugSetting>(SETTING_PATH);
-			if( !settings ) {
-				settings = CreateInstance<LuaDebugSetting>();
-				AssetDatabase.CreateAsset(settings, SETTING_PATH);
-				AssetDatabase.SaveAssets();
+			if( !m_setting ) {
+				m_setting = CreateInstance<LuaDebugSetting>();
+				m_setting.m_debugMode = (DebugMode)EditorPrefs.GetInt("LuaDebugSetting.m_debugMode", (int)DebugMode.None);
+				m_setting.m_debugPort = EditorPrefs.GetInt("LuaDebugSetting.m_debugPort", 10000);
 			}
 
-			return settings;
+			return m_setting;
 		}
 
 		internal static SerializedObject GetSerializedSettings() {
 			return new SerializedObject(GetOrCreateSettings());
+		}
+
+		internal static void Save() {
+			EditorPrefs.SetInt("LuaDebugSetting.m_debugMode", (int)m_setting.m_debugMode);
+			EditorPrefs.SetInt("LuaDebugSetting.m_debugPort", m_setting.m_debugPort);
 		}
 	}
 
@@ -149,8 +152,8 @@ namespace Extend.Editor {
 			};
 		}
 
-		private static readonly GUIContent m_connectPortText = new("Connect Port");
-		private static readonly GUIContent m_listenPortText = new("Listen Port");
+		private static readonly GUIContent m_connectPortText = new GUIContent("Connect Port");
+		private static readonly GUIContent m_listenPortText = new GUIContent("Listen Port");
 
 		static LuaMVVMDebugSettingIMGUIRegister() {
 			ToolbarExtender.RightToolbarGUI.Add(OnToolbarGUI);
@@ -161,10 +164,10 @@ namespace Extend.Editor {
 			var settings = LuaDebugSetting.GetSerializedSettings();
 			var debuggerConnectionModeProp = settings.FindProperty("m_debugMode");
 			EditorGUIUtility.labelWidth = 80;
-			EditorGUIUtility.fieldWidth = 120;
-			EditorGUILayout.PropertyField(debuggerConnectionModeProp);
+			EditorGUILayout.PropertyField(debuggerConnectionModeProp, GUILayout.Width(200));
 			if( EditorGUI.EndChangeCheck() ) {
 				settings.ApplyModifiedProperties();
+				LuaDebugSetting.Save();
 			}
 		}
 
@@ -211,6 +214,7 @@ namespace Extend.Editor {
 
 					if( EditorGUI.EndChangeCheck() ) {
 						settings.ApplyModifiedProperties();
+						LuaDebugSetting.Save();
 					}
 				}
 			};

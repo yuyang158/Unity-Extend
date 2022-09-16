@@ -33,11 +33,13 @@ namespace Extend.UI {
 	public class UIViewConfiguration : ScriptableObject {
 		[LuaCallCSharp, Serializable]
 		public class Configuration {
+			[BlackList]
 			public enum PreloadMethod {
 				AssetBundle,
 				Instance
 			}
 
+			[BlackList]
 			public struct UIViewRelation {
 				public Guid RelationViewGuid;
 				public PreloadMethod Method;
@@ -65,6 +67,7 @@ namespace Extend.UI {
 			[BlackList]
 			public Guid ViewGuid;
 
+			[BlackList]
 			public UIViewRelation[] Relations;
 
 			public int FrameRate = 60;
@@ -121,7 +124,7 @@ namespace Extend.UI {
 #if UNITY_EDITOR
 			var document = new XmlDocument();
 			var filepath = $"Assets/StreamingAssets/{FILE_PATH}.xml";
-			using( var writer = new FileStream(filepath, FileMode.OpenOrCreate) ) {
+			using( var writer = new FileStream(filepath, FileMode.Create, FileAccess.ReadWrite) ) {
 				var declaration = document.CreateXmlDeclaration("1.0", "utf-8", null);
 				document.AppendChild(declaration);
 				var rootElement = document.CreateElement("Configurations");
@@ -139,7 +142,7 @@ namespace Extend.UI {
 					element.SetAttribute("CloseButtonPath", configuration.CloseButtonPath);
 					element.SetAttribute("FrameRate", configuration.FrameRate.ToString());
 
-					if( configuration.Relations is {Length: > 0} ) {
+					if( configuration.Relations != null && configuration.Relations.Length > 0 ) {
 						foreach( var relation in configuration.Relations ) {
 							var relationElement = document.CreateElement("Relation");
 							relationElement.SetAttribute("Guid", relation.RelationViewGuid.ToString());

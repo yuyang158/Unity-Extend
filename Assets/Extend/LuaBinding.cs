@@ -10,7 +10,7 @@ using XLua;
 namespace Extend {
 	[CSharpCallLua, LuaCallCSharp]
 	public sealed class LuaBinding : MonoBehaviour, IRecyclable {
-		[LuaFileAttribute, BlackList]
+		[LuaFile, BlackList]
 		public string LuaFile;
 
 		public LuaTable LuaInstance { get; set; }
@@ -33,13 +33,13 @@ namespace Extend {
 				return;
 			var luaVM = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
 			var ret = luaVM.LoadFileAtPath(LuaFile);
-			if( ret[0] is not LuaTable klass )
+			if( !(ret[0] is LuaTable klass) )
 				return;
 			LuaClass = klass;
 
 			var constructor = CachedClass.GetLuaMethod<LuaBindingClassNew>("new");
 			var luaInstance = constructor?.Invoke(gameObject);
-			luaInstance.SetInPath("name", Path.GetFileName(LuaFile[( LuaFile.LastIndexOf('.') + 1 )..]));
+			luaInstance.SetInPath("name", Path.GetFileName(LuaFile.Substring( LuaFile.LastIndexOf('.') + 1 )));
 			luaInstance.SetInPath("fullname", LuaFile);
 			Bind(luaInstance);
 

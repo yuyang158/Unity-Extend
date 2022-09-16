@@ -1,14 +1,17 @@
 ﻿using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
 using Extend.Common;
 using Extend.UI.Fx;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 using XLua;
 
 namespace Extend.LuaUtil {
 	[LuaCallCSharp]
 	public static class UnityExtension4XLua {
+		public static void AppendCamera(this UniversalAdditionalCameraData cameraData, Camera camera) {
+			cameraData.cameraStack.Add(camera);
+		}
+		
 		public static void SetActive(this Component component, bool active) {
 			component.gameObject.SetActive(active);
 		}
@@ -40,6 +43,12 @@ namespace Extend.LuaUtil {
 		public static LuaTable GetLuaBindingsInChildren(this Component component, LuaTable classMeta) {
 			var bindings = component.GetComponentsInChildren<LuaBinding>();
 			return FindInComponents(classMeta, bindings);
+		}
+
+		public static LuaTable GetLuaBindingInChildren(this Component component, LuaTable classMeta)
+		{
+			var bindings = component.GetComponentsInChildren<LuaBinding>();
+			return FindInLuaBinding(classMeta, bindings);
 		}
 
 		public static LuaTable GetLuaBindings(this Component component, LuaTable classMeta) {

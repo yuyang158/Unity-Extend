@@ -15,7 +15,14 @@ namespace Extend.Asset {
 			m_handle.Completed += Complete;
 		}
 
-		public AssetReference Result => new(m_handle);
+		public AssetReference Result {
+			get {
+				if( !m_handle.IsDone ) {
+					throw new Exception("Dont request result before load process is done.");
+				}
+				return new AssetReference(m_handle);
+			}
+		}
 
 		public float Progress => m_handle.PercentComplete;
 		

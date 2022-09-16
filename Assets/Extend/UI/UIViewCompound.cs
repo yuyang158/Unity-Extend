@@ -1,6 +1,8 @@
 ﻿using System.Linq;
+using XLua;
 
 namespace Extend.UI {
+	[LuaCallCSharp]
 	public class UIViewCompound : UIViewBase {
 		public UIViewBase[] Views;
 

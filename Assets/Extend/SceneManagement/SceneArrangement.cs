@@ -24,7 +24,7 @@ namespace Extend.SceneManagement {
 
 		private Vector3 m_recordPosition = Vector3.negativeInfinity;
 		private readonly Plane[] m_frustumPlanes = new Plane[6];
-		private readonly List<ISceneModifier> m_modifiers = new();
+		private readonly List<ISceneModifier> m_modifiers = new List<ISceneModifier>();
 
 		private void Start() {
 			m_spatial.Build();

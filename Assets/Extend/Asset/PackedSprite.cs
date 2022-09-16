@@ -110,7 +110,7 @@ namespace Extend.Asset {
 
 			var packed = true;
 			if( m_notInUsed.Count > 0 ) {
-				element = m_notInUsed[^1];
+				element = m_notInUsed[m_notInUsed.Count - 1];
 				m_notInUsed.RemoveAt(m_notInUsed.Count - 1);
 			}
 			else if( m_freeList.Count > 0 ) {

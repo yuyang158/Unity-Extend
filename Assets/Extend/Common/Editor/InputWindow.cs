@@ -4,15 +4,17 @@ using UnityEngine;
 
 namespace Extend.Common.Editor {
 	public class InputWindow : EditorWindow {
-		public static InputWindow CreateWindow(string title) {
+		public static InputWindow CreateWindow(string title, bool closeOnOK = true) {
 			var window = GetWindow<InputWindow>();
 			window.titleContent = new GUIContent(title);
 			window.minSize = new Vector2(250, 80);
 			window.maxSize = window.minSize;
+			window.CloseOnOK = closeOnOK;
 			return window;
 		}
 
 		private string m_text;
+		public bool CloseOnOK;
 		public Action<string> Callback;
 
 		private void OnGUI() {
@@ -27,7 +29,8 @@ namespace Extend.Common.Editor {
 			var okRect = UIEditorUtil.CalcMultiColumnRect(rect, 0, 2);
 			if( GUI.Button(okRect, "OK") ) {
 				Callback?.Invoke(m_text);
-				Close();
+				if(CloseOnOK)
+					Close();
 			}
 
 			var cancelRect = UIEditorUtil.CalcMultiColumnRect(rect, 1, 2);

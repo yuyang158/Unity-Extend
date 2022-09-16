@@ -9,7 +9,7 @@ namespace Extend.Switcher.Action.Editor {
 		public abstract void OnEditorGUI(Rect rect, SerializedProperty property);
 		public abstract float GetEditorHeight(SerializedProperty property);
 
-		private static readonly Dictionary<Type, ActionDrawer> m_drawers = new();
+		private static readonly Dictionary<Type, ActionDrawer> m_drawers = new Dictionary<Type, ActionDrawer>();
 
 		static ActionDrawer() {
 			m_drawers.Add(typeof(AnimatorSwitcherAction), new AnimatorSwitcherActionDrawer());

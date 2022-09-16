@@ -4,6 +4,7 @@ using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading;
+using ToastPlugin;
 using UnityEngine;
 
 namespace Extend.Common {
@@ -26,6 +27,8 @@ namespace Extend.Common {
 					File.Delete(target);
 				}
 			});
+			
+			ToastHelper.ShowToast("Log Uploaded....");
 		}
 	}
 }

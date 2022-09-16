@@ -1,11 +1,14 @@
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using Extend.Common;
 using Extend.LuaBindingEvent;
 using Extend.LuaMVVM.PropertyChangeInvoke;
 using Extend.LuaUtil;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Assertions;
+using UnityEngine.UI;
 using XLua;
 
 namespace Extend.LuaMVVM {
@@ -28,6 +31,13 @@ namespace Extend.LuaMVVM {
 			EVENT
 		}
 
+		private static readonly Dictionary<Type, Type> m_sourceBindRelations = new Dictionary<Type, Type> {
+			{typeof(TMP_Dropdown), typeof(DropdownValueChanged)},
+			{typeof(Slider), typeof(SliderValueChanged)},
+			{typeof(TMP_InputField), typeof(TMP_InputTextChanged)},
+			{typeof(Toggle), typeof(ToggleIsOnChanged)}
+		};
+
 		public Component BindTarget;
 		public string BindTargetProp;
 
@@ -43,6 +53,7 @@ namespace Extend.LuaMVVM {
 		private DetachLuaProperty detach;
 		private IUnityPropertyChanged m_propertyChangeCallback;
 		private LuaFunction m_bindFunc;
+		private bool m_prepared;
 
 #if UNITY_EDITOR
 		public static Action<GameObject> DebugCheckCallback;
@@ -56,6 +67,7 @@ namespace Extend.LuaMVVM {
 
 			m_propertyInfo = BindTargetProp == "SetActive" ? null : BindTarget.GetType().GetProperty(BindTargetProp);
 			watchCallback = SetPropertyValue;
+			m_prepared = true;
 		}
 
 		public void Destroy() {
@@ -63,6 +75,11 @@ namespace Extend.LuaMVVM {
 		}
 
 		private void SetPropertyValue(object val) {
+			if( !m_prepared ) {
+				Debug.LogError($"LuaMVVMBinding {BindTarget}.{Path} not ready, dont SetDataContext in awake.");
+				return;
+			}
+			
 #if UNITY_EDITOR
 			if( BindTarget ) {
 				DebugCheckCallback?.Invoke(BindTarget.gameObject);
@@ -200,7 +217,7 @@ namespace Extend.LuaMVVM {
 
 
 			if( bindingValue == null && Mode != BindMode.ONE_WAY_TO_SOURCE) {
-				Debug.LogWarning($"Not found value in path {Path}");
+				// Debug.LogWarning($"Not found value in path {Path}");
 				return;
 			}
 
@@ -208,7 +225,7 @@ namespace Extend.LuaMVVM {
 				case BindMode.ONE_WAY:
 				case BindMode.TWO_WAY:
 				case BindMode.ONE_TIME: {
-					if( Mode is BindMode.ONE_WAY or BindMode.TWO_WAY ) {
+					if( Mode == BindMode.ONE_WAY || Mode == BindMode.TWO_WAY ) {
 						var watch = dataContext.GetInPath<WatchLuaProperty>("watch");
 						watch(dataContext, m_expression ? GetExpressionKey() : Path, watchCallback, m_expression);
 						detach = dataContext.Get<DetachLuaProperty>("detach");
@@ -219,7 +236,7 @@ namespace Extend.LuaMVVM {
 								Debug.LogError("express type can not to source");
 							}
 							else {
-								m_propertyChangeCallback = BindTarget.GetComponent<IUnityPropertyChanged>();
+								m_propertyChangeCallback = GetOrAddPropertyChange();
 								m_propertyChangeCallback.OnPropertyChanged += OnPropertyChanged;
 							}
 						}
@@ -234,13 +251,17 @@ namespace Extend.LuaMVVM {
 						return;
 					}
 
-					m_propertyChangeCallback = BindTarget.GetComponent<IUnityPropertyChanged>();
+					m_propertyChangeCallback = GetOrAddPropertyChange();
 					dataContext.SetInPath(Path, m_propertyChangeCallback.ProvideCurrentValue());
 					m_propertyChangeCallback.OnPropertyChanged += OnPropertyChanged;
 					break;
 				default:
 					throw new ArgumentOutOfRangeException();
 			}
+		}
+
+		private IUnityPropertyChanged GetOrAddPropertyChange() {
+			return BindTarget.GetOrAddComponent(m_sourceBindRelations[BindTarget.GetType()]) as IUnityPropertyChanged;
 		}
 
 		private void OnPropertyChanged(Component sender, object value) {

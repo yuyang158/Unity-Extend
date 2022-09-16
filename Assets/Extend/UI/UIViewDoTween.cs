@@ -1,7 +1,9 @@
 ﻿using System.Linq;
 using DG.Tweening;
+using XLua;
 
 namespace Extend.UI {
+	[LuaCallCSharp]
 	public class UIViewDoTween : UIViewBase {
 		public UIViewInAnimation ShowAnimation;
 		public UIViewOutAnimation HideAnimation;

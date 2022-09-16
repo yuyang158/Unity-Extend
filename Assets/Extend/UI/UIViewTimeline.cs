@@ -1,8 +1,9 @@
 ﻿using UnityEngine;
 using UnityEngine.Playables;
+using XLua;
 
 namespace Extend.UI {
-	[RequireComponent(typeof(PlayableDirector))]
+	[RequireComponent(typeof(PlayableDirector)), LuaCallCSharp]
 	public class UIViewTimeline : UIViewBase {
 		public PlayableDirector ShowDirector;
 		public PlayableDirector HideDirector;

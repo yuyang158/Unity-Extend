@@ -27,7 +27,7 @@ limitations under the License.
 	/// things such as UI Manipulation in Unity. It was developed for use in combination with the Firebase Unity plugin, which uses separate threads for event handling
 	/// </summary>
 	public class UnityMainThreadDispatcher : MonoBehaviour {
-		private static readonly Queue<Action> _executionQueue = new();
+		private static readonly Queue<Action> _executionQueue = new Queue<Action>();
 
 		public void Update() {
 			lock( _executionQueue ) {

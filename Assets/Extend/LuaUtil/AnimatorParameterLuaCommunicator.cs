@@ -1,21 +1,36 @@
 ﻿using System;
+using System.Collections.Generic;
 using Extend.Common;
 using Extend.EventAsset;
 using UnityEngine;
 using XLua;
 
 namespace Extend.LuaUtil {
+	[CSharpCallLua]
+	public delegate void OnRootMotionUpdate(Vector3 deltaPosition, Quaternion deltaRotation);
+	
 	[RequireComponent(typeof(Animator)), LuaCallCSharp]
 	public class AnimatorParameterLuaCommunicator : MonoBehaviour {
 		public LuaTable ParameterSummary { get; private set; }
 		public Animator Animator { get; private set; }
 
+		private OnRootMotionUpdate m_rootMotionUpdate;
+
 		private void Awake() {
 			Animator = GetComponent<Animator>();
+			var originController = Animator.runtimeAnimatorController as AnimatorOverrideController;
+			List<KeyValuePair<AnimationClip, AnimationClip>> overrides = new List<KeyValuePair<AnimationClip, AnimationClip>>(originController.overridesCount);
+			originController.GetOverrides(overrides);
+
+			var clonedController = new AnimatorOverrideController(Animator.runtimeAnimatorController);
+			clonedController.ApplyOverrides(overrides);
+			Animator.runtimeAnimatorController = clonedController;
+			
 			var luaVM = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
 			ParameterSummary = luaVM.NewTable();
-			foreach( var parameter in Animator.parameters ) {
-				var context = luaVM.NewTable();
+			for( int i = 0; i < Animator.parameterCount; i++ ) {
+				AnimatorControllerParameter parameter = Animator.GetParameter(i);
+				LuaTable context = luaVM.NewTable();
 				ParameterSummary.Set(parameter.name, context);
 				switch( parameter.type ) {
 					case AnimatorControllerParameterType.Float:
@@ -36,6 +51,10 @@ namespace Extend.LuaUtil {
 
 				context.Set("hash", parameter.nameHash);
 			}
+		}
+
+		private void OnAnimatorMove() {
+			m_rootMotionUpdate?.Invoke(Animator.deltaPosition, Animator.deltaRotation);
 		}
 
 		public void Play(int nameHash, int layer = 0) {
@@ -83,9 +102,19 @@ namespace Extend.LuaUtil {
 			controller[clipName] = clip;
 		}
 
+		public void SetRootMotionActivate(bool activate, OnRootMotionUpdate rootMotionUpdate = null) {
+			Animator.applyRootMotion = activate;
+			m_rootMotionUpdate = rootMotionUpdate;
+		}
+
 		public void OnEvent(EventInstance evt) {
 			var callback = ParameterSummary.Get<Action<LuaTable, object>>(evt.EventName);
 			callback?.Invoke(ParameterSummary, evt.Value);
+		}
+
+		public int GetLayerCurrentStateNameHash(int layerIndex) {
+			var stateInfo = Animator.GetCurrentAnimatorStateInfo(layerIndex);
+			return stateInfo.shortNameHash;
 		}
 	}
 }

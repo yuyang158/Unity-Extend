@@ -1,8 +1,9 @@
 ﻿using Extend.EventAsset;
 using UnityEngine;
+using XLua;
 
 namespace Extend.UI {
-	[RequireComponent(typeof(Animator))]
+	[RequireComponent(typeof(Animator)), LuaCallCSharp]
 	public class UIViewAnimator : UIViewBase {
 		private static readonly int SHOW_HASH = Animator.StringToHash("Show");
 		private static readonly int HIDE_HASH = Animator.StringToHash("Hide");

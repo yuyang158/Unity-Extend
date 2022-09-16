@@ -11,7 +11,7 @@ namespace Extend.UI.i18n {
 		private int m_currentLang = -1;
 		private string m_currentLangName;
 		private string[] m_supportedLang;
-		private readonly Dictionary<string, string> m_languageText = new(10240);
+		private readonly Dictionary<string, string> m_languageText = new Dictionary<string, string>(10240);
 
 		public event Action OnLanguageChanged;
 

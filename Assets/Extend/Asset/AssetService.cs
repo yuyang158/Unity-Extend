@@ -1,9 +1,14 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using Extend.Common;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
+using UnityEngine.AddressableAssets.ResourceLocators;
+using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.SceneManagement;
 using UnityEngine.U2D;
 using XLua;
@@ -17,16 +22,17 @@ namespace Extend.Asset {
 		public int ServiceType => (int) CSharpServiceManager.ServiceType.ASSET_SERVICE;
 
 		[BlackList]
-		public AssetContainer Container { get; } = new();
+		public AssetContainer Container { get; } = new AssetContainer();
 
-		private Stopwatch m_stopwatch = new();
-		private readonly Stopwatch m_instantiateStopwatch = new();
+		private Stopwatch m_stopwatch = new Stopwatch();
+		private readonly Stopwatch m_instantiateStopwatch = new Stopwatch();
 		public Transform PoolRootNode { get; private set; }
 
-		private readonly Queue<AssetReference.InstantiateAsyncContext> m_deferInstantiates = new(64);
+		private readonly Queue<AssetReference.InstantiateAsyncContext> m_deferInstantiates = new Queue<AssetReference.InstantiateAsyncContext>(64);
 		private float m_singleFrameMaxInstantiateDuration;
-		private readonly List<IDisposable> m_disposables = new();
+		private readonly List<IDisposable> m_disposables = new List<IDisposable>();
 
+		[BlackList]
 		public void AddAfterDestroy(IDisposable disposable) {
 			m_disposables.Add(disposable);
 		}
@@ -42,17 +48,17 @@ namespace Extend.Asset {
 		[BlackList]
 		public void AfterSceneLoaded(float maxInstantiateDuration) {
 			m_singleFrameMaxInstantiateDuration = maxInstantiateDuration;
+			var poolGO = new GameObject("Pool");
+			Object.DontDestroyOnLoad(poolGO);
+			poolGO.SetActive(false);
+			PoolRootNode = poolGO.transform;
 		}
 
 		[BlackList]
 		public void Initialize() {
 			m_stopwatch = new Stopwatch();
-			var poolGO = new GameObject("Pool");
-			Object.DontDestroyOnLoad(poolGO);
-			poolGO.SetActive(false);
-			PoolRootNode = poolGO.transform;
 
-			SpriteAtlasManager.atlasRequested += (atlasName, callback) => {
+			/*SpriteAtlasManager.atlasRequested += (atlasName, callback) => {
 				Debug.LogWarning("Request Atlas : " + atlasName);
 				var handle = LoadAsync<SpriteAtlas>("Assets/SpriteAtlas/" + atlasName + ".spriteatlas");
 				handle.OnComplete += loadHandle => {
@@ -66,9 +72,16 @@ namespace Extend.Asset {
 
 					callback(atlas);
 				};
-			};
+			};*/
 		}
 
+		public async Task InitAddressable()
+		{
+			Debug.Log("addressable is InitializeAsync complete start");
+			await Addressables.InitializeAsync().Task;
+			Debug.Log("addressable is InitializeAsync complete End...");
+		}
+		
 		[BlackList]
 		public void Destroy() {
 			GC.Collect();
@@ -136,8 +149,15 @@ namespace Extend.Asset {
 			return false;
 		}
 
+		public AssetAsyncLoadHandle LoadTextAsync(string path) {
+			return LoadAsync<TextAsset>(path);
+		}
+
 		public AssetAsyncLoadHandle LoadGameObjectAsync(string path) {
 			return LoadAsync<GameObject>(path);
+		}
+		public AssetAsyncLoadHandle LoadShaderAsync(string path) {
+			return LoadAsync<Shader>(path);
 		}
 
 		public AssetAsyncLoadHandle LoadSpriteAsync(string path) {
@@ -162,6 +182,10 @@ namespace Extend.Asset {
 
 		public AssetAsyncLoadHandle LoadAnimatorControllerAsync(string path) {
 			return LoadAsync<RuntimeAnimatorController>(path);
+		}
+
+		public AssetAsyncLoadHandle LoadScriptableObjectAsync(string path) {
+			return LoadAsync<ScriptableObject>(path);
 		}
 
 		[BlackList]
@@ -261,7 +285,8 @@ namespace Extend.Asset {
 
 		public void LoadSceneAsync(string path, bool additive, Action<SceneInstance> callback = null) {
 			var handle = Addressables.LoadSceneAsync(path, additive ? LoadSceneMode.Additive : LoadSceneMode.Single);
-			handle.Completed += _ => { callback.Invoke(new SceneInstance(handle)); };
+			var sceneInstance = new SceneInstance(handle);
+			handle.Completed += _ => { callback.Invoke(sceneInstance); };
 		}
 
 		/*public Shader LoadShader(string path) {

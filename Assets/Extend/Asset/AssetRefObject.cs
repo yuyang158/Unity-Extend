@@ -23,7 +23,7 @@ namespace Extend.Asset {
 			}
 		}
 
-		public bool IsFinished => m_status is AssetStatus.DONE or AssetStatus.FAIL;
+		public bool IsFinished => m_status == AssetStatus.DONE || m_status == AssetStatus.FAIL;
 
 		public event Action<AssetRefObject> OnStatusChanged;
 

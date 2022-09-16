@@ -1,11 +1,13 @@
 ﻿using Extend.Common;
 using UnityEngine;
+using XiaoIceland.Service;
 
 namespace Extend {
 	public class AppStartUp : MonoBehaviour {
 		private void Start() {
-			var lua = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
-			lua.StartUp();
+			VersionService service = new VersionService();
+			service.Initialize();
+			service.StartLua();
 		}
 	}
 }

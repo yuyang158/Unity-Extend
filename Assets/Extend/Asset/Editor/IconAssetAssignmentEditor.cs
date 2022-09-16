@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace Extend.Asset.Editor {
 	public class IconAssetAssignmentProjectPreview : AssetPostprocessor {
-		private static readonly Dictionary<string, Texture> m_cachedTexture = new(32);
+		private static readonly Dictionary<string, Texture> m_cachedTexture = new Dictionary<string, Texture>(32);
 
 		[InitializeOnLoadMethod]
 		private static void Init() {

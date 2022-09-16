@@ -64,6 +64,9 @@ namespace Extend.LuaUtil {
 	public delegate bool LuaEventCallback(EventInstance e);
 
 	[CSharpCallLua]
+	public delegate bool LuaGlobalEventCallback(string eventContent);
+
+	[CSharpCallLua]
 	public delegate object GetGlobalVM(string path);
 
 	[CSharpCallLua]

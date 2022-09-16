@@ -49,7 +49,7 @@ namespace Extend.LuaMVVM {
 		public LuaTable LuaArrayData {
 			get => m_arrayData;
 			set {
-				if( m_dropdown.options is {Count: > 0} ) {
+				if( m_dropdown.options != null && m_dropdown.options.Count > 0 ) {
 					foreach( var optionData in m_dropdown.options ) {
 						var option = optionData as OptionDataWithElement;
 						option.SpriteElement = null;

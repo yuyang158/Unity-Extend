@@ -17,7 +17,7 @@ namespace Extend.LuaBindingEvent.AnimationEvent {
 
 		[SerializeField, ReorderList]
 		private EventInstanceEmmyFunction[] Callbacks; 
-		private readonly List<LuaEventCallback> m_removed = new();
+		private readonly List<LuaEventCallback> m_removed = new List<LuaEventCallback>();
 		private bool m_dispatching;
 
 		public void OnEvent(EventInstance instance) {

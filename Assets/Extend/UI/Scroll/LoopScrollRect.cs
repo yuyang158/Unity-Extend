@@ -278,7 +278,7 @@ namespace Extend.UI.Scroll {
 		}
 
 		[SerializeField]
-		private ScrollRectEvent m_OnValueChanged = new();
+		private ScrollRectEvent m_OnValueChanged = new ScrollRectEvent();
 
 		public ScrollRectEvent onValueChanged {
 			get => m_OnValueChanged;

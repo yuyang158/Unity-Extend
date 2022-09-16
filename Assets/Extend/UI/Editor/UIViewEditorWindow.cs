@@ -119,14 +119,6 @@ namespace Extend.UI.Editor {
 						break;
 					}
 
-					/*if( !data.Configuration.FullScreen ) {
-						var bg = data.Configuration.BackgroundFx;
-						if( bg is {GUIDValid: false} ) {
-							error = "Background is required for a non-full screen view";
-							break;
-						}
-					}*/
-
 					if( data.Configuration.UIView is {GUIDValid: false} ) {
 						error = "UI View can not be empty";
 						break;
@@ -173,6 +165,7 @@ namespace Extend.UI.Editor {
 					prop.intValue = EditorGUI.IntSlider(rect, prop.intValue, 15, 60);
 			}
 			else {
+				EditorGUIUtility.labelWidth = 1;
 				EditorGUI.PropertyField(rect, prop, GUIContent.none);
 			}
 		}

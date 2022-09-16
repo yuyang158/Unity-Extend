@@ -76,7 +76,7 @@ namespace Extend.Editor {
 						}
 					}
 
-					filepath = Application.dataPath.Replace("Assets", "Lua/") + parts[i - 1][startIdx..];
+					filepath = Application.dataPath.Replace("Assets", "Lua/") + parts[i - 1].Substring(startIdx);
 					return;
 				}
 			}

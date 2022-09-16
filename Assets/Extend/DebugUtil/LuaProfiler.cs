@@ -40,6 +40,6 @@ namespace Extend.DebugUtil {
 		private static int m_sampleDepth;
 
 		// private const int  _maxSampleDepth = 100;
-		private static readonly Dictionary<int, string> m_showNames = new();
+		private static readonly Dictionary<int, string> m_showNames = new Dictionary<int, string>();
 	}
 }

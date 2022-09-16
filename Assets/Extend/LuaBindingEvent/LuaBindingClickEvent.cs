@@ -1,15 +1,22 @@
+using System;
 using System.Collections.Generic;
 using Extend.Common;
 using UnityEngine;
-using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace Extend.LuaBindingEvent {
-	public class LuaBindingClickEvent : LuaBindingEventBase, IPointerClickHandler {
+	[RequireComponent(typeof(Button))]
+	public class LuaBindingClickEvent : LuaBindingEventBase {
 		[ReorderList, LabelText("On Click ()"), SerializeField]
 		private List<BindingEvent> m_clickEvent;
-		
-		public void OnPointerClick(PointerEventData eventData) {
-			TriggerPointerEvent("OnClick", m_clickEvent, eventData);
+
+		private void Start() {
+			var button = GetComponent<Button>();
+			button.onClick.AddListener(OnPointerClick);
+		}
+
+		public void OnPointerClick() {
+			TriggerPointerEvent("OnClick", m_clickEvent, null);
 		}
 	}
 }

@@ -13,6 +13,9 @@ namespace Extend.Asset {
 		public AssetInstance(AsyncOperationHandle handle) {
 			m_handle = handle;
 			AssetService.Get().Container.Put(this);
+			#if ASSET_LOG
+			Debug.LogWarning("Put asset : " + handle.DebugName);
+			#endif
 			m_debugNameCache = handle.DebugName;
 
 			if( m_handle.IsDone ) {

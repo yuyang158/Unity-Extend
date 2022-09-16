@@ -1,5 +1,3 @@
-using Extend.Asset.Attribute;
-using Extend.Common;
 using Extend.Common.Editor;
 using UnityEditor;
 using UnityEngine;
@@ -9,7 +7,7 @@ namespace Extend.Asset.Editor {
 	public class AssetReferencePropertyDrawer : AssetPopupPreviewDrawer {
 		private Object m_object;
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label) {
-			var assetRefProperty = property.FindPropertyRelative("m_assetRef");
+			SerializedProperty assetRefProperty = property.FindPropertyRelative("m_assetRef");
 			EditorGUI.PropertyField(position, assetRefProperty, label);
 		}
 

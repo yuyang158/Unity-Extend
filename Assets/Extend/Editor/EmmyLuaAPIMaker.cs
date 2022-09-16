@@ -40,8 +40,9 @@ public static class EmmyLuaAPIMaker {
 			Generator.GetGenConfig(Utils.GetAllTypes());
 			ExportLuaApi(Generator.LuaCallCSharp);
 		}
-		catch {
+		catch(Exception e) {
 			// ignored
+			Debug.LogException(e);
 		}
 	}
 
@@ -209,9 +210,10 @@ public static class EmmyLuaAPIMaker {
 			return;
 		}
 
-		if( !Directory.Exists(path) ) {
-			Directory.CreateDirectory(path);
+		if( Directory.Exists(path) ) {
+			Directory.Delete(path, true);
 		}
+		Directory.CreateDirectory(path);
 
 		for( int i = 0; i < classList.Count; i++ ) {
 			var t = classList[i];
@@ -262,7 +264,7 @@ public static class EmmyLuaAPIMaker {
 				int delta;
 				if( constructors.Count > 0 ) {
 					WriteCtorComment(sw, constructors);
-					paramInfos = constructors[^1].GetParameters();
+					paramInfos = constructors[constructors.Count - 1].GetParameters();
 					delta = paramInfos.Length - constructors[0].GetParameters().Length;
 					WriteFun(sw, delta, paramInfos, t, "", name, true);
 					isDefineTable = true;
@@ -294,13 +296,21 @@ public static class EmmyLuaAPIMaker {
 						list = new List<MethodInfo>();
 						methodDict.Add(methodName, list);
 					}
-					list.Add(method);
+
+					paramInfos = method.GetParameters();
+					var arrayParam = paramInfos.Any(paramInfo => paramInfo.GetType().IsArray);
+					if(!arrayParam && !method.ReturnType.IsArray) {
+						list.Add(method);
+					}
 				}
 
 				var itr = methodDict.GetEnumerator();
 				while( itr.MoveNext() ) {
 					List<MethodInfo> list = itr.Current.Value;
 					RemoveRewriteFunHasTypeAndString(list);
+					
+					if(list.Count == 0)
+						break;
 
 					list.Sort((left, right) => {
 						int leftLen = left.GetParameters().Length;
@@ -315,9 +325,9 @@ public static class EmmyLuaAPIMaker {
 						return leftLen - rightLen;
 					});
 					WriteFunComment(sw, list);
-					paramInfos = list[^1].GetParameters();
+					paramInfos = list[list.Count - 1].GetParameters();
 
-					if( list[^1].IsDefined(typeof(ExtensionAttribute), false) ) {
+					if( list[list.Count - 1].IsDefined(typeof(ExtensionAttribute), false) ) {
 						var newParamInfos = new List<ParameterInfo>(paramInfos);
 						newParamInfos.RemoveAt(0);
 						paramInfos = newParamInfos.ToArray();
@@ -349,7 +359,7 @@ public static class EmmyLuaAPIMaker {
 				fs.Close();
 			}
 			catch( Exception e ) {
-				Debug.LogError(name + "\n" + e.Message);
+				Debug.LogException(e);
 			}
 		}
 	}
@@ -383,7 +393,7 @@ public static class EmmyLuaAPIMaker {
 			self = "";
 			string[] nameList = fullName.Split(new char[] {'.'});
 			if( nameList.Length > 0 ) {
-				self = nameList[^1];
+				self = nameList[nameList.Length - 1];
 			}
 
 			if( nameList.Length > 1 ) {
@@ -595,7 +605,11 @@ public static class EmmyLuaAPIMaker {
 		}
 
 		for( int i = 0, imax = paramInfos.Length; i < imax; i++ ) {
-			sw.WriteLine($"---@param {ReplaceLuaKeyWord(paramInfos[i].Name)} {ConvertToLuaType(paramInfos[i].ParameterType)}");
+			var pInfo = paramInfos[i];
+			if(pInfo.IsOut) {
+				continue;
+			}
+			sw.WriteLine($"---@param {ReplaceLuaKeyWord(pInfo.Name)} {ConvertToLuaType(pInfo.ParameterType)}");
 		}
 
 		string argsStr = "";
@@ -767,7 +781,7 @@ public static class EmmyLuaAPIMaker {
 			"number" => "number",
 			"json" => "table",
 			"link" => $"Config_{key}",
-			"linkjson" => $"Config_{key}[]",
+			"links" => $"Config_{key}[]",
 			"boolean" => "boolean",
 			"translate" => "string",
 			"asset" => "CS.Extend.Asset.AssetReference",

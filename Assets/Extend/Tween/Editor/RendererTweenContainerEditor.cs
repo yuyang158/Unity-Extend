@@ -24,7 +24,7 @@ namespace Extend.Tween.Editor {
 					}
 					return UIEditorUtil.LINE_HEIGHT * 4;
 				},
-				drawElementCallback = (rect, index, _, _) => {
+				drawElementCallback = (rect, index, isActive, _) => {
 					var rendererProperty = serializedObject.FindProperty("m_renderer");
 					if( !rendererProperty.objectReferenceValue ) {
 						return;
@@ -69,7 +69,7 @@ namespace Extend.Tween.Editor {
 					part2Rect = UIEditorUtil.CalcMultiColumnRect(rect, 1, 2);
 					EditorGUI.PropertyField(part2Rect, valueProperty.FindPropertyRelative("m_loopType"));
 				},
-				onAddDropdownCallback = (_, _) => {
+				onAddDropdownCallback = (buttonRect, list) => {
 					var rendererProperty = serializedObject.FindProperty("m_renderer");
 					var renderer = rendererProperty.objectReferenceValue as Renderer;
 					if( !renderer ) {

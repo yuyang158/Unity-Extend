@@ -11,7 +11,10 @@ namespace Extend.Asset.Editor.Process {
 		public int callbackOrder => 0;
 
 		public static readonly ShaderKeyword[] STRIP_BUILD_IN_KEYWORDS = {
-			new("_ADDITIONAL_LIGHTS_VERTEX")
+			new ShaderKeyword("_ADDITIONAL_LIGHTS_VERTEX"),
+			new ShaderKeyword("_DBUFFER_MRT1"),
+			new ShaderKeyword("_DBUFFER_MRT2"),
+			new ShaderKeyword("_DBUFFER_MRT3"),
 		};
 
 		private static readonly string[] URP_SKIP_KEYWORDS = {
@@ -44,7 +47,7 @@ namespace Extend.Asset.Editor.Process {
 			"FOG_EXP2"
 		};
 
-		private static readonly Dictionary<Shader, List<string[]>> m_shaderKeywordCollector = new();
+		private static readonly Dictionary<Shader, List<string[]>> m_shaderKeywordCollector = new Dictionary<Shader, List<string[]>>();
 
 		public static void Clear() {
 			m_shaderKeywordCollector.Clear();
@@ -73,7 +76,7 @@ namespace Extend.Asset.Editor.Process {
 
 		private static readonly string[] m_ignoreShaderNames = {"VolumetricFog", "Hidden"};
 		public void OnProcessShader(Shader shader, ShaderSnippetData snippet, IList<ShaderCompilerData> data) {
-			Debug.Log($"Before Shader {shader.name} --> {data.Count}");
+			// Debug.Log($"Before Shader {shader.name} --> {data.Count}");
 			if( data.Count == 1 ) {
 				return;
 			}
@@ -88,7 +91,7 @@ namespace Extend.Asset.Editor.Process {
 				}
 
 				data.Clear();
-				Debug.Log($"Shader {shader.name} --> {data.Count}");
+				// Debug.Log($"Shader {shader.name} --> {data.Count}");
 				return;
 			}
 
@@ -101,7 +104,7 @@ namespace Extend.Asset.Editor.Process {
 						break;
 					}
 
-					var keywordName = shaderKeyword.name;
+					var keywordName = ShaderKeyword.GetKeywordName(shader, shaderKeyword);
 					if(URP_SKIP_KEYWORDS.Contains(keywordName))
 						continue;
 
@@ -120,7 +123,7 @@ namespace Extend.Asset.Editor.Process {
 				}
 			}
 
-			Debug.Log($"Shader {shader.name} --> {data.Count}");
+			// Debug.Log($"Shader {shader.name} --> {data.Count}");
 		}
 	}
 }

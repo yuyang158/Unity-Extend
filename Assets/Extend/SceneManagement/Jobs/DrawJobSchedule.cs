@@ -13,8 +13,8 @@ namespace Extend.SceneManagement.Jobs {
 		public ShadowCastingMode ShadowCastingMode;
 		public bool ReceiveShadow;
 		public int MeshMaterialIndex;
-		public List<DrawInstance> Instances = new();
-		private static readonly MaterialPropertyBlock m_emptyBlock = new();
+		public List<DrawInstance> Instances = new List<DrawInstance>();
+		private static readonly MaterialPropertyBlock m_emptyBlock = new MaterialPropertyBlock();
 
 		private DrawMatrixBuildSingleJob[] m_buildJob;
 		private JobHandle[] m_jobHandle;
@@ -136,9 +136,9 @@ namespace Extend.SceneManagement.Jobs {
 		}
 
 		private Dictionary<int, BatchMeshMaterial> m_meshMaterialContainer;
-		private readonly List<BatchMeshMaterial> m_meshMaterials = new();
+		private readonly List<BatchMeshMaterial> m_meshMaterials = new List<BatchMeshMaterial>();
 		private int m_meshMaterialIndex;
-		public List<DrawInstance> Instances = new();
+		public List<DrawInstance> Instances = new List<DrawInstance>();
 
 		public void Prepare() {
 			m_meshMaterialContainer = new Dictionary<int, BatchMeshMaterial>(64);

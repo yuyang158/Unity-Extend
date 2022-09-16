@@ -12,8 +12,8 @@ namespace Extend.LuaMVVM {
 		public AssetReference Asset;
 
 		private LuaTable m_arrayData;
-		private readonly List<GameObject> m_items = new(16);
-		private readonly List<AssetReference.InstantiateAsyncContext> m_loadContexts = new(16);
+		private readonly List<GameObject> m_items = new List<GameObject>(16);
+		private readonly List<AssetReference.InstantiateAsyncContext> m_loadContexts = new List<AssetReference.InstantiateAsyncContext>(16);
 
 		public void SetDataContext(LuaTable dataSource) {
 			LuaArrayData = dataSource;
@@ -28,7 +28,7 @@ namespace Extend.LuaMVVM {
 			set {
 				m_arrayData = value;
 				int elementCount = m_arrayData?.Length ?? 0;
-				if( Asset is not {GUIDValid: true} ) {
+				if( Asset is {GUIDValid: false} ) {
 					SetupWithExistElement(elementCount);
 				}
 				else {

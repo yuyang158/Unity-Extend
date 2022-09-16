@@ -26,7 +26,7 @@ namespace Extend.LuaBindingData {
 
 			Type type;
 			if( FieldType.StartsWith("CS.") ) {
-				var typeName = FieldType[3..];
+				var typeName = FieldType.Substring(3);
 				type = String2TypeCache.GetType(typeName);
 			}
 			else {
@@ -39,8 +39,10 @@ namespace Extend.LuaBindingData {
 				if(string.IsNullOrEmpty(path))
 					return;
 
-				UnityEditor.EditorUtility.DisplayDialog("ERROR", $"{FieldName} should use AssetReference to a non scene object!", "OK");
-				prop.objectReferenceValue = null;
+				if( path.EndsWith(".prefab") ) {
+					UnityEditor.EditorUtility.DisplayDialog("ERROR", $"{FieldName} should use AssetReference to a non scene object!", "OK");
+					prop.objectReferenceValue = null;
+				}
 			}
 		}
 #endif

@@ -44,11 +44,14 @@ namespace Extend.Asset {
 
 		public bool GUIDValid {
 			get {
+				if( m_assetRef == null || string.IsNullOrEmpty(m_assetRef.AssetGUID) ) {
+					return false;
+				}
 #if UNITY_EDITOR
 				var path = UnityEditor.AssetDatabase.GUIDToAssetPath(m_assetRef.AssetGUID);
 				return !string.IsNullOrEmpty(path);
 #else
-				return m_assetRef.IsValid();
+				return true;
 #endif
 			}
 		}
@@ -141,7 +144,7 @@ namespace Extend.Asset {
 
 		public GameObject Instantiate(Transform parent = null, bool stayWorldPosition = false) {
 			GetGameObject();
-			return Asset is not PrefabAssetInstance prefabAsset ? null : prefabAsset.Instantiate(parent, stayWorldPosition);
+			return Asset is PrefabAssetInstance prefabAsset ? prefabAsset.Instantiate(parent, stayWorldPosition) : null;
 		}
 
 		public GameObject Instantiate(Vector3 position) {
@@ -150,7 +153,7 @@ namespace Extend.Asset {
 
 		public GameObject Instantiate(Vector3 position, Quaternion rotation, Transform parent = null) {
 			GetGameObject();
-			if( Asset is not PrefabAssetInstance prefabAsset ) {
+			if( !(Asset is PrefabAssetInstance prefabAsset) ) {
 				return null;
 			}
 
@@ -206,7 +209,7 @@ namespace Extend.Asset {
 			public void Instantiate() {
 				if( Cancel )
 					return;
-				if( Ref.Asset is not PrefabAssetInstance prefabAsset ) {
+				if( !(Ref.Asset is PrefabAssetInstance prefabAsset) ) {
 					return;
 				}
 
@@ -236,7 +239,7 @@ namespace Extend.Asset {
 		}
 
 		public void InitPool(string name, int prefer, int max) {
-			if( Asset is not PrefabAssetInstance prefabAsset ) {
+			if( !(Asset is PrefabAssetInstance prefabAsset) ) {
 				return;
 			}
 

@@ -59,8 +59,11 @@ namespace Extend.Asset {
 			service.StartCoroutine(WebRequestFile(assetPath, callback));
 		}
 
-		public static Stream LoadFileSync(string path) {
+		public static Stream LoadFileSync(string path, bool autoDetectPath = true) {
 			var assetPath = DetermineAssetLocation(path, out var underPersistent);
+			if( !autoDetectPath ) {
+				underPersistent = false;
+			}
 			if( underPersistent || Application.platform != RuntimePlatform.Android || Application.isEditor ) {
 				return new FileStream(assetPath, FileMode.Open, FileAccess.Read);
 			}

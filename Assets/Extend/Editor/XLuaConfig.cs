@@ -8,17 +8,13 @@
 
 using System.Collections.Generic;
 using System;
-using System.Diagnostics;
 using System.Reflection;
 using System.Linq;
 using DG.Tweening;
+using Extend;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.EventSystems;
-using UnityEngine.Rendering;
-using UnityEngine.Rendering.Universal;
-using UnityEngine.UI;
 using UnityEngine.VFX;
 using XLua;
 
@@ -27,7 +23,7 @@ public static class XLuaGenConfig {
 	/***************如果你全lua编程，可以参考这份自动化配置***************/
 	//--------------begin 纯lua编程配置参考----------------------------
 	private static readonly List<string> exclude = new List<string> {
-		"HideInInspector", "ExecuteInEditMode",
+		"HideInInspector", "ExecuteInEditMode","CloudStreaming",
 		"AddComponentMenu", "ContextMenu",
 		"RequireComponent", "DisallowMultipleComponent",
 		"SerializeField", "AssemblyIsEditorAssembly",
@@ -56,7 +52,7 @@ public static class XLuaGenConfig {
 		"MeshSubsetCombineUtility", "AOT", "Social", "Enumerator",
 		"SendMouseEvents", "Cursor", "Flash", "ActionScript",
 		"OnRequestRebuild", "Ping", "DynamicGI", "AssetBundle",
-		"ShaderVariantCollection", "Json",
+		"ShaderVariantCollection", "Json", "Logger",
 		"CoroutineTween", "GraphicRebuildTracker", "InputManagerEntry", "InputRegistering",
 		"Advertisements", "UnityEditor", "WSA", "StateMachineBehaviour",
 		"EventProvider", "Apple", "Motion", "WindZone", "Subsystem",
@@ -132,24 +128,6 @@ public static class XLuaGenConfig {
 		return exclude.Any(t => fullName.Contains(t));
 	}
 
-	private static readonly Type[] exportToLua = {
-		typeof(Stopwatch),
-		typeof(TextMeshProUGUI),
-		typeof(TextMeshPro),
-		typeof(TMP_InputField),
-		typeof(Tweener),
-		typeof(EventSystem),
-		typeof(Volume),
-		typeof(LayerMask),
-		typeof(RaycastHit),
-		typeof(UnityEventBase),
-		typeof(UnityEvent),
-		typeof(Button.ButtonClickedEvent),
-		typeof(CameraExtensions),
-		typeof(EventSystem),
-		typeof(PointerEventData)
-	};
-
 	[LuaCallCSharp]
 	public static IEnumerable<Type> LuaCallCSharp {
 		get
@@ -157,8 +135,7 @@ public static class XLuaGenConfig {
 			var namespaces = new List<string>() // 在这里添加名字空间
 			{
 				"UnityEngine",
-				"UnityEngine.UI",
-				"UnityEngine.AI"
+				"UnityEngine.UI"
 			};
 			var unityTypes = from assembly in AppDomain.CurrentDomain.GetAssemblies()
 				where !( assembly.ManifestModule is System.Reflection.Emit.ModuleBuilder )
@@ -181,11 +158,11 @@ public static class XLuaGenConfig {
 				where !( assembly.ManifestModule is System.Reflection.Emit.ModuleBuilder )
 				from type in assembly.GetExportedTypes()
 				where type.BaseType != typeof(MulticastDelegate) && !type.IsInterface && !type.IsEnum && !isExcluded(type) &&
-				      type.GetCustomAttributes(typeof(CSharpCallLuaAttribute), true).Length > 0
+				      type.GetCustomAttributes(typeof(LuaCallCSharpAttribute), true).Length > 0
 				select type;
 
 			var arr = customTypes.ToArray();
-			return unityTypes.Concat(arr).Concat(exportToLua);
+			return unityTypes.Concat(arr).Concat(LuaVM.ExportToLua);
 		}
 	}
 
@@ -210,7 +187,7 @@ public static class XLuaGenConfig {
 
 				foreach( var param in method.GetParameters() ) {
 					var paramType = param.ParameterType.IsByRef ? param.ParameterType.GetElementType() : param.ParameterType;
-					if( typeof(Delegate).IsAssignableFrom(paramType) ) {
+					if( typeof(Delegate).IsAssignableFrom(paramType) && !paramType.IsPointer ) {
 						delegate_types.Add(paramType);
 					}
 				}
@@ -224,6 +201,8 @@ public static class XLuaGenConfig {
 					typeof(Action<bool>),
 					typeof(WaitForSeconds),
 					typeof(VisualEffect),
+					typeof(TextMeshProUGUI),
+					typeof(TextMeshPro),
 					typeof(System.Collections.IEnumerator)
 				});
 			return list;

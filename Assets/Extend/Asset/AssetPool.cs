@@ -23,7 +23,8 @@ namespace Extend.Asset {
 			m_assetInstance = assetInstance;
 			m_cached = new List<GameObject>(MaxSize);
 			PoolNode = new GameObject(name).transform;
-			PoolNode.SetParent(AssetService.Get().PoolRootNode);
+			var parent = AssetService.Get().PoolRootNode;
+			PoolNode.SetParent(parent);
 		}
 
 		public void WarmUp() {

@@ -1,37 +1,30 @@
 ﻿using System.Collections.Generic;
-using Extend.Asset;
-using Extend.Asset.Attribute;
-using Extend.EventAsset;
 using Extend.LuaUtil;
 using UnityEngine;
 using XLua;
 
 namespace Extend.LuaBindingEvent {
-	[CSharpCallLua]
+	[CSharpCallLua, LuaCallCSharp]
 	public class LuaGlobalEvent : MonoBehaviour {
-		private static readonly Dictionary<EventInstance, LuaEventCallback> m_eventCallbacks = new();
-		public static void Register(EventInstance e, LuaEventCallback callback) {
+		private static readonly Dictionary<string, LuaGlobalEventCallback> m_eventCallbacks = new Dictionary<string, LuaGlobalEventCallback>();
+		public static void Register(string e, LuaGlobalEventCallback callback) {
 			m_eventCallbacks.Add(e, callback);
 		}
 
-		public static void Trigger(EventInstance e) {
-			if(!m_eventCallbacks.TryGetValue(e, out var cb)) {
+		private static void Trigger(string eventName, string eventContent) {
+			if(!m_eventCallbacks.TryGetValue(eventName, out var cb)) {
 				return;
 			}
 
-			cb.Invoke(e);
+			cb.Invoke(eventContent);
 		}
 
-		[AssetReferenceAssetType(AssetType = typeof(EventInstance)), BlackList]
-		public AssetReference Event;
+		public string EventName;
+		public string EventContent;
 
 		[BlackList]
 		public void Dispatch() {
-			Trigger(Event.GetScriptableObject<EventInstance>());
-		}
-		
-		private void OnDestroy() {
-			Event.Dispose();
+			Trigger(EventName, EventContent);
 		}
 	}
 }

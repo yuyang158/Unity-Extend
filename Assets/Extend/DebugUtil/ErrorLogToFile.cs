@@ -9,7 +9,7 @@ namespace Extend.DebugUtil {
 	public class ErrorLogToFile : IService {
 		public int ServiceType => (int)CSharpServiceManager.ServiceType.ERROR_LOG_TO_FILE;
 		private TextWriter m_writer;
-		private readonly AutoResetEvent m_autoEvent = new(false);
+		private readonly AutoResetEvent m_autoEvent = new AutoResetEvent(false);
 		private Thread m_writeThread;
 		private bool m_exit;
 
@@ -88,7 +88,9 @@ namespace Extend.DebugUtil {
 			var qs = new NameValueCollection {
 				{"device", SystemInfo.deviceName},
 				{"os", SystemInfo.operatingSystem},
-				{"version", Application.version}, {"other", releaseType}
+				{"version", Application.version},
+				{"other", releaseType},
+				{"whoami", "bing"}
 			};
 			var url = IniRead.SystemSetting.GetString("DEBUG", "LogUploadUrl");
 			Utility.HttpFileUpload(url, qs, filePath);

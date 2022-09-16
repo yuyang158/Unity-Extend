@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Extend.Common {
 	public static class String2TypeCache {
-		private static readonly Dictionary<string, Type> m_str2Types = new();
+		private static readonly Dictionary<string, Type> m_str2Types = new Dictionary<string, Type>();
 
 		public static Type GetType( string fullTypeName ) {
 			if( m_str2Types.TryGetValue(fullTypeName, out var type) ) {

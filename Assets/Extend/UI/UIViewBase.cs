@@ -12,6 +12,7 @@ namespace Extend.UI {
 
 		public bool ControlInteractable = true;
 
+		[LuaCallCSharp]
 		public enum Status {
 			Showing,
 			Loop,

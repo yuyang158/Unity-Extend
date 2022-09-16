@@ -1,7 +1,8 @@
 #if !UNITY_EDITOR
 using System.Text;
-using UnityEngine.Rendering.Universal;
 using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
+using XLua;
 #endif
 using DG.Tweening;
 using Extend.Asset;
@@ -9,10 +10,14 @@ using Extend.Common;
 using Extend.DebugUtil;
 using Extend.LuaUtil;
 using Extend.Network;
+using Extend.Network.HttpClient;
 using Extend.UI.i18n;
 using Extend.Render;
 using Extend.SceneManagement;
 using UnityEngine;
+using XiaoIceland.Network;
+using XiaoIceland.Service;
+using XiaoIceIsland.Agora;
 
 namespace Extend {
 	internal static class StaticServiceInitializer {
@@ -22,44 +27,18 @@ namespace Extend {
 			CSharpServiceManager.Register(new ErrorLogToFile());
 			CSharpServiceManager.Register(new StatService());
 			CSharpServiceManager.Register(new AssetService());
-#if !UNITY_EDITOR
-			var urpAsset = AssetService.Get().Load<UniversalRenderPipelineAsset>("Assets/Settings/UniversalRP-HighQuality.asset");
-			GraphicsSettings.renderPipelineAsset = urpAsset.GetObject() as UniversalRenderPipelineAsset;
-			QualitySettings.renderPipeline = urpAsset.GetObject() as UniversalRenderPipelineAsset;
-#endif
+			CSharpServiceManager.Register(new GameSystemSetting());
+			CSharpServiceManager.Register(new DownLoadService());
+			CSharpServiceManager.Register(new AgoraService());
+			#if CLOSE_UNITY_LOG
+				Debug.unityLogger.logEnabled = false;
+			#endif
 		}
 
 		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
 		public static void OnInitBeforeSceneLoad() {
 			Application.runInBackground = true;
 			DOTween.Init(false, true, LogBehaviour.Default);
-
-			CSharpServiceManager.Register(new GameSystem());
-			CSharpServiceManager.Register(new RenderFeatureService());
-			CSharpServiceManager.Register(new SpriteAssetService());
-			CSharpServiceManager.Register(new LuaVM());
-			CSharpServiceManager.Register(new TickService());
-			CSharpServiceManager.Register(new I18nService());
-			CSharpServiceManager.Register(new SceneLoadManager());
-
-
-#if !UNITY_EDITOR
-			var builder = new StringBuilder(2048);
-			builder.AppendLine($"Unity: {Application.unityVersion}");
-			builder.AppendLine($"App : {Application.identifier}:{Application.version} {Application.platform}");
-			builder.AppendLine($"Device : {SystemInfo.deviceModel}, {SystemInfo.deviceName}, {SystemInfo.deviceType}");
-			builder.AppendLine($"Battery : {SystemInfo.batteryStatus}, {SystemInfo.batteryLevel:0.00}");
-			builder.AppendLine($"Processor : {SystemInfo.processorType}, {SystemInfo.processorCount}, {SystemInfo.processorFrequency}");
-			builder.AppendLine($"Graphics : {SystemInfo.graphicsDeviceName}, {SystemInfo.graphicsDeviceType}, " +
-			                   $"{SystemInfo.graphicsDeviceVendor}, {SystemInfo.graphicsDeviceVersion}, " +
-			                   $"GMEM : {SystemInfo.graphicsMemorySize}, SM{SystemInfo.graphicsShaderLevel}");
-
-			builder.AppendLine($"OS : {SystemInfo.operatingSystem}, MEM : {SystemInfo.systemMemorySize}, {SystemInfo.operatingSystemFamily}");
-			builder.AppendLine("UsesReversedZBuffer : " + SystemInfo.usesReversedZBuffer);
-			builder.Append($"NPOT support : {SystemInfo.npotSupport}, Instancing support : {SystemInfo.supportsInstancing}, Texture Size : {SystemInfo.maxTextureSize}, " +
-			                   $"Compute : {SystemInfo.supportsComputeShaders}");
-			Debug.LogWarning(builder.ToString());
-#endif
 		}
 
 		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
@@ -68,17 +47,8 @@ namespace Extend {
 			CSharpServiceManager.Register(new NetworkService());
 			CSharpServiceManager.Register(new GlobalCoroutineRunnerService());
 
-			var mode = GameSystem.Get().SystemSetting.GetString("GAME", "Mode");
-			if( mode != "Shipping" ) {
-				/*using( var assetRef = AssetService.Get().Load<GameObject>("Console.prefab") ) {
-					var go = assetRef.Instantiate();
-					CSharpServiceManager.Register(go.GetComponent<InGameConsole>());
-				}*/
-			}
+			Application.targetFrameRate = 60;
 
-			Application.targetFrameRate = -1;
-			var maxInstantiateDuration = GameSystem.Get().SystemSetting.GetDouble("GAME", "MaxInstantiateDuration");
-			AssetService.Get().AfterSceneLoaded((float) maxInstantiateDuration);
 		}
 	}
 }

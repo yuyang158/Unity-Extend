@@ -12,12 +12,11 @@ namespace Extend.Asset {
 	}
 
 	public class AssetContainer {
-		private readonly List<AssetRefObject> m_assets = new(1024);
-		private readonly Dictionary<int, AssetRefObject> m_hashAssetDic = new(1024);
+		private readonly List<AssetRefObject> m_assets = new List<AssetRefObject>(1024);
+		private readonly Dictionary<int, AssetRefObject> m_hashAssetDic = new Dictionary<int, AssetRefObject>(1024);
 		private int m_checkStartIndex;
 		private const float MAX_ASSET_ZERO_REF_DURATION = 10;
 		private const int SINGLE_FRAME_CHECK_COUNT = 1;
-		private readonly Dictionary<string, BundleUnloadStrategy> m_abStrategy = new();
 
 		public AssetContainer() {
 			Application.lowMemory += () => { Collect(true); };

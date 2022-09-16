@@ -1,6 +1,5 @@
 ﻿using System;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
 
 namespace Extend.Asset {
 	public class PoolCacheGO : AssetServiceManagedGO {

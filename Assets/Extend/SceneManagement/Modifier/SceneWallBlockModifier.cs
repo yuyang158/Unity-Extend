@@ -22,9 +22,9 @@ namespace Extend.SceneManagement.Modifier {
 			}
 		}
 
-		private readonly List<BatchMeshMaterialMap> m_batchMeshMaterials = new(64);
-		private readonly List<int> m_modifiedIDs = new(128);
-		private readonly List<int> m_lastFrameModifiedIDs = new(128);
+		private readonly List<BatchMeshMaterialMap> m_batchMeshMaterials = new List<BatchMeshMaterialMap>(64);
+		private readonly List<int> m_modifiedIDs = new List<int>(128);
+		private readonly List<int> m_lastFrameModifiedIDs = new List<int>(128);
 
 		public void Update(SceneArrangement arrangement) {
 			foreach( var combinedID in m_modifiedIDs ) {

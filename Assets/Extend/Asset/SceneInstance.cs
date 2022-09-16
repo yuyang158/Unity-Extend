@@ -14,9 +14,14 @@ namespace Extend.Asset {
 		[BlackList]
 		public SceneInstance(AsyncOperationHandle handle) {
 			m_handle = handle;
-			m_handle.Completed += operationHandle => {
-				m_scene = (AddressableSceneInstance)operationHandle.Result;
-			};
+			if( handle.IsDone ) {
+				m_scene = (AddressableSceneInstance)handle.Result;
+			}
+			else {
+				m_handle.Completed += operationHandle => {
+					m_scene = (AddressableSceneInstance)operationHandle.Result;
+				};
+			}
 		}
 
 		public Scene GetScene() {

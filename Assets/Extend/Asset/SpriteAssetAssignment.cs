@@ -21,9 +21,6 @@ namespace Extend.Asset {
 			PreLoad();
 			m_loadingHandle?.GiveUp();
 			m_loadingHandle = null;
-			if( !string.IsNullOrEmpty(m_spritePath) ) {
-				SpriteAssetService.Get().Release(m_spritePath);
-			}
 
 			m_spritePath = key;
 			if( string.IsNullOrEmpty(m_spritePath) ) {
@@ -52,7 +49,6 @@ namespace Extend.Asset {
 				return;
 			}
 #endif
-			SpriteAssetService.Get().Release(m_spritePath);
 			m_spritePath = null;
 		}
 	}

@@ -5,7 +5,7 @@ using XLua;
 namespace Extend.LuaMVVM {
 	internal static class TempBindingExpressCache {
 		private const string LUA_TEMPLATE = @"return function(this, current) return {0} end";
-		private static readonly Dictionary<int, LuaFunction> m_cachedLuaFunctions = new();
+		private static readonly Dictionary<int, LuaFunction> m_cachedLuaFunctions = new Dictionary<int, LuaFunction>();
 		
 		public static LuaFunction GenerateTempFunction(ref string script) {
 			var key = script.GetHashCode();

@@ -16,8 +16,8 @@ namespace Extend.LuaMVVM {
 		}
 		
 		private LuaTable m_arrayData;
-		private readonly List<ILuaMVVM> m_items = new(16);
-		private readonly List<AssetReference.InstantiateAsyncContext> m_loadContexts = new(16);
+		private readonly List<ILuaMVVM> m_items = new List<ILuaMVVM>(16);
+		private readonly List<AssetReference.InstantiateAsyncContext> m_loadContexts = new List<AssetReference.InstantiateAsyncContext>(16);
 
 		public LuaTable LuaArrayData {
 			get => m_arrayData;
@@ -28,13 +28,13 @@ namespace Extend.LuaMVVM {
 					var index = i;
 					if( i >= m_items.Count + m_loadContexts.Count ) {
 						AssetReference.InstantiateAsyncContext context;
-						if( m_cell is not {GUIDValid: true} ) {
+						if( m_cell is {GUIDValid: true} ) {
+							context = m_cell.InstantiateAsync(m_scroll.content);
+						}
+						else {
 							var luaBindValue = m_arrayData.Get<int, LuaTable>(i + 1);
 							var assetRef = luaBindValue.GetInPath<AssetReference>("assetRef");
 							context = assetRef.InstantiateAsync(m_scroll.content);
-						}
-						else {
-							context = m_cell.InstantiateAsync(m_scroll.content);
 						}
 						context.Callback += go => {
 							var luaData = LuaArrayData.Get<int, LuaTable>(index + 1);
