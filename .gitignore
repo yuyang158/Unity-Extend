@@ -67,3 +67,5 @@ UpgradeLog.htm
 
 xlua_build/build32_54
 xlua_build/build64_54
+xlua_build/lua-5.4.3/src/lua
+xlua_build/plugin_lua54
