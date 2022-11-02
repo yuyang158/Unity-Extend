@@ -55,9 +55,29 @@ endif()
 
 set(LUA_SRC_PATH lua-${LUA_VERSION}/src)
 set(LUAJIT_SRC_PATH luajit-2.1.0b3/src)
-set(RAPIDJSON_SRC_PATH rapidjson/src)
 set(LUACJSON_SRC_PATH lua-cjson)
 set(LIBUV_HEADER_PATH luv/deps/libuv/include)
+
+#begin lua-rapidjson for emmy_debugger
+set (RAPIDJSON_SRC 
+	rapidjson/src/Document.cpp
+   rapidjson/src/Schema.cpp
+   rapidjson/src/Userdata.hpp
+   rapidjson/src/file.hpp
+   rapidjson/src/luax.hpp
+   rapidjson/src/rapidjson.cpp
+   rapidjson/src/values.cpp
+   rapidjson/src/values.hpp
+)
+set_property(
+	 SOURCE ${RAPIDJSON_SRC}
+    APPEND
+    PROPERTY COMPILE_DEFINITIONS
+    LUA_LIB
+)
+list(APPEND THIRDPART_INC rapidjson/src)
+set (THIRDPART_SRC ${THIRDPART_SRC} ${RAPIDJSON_SRC})
+#end lua-rapidjson
 
 if (USING_LUAJIT)
 	
@@ -68,7 +88,6 @@ if (USING_LUAJIT)
 		  lua-5.1.5/etc
 		  ${CMAKE_CURRENT_BINARY_DIR}
 		  ${THIRDPART_INC}
-		  ${RAPIDJSON_SRC_PATH}
 		  ${LUACJSON_SRC_PATH}
 		  ${LIBUV_HEADER_PATH}
 	    )
@@ -83,7 +102,6 @@ if (USING_LUAJIT)
 		  ${LUAJIT_SRC_PATH}
 		  ${CMAKE_CURRENT_BINARY_DIR}
 		  ${THIRDPART_INC}
-		  ${RAPIDJSON_SRC_PATH}
 		  ${LUACJSON_SRC_PATH}
 		  ${LIBUV_HEADER_PATH}
 	    )
@@ -102,7 +120,6 @@ else ()
 		${LUA_SRC_PATH}
 		${CMAKE_CURRENT_BINARY_DIR}
 		${THIRDPART_INC}
-		${RAPIDJSON_SRC_PATH}
 		${LUACJSON_SRC_PATH}
 		${LIBUV_HEADER_PATH}
 	)
@@ -110,35 +127,7 @@ else ()
     aux_source_directory(${LUA_SRC_PATH} LUA_CORE)
     list(REMOVE_ITEM LUA_CORE ${LUA_SRC_PATH}/lua.c ${LUA_SRC_PATH}/luac.c)
 	set ( LUA_LIB )
-
-	# set ( LUA_CORE ${LUA_SRC_PATH}/lapi.c ${LUA_SRC_PATH}/lcode.c ${LUA_SRC_PATH}/lctype.c ${LUA_SRC_PATH}/ldebug.c ${LUA_SRC_PATH}/ldo.c ${LUA_SRC_PATH}/ldump.c
-	#   ${LUA_SRC_PATH}/lfunc.c ${LUA_SRC_PATH}/lgc.c ${LUA_SRC_PATH}/llex.c ${LUA_SRC_PATH}/lmem.c ${LUA_SRC_PATH}/lobject.c ${LUA_SRC_PATH}/lopcodes.c ${LUA_SRC_PATH}/lparser.c
-	#   ${LUA_SRC_PATH}/lstate.c ${LUA_SRC_PATH}/lstring.c ${LUA_SRC_PATH}/ltable.c ${LUA_SRC_PATH}/ltm.c ${LUA_SRC_PATH}/lundump.c ${LUA_SRC_PATH}/lvm.c ${LUA_SRC_PATH}/lzio.c )
-	# set ( LUA_LIB ${LUA_SRC_PATH}/lauxlib.c ${LUA_SRC_PATH}/lbaselib.c ${LUA_SRC_PATH}/lbitlib.c ${LUA_SRC_PATH}/lcorolib.c ${LUA_SRC_PATH}/ldblib.c
-	#   ${LUA_SRC_PATH}/liolib.c ${LUA_SRC_PATH}/lmathlib.c ${LUA_SRC_PATH}/loslib.c ${LUA_SRC_PATH}/lstrlib.c ${LUA_SRC_PATH}/ltablib.c ${LUA_SRC_PATH}/linit.c
-	#   ${LUA_SRC_PATH}/lutf8lib.c ${LUA_SRC_PATH}/loadlib.c )
 endif ()
-
-#begin lua-rapidjson
-set (RAPIDJSON_SRC 
-	rapidjson/src/Document.cpp
-   rapidjson/src/Schema.cpp
-   rapidjson/src/Userdata.hpp
-   rapidjson/src/file.hpp
-   rapidjson/src/luax.hpp
-   rapidjson/src/rapidjson.cpp
-   rapidjson/src/values.cpp
-   rapidjson/src/values.hpp
-)
-set_property(
-	 SOURCE ${RAPIDJSON_SRC}
-    APPEND
-    PROPERTY COMPILE_DEFINITIONS
-    LUA_LIB
-)
-list(APPEND THIRDPART_INC rapidjson)
-set (THIRDPART_SRC ${THIRDPART_SRC} ${RAPIDJSON_SRC})
-#end lua-rapidjson
 
 #begin lua-cjson
 set (CJSON_SRC 
@@ -155,6 +144,21 @@ set_property(
 list(APPEND THIRDPART_INC lua-cjson)
 set (THIRDPART_SRC ${THIRDPART_SRC} ${CJSON_SRC})
 #end lua-cjson
+
+#begin lua-sproto
+set (SPROTO_SRC 
+   sproto/sproto.c
+   sproto/lsproto.c
+)
+set_property(
+    SOURCE ${CJSON_SRC}
+    APPEND
+    PROPERTY COMPILE_DEFINITIONS
+    LUA_LIB
+)
+list(APPEND THIRDPART_INC sproto)
+set (THIRDPART_SRC ${THIRDPART_SRC} ${SPROTO_SRC})
+#end lua-sproto
 
 #begin lua-luv
 set (LUV_SRC luv/luv.c)
@@ -189,14 +193,14 @@ set (THIRDPART_SRC ${THIRDPART_SRC} ${CHRONOS_SRC})
 #end lua-chronos
 
 #begin lsqlite3
-set (LSQLITE3_SRC lsqlite3/lsqlite3.c lsqlite3/sqlite3.c)
-set_property(
-	SOURCE ${LSQLITE3_SRC}
-	APPEND
-	PROPERTY COMPILE_DEFINITIONS
-	LUA_LIB
-)
-set (THIRDPART_SRC ${THIRDPART_SRC} ${LSQLITE3_SRC})
+# set (LSQLITE3_SRC lsqlite3/lsqlite3.c lsqlite3/sqlite3.c)
+# set_property(
+# 	SOURCE ${LSQLITE3_SRC}
+# 	APPEND
+# 	PROPERTY COMPILE_DEFINITIONS
+# 	LUA_LIB
+# )
+# set (THIRDPART_SRC ${THIRDPART_SRC} ${LSQLITE3_SRC})
 #end lsqlite3
 
 set ( XLUA_CORE
@@ -225,7 +229,7 @@ macro(source_group_by_dir proj_dir source_files)
     endif(MSVC OR APPLE)
 endmacro(source_group_by_dir)
 
-source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_SOCKET)
+# source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_SOCKET)
 source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_CORE)
 source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_LIB)
 source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} XLUA_CORE)
@@ -236,7 +240,7 @@ if (APPLE)
         add_library(xlua STATIC
            ${LUA_CORE}
            ${LUA_LIB}
-           ${LUA_SOCKET}
+           # ${LUA_SOCKET}
            ${XLUA_CORE}
            ${THIRDPART_SRC}
         )
@@ -247,7 +251,7 @@ if (APPLE)
         add_library(xlua MODULE
             ${LUA_CORE}
             ${LUA_LIB}
-            ${LUA_SOCKET}
+            #${LUA_SOCKET}
             ${XLUA_CORE}
             ${THIRDPART_SRC}
         )
@@ -267,7 +271,7 @@ else ( )
     add_library(xlua SHARED
         ${LUA_CORE}
         ${LUA_LIB}
-        ${LUA_SOCKET}
+        #${LUA_SOCKET}
         ${XLUA_CORE}
         ${THIRDPART_SRC}
     )
@@ -285,12 +289,12 @@ if (LUAC_COMPATIBLE_FORMAT AND NOT USING_LUAJIT)
     target_compile_definitions (xlua PRIVATE LUAC_COMPATIBLE_FORMAT)
 endif ()
 
-set_property(
-	SOURCE ${LUA_SOCKET}
-	APPEND
-	PROPERTY COMPILE_DEFINITIONS
-	LUA_COMPAT_APIINTCASTS LUA_LIB _CRT_SECURE_NO_WARNINGS _WINSOCK_DEPRECATED_NO_WARNINGS
-)
+# set_property(
+# 	SOURCE ${LUA_SOCKET}
+# 	APPEND
+# 	PROPERTY COMPILE_DEFINITIONS
+# 	LUA_COMPAT_APIINTCASTS LUA_LIB _CRT_SECURE_NO_WARNINGS _WINSOCK_DEPRECATED_NO_WARNINGS
+# )
 
 if(UINT_ESPECIALLY)
     ADD_DEFINITIONS(-DUINT_ESPECIALLY)
@@ -301,6 +305,7 @@ if ( WIN32 AND NOT CYGWIN )
         target_link_libraries(xlua
             ${CMAKE_SOURCE_DIR}/${LUAJIT_SRC_PATH}/lua51.lib
             ws2_32
+
             ${THIRDPART_LIB} 
         )
     else ()
@@ -309,7 +314,7 @@ if ( WIN32 AND NOT CYGWIN )
             ${THIRDPART_LIB} 
         )
     endif()
-else ( )
+else ()
     if (USING_LUAJIT AND NOT APPLE)
 		target_link_libraries(xlua
 			${CMAKE_SOURCE_DIR}/${LUAJIT_SRC_PATH}/libluajit.a

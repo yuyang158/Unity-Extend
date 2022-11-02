@@ -84,10 +84,6 @@ if(EMMY_USE_LUA_SOURCE)
             ${emmy_debugger_SOURCE_DIR}/src/api/lua_state/lua_state_jit.cpp
         )
     else()
-        target_link_libraries(
-            emmy_debugger
-            PRIVATE lua${EMMY_LUA_VERSION}
-        )
         target_sources(emmy_debugger
             PRIVATE
             ${emmy_debugger_SOURCE_DIR}/src/api/lua_state/lua_state_${EMMY_LUA_VERSION}.cpp
