@@ -1,13 +1,11 @@
 ﻿using SimpleLogger;
-using System;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading;
 
 namespace Server {
 	public class DeviceRegisterTcpServer {
 		private readonly TcpListener listener;
-		private const int TCP_PORT = 4101;
+		private const int TCP_PORT = 5301;
 
 		public DeviceRegisterTcpServer() {
 			listener = new TcpListener(IPAddress.Parse("0.0.0.0"), TCP_PORT);

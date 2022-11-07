@@ -8,9 +8,11 @@ const get = bent(remoteDebugUrl, "GET");
 
 Router.get("/lrc/devices", async (req, res) => {
   const response = await get("?cmd=devices");
+  const text = await response.text()
+  console.log('response', text)
   res.json({
     code: 20000,
-    content: response
+    content: text
   })
 })
 
@@ -20,6 +22,7 @@ Router.post("/lrc/cmd", async (req, res) => {
   const response = await post(`?cmd=lua&device=${device}`, {
     body: req.body.lua,
   });
+  console.log(response)
   res.json({
     code: 20000,
     content: response

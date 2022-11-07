@@ -18,9 +18,10 @@ namespace Server {
 			listener = new HttpListener {
 				AuthenticationSchemes = AuthenticationSchemes.Anonymous
 			};
-			listener.Prefixes.Add($"http://*:{PORT}/");
+			var url = $"http://127.0.0.1:{PORT}/";
+			listener.Prefixes.Add(url);
 			listener.Start();
-			Logger.Log($"HTTP Server started : {PORT}");
+			Logger.Log($"HTTP Server started : {url}");
 			Start();
 		}
 
