@@ -126,12 +126,12 @@ static lua_CFunction lsys_sym (lua_State *L, void *lib, const char *sym);
 
 
 static void lsys_unloadlib (void *lib) {
-  dlclose(lib);
+  // dlclose(lib);
 }
 
 
 static void *lsys_load (lua_State *L, const char *path, int seeglb) {
-  void *lib = dlopen(path, RTLD_NOW | (seeglb ? RTLD_GLOBAL : RTLD_LOCAL));
+  void *lib = NULL;//dlopen(path, RTLD_NOW | (seeglb ? RTLD_GLOBAL : RTLD_LOCAL));
   if (l_unlikely(lib == NULL))
     lua_pushstring(L, dlerror());
   return lib;
@@ -139,7 +139,7 @@ static void *lsys_load (lua_State *L, const char *path, int seeglb) {
 
 
 static lua_CFunction lsys_sym (lua_State *L, void *lib, const char *sym) {
-  lua_CFunction f = cast_func(dlsym(lib, sym));
+  lua_CFunction f = NULL;//cast_func(dlsym(lib, sym));
   if (l_unlikely(f == NULL))
     lua_pushstring(L, dlerror());
   return f;
