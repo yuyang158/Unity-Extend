@@ -57,27 +57,6 @@ set(LUA_SRC_PATH lua-${LUA_VERSION}/src)
 set(LUAJIT_SRC_PATH luajit-2.1.0b3/src)
 set(LUACJSON_SRC_PATH lua-cjson)
 
-#begin lua-rapidjson for emmy_debugger
-set (RAPIDJSON_SRC 
-	rapidjson/src/Document.cpp
-   rapidjson/src/Schema.cpp
-   rapidjson/src/Userdata.hpp
-   rapidjson/src/file.hpp
-   rapidjson/src/luax.hpp
-   rapidjson/src/rapidjson.cpp
-   rapidjson/src/values.cpp
-   rapidjson/src/values.hpp
-)
-set_property(
-	 SOURCE ${RAPIDJSON_SRC}
-    APPEND
-    PROPERTY COMPILE_DEFINITIONS
-    LUA_LIB
-)
-list(APPEND THIRDPART_INC rapidjson/src)
-set (THIRDPART_SRC ${THIRDPART_SRC} ${RAPIDJSON_SRC})
-#end lua-rapidjson
-
 if (USING_LUAJIT)
 	
     if (APPLE AND NOT IOS AND NOT ANDROID)
