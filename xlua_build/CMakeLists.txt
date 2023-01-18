@@ -56,7 +56,6 @@ endif()
 set(LUA_SRC_PATH lua-${LUA_VERSION}/src)
 set(LUAJIT_SRC_PATH luajit-2.1.0b3/src)
 set(LUACJSON_SRC_PATH lua-cjson)
-set(LIBUV_HEADER_PATH luv/deps/libuv/include)
 
 #begin lua-rapidjson for emmy_debugger
 set (RAPIDJSON_SRC 
@@ -159,27 +158,6 @@ set_property(
 list(APPEND THIRDPART_INC sproto)
 set (THIRDPART_SRC ${THIRDPART_SRC} ${SPROTO_SRC})
 #end lua-sproto
-
-#begin lua-luv
-set (LUV_SRC luv/luv.c)
-set_property(
-	SOURCE ${LUV_SRC}
-	APPEND
-	PROPERTY COMPILE_DEFINITIONS
-	LUA_LIB
-)
-list(APPEND THIRDPART_INC luv)
-set (THIRDPART_SRC ${THIRDPART_SRC} ${LUV_SRC})
-
-add_subdirectory(luv/deps/libuv EXCLUDE_FROM_ALL)
-set(LIBUV_LIBRARIES uv_a)
-if(WIN32)
-	set_target_properties(uv_a PROPERTIES COMPILE_FLAGS "-fPIC -Od")
-else()
-	set_target_properties(uv_a PROPERTIES COMPILE_FLAGS "-fPIC")
-endif()
-list(APPEND THIRDPART_LIB ${LIBUV_LIBRARIES})
-#end lua-luv
 
 #begin lua-chronos
 set (CHRONOS_SRC chronos.c)
