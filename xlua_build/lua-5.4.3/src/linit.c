@@ -41,15 +41,15 @@
 */
 static const luaL_Reg loadedlibs[] = {
   {LUA_GNAME, moonopen_base},
-  {LUA_LOADLIBNAME, luaopen_package},
-  {LUA_COLIBNAME, luaopen_coroutine},
-  {LUA_TABLIBNAME, luaopen_table},
-  {LUA_IOLIBNAME, luaopen_io},
-  {LUA_OSLIBNAME, luaopen_os},
-  {LUA_STRLIBNAME, luaopen_string},
-  {LUA_MATHLIBNAME, luaopen_math},
-  {LUA_UTF8LIBNAME, luaopen_utf8},
-  {LUA_DBLIBNAME, luaopen_debug},
+  {LUA_LOADLIBNAME, moonopen_package},
+  {LUA_COLIBNAME, moonopen_coroutine},
+  {LUA_TABLIBNAME, moonopen_table},
+  {LUA_IOLIBNAME, moonopen_io},
+  {LUA_OSLIBNAME, moonopen_os},
+  {LUA_STRLIBNAME, moonopen_string},
+  {LUA_MATHLIBNAME, moonopen_math},
+  {LUA_UTF8LIBNAME, moonopen_utf8},
+  {LUA_DBLIBNAME, moonopen_debug},
   {NULL, NULL}
 };
 

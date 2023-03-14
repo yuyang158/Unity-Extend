@@ -1866,7 +1866,7 @@ static void createmetatable (lua_State *L) {
 /*
 ** Open string library
 */
-LUAMOD_API int luaopen_string (lua_State *L) {
+LUAMOD_API int moonopen_string (lua_State *L) {
   luaL_newlib(L, strlib);
   createmetatable(L);
   return 1;

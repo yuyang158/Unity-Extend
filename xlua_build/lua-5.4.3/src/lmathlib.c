@@ -748,7 +748,7 @@ static const luaL_Reg mathlib[] = {
 /*
 ** Open math library
 */
-LUAMOD_API int luaopen_math (lua_State *L) {
+LUAMOD_API int moonopen_math (lua_State *L) {
   luaL_newlib(L, mathlib);
   moon_pushnumber(L, PI);
   moon_setfield(L, -2, "pi");
