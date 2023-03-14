@@ -95,7 +95,7 @@ static int utflen (lua_State *L) {
   const char *s = luaL_checklstring(L, 1, &len);
   lua_Integer posi = u_posrelat(luaL_optinteger(L, 2, 1), len);
   lua_Integer posj = u_posrelat(luaL_optinteger(L, 3, -1), len);
-  int lax = lua_toboolean(L, 4);
+  int lax = moon_toboolean(L, 4);
   luaL_argcheck(L, 1 <= posi && --posi <= (lua_Integer)len, 2,
                    "initial position out of bounds");
   luaL_argcheck(L, --posj < (lua_Integer)len, 3,
@@ -104,13 +104,13 @@ static int utflen (lua_State *L) {
     const char *s1 = utf8_decode(s + posi, NULL, !lax);
     if (s1 == NULL) {  /* conversion error? */
       luaL_pushfail(L);  /* return fail ... */
-      lua_pushinteger(L, posi + 1);  /* ... and current position */
+      moon_pushinteger(L, posi + 1);  /* ... and current position */
       return 2;
     }
     posi = s1 - s;
     n++;
   }
-  lua_pushinteger(L, n);
+  moon_pushinteger(L, n);
   return 1;
 }
 
@@ -124,7 +124,7 @@ static int codepoint (lua_State *L) {
   const char *s = luaL_checklstring(L, 1, &len);
   lua_Integer posi = u_posrelat(luaL_optinteger(L, 2, 1), len);
   lua_Integer pose = u_posrelat(luaL_optinteger(L, 3, posi), len);
-  int lax = lua_toboolean(L, 4);
+  int lax = moon_toboolean(L, 4);
   int n;
   const char *se;
   luaL_argcheck(L, posi >= 1, 2, "out of bounds");
@@ -141,7 +141,7 @@ static int codepoint (lua_State *L) {
     s = utf8_decode(s, &code, !lax);
     if (s == NULL)
       return luaL_error(L, "invalid UTF-8 code");
-    lua_pushinteger(L, code);
+    moon_pushinteger(L, code);
     n++;
   }
   return n;
@@ -151,7 +151,7 @@ static int codepoint (lua_State *L) {
 static void pushutfchar (lua_State *L, int arg) {
   lua_Unsigned code = (lua_Unsigned)luaL_checkinteger(L, arg);
   luaL_argcheck(L, code <= MAXUTF, arg, "value out of range");
-  lua_pushfstring(L, "%U", (long)code);
+  moon_pushfstring(L, "%U", (long)code);
 }
 
 
@@ -159,7 +159,7 @@ static void pushutfchar (lua_State *L, int arg) {
 ** utfchar(n1, n2, ...)  -> char(n1)..char(n2)...
 */
 static int utfchar (lua_State *L) {
-  int n = lua_gettop(L);  /* number of arguments */
+  int n = moon_gettop(L);  /* number of arguments */
   if (n == 1)  /* optimize common case of single char */
     pushutfchar(L, 1);
   else {
@@ -214,7 +214,7 @@ static int byteoffset (lua_State *L) {
      }
   }
   if (n == 0)  /* did it find given character? */
-    lua_pushinteger(L, posi + 1);
+    moon_pushinteger(L, posi + 1);
   else  /* no such character */
     luaL_pushfail(L);
   return 1;
@@ -235,8 +235,8 @@ static int iter_aux (lua_State *L, int strict) {
     const char *next = utf8_decode(s + n, &code, strict);
     if (next == NULL)
       return luaL_error(L, "invalid UTF-8 code");
-    lua_pushinteger(L, n + 1);
-    lua_pushinteger(L, code);
+    moon_pushinteger(L, n + 1);
+    moon_pushinteger(L, code);
     return 2;
   }
 }
@@ -252,11 +252,11 @@ static int iter_auxlax (lua_State *L) {
 
 
 static int iter_codes (lua_State *L) {
-  int lax = lua_toboolean(L, 2);
+  int lax = moon_toboolean(L, 2);
   luaL_checkstring(L, 1);
   lua_pushcfunction(L, lax ? iter_auxlax : iter_auxstrict);
-  lua_pushvalue(L, 1);
-  lua_pushinteger(L, 0);
+  moon_pushvalue(L, 1);
+  moon_pushinteger(L, 0);
   return 3;
 }
 
@@ -279,8 +279,8 @@ static const luaL_Reg funcs[] = {
 
 LUAMOD_API int luaopen_utf8 (lua_State *L) {
   luaL_newlib(L, funcs);
-  lua_pushlstring(L, UTF8PATT, sizeof(UTF8PATT)/sizeof(char) - 1);
-  lua_setfield(L, -2, "charpattern");
+  moon_pushlstring(L, UTF8PATT, sizeof(UTF8PATT)/sizeof(char) - 1);
+  moon_setfield(L, -2, "charpattern");
   return 1;
 }
 

@@ -159,7 +159,7 @@ bool query_variable(lua_State* L, std::shared_ptr<Variable> variable, const char
 		return false;
 	}
 	bool result = false;
-	object = lua_absindex(L, object);
+	object = moon_absindex(L, object);
 	const int t = lua_gettop(L);
 	lua_getglobal(L, HELPER_NAME);
 

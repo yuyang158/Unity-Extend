@@ -154,18 +154,18 @@ LUA_API void xlua_report_object_relationship(lua_State *L, ObjectRelationshipRep
 			api_incr_top(L);
 			lua_unlock(L);
 			
-			lua_pushvalue(L, -1);
+			moon_pushvalue(L, -1);
 			
-			lua_getinfo(L, ">S", &ar);
+			moon_getinfo(L, ">S", &ar);
 			
 			for (i=1;;i++)
 			{
-				name = lua_getupvalue(L,-1,i);
+				name = moon_getupvalue(L,-1,i);
 				if (name == NULL)
 					break;
-				const void *pv = lua_topointer(L, -1);
+				const void *pv = moon_topointer(L, -1);
 				
-				if (*name != '\0' && LUA_TTABLE == lua_type(L, -1))
+				if (*name != '\0' && LUA_TTABLE == moon_type(L, -1))
 				{
 					cb(cl, pv, 5, ar.short_src, ar.linedefined, name);
 				}

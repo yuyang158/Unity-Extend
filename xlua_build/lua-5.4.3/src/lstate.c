@@ -74,7 +74,7 @@ static unsigned int luai_makeseed (lua_State *L) {
   int p = 0;
   addbuff(buff, p, L);  /* heap variable */
   addbuff(buff, p, &h);  /* local variable */
-  addbuff(buff, p, &lua_newstate);  /* public function */
+  addbuff(buff, p, &moon_newstate);  /* public function */
   lua_assert(p == sizeof(buff));
   return luaS_hash(buff, p, h);
 }
@@ -96,7 +96,7 @@ void luaE_setdebt (global_State *g, l_mem debt) {
 }
 
 
-LUA_API int lua_setcstacklimit (lua_State *L, unsigned int limit) {
+LUA_API int moon_setcstacklimit (lua_State *L, unsigned int limit) {
   UNUSED(L); UNUSED(limit);
   return LUAI_MAXCCALLS;  /* warning?? */
 }
@@ -283,7 +283,7 @@ static void close_state (lua_State *L) {
 }
 
 
-LUA_API lua_State *lua_newthread (lua_State *L) {
+LUA_API lua_State *moon_newthread (lua_State *L) {
   global_State *g;
   lua_State *L1;
   lua_lock(L);
@@ -343,7 +343,7 @@ int luaE_resetthread (lua_State *L, int status) {
 }
 
 
-LUA_API int lua_resetthread (lua_State *L) {
+LUA_API int moon_resetthread (lua_State *L) {
   int status;
   lua_lock(L);
   status = luaE_resetthread(L, L->status);
@@ -352,7 +352,7 @@ LUA_API int lua_resetthread (lua_State *L) {
 }
 
 
-LUA_API lua_State *lua_newstate (lua_Alloc f, void *ud) {
+LUA_API lua_State *moon_newstate (lua_Alloc f, void *ud) {
   int i;
   lua_State *L;
   global_State *g;
@@ -408,7 +408,7 @@ LUA_API lua_State *lua_newstate (lua_Alloc f, void *ud) {
 }
 
 
-LUA_API void lua_close (lua_State *L) {
+LUA_API void moon_close (lua_State *L) {
   lua_lock(L);
   L = G(L)->mainthread;  /* only the main thread can be closed */
   close_state(L);

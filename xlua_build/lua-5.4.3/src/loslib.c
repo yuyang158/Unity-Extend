@@ -65,7 +65,7 @@
 #if !defined(LUA_NUMTIME)	/* { */
 
 #define l_timet			lua_Integer
-#define l_pushtime(L,t)		lua_pushinteger(L,(lua_Integer)(t))
+#define l_pushtime(L,t)		moon_pushinteger(L,(lua_Integer)(t))
 #define l_gettime(L,arg)	luaL_checkinteger(L, arg)
 
 #else				/* }{ */
@@ -147,7 +147,7 @@ static int os_execute (lua_State *L) {
   if (cmd != NULL)
     return luaL_execresult(L, stat);
   else {
-    lua_pushboolean(L, stat);  /* true if there is a shell */
+    moon_pushboolean(L, stat);  /* true if there is a shell */
     return 1;
   }
 }
@@ -172,19 +172,19 @@ static int os_tmpname (lua_State *L) {
   lua_tmpnam(buff, err);
   if (l_unlikely(err))
     return luaL_error(L, "unable to generate a unique filename");
-  lua_pushstring(L, buff);
+  moon_pushstring(L, buff);
   return 1;
 }
 
 
 static int os_getenv (lua_State *L) {
-  lua_pushstring(L, getenv(luaL_checkstring(L, 1)));  /* if NULL push nil */
+  moon_pushstring(L, getenv(luaL_checkstring(L, 1)));  /* if NULL push nil */
   return 1;
 }
 
 
 static int os_clock (lua_State *L) {
-  lua_pushnumber(L, ((lua_Number)clock())/(lua_Number)CLOCKS_PER_SEC);
+  moon_pushnumber(L, ((lua_Number)clock())/(lua_Number)CLOCKS_PER_SEC);
   return 1;
 }
 
@@ -211,16 +211,16 @@ static void setfield (lua_State *L, const char *key, int value, int delta) {
     if (l_unlikely(value > LUA_MAXINTEGER - delta))
       luaL_error(L, "field '%s' is out-of-bound", key);
   #endif
-  lua_pushinteger(L, (lua_Integer)value + delta);
-  lua_setfield(L, -2, key);
+  moon_pushinteger(L, (lua_Integer)value + delta);
+  moon_setfield(L, -2, key);
 }
 
 
 static void setboolfield (lua_State *L, const char *key, int value) {
   if (value < 0)  /* undefined? */
     return;  /* does not set field */
-  lua_pushboolean(L, value);
-  lua_setfield(L, -2, key);
+  moon_pushboolean(L, value);
+  moon_setfield(L, -2, key);
 }
 
 
@@ -242,7 +242,7 @@ static void setallfields (lua_State *L, struct tm *stm) {
 
 static int getboolfield (lua_State *L, const char *key) {
   int res;
-  res = (lua_getfield(L, -1, key) == LUA_TNIL) ? -1 : lua_toboolean(L, -1);
+  res = (moon_getfield(L, -1, key) == LUA_TNIL) ? -1 : moon_toboolean(L, -1);
   lua_pop(L, 1);
   return res;
 }
@@ -250,8 +250,8 @@ static int getboolfield (lua_State *L, const char *key) {
 
 static int getfield (lua_State *L, const char *key, int d, int delta) {
   int isnum;
-  int t = lua_getfield(L, -1, key);  /* get field and its type */
-  lua_Integer res = lua_tointegerx(L, -1, &isnum);
+  int t = moon_getfield(L, -1, key);  /* get field and its type */
+  lua_Integer res = moon_tointegerx(L, -1, &isnum);
   if (!isnum) {  /* field is not an integer? */
     if (l_unlikely(t != LUA_TNIL))  /* some other value? */
       return luaL_error(L, "field '%s' is not an integer", key);
@@ -285,7 +285,7 @@ static const char *checkoption (lua_State *L, const char *conv,
     }
   }
   luaL_argerror(L, 1,
-    lua_pushfstring(L, "invalid conversion specifier '%%%s'", conv));
+    moon_pushfstring(L, "invalid conversion specifier '%%%s'", conv));
   return conv;  /* to avoid warnings */
 }
 
@@ -317,7 +317,7 @@ static int os_date (lua_State *L) {
     return luaL_error(L,
                  "date result cannot be represented in this installation");
   if (strcmp(s, "*t") == 0) {
-    lua_createtable(L, 0, 9);  /* 9 = number of fields */
+    moon_createtable(L, 0, 9);  /* 9 = number of fields */
     setallfields(L, stm);
   }
   else {
@@ -350,7 +350,7 @@ static int os_time (lua_State *L) {
   else {
     struct tm ts;
     luaL_checktype(L, 1, LUA_TTABLE);
-    lua_settop(L, 1);  /* make sure table is at the top */
+    moon_settop(L, 1);  /* make sure table is at the top */
     ts.tm_year = getfield(L, "year", -1, 1900);
     ts.tm_mon = getfield(L, "month", -1, 1);
     ts.tm_mday = getfield(L, "day", -1, 0);
@@ -372,7 +372,7 @@ static int os_time (lua_State *L) {
 static int os_difftime (lua_State *L) {
   time_t t1 = l_checktime(L, 1);
   time_t t2 = l_checktime(L, 2);
-  lua_pushnumber(L, (lua_Number)difftime(t1, t2));
+  moon_pushnumber(L, (lua_Number)difftime(t1, t2));
   return 1;
 }
 
@@ -386,7 +386,7 @@ static int os_setlocale (lua_State *L) {
      "numeric", "time", NULL};
   const char *l = luaL_optstring(L, 1, NULL);
   int op = luaL_checkoption(L, 2, "all", catnames);
-  lua_pushstring(L, setlocale(cat[op], l));
+  moon_pushstring(L, setlocale(cat[op], l));
   return 1;
 }
 
@@ -394,11 +394,11 @@ static int os_setlocale (lua_State *L) {
 static int os_exit (lua_State *L) {
   int status;
   if (lua_isboolean(L, 1))
-    status = (lua_toboolean(L, 1) ? EXIT_SUCCESS : EXIT_FAILURE);
+    status = (moon_toboolean(L, 1) ? EXIT_SUCCESS : EXIT_FAILURE);
   else
     status = (int)luaL_optinteger(L, 1, EXIT_SUCCESS);
-  if (lua_toboolean(L, 2))
-    lua_close(L);
+  if (moon_toboolean(L, 2))
+    moon_close(L);
   if (L) exit(status);  /* 'if' to avoid warnings for unreachable 'return' */
   return 0;
 }

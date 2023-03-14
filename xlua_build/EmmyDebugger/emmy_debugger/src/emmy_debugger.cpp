@@ -306,7 +306,7 @@ void Debugger::GetVariable(std::shared_ptr<Variable> variable, int index, int de
 	}
 
 	const int topIndex = lua_gettop(L);
-	index = lua_absindex(L, index);
+	index = moon_absindex(L, index);
 	CacheValue(index, variable);
 	const int type = lua_type(L, index);
 	const char* typeName = lua_typename(L, type);

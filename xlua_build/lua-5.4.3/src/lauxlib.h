@@ -125,7 +125,7 @@ LUALIB_API void (luaL_requiref) (lua_State *L, const char *modname,
 
 
 #define luaL_newlibtable(L,l)	\
-  lua_createtable(L, 0, sizeof(l)/sizeof((l)[0]) - 1)
+  moon_createtable(L, 0, sizeof(l)/sizeof((l)[0]) - 1)
 
 #define luaL_newlib(L,l)  \
   (luaL_checkversion(L), luaL_newlibtable(L,l), luaL_setfuncs(L,l,0))
@@ -139,15 +139,15 @@ LUALIB_API void (luaL_requiref) (lua_State *L, const char *modname,
 #define luaL_checkstring(L,n)	(luaL_checklstring(L, (n), NULL))
 #define luaL_optstring(L,n,d)	(luaL_optlstring(L, (n), (d), NULL))
 
-#define luaL_typename(L,i)	lua_typename(L, lua_type(L,(i)))
+#define luaL_typename(L,i)	moon_typename(L, moon_type(L,(i)))
 
 #define luaL_dofile(L, fn) \
-	(luaL_loadfile(L, fn) || lua_pcall(L, 0, LUA_MULTRET, 0))
+	(luaL_loadfile(L, fn) || moon_pcall(L, 0, LUA_MULTRET, 0))
 
 #define luaL_dostring(L, s) \
-	(luaL_loadstring(L, s) || lua_pcall(L, 0, LUA_MULTRET, 0))
+	(luaL_loadstring(L, s) || moon_pcall(L, 0, LUA_MULTRET, 0))
 
-#define luaL_getmetatable(L,n)	(lua_getfield(L, LUA_REGISTRYINDEX, (n)))
+#define luaL_getmetatable(L,n)	(moon_getfield(L, LUA_REGISTRYINDEX, (n)))
 
 #define luaL_opt(L,f,n,d)	(lua_isnoneornil(L,(n)) ? (d) : f(L,(n)))
 
@@ -163,7 +163,7 @@ LUALIB_API void (luaL_requiref) (lua_State *L, const char *modname,
 
 
 /* push the value used to represent failure/error */
-#define luaL_pushfail(L)	lua_pushnil(L)
+#define luaL_pushfail(L)	moon_pushnil(L)
 
 
 /*

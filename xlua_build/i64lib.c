@@ -377,18 +377,18 @@ static int int64_tostring(lua_State* L) {
 
 #if LUA_VERSION_NUM >= 503
 LUALIB_API void lua_pushint64(lua_State* L, int64_t n) {
-	lua_pushinteger(L, n);
+	moon_pushinteger(L, n);
 }
 LUALIB_API void lua_pushuint64(lua_State* L, uint64_t n) {
-	lua_pushinteger(L, n);
+	moon_pushinteger(L, n);
 }
 
 LUALIB_API int lua_isint64(lua_State* L, int pos) {
-	return lua_isinteger(L, pos);
+	return moon_isinteger(L, pos);
 }
 
 LUALIB_API int lua_isuint64(lua_State* L, int pos) {
-	return lua_isinteger(L, pos);
+	return moon_isinteger(L, pos);
 }
 
 LUALIB_API int64_t lua_toint64(lua_State* L, int pos) {
@@ -409,7 +409,7 @@ static int uint64_tostring(lua_State* L) {
 	snprintf(temp, sizeof(temp), "%"PRIu64, n);
 #endif
 	
-	lua_pushstring(L, temp);
+	moon_pushstring(L, temp);
 	
 	return 1;
 }
@@ -417,7 +417,7 @@ static int uint64_tostring(lua_State* L) {
 static int uint64_compare(lua_State* L) {
 	uint64_t lhs = lua_touint64(L, 1);
 	uint64_t rhs = lua_touint64(L, 2);
-	lua_pushinteger(L, lhs == rhs ? 0 : (lhs < rhs ? -1 : 1));
+	moon_pushinteger(L, lhs == rhs ? 0 : (lhs < rhs ? -1 : 1));
 	return 1;
 }
 
@@ -491,21 +491,21 @@ LUALIB_API int luaopen_i64lib(lua_State* L)
     lua_newtable(L);
 	
 	lua_pushcfunction(L, uint64_tostring);
-	lua_setfield(L, -2, "tostring");
+	moon_setfield(L, -2, "tostring");
 	
 	lua_pushcfunction(L, uint64_compare);
-	lua_setfield(L, -2, "compare");
+	moon_setfield(L, -2, "compare");
 	
 	lua_pushcfunction(L, uint64_divide);
-	lua_setfield(L, -2, "divide");
+	moon_setfield(L, -2, "divide");
 	
 	lua_pushcfunction(L, uint64_remainder);
-	lua_setfield(L, -2, "remainder");
+	moon_setfield(L, -2, "remainder");
 	
 	lua_pushcfunction(L, uint64_parse);
-	lua_setfield(L, -2, "parse");
+	moon_setfield(L, -2, "parse");
 	
-	lua_setglobal(L, "uint64");
+	moon_setglobal(L, "uint64");
 	return 0;
 }
 

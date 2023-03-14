@@ -111,7 +111,7 @@ static int chronos_nanotime(lua_State * L)
         multiplier = 1.0 / (double)freq.QuadPart;
         init = 0;
     }
-    lua_pushnumber(L, (lua_Number)(timer.QuadPart * multiplier));
+    moon_pushnumber(L, (lua_Number)(timer.QuadPart * multiplier));
     return 1;
 }
 

@@ -199,7 +199,7 @@ static json_config_t *json_fetch_config(lua_State *l)
 {
     json_config_t *cfg;
 
-    cfg = (json_config_t *)lua_touserdata(l, lua_upvalueindex(1));
+    cfg = (json_config_t *)moon_touserdata(l, lua_upvalueindex(1));
     if (!cfg)
         luaL_error(l, "BUG: Unable to fetch CJSON configuration");
 
@@ -211,11 +211,11 @@ static json_config_t *json_fetch_config(lua_State *l)
  * to find whether an argument was provided */
 static json_config_t *json_arg_init(lua_State *l, int args)
 {
-    luaL_argcheck(l, lua_gettop(l) <= args, args + 1,
+    luaL_argcheck(l, moon_gettop(l) <= args, args + 1,
                   "found too many arguments");
 
-    while (lua_gettop(l) < args)
-        lua_pushnil(l);
+    while (moon_gettop(l) < args)
+        moon_pushnil(l);
 
     return json_fetch_config(l);
 }
@@ -234,7 +234,7 @@ static int json_integer_option(lua_State *l, int optindex, int *setting,
         *setting = value;
     }
 
-    lua_pushinteger(l, *setting);
+    moon_pushinteger(l, *setting);
 
     return 1;
 }
@@ -252,15 +252,15 @@ static int json_enum_option(lua_State *l, int optindex, int *setting,
 
     if (!lua_isnil(l, optindex)) {
         if (bool_true && lua_isboolean(l, optindex))
-            *setting = lua_toboolean(l, optindex) * bool_true;
+            *setting = moon_toboolean(l, optindex) * bool_true;
         else
             *setting = luaL_checkoption(l, optindex, NULL, options);
     }
 
     if (bool_true && (*setting == 0 || *setting == bool_true))
-        lua_pushboolean(l, *setting);
+        moon_pushboolean(l, *setting);
     else
-        lua_pushstring(l, options[*setting]);
+        moon_pushstring(l, options[*setting]);
 
     return 1;
 }
@@ -366,7 +366,7 @@ static int json_destroy_config(lua_State *l)
 {
     json_config_t *cfg;
 
-    cfg = (json_config_t *)lua_touserdata(l, 1);
+    cfg = (json_config_t *)moon_touserdata(l, 1);
     if (cfg)
         strbuf_free(&cfg->encode_buf);
     cfg = NULL;
@@ -384,8 +384,8 @@ static void json_create_config(lua_State *l)
     /* Create GC method to clean up strbuf */
     lua_newtable(l);
     lua_pushcfunction(l, json_destroy_config);
-    lua_setfield(l, -2, "__gc");
-    lua_setmetatable(l, -2);
+    moon_setfield(l, -2, "__gc");
+    moon_setmetatable(l, -2);
 
     cfg->encode_sparse_convert = DEFAULT_SPARSE_CONVERT;
     cfg->encode_sparse_ratio = DEFAULT_SPARSE_RATIO;
@@ -455,7 +455,7 @@ static void json_encode_exception(lua_State *l, json_config_t *cfg, strbuf_t *js
     if (!cfg->encode_keep_buffer)
         strbuf_free(json);
     luaL_error(l, "Cannot serialise %s: %s",
-                  lua_typename(l, lua_type(l, lindex)), reason);
+                  moon_typename(l, moon_type(l, lindex)), reason);
 }
 
 /* json_append_string args:
@@ -471,7 +471,7 @@ static void json_append_string(lua_State *l, strbuf_t *json, int lindex)
     size_t len;
     size_t i;
 
-    str = lua_tolstring(l, lindex, &len);
+    str = moon_tolstring(l, lindex, &len);
 
     /* Worst case is len * 6 (all unicode escapes).
      * This buffer is reused constantly for small strings
@@ -503,12 +503,12 @@ static int lua_array_length(lua_State *l, json_config_t *cfg, strbuf_t *json)
     max = 0;
     items = 0;
 
-    lua_pushnil(l);
+    moon_pushnil(l);
     /* table, startkey */
-    while (lua_next(l, -2) != 0) {
+    while (moon_next(l, -2) != 0) {
         /* table, key, value */
-        if (lua_type(l, -2) == LUA_TNUMBER &&
-            (k = lua_tonumber(l, -2))) {
+        if (moon_type(l, -2) == LUA_TNUMBER &&
+            (k = moon_tonumber(l, -2))) {
             /* Integer >= 1 ? */
             if (floor(k) == k && k >= 1) {
                 if (k > max)
@@ -550,7 +550,7 @@ static void json_check_encode_depth(lua_State *l, json_config_t *cfg,
      *
      * While this won't cause a crash due to the EXTRA_STACK reserve
      * slots, it would still be an improper use of the API. */
-    if (current_depth <= cfg->encode_max_depth && lua_checkstack(l, 3))
+    if (current_depth <= cfg->encode_max_depth && moon_checkstack(l, 3))
         return;
 
     if (!cfg->encode_keep_buffer)
@@ -581,7 +581,7 @@ static void json_append_array(lua_State *l, json_config_t *cfg, int current_dept
         else
             comma = 1;
 
-        lua_rawgeti(l, -1, i);
+        moon_rawgeti(l, -1, i);
         json_append_data(l, cfg, current_depth, json);
         lua_pop(l, 1);
     }
@@ -592,7 +592,7 @@ static void json_append_array(lua_State *l, json_config_t *cfg, int current_dept
 static void json_append_number(lua_State *l, json_config_t *cfg,
                                strbuf_t *json, int lindex)
 {
-    double num = lua_tonumber(l, lindex);
+    double num = moon_tonumber(l, lindex);
     int len;
 
     if (cfg->encode_invalid_numbers == 0) {
@@ -635,17 +635,17 @@ static void json_append_object(lua_State *l, json_config_t *cfg,
     /* Object */
     strbuf_append_char(json, '{');
 
-    lua_pushnil(l);
+    moon_pushnil(l);
     /* table, startkey */
     comma = 0;
-    while (lua_next(l, -2) != 0) {
+    while (moon_next(l, -2) != 0) {
         if (comma)
             strbuf_append_char(json, ',');
         else
             comma = 1;
 
         /* table, key, value */
-        keytype = lua_type(l, -2);
+        keytype = moon_type(l, -2);
         if (keytype == LUA_TNUMBER) {
             strbuf_append_char(json, '"');
             json_append_number(l, cfg, json, -2);
@@ -674,7 +674,7 @@ static void json_append_data(lua_State *l, json_config_t *cfg,
 {
     int len;
 
-    switch (lua_type(l, -1)) {
+    switch (moon_type(l, -1)) {
     case LUA_TSTRING:
         json_append_string(l, json, -1);
         break;
@@ -682,7 +682,7 @@ static void json_append_data(lua_State *l, json_config_t *cfg,
         json_append_number(l, cfg, json, -1);
         break;
     case LUA_TBOOLEAN:
-        if (lua_toboolean(l, -1))
+        if (moon_toboolean(l, -1))
             strbuf_append_mem(json, "true", 4);
         else
             strbuf_append_mem(json, "false", 5);
@@ -700,7 +700,7 @@ static void json_append_data(lua_State *l, json_config_t *cfg,
         strbuf_append_mem(json, "null", 4);
         break;
     case LUA_TLIGHTUSERDATA:
-        if (lua_touserdata(l, -1) == NULL) {
+        if (moon_touserdata(l, -1) == NULL) {
             strbuf_append_mem(json, "null", 4);
             break;
         }
@@ -720,7 +720,7 @@ static int json_encode(lua_State *l)
     char *json;
     int len;
 
-    luaL_argcheck(l, lua_gettop(l) == 1, 1, "expected 1 argument");
+    luaL_argcheck(l, moon_gettop(l) == 1, 1, "expected 1 argument");
 
     if (!cfg->encode_keep_buffer) {
         /* Use private buffer */
@@ -735,7 +735,7 @@ static int json_encode(lua_State *l)
     json_append_data(l, cfg, 0, encode_buf);
     json = strbuf_string(encode_buf, &len);
 
-    lua_pushlstring(l, json, len);
+    moon_pushlstring(l, json, len);
 
     if (!cfg->encode_keep_buffer)
         strbuf_free(encode_buf);
@@ -1143,7 +1143,7 @@ static void json_decode_descend(lua_State *l, json_parse_t *json, int slots)
     json->current_depth++;
 
     if (json->current_depth <= json->cfg->decode_max_depth &&
-        lua_checkstack(l, slots)) {
+        moon_checkstack(l, slots)) {
         return;
     }
 
@@ -1175,7 +1175,7 @@ static void json_parse_object_context(lua_State *l, json_parse_t *json)
             json_throw_parse_error(l, json, "object key string", &token);
 
         /* Push key */
-        lua_pushlstring(l, token.value.string, token.string_len);
+        moon_pushlstring(l, token.value.string, token.string_len);
 
         json_next_token(json, &token);
         if (token.type != T_COLON)
@@ -1186,7 +1186,7 @@ static void json_parse_object_context(lua_State *l, json_parse_t *json)
         json_process_value(l, json, &token);
 
         /* Set key = value */
-        lua_rawset(l, -3);
+        moon_rawset(l, -3);
 
         json_next_token(json, &token);
 
@@ -1224,7 +1224,7 @@ static void json_parse_array_context(lua_State *l, json_parse_t *json)
 
     for (i = 1; ; i++) {
         json_process_value(l, json, &token);
-        lua_rawseti(l, -2, i);            /* arr[i] = value */
+        moon_rawseti(l, -2, i);            /* arr[i] = value */
 
         json_next_token(json, &token);
 
@@ -1246,13 +1246,13 @@ static void json_process_value(lua_State *l, json_parse_t *json,
 {
     switch (token->type) {
     case T_STRING:
-        lua_pushlstring(l, token->value.string, token->string_len);
+        moon_pushlstring(l, token->value.string, token->string_len);
         break;;
     case T_NUMBER:
-        lua_pushnumber(l, token->value.number);
+        moon_pushnumber(l, token->value.number);
         break;;
     case T_BOOLEAN:
-        lua_pushboolean(l, token->value.boolean);
+        moon_pushboolean(l, token->value.boolean);
         break;;
     case T_OBJ_BEGIN:
         json_parse_object_context(l, json);
@@ -1263,7 +1263,7 @@ static void json_process_value(lua_State *l, json_parse_t *json,
     case T_NULL:
         /* In Lua, setting "t[k] = nil" will delete k from the table.
          * Hence a NULL pointer lightuserdata object is used instead */
-        lua_pushlightuserdata(l, NULL);
+        moon_pushlightuserdata(l, NULL);
         break;;
     default:
         json_throw_parse_error(l, json, "value", token);
@@ -1276,7 +1276,7 @@ static int json_decode(lua_State *l)
     json_token_t token;
     size_t json_len;
 
-    luaL_argcheck(l, lua_gettop(l) == 1, 1, "expected 1 argument");
+    luaL_argcheck(l, moon_gettop(l) == 1, 1, "expected 1 argument");
 
     json.cfg = json_fetch_config(l);
     json.data = luaL_checklstring(l, 1, &json_len);
@@ -1340,18 +1340,18 @@ static int json_protect_conversion(lua_State *l)
     int err;
 
     /* Deliberately throw an error for invalid arguments */
-    luaL_argcheck(l, lua_gettop(l) == 1, 1, "expected 1 argument");
+    luaL_argcheck(l, moon_gettop(l) == 1, 1, "expected 1 argument");
 
     /* pcall() the function stored as upvalue(1) */
-    lua_pushvalue(l, lua_upvalueindex(1));
-    lua_insert(l, 1);
-    err = lua_pcall(l, 1, 1, 0);
+    moon_pushvalue(l, lua_upvalueindex(1));
+    moon_insert(l, 1);
+    err = moon_pcall(l, 1, 1, 0);
     if (!err)
         return 1;
 
     if (err == LUA_ERRRUN) {
-        lua_pushnil(l);
-        lua_insert(l, -2);
+        moon_pushnil(l);
+        moon_insert(l, -2);
         return 2;
     }
 
@@ -1388,14 +1388,14 @@ static int lua_cjson_new(lua_State *l)
     luaL_setfuncs(l, reg, 1);
 
     /* Set cjson.null */
-    lua_pushlightuserdata(l, NULL);
-    lua_setfield(l, -2, "null");
+    moon_pushlightuserdata(l, NULL);
+    moon_setfield(l, -2, "null");
 
     /* Set module name / version fields */
     lua_pushliteral(l, CJSON_MODNAME);
-    lua_setfield(l, -2, "_NAME");
+    moon_setfield(l, -2, "_NAME");
     lua_pushliteral(l, CJSON_VERSION);
-    lua_setfield(l, -2, "_VERSION");
+    moon_setfield(l, -2, "_VERSION");
 
     return 1;
 }
@@ -1410,12 +1410,12 @@ static int lua_cjson_safe_new(lua_State *l)
 
     /* Fix new() method */
     lua_pushcfunction(l, lua_cjson_safe_new);
-    lua_setfield(l, -2, "new");
+    moon_setfield(l, -2, "new");
 
     for (i = 0; func[i]; i++) {
-        lua_getfield(l, -1, func[i]);
-        lua_pushcclosure(l, json_protect_conversion, 1);
-        lua_setfield(l, -2, func[i]);
+        moon_getfield(l, -1, func[i]);
+        moon_pushcclosure(l, json_protect_conversion, 1);
+        moon_setfield(l, -2, func[i]);
     }
 
     return 1;

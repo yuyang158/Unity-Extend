@@ -1,4 +1,4 @@
-/*
+﻿/*
 ** $Id: lua.h $
 ** Lua - A Scripting Language
 ** Lua.org, PUC-Rio, Brazil (http://www.lua.org)
@@ -23,9 +23,9 @@
 #define LUA_VERSION_NUM			504
 #define LUA_VERSION_RELEASE_NUM		(LUA_VERSION_NUM * 100 + 4)
 
-#define LUA_VERSION	"Lua " LUA_VERSION_MAJOR "." LUA_VERSION_MINOR
+#define LUA_VERSION	"Moon " LUA_VERSION_MAJOR "." LUA_VERSION_MINOR
 #define LUA_RELEASE	LUA_VERSION "." LUA_VERSION_RELEASE
-#define LUA_COPYRIGHT	LUA_RELEASE "  Copyright (C) 1994-2022 Lua.org, PUC-Rio"
+#define LUA_COPYRIGHT	LUA_RELEASE "  Copyright (C) 1994-2022 Moon.org"
 #define LUA_AUTHORS	"R. Ierusalimschy, L. H. de Figueiredo, W. Celes"
 
 
@@ -150,52 +150,52 @@ extern const char lua_ident[];
 /*
 ** state manipulation
 */
-LUA_API lua_State *(lua_newstate) (lua_Alloc f, void *ud);
-LUA_API void       (lua_close) (lua_State *L);
-LUA_API lua_State *(lua_newthread) (lua_State *L);
-LUA_API int        (lua_resetthread) (lua_State *L);
+LUA_API lua_State *(moon_newstate) (lua_Alloc f, void *ud);
+LUA_API void       (moon_close) (lua_State *L);
+LUA_API lua_State *(moon_newthread) (lua_State *L);
+LUA_API int        (moon_resetthread) (lua_State *L);
 
-LUA_API lua_CFunction (lua_atpanic) (lua_State *L, lua_CFunction panicf);
+LUA_API lua_CFunction (moon_atpanic) (lua_State *L, lua_CFunction panicf);
 
 
-LUA_API lua_Number (lua_version) (lua_State *L);
+LUA_API lua_Number (moon_version) (lua_State *L);
 
 
 /*
 ** basic stack manipulation
 */
-LUA_API int   (lua_absindex) (lua_State *L, int idx);
-LUA_API int   (lua_gettop) (lua_State *L);
-LUA_API void  (lua_settop) (lua_State *L, int idx);
-LUA_API void  (lua_pushvalue) (lua_State *L, int idx);
-LUA_API void  (lua_rotate) (lua_State *L, int idx, int n);
-LUA_API void  (lua_copy) (lua_State *L, int fromidx, int toidx);
-LUA_API int   (lua_checkstack) (lua_State *L, int n);
+LUA_API int   (moon_absindex) (lua_State *L, int idx);
+LUA_API int   (moon_gettop) (lua_State *L);
+LUA_API void  (moon_settop) (lua_State *L, int idx);
+LUA_API void  (moon_pushvalue) (lua_State *L, int idx);
+LUA_API void  (moon_rotate) (lua_State *L, int idx, int n);
+LUA_API void  (moon_copy) (lua_State *L, int fromidx, int toidx);
+LUA_API int   (moon_checkstack) (lua_State *L, int n);
 
-LUA_API void  (lua_xmove) (lua_State *from, lua_State *to, int n);
+LUA_API void  (moon_xmove) (lua_State *from, lua_State *to, int n);
 
 
 /*
 ** access functions (stack -> C)
 */
 
-LUA_API int             (lua_isnumber) (lua_State *L, int idx);
-LUA_API int             (lua_isstring) (lua_State *L, int idx);
-LUA_API int             (lua_iscfunction) (lua_State *L, int idx);
-LUA_API int             (lua_isinteger) (lua_State *L, int idx);
-LUA_API int             (lua_isuserdata) (lua_State *L, int idx);
-LUA_API int             (lua_type) (lua_State *L, int idx);
-LUA_API const char     *(lua_typename) (lua_State *L, int tp);
+LUA_API int             (moon_isnumber) (lua_State *L, int idx);
+LUA_API int             (moon_isstring) (lua_State *L, int idx);
+LUA_API int             (moon_iscfunction) (lua_State *L, int idx);
+LUA_API int             (moon_isinteger) (lua_State *L, int idx);
+LUA_API int             (moon_isuserdata) (lua_State *L, int idx);
+LUA_API int             (moon_type) (lua_State *L, int idx);
+LUA_API const char     *(moon_typename) (lua_State *L, int tp);
 
-LUA_API lua_Number      (lua_tonumberx) (lua_State *L, int idx, int *isnum);
-LUA_API lua_Integer     (lua_tointegerx) (lua_State *L, int idx, int *isnum);
-LUA_API int             (lua_toboolean) (lua_State *L, int idx);
-LUA_API const char     *(lua_tolstring) (lua_State *L, int idx, size_t *len);
-LUA_API lua_Unsigned    (lua_rawlen) (lua_State *L, int idx);
-LUA_API lua_CFunction   (lua_tocfunction) (lua_State *L, int idx);
-LUA_API void	       *(lua_touserdata) (lua_State *L, int idx);
-LUA_API lua_State      *(lua_tothread) (lua_State *L, int idx);
-LUA_API const void     *(lua_topointer) (lua_State *L, int idx);
+LUA_API lua_Number      (moon_tonumberx) (lua_State *L, int idx, int *isnum);
+LUA_API lua_Integer     (moon_tointegerx) (lua_State *L, int idx, int *isnum);
+LUA_API int             (moon_toboolean) (lua_State *L, int idx);
+LUA_API const char     *(moon_tolstring) (lua_State *L, int idx, size_t *len);
+LUA_API lua_Unsigned    (moon_rawlen) (lua_State *L, int idx);
+LUA_API lua_CFunction   (moon_tocfunction) (lua_State *L, int idx);
+LUA_API void	       *(moon_touserdata) (lua_State *L, int idx);
+LUA_API lua_State      *(moon_tothread) (lua_State *L, int idx);
+LUA_API const void     *(moon_topointer) (lua_State *L, int idx);
 
 
 /*
@@ -223,93 +223,93 @@ LUA_API void  (lua_arith) (lua_State *L, int op);
 #define LUA_OPLT	1
 #define LUA_OPLE	2
 
-LUA_API int   (lua_rawequal) (lua_State *L, int idx1, int idx2);
-LUA_API int   (lua_compare) (lua_State *L, int idx1, int idx2, int op);
+LUA_API int   (moon_rawequal) (lua_State *L, int idx1, int idx2);
+LUA_API int   (moon_compare) (lua_State *L, int idx1, int idx2, int op);
 
 
 /*
 ** push functions (C -> stack)
 */
-LUA_API void        (lua_pushnil) (lua_State *L);
-LUA_API void        (lua_pushnumber) (lua_State *L, lua_Number n);
-LUA_API void        (lua_pushinteger) (lua_State *L, lua_Integer n);
-LUA_API const char *(lua_pushlstring) (lua_State *L, const char *s, size_t len);
-LUA_API const char *(lua_pushstring) (lua_State *L, const char *s);
-LUA_API const char *(lua_pushvfstring) (lua_State *L, const char *fmt,
+LUA_API void        (moon_pushnil) (lua_State *L);
+LUA_API void        (moon_pushnumber) (lua_State *L, lua_Number n);
+LUA_API void        (moon_pushinteger) (lua_State *L, lua_Integer n);
+LUA_API const char *(moon_pushlstring) (lua_State *L, const char *s, size_t len);
+LUA_API const char *(moon_pushstring) (lua_State *L, const char *s);
+LUA_API const char *(moon_pushvfstring) (lua_State *L, const char *fmt,
                                                       va_list argp);
-LUA_API const char *(lua_pushfstring) (lua_State *L, const char *fmt, ...);
-LUA_API void  (lua_pushcclosure) (lua_State *L, lua_CFunction fn, int n);
-LUA_API void  (lua_pushboolean) (lua_State *L, int b);
-LUA_API void  (lua_pushlightuserdata) (lua_State *L, void *p);
-LUA_API int   (lua_pushthread) (lua_State *L);
+LUA_API const char *(moon_pushfstring) (lua_State *L, const char *fmt, ...);
+LUA_API void  (moon_pushcclosure) (lua_State *L, lua_CFunction fn, int n);
+LUA_API void  (moon_pushboolean) (lua_State *L, int b);
+LUA_API void  (moon_pushlightuserdata) (lua_State *L, void *p);
+LUA_API int   (moon_pushthread) (lua_State *L);
 
 
 /*
 ** get functions (Lua -> stack)
 */
-LUA_API int (lua_getglobal) (lua_State *L, const char *name);
-LUA_API int (lua_gettable) (lua_State *L, int idx);
-LUA_API int (lua_getfield) (lua_State *L, int idx, const char *k);
-LUA_API int (lua_geti) (lua_State *L, int idx, lua_Integer n);
-LUA_API int (lua_rawget) (lua_State *L, int idx);
-LUA_API int (lua_rawgeti) (lua_State *L, int idx, lua_Integer n);
-LUA_API int (lua_rawgetp) (lua_State *L, int idx, const void *p);
+LUA_API int (moon_getglobal) (lua_State *L, const char *name);
+LUA_API int (moon_gettable) (lua_State *L, int idx);
+LUA_API int (moon_getfield) (lua_State *L, int idx, const char *k);
+LUA_API int (moon_geti) (lua_State *L, int idx, lua_Integer n);
+LUA_API int (moon_rawget) (lua_State *L, int idx);
+LUA_API int (moon_rawgeti) (lua_State *L, int idx, lua_Integer n);
+LUA_API int (moon_rawgetp) (lua_State *L, int idx, const void *p);
 
-LUA_API void  (lua_createtable) (lua_State *L, int narr, int nrec);
-LUA_API void *(lua_newuserdatauv) (lua_State *L, size_t sz, int nuvalue);
-LUA_API int   (lua_getmetatable) (lua_State *L, int objindex);
-LUA_API int  (lua_getiuservalue) (lua_State *L, int idx, int n);
+LUA_API void  (moon_createtable) (lua_State *L, int narr, int nrec);
+LUA_API void *(moon_newuserdatauv) (lua_State *L, size_t sz, int nuvalue);
+LUA_API int   (moon_getmetatable) (lua_State *L, int objindex);
+LUA_API int  (moon_getiuservalue) (lua_State *L, int idx, int n);
 
 
 /*
 ** set functions (stack -> Lua)
 */
-LUA_API void  (lua_setglobal) (lua_State *L, const char *name);
-LUA_API void  (lua_settable) (lua_State *L, int idx);
-LUA_API void  (lua_setfield) (lua_State *L, int idx, const char *k);
-LUA_API void  (lua_seti) (lua_State *L, int idx, lua_Integer n);
-LUA_API void  (lua_rawset) (lua_State *L, int idx);
-LUA_API void  (lua_rawseti) (lua_State *L, int idx, lua_Integer n);
-LUA_API void  (lua_rawsetp) (lua_State *L, int idx, const void *p);
-LUA_API int   (lua_setmetatable) (lua_State *L, int objindex);
-LUA_API int   (lua_setiuservalue) (lua_State *L, int idx, int n);
+LUA_API void  (moon_setglobal) (lua_State *L, const char *name);
+LUA_API void  (moon_settable) (lua_State *L, int idx);
+LUA_API void  (moon_setfield) (lua_State *L, int idx, const char *k);
+LUA_API void  (moon_seti) (lua_State *L, int idx, lua_Integer n);
+LUA_API void  (moon_rawset) (lua_State *L, int idx);
+LUA_API void  (moon_rawseti) (lua_State *L, int idx, lua_Integer n);
+LUA_API void  (moon_rawsetp) (lua_State *L, int idx, const void *p);
+LUA_API int   (moon_setmetatable) (lua_State *L, int objindex);
+LUA_API int   (moon_setiuservalue) (lua_State *L, int idx, int n);
 
 
 /*
 ** 'load' and 'call' functions (load and run Lua code)
 */
-LUA_API void  (lua_callk) (lua_State *L, int nargs, int nresults,
+LUA_API void  (moon_callk) (lua_State *L, int nargs, int nresults,
                            lua_KContext ctx, lua_KFunction k);
-#define lua_call(L,n,r)		lua_callk(L, (n), (r), 0, NULL)
+#define lua_call(L,n,r)		moon_callk(L, (n), (r), 0, NULL)
 
-LUA_API int   (lua_pcallk) (lua_State *L, int nargs, int nresults, int errfunc,
+LUA_API int   (moon_pcallk) (lua_State *L, int nargs, int nresults, int errfunc,
                             lua_KContext ctx, lua_KFunction k);
-#define lua_pcall(L,n,r,f)	lua_pcallk(L, (n), (r), (f), 0, NULL)
+#define moon_pcall(L,n,r,f)	moon_pcallk(L, (n), (r), (f), 0, NULL)
 
-LUA_API int   (lua_load) (lua_State *L, lua_Reader reader, void *dt,
+LUA_API int   (moon_load) (lua_State *L, lua_Reader reader, void *dt,
                           const char *chunkname, const char *mode);
 
-LUA_API int (lua_dump) (lua_State *L, lua_Writer writer, void *data, int strip);
+LUA_API int (moon_dump) (lua_State *L, lua_Writer writer, void *data, int strip);
 
 
 /*
 ** coroutine functions
 */
-LUA_API int  (lua_yieldk)     (lua_State *L, int nresults, lua_KContext ctx,
+LUA_API int  (moon_yieldk)     (lua_State *L, int nresults, lua_KContext ctx,
                                lua_KFunction k);
-LUA_API int  (lua_resume)     (lua_State *L, lua_State *from, int narg,
+LUA_API int  (moon_resume)     (lua_State *L, lua_State *from, int narg,
                                int *nres);
-LUA_API int  (lua_status)     (lua_State *L);
-LUA_API int (lua_isyieldable) (lua_State *L);
+LUA_API int  (moon_status)     (lua_State *L);
+LUA_API int (moon_isyieldable) (lua_State *L);
 
-#define lua_yield(L,n)		lua_yieldk(L, (n), 0, NULL)
+#define lua_yield(L,n)		moon_yieldk(L, (n), 0, NULL)
 
 
 /*
 ** Warning-related functions
 */
-LUA_API void (lua_setwarnf) (lua_State *L, lua_WarnFunction f, void *ud);
-LUA_API void (lua_warning)  (lua_State *L, const char *msg, int tocont);
+LUA_API void (moon_setwarnf) (lua_State *L, lua_WarnFunction f, void *ud);
+LUA_API void (moon_warning)  (lua_State *L, const char *msg, int tocont);
 
 
 /*
@@ -328,27 +328,27 @@ LUA_API void (lua_warning)  (lua_State *L, const char *msg, int tocont);
 #define LUA_GCGEN		10
 #define LUA_GCINC		11
 
-LUA_API int (lua_gc) (lua_State *L, int what, ...);
+LUA_API int (moon_gc) (lua_State *L, int what, ...);
 
 
 /*
 ** miscellaneous functions
 */
 
-LUA_API int   (lua_error) (lua_State *L);
+LUA_API int   (moon_error) (lua_State *L);
 
-LUA_API int   (lua_next) (lua_State *L, int idx);
+LUA_API int   (moon_next) (lua_State *L, int idx);
 
-LUA_API void  (lua_concat) (lua_State *L, int n);
-LUA_API void  (lua_len)    (lua_State *L, int idx);
+LUA_API void  (moon_concat) (lua_State *L, int n);
+LUA_API void  (moon_len)    (lua_State *L, int idx);
 
-LUA_API size_t   (lua_stringtonumber) (lua_State *L, const char *s);
+LUA_API size_t   (moon_stringtonumber) (lua_State *L, const char *s);
 
-LUA_API lua_Alloc (lua_getallocf) (lua_State *L, void **ud);
-LUA_API void      (lua_setallocf) (lua_State *L, lua_Alloc f, void *ud);
+LUA_API lua_Alloc (moon_getallocf) (lua_State *L, void **ud);
+LUA_API void      (moon_setallocf) (lua_State *L, lua_Alloc f, void *ud);
 
-LUA_API void (lua_toclose) (lua_State *L, int idx);
-LUA_API void (lua_closeslot) (lua_State *L, int idx);
+LUA_API void (moon_toclose) (lua_State *L, int idx);
+LUA_API void (moon_closeslot) (lua_State *L, int idx);
 
 
 /*
@@ -359,39 +359,39 @@ LUA_API void (lua_closeslot) (lua_State *L, int idx);
 
 #define lua_getextraspace(L)	((void *)((char *)(L) - LUA_EXTRASPACE))
 
-#define lua_tonumber(L,i)	lua_tonumberx(L,(i),NULL)
-#define lua_tointeger(L,i)	lua_tointegerx(L,(i),NULL)
+#define moon_tonumber(L,i)	moon_tonumberx(L,(i),NULL)
+#define lua_tointeger(L,i)	moon_tointegerx(L,(i),NULL)
 
-#define lua_pop(L,n)		lua_settop(L, -(n)-1)
+#define lua_pop(L,n)		moon_settop(L, -(n)-1)
 
-#define lua_newtable(L)		lua_createtable(L, 0, 0)
+#define lua_newtable(L)		moon_createtable(L, 0, 0)
 
-#define lua_register(L,n,f) (lua_pushcfunction(L, (f)), lua_setglobal(L, (n)))
+#define lua_register(L,n,f) (lua_pushcfunction(L, (f)), moon_setglobal(L, (n)))
 
-#define lua_pushcfunction(L,f)	lua_pushcclosure(L, (f), 0)
+#define lua_pushcfunction(L,f)	moon_pushcclosure(L, (f), 0)
 
-#define lua_isfunction(L,n)	(lua_type(L, (n)) == LUA_TFUNCTION)
-#define lua_istable(L,n)	(lua_type(L, (n)) == LUA_TTABLE)
-#define lua_islightuserdata(L,n)	(lua_type(L, (n)) == LUA_TLIGHTUSERDATA)
-#define lua_isnil(L,n)		(lua_type(L, (n)) == LUA_TNIL)
-#define lua_isboolean(L,n)	(lua_type(L, (n)) == LUA_TBOOLEAN)
-#define lua_isthread(L,n)	(lua_type(L, (n)) == LUA_TTHREAD)
-#define lua_isnone(L,n)		(lua_type(L, (n)) == LUA_TNONE)
-#define lua_isnoneornil(L, n)	(lua_type(L, (n)) <= 0)
+#define lua_isfunction(L,n)	(moon_type(L, (n)) == LUA_TFUNCTION)
+#define lua_istable(L,n)	(moon_type(L, (n)) == LUA_TTABLE)
+#define lua_islightuserdata(L,n)	(moon_type(L, (n)) == LUA_TLIGHTUSERDATA)
+#define lua_isnil(L,n)		(moon_type(L, (n)) == LUA_TNIL)
+#define lua_isboolean(L,n)	(moon_type(L, (n)) == LUA_TBOOLEAN)
+#define lua_isthread(L,n)	(moon_type(L, (n)) == LUA_TTHREAD)
+#define lua_isnone(L,n)		(moon_type(L, (n)) == LUA_TNONE)
+#define lua_isnoneornil(L, n)	(moon_type(L, (n)) <= 0)
 
-#define lua_pushliteral(L, s)	lua_pushstring(L, "" s)
+#define lua_pushliteral(L, s)	moon_pushstring(L, "" s)
 
 #define lua_pushglobaltable(L)  \
-	((void)lua_rawgeti(L, LUA_REGISTRYINDEX, LUA_RIDX_GLOBALS))
+	((void)moon_rawgeti(L, LUA_REGISTRYINDEX, LUA_RIDX_GLOBALS))
 
-#define lua_tostring(L,i)	lua_tolstring(L, (i), NULL)
+#define lua_tostring(L,i)	moon_tolstring(L, (i), NULL)
 
 
-#define lua_insert(L,idx)	lua_rotate(L, (idx), 1)
+#define moon_insert(L,idx)	moon_rotate(L, (idx), 1)
 
-#define lua_remove(L,idx)	(lua_rotate(L, (idx), -1), lua_pop(L, 1))
+#define lua_remove(L,idx)	(moon_rotate(L, (idx), -1), lua_pop(L, 1))
 
-#define lua_replace(L,idx)	(lua_copy(L, -1, (idx)), lua_pop(L, 1))
+#define moon_replace(L,idx)	(moon_copy(L, -1, (idx)), lua_pop(L, 1))
 
 /* }============================================================== */
 
@@ -409,9 +409,9 @@ LUA_API void (lua_closeslot) (lua_State *L, int idx);
 
 #endif
 
-#define lua_newuserdata(L,s)	lua_newuserdatauv(L,s,1)
-#define lua_getuservalue(L,idx)	lua_getiuservalue(L,idx,1)
-#define lua_setuservalue(L,idx)	lua_setiuservalue(L,idx,1)
+#define lua_newuserdata(L,s)	moon_newuserdatauv(L,s,1)
+#define lua_getuservalue(L,idx)	moon_getiuservalue(L,idx,1)
+#define lua_setuservalue(L,idx)	moon_setiuservalue(L,idx,1)
 
 #define LUA_NUMTAGS		LUA_NUMTYPES
 
@@ -449,23 +449,23 @@ typedef struct lua_Debug lua_Debug;  /* activation record */
 typedef void (*lua_Hook) (lua_State *L, lua_Debug *ar);
 
 
-LUA_API int (lua_getstack) (lua_State *L, int level, lua_Debug *ar);
-LUA_API int (lua_getinfo) (lua_State *L, const char *what, lua_Debug *ar);
-LUA_API const char *(lua_getlocal) (lua_State *L, const lua_Debug *ar, int n);
-LUA_API const char *(lua_setlocal) (lua_State *L, const lua_Debug *ar, int n);
-LUA_API const char *(lua_getupvalue) (lua_State *L, int funcindex, int n);
-LUA_API const char *(lua_setupvalue) (lua_State *L, int funcindex, int n);
+LUA_API int (moon_getstack) (lua_State *L, int level, lua_Debug *ar);
+LUA_API int (moon_getinfo) (lua_State *L, const char *what, lua_Debug *ar);
+LUA_API const char *(moon_getlocal) (lua_State *L, const lua_Debug *ar, int n);
+LUA_API const char *(moon_setlocal) (lua_State *L, const lua_Debug *ar, int n);
+LUA_API const char *(moon_getupvalue) (lua_State *L, int funcindex, int n);
+LUA_API const char *(moon_setupvalue) (lua_State *L, int funcindex, int n);
 
-LUA_API void *(lua_upvalueid) (lua_State *L, int fidx, int n);
-LUA_API void  (lua_upvaluejoin) (lua_State *L, int fidx1, int n1,
+LUA_API void *(moon_upvalueid) (lua_State *L, int fidx, int n);
+LUA_API void  (moon_upvaluejoin) (lua_State *L, int fidx1, int n1,
                                                int fidx2, int n2);
 
-LUA_API void (lua_sethook) (lua_State *L, lua_Hook func, int mask, int count);
-LUA_API lua_Hook (lua_gethook) (lua_State *L);
-LUA_API int (lua_gethookmask) (lua_State *L);
-LUA_API int (lua_gethookcount) (lua_State *L);
+LUA_API void (moon_sethook) (lua_State *L, lua_Hook func, int mask, int count);
+LUA_API lua_Hook (moon_gethook) (lua_State *L);
+LUA_API int (moon_gethookmask) (lua_State *L);
+LUA_API int (moon_gethookcount) (lua_State *L);
 
-LUA_API int (lua_setcstacklimit) (lua_State *L, unsigned int limit);
+LUA_API int (moon_setcstacklimit) (lua_State *L, unsigned int limit);
 
 struct lua_Debug {
   int event;

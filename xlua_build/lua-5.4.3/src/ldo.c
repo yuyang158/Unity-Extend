@@ -801,7 +801,7 @@ static int precover (lua_State *L, int status) {
 }
 
 
-LUA_API int lua_resume (lua_State *L, lua_State *from, int nargs,
+LUA_API int moon_resume (lua_State *L, lua_State *from, int nargs,
                                       int *nresults) {
   int status;
   lua_lock(L);
@@ -836,12 +836,12 @@ LUA_API int lua_resume (lua_State *L, lua_State *from, int nargs,
 }
 
 
-LUA_API int lua_isyieldable (lua_State *L) {
+LUA_API int moon_isyieldable (lua_State *L) {
   return yieldable(L);
 }
 
 
-LUA_API int lua_yieldk (lua_State *L, int nresults, lua_KContext ctx,
+LUA_API int moon_yieldk (lua_State *L, int nresults, lua_KContext ctx,
                         lua_KFunction k) {
   CallInfo *ci;
   luai_userstateyield(L, nresults);
