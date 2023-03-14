@@ -1,4 +1,4 @@
-/**
+﻿/**
 The MIT License (MIT)
 Copyright (c) ldrumm 2014
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -75,7 +75,7 @@ static int chronos_nanotime(lua_State *L)
     if (clock_gettime(CLOCK_MONOTONIC, &t_info) != 0) {
         return luaL_error(L, "clock_gettime() failed:%s", strerror(errno));
     }
-    lua_pushnumber(
+    moon_pushnumber(
         L,
         (lua_Number)t_info.tv_sec + (t_info.tv_nsec * multiplier)
     );
@@ -86,7 +86,7 @@ static int chronos_nanotime(lua_State *L)
     if (gettimeofday(&t_info, NULL) < 0) {
         return luaL_error(L, "gettimeofday() failed!:%s", strerror(errno));
     };
-    lua_pushnumber(L, (lua_Number)t_info.tv_sec + t_info.tv_usec / 1.e6);
+    moon_pushnumber(L, (lua_Number)t_info.tv_sec + t_info.tv_usec / 1.e6);
     return 1;
 #endif
 }
@@ -125,7 +125,7 @@ static int chronos_nanotime(lua_State * L)
     //for info.
 #ifdef CHRONOS_USE_COREAUDIO
     //Apparently this is just a wrapper around mach_absolute_time() anyway.
-    lua_pushnumber(
+    moon_pushnumber(
         L,
         (lua_Number)AudioConvertHostTimeToNanos(AudioGetCurrentHostTime()) * 1.e9
     );
@@ -142,7 +142,7 @@ static int chronos_nanotime(lua_State * L)
         init = 0;
     }
 
-    lua_pushnumber(L, (lua_Number)(mach_absolute_time() * resolution) * multiplier);
+    moon_pushnumber(L, (lua_Number)(mach_absolute_time() * resolution) * multiplier);
     return 1;
 #endif
 }
