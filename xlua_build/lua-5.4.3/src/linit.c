@@ -1,4 +1,4 @@
-/*
+﻿/*
 ** $Id: linit.c $
 ** Initialization of libraries for lua.c and other clients
 ** See Copyright Notice in lua.h
@@ -40,7 +40,7 @@
 ** program
 */
 static const luaL_Reg loadedlibs[] = {
-  {LUA_GNAME, luaopen_base},
+  {LUA_GNAME, moonopen_base},
   {LUA_LOADLIBNAME, luaopen_package},
   {LUA_COLIBNAME, luaopen_coroutine},
   {LUA_TABLIBNAME, luaopen_table},

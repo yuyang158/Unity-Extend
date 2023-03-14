@@ -24,7 +24,7 @@
 */
 #define luaD_checkstackaux(L,n,pre,pos)  \
 	if (l_unlikely(L->stack_last - L->top <= (n))) \
-	  { pre; luaD_growstack(L, n, 1); pos; } \
+	  { pre; moonD_growstack(L, n, 1); pos; } \
         else { condmovestack(L,pre,pos); }
 
 /* In general, 'pre'/'pos' are empty (nothing to save) */
@@ -52,28 +52,28 @@
 /* type of protected functions, to be ran by 'runprotected' */
 typedef void (*Pfunc) (lua_State *L, void *ud);
 
-LUAI_FUNC void luaD_seterrorobj (lua_State *L, int errcode, StkId oldtop);
-LUAI_FUNC int luaD_protectedparser (lua_State *L, ZIO *z, const char *name,
+LUAI_FUNC void moonD_seterrorobj (lua_State *L, int errcode, StkId oldtop);
+LUAI_FUNC int moonD_protectedparser (lua_State *L, ZIO *z, const char *name,
                                                   const char *mode);
-LUAI_FUNC void luaD_hook (lua_State *L, int event, int line,
+LUAI_FUNC void moonD_hook (lua_State *L, int event, int line,
                                         int fTransfer, int nTransfer);
-LUAI_FUNC void luaD_hookcall (lua_State *L, CallInfo *ci);
-LUAI_FUNC int luaD_pretailcall (lua_State *L, CallInfo *ci, StkId func,                                                    int narg1, int delta);
-LUAI_FUNC CallInfo *luaD_precall (lua_State *L, StkId func, int nResults);
-LUAI_FUNC void luaD_call (lua_State *L, StkId func, int nResults);
-LUAI_FUNC void luaD_callnoyield (lua_State *L, StkId func, int nResults);
-LUAI_FUNC StkId luaD_tryfuncTM (lua_State *L, StkId func);
-LUAI_FUNC int luaD_closeprotected (lua_State *L, ptrdiff_t level, int status);
-LUAI_FUNC int luaD_pcall (lua_State *L, Pfunc func, void *u,
+LUAI_FUNC void moonD_hookcall (lua_State *L, CallInfo *ci);
+LUAI_FUNC int moonD_pretailcall (lua_State *L, CallInfo *ci, StkId func,                                                    int narg1, int delta);
+LUAI_FUNC CallInfo *moonD_precall (lua_State *L, StkId func, int nResults);
+LUAI_FUNC void moonD_call (lua_State *L, StkId func, int nResults);
+LUAI_FUNC void moonD_callnoyield (lua_State *L, StkId func, int nResults);
+LUAI_FUNC StkId moonD_tryfuncTM (lua_State *L, StkId func);
+LUAI_FUNC int moonD_closeprotected (lua_State *L, ptrdiff_t level, int status);
+LUAI_FUNC int moonD_pcall (lua_State *L, Pfunc func, void *u,
                                         ptrdiff_t oldtop, ptrdiff_t ef);
-LUAI_FUNC void luaD_poscall (lua_State *L, CallInfo *ci, int nres);
-LUAI_FUNC int luaD_reallocstack (lua_State *L, int newsize, int raiseerror);
-LUAI_FUNC int luaD_growstack (lua_State *L, int n, int raiseerror);
-LUAI_FUNC void luaD_shrinkstack (lua_State *L);
+LUAI_FUNC void moonD_poscall (lua_State *L, CallInfo *ci, int nres);
+LUAI_FUNC int moonD_reallocstack (lua_State *L, int newsize, int raiseerror);
+LUAI_FUNC int moonD_growstack (lua_State *L, int n, int raiseerror);
+LUAI_FUNC void moonD_shrinkstack (lua_State *L);
 LUAI_FUNC void luaD_inctop (lua_State *L);
 
-LUAI_FUNC l_noret luaD_throw (lua_State *L, int errcode);
-LUAI_FUNC int luaD_rawrunprotected (lua_State *L, Pfunc f, void *ud);
+LUAI_FUNC l_noret moonD_throw (lua_State *L, int errcode);
+LUAI_FUNC int moonD_rawrunprotected (lua_State *L, Pfunc f, void *ud);
 
 #endif
 

@@ -500,7 +500,7 @@ static void adjust_assign (LexState *ls, int nvars, int nexps, expdesc *e) {
 }
 
 
-#define enterlevel(ls)	luaE_incCstack(ls->L)
+#define enterlevel(ls)	moonE_incCstack(ls->L)
 
 
 #define leavelevel(ls) ((ls)->L->nCcalls--)
@@ -705,7 +705,7 @@ static Proto *addprototype (LexState *ls) {
     while (oldsize < f->sizep)
       f->p[oldsize++] = NULL;
   }
-  f->p[fs->np++] = clp = luaF_newproto(L);
+  f->p[fs->np++] = clp = moonF_newproto(L);
   luaC_objbarrier(L, f, clp);
   return clp;
 }
@@ -1942,13 +1942,13 @@ LClosure *luaY_parser (lua_State *L, ZIO *z, Mbuffer *buff,
                        Dyndata *dyd, const char *name, int firstchar) {
   LexState lexstate;
   FuncState funcstate;
-  LClosure *cl = luaF_newLclosure(L, 1);  /* create main closure */
+  LClosure *cl = moonF_newLclosure(L, 1);  /* create main closure */
   setclLvalue2s(L, L->top, cl);  /* anchor it (to avoid being collected) */
   luaD_inctop(L);
-  lexstate.h = luaH_new(L);  /* create table for scanner */
+  lexstate.h = moonH_new(L);  /* create table for scanner */
   sethvalue2s(L, L->top, lexstate.h);  /* anchor it */
   luaD_inctop(L);
-  funcstate.f = cl->p = luaF_newproto(L);
+  funcstate.f = cl->p = moonF_newproto(L);
   luaC_objbarrier(L, cl, cl->p);
   funcstate.f->source = luaS_new(L, name);  /* create and anchor TString */
   luaC_objbarrier(L, funcstate.f, funcstate.f->source);

@@ -476,7 +476,7 @@ static int traverseephemeron (global_State *g, Table *h, int inv) {
   int hasclears = 0;  /* true if table has white keys */
   int hasww = 0;  /* true if table has entry "white-key -> white-value" */
   unsigned int i;
-  unsigned int asize = luaH_realasize(h);
+  unsigned int asize = moonH_realasize(h);
   unsigned int nsize = sizenode(h);
   /* traverse array part */
   for (i = 0; i < asize; i++) {
@@ -517,7 +517,7 @@ static int traverseephemeron (global_State *g, Table *h, int inv) {
 static void traversestrongtable (global_State *g, Table *h) {
   Node *n, *limit = gnodelast(h);
   unsigned int i;
-  unsigned int asize = luaH_realasize(h);
+  unsigned int asize = moonH_realasize(h);
   for (i = 0; i < asize; i++)  /* traverse array part */
     markvalue(g, &h->array[i]);
   for (n = gnode(h, 0); n < limit; n++) {  /* traverse hash part */
@@ -641,7 +641,7 @@ static int traversethread (global_State *g, lua_State *th) {
     }
   }
   else if (!g->gcemergency)
-    luaD_shrinkstack(th); /* do not change stack in emergency cycle */
+    moonD_shrinkstack(th); /* do not change stack in emergency cycle */
   return 1 + stacksize(th);
 }
 
@@ -738,7 +738,7 @@ static void clearbyvalues (global_State *g, GCObject *l, GCObject *f) {
     Table *h = gco2t(l);
     Node *n, *limit = gnodelast(h);
     unsigned int i;
-    unsigned int asize = luaH_realasize(h);
+    unsigned int asize = moonH_realasize(h);
     for (i = 0; i < asize; i++) {
       TValue *o = &h->array[i];
       if (iscleared(g, gcvalueN(o)))  /* value was collected? */
@@ -756,7 +756,7 @@ static void clearbyvalues (global_State *g, GCObject *l, GCObject *f) {
 
 static void freeupval (lua_State *L, UpVal *uv) {
   if (upisopen(uv))
-    luaF_unlinkupval(uv);
+    moonF_unlinkupval(uv);
   luaM_free(L, uv);
 }
 
@@ -764,7 +764,7 @@ static void freeupval (lua_State *L, UpVal *uv) {
 static void freeobj (lua_State *L, GCObject *o) {
   switch (o->tt) {
     case LUA_VPROTO:
-      luaF_freeproto(L, gco2p(o));
+      moonF_freeproto(L, gco2p(o));
       break;
     case LUA_VUPVAL:
       freeupval(L, gco2upv(o));
@@ -780,10 +780,10 @@ static void freeobj (lua_State *L, GCObject *o) {
       break;
     }
     case LUA_VTABLE:
-      luaH_free(L, gco2t(o));
+      moonH_free(L, gco2t(o));
       break;
     case LUA_VTHREAD:
-      luaE_freethread(L, gco2th(o));
+      moonE_freethread(L, gco2th(o));
       break;
     case LUA_VUSERDATA: {
       Udata *u = gco2u(o);
@@ -892,7 +892,7 @@ static GCObject *udata2finalize (global_State *g) {
 
 static void dothecall (lua_State *L, void *ud) {
   UNUSED(ud);
-  luaD_callnoyield(L, L->top - 2, 0);
+  moonD_callnoyield(L, L->top - 2, 0);
 }
 
 
@@ -912,12 +912,12 @@ static void GCTM (lua_State *L) {
     setobj2s(L, L->top++, tm);  /* push finalizer... */
     setobj2s(L, L->top++, &v);  /* ... and its argument */
     L->ci->callstatus |= CIST_FIN;  /* will run a finalizer */
-    status = luaD_pcall(L, dothecall, NULL, savestack(L, L->top - 2), 0);
+    status = moonD_pcall(L, dothecall, NULL, savestack(L, L->top - 2), 0);
     L->ci->callstatus &= ~CIST_FIN;  /* not running a finalizer anymore */
     L->allowhook = oldah;  /* restore hooks */
     g->gcstp = oldgcstp;  /* restore state */
     if (l_unlikely(status != LUA_OK)) {  /* error while running __gc? */
-      luaE_warnerror(L, "__gc");
+      moonE_warnerror(L, "__gc");
       L->top--;  /* pops error object */
     }
   }
@@ -1347,7 +1347,7 @@ static lu_mem fullgen (lua_State *L, global_State *g) {
 ** memory grows 'genminormul'%.
 */
 static void setminordebt (global_State *g) {
-  luaE_setdebt(g, -(cast(l_mem, (gettotalbytes(g) / 100)) * g->genminormul));
+  moonE_setdebt(g, -(cast(l_mem, (gettotalbytes(g) / 100)) * g->genminormul));
 }
 
 
@@ -1465,7 +1465,7 @@ static void setpause (global_State *g) {
             : MAX_LMEM;  /* overflow; truncate to maximum */
   debt = gettotalbytes(g) - threshold;
   if (debt > 0) debt = 0;
-  luaE_setdebt(g, debt);
+  moonE_setdebt(g, debt);
 }
 
 
@@ -1671,7 +1671,7 @@ static void incstep (lua_State *L, global_State *g) {
     setpause(g);  /* pause until next cycle */
   else {
     debt = (debt / stepmul) * WORK2MEM;  /* convert 'work units' to bytes */
-    luaE_setdebt(g, debt);
+    moonE_setdebt(g, debt);
   }
 }
 

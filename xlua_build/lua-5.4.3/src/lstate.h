@@ -388,16 +388,16 @@ union GCUnion {
 /* actual number of total bytes allocated */
 #define gettotalbytes(g)	cast(lu_mem, (g)->totalbytes + (g)->GCdebt)
 
-LUAI_FUNC void luaE_setdebt (global_State *g, l_mem debt);
-LUAI_FUNC void luaE_freethread (lua_State *L, lua_State *L1);
-LUAI_FUNC CallInfo *luaE_extendCI (lua_State *L);
-LUAI_FUNC void luaE_freeCI (lua_State *L);
-LUAI_FUNC void luaE_shrinkCI (lua_State *L);
-LUAI_FUNC void luaE_checkcstack (lua_State *L);
-LUAI_FUNC void luaE_incCstack (lua_State *L);
-LUAI_FUNC void luaE_warning (lua_State *L, const char *msg, int tocont);
-LUAI_FUNC void luaE_warnerror (lua_State *L, const char *where);
-LUAI_FUNC int luaE_resetthread (lua_State *L, int status);
+LUAI_FUNC void moonE_setdebt (global_State *g, l_mem debt);
+LUAI_FUNC void moonE_freethread (lua_State *L, lua_State *L1);
+LUAI_FUNC CallInfo *moonE_extendCI (lua_State *L);
+LUAI_FUNC void moonE_freeCI (lua_State *L);
+LUAI_FUNC void moonE_shrinkCI (lua_State *L);
+LUAI_FUNC void moonE_checkcstack (lua_State *L);
+LUAI_FUNC void moonE_incCstack (lua_State *L);
+LUAI_FUNC void moonE_warning (lua_State *L, const char *msg, int tocont);
+LUAI_FUNC void moonE_warnerror (lua_State *L, const char *where);
+LUAI_FUNC int moonE_resetthread (lua_State *L, int status);
 
 
 #endif

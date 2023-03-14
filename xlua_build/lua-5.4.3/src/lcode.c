@@ -544,7 +544,7 @@ static int addk (FuncState *fs, TValue *key, TValue *v) {
   TValue val;
   lua_State *L = fs->ls->L;
   Proto *f = fs->f;
-  const TValue *idx = luaH_get(fs->ls->h, key);  /* query scanner table */
+  const TValue *idx = moonH_get(fs->ls->h, key);  /* query scanner table */
   int k, oldsize;
   if (ttisinteger(idx)) {  /* is there an index there? */
     k = cast_int(ivalue(idx));
@@ -559,7 +559,7 @@ static int addk (FuncState *fs, TValue *key, TValue *v) {
   /* numerical value does not need GC barrier;
      table has no metatable, so it does not need to invalidate cache */
   setivalue(&val, k);
-  luaH_finishset(L, fs->ls->h, key, idx, &val);
+  moonH_finishset(L, fs->ls->h, key, idx, &val);
   luaM_growvector(L, f->k, k, f->sizek, TValue, MAXARG_Ax, "constants");
   while (oldsize < f->sizek) setnilvalue(&f->k[oldsize++]);
   setobj(L, &f->k[k], v);

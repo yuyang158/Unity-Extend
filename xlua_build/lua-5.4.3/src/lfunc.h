@@ -47,17 +47,17 @@
 #define CLOSEKTOP	(-1)
 
 
-LUAI_FUNC Proto *luaF_newproto (lua_State *L);
-LUAI_FUNC CClosure *luaF_newCclosure (lua_State *L, int nupvals);
-LUAI_FUNC LClosure *luaF_newLclosure (lua_State *L, int nupvals);
-LUAI_FUNC void luaF_initupvals (lua_State *L, LClosure *cl);
-LUAI_FUNC UpVal *luaF_findupval (lua_State *L, StkId level);
-LUAI_FUNC void luaF_newtbcupval (lua_State *L, StkId level);
-LUAI_FUNC void luaF_closeupval (lua_State *L, StkId level);
-LUAI_FUNC void luaF_close (lua_State *L, StkId level, int status, int yy);
-LUAI_FUNC void luaF_unlinkupval (UpVal *uv);
-LUAI_FUNC void luaF_freeproto (lua_State *L, Proto *f);
-LUAI_FUNC const char *luaF_getlocalname (const Proto *func, int local_number,
+LUAI_FUNC Proto *moonF_newproto (lua_State *L);
+LUAI_FUNC CClosure *moonF_newCclosure (lua_State *L, int nupvals);
+LUAI_FUNC LClosure *moonF_newLclosure (lua_State *L, int nupvals);
+LUAI_FUNC void moonF_initupvals (lua_State *L, LClosure *cl);
+LUAI_FUNC UpVal *moonF_findupval (lua_State *L, StkId level);
+LUAI_FUNC void moonF_newtbcupval (lua_State *L, StkId level);
+LUAI_FUNC void moonF_closeupval (lua_State *L, StkId level);
+LUAI_FUNC void moonF_close (lua_State *L, StkId level, int status, int yy);
+LUAI_FUNC void moonF_unlinkupval (UpVal *uv);
+LUAI_FUNC void moonF_freeproto (lua_State *L, Proto *f);
+LUAI_FUNC const char *moonF_getlocalname (const Proto *func, int local_number,
                                          int pc);
 
 

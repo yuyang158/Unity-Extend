@@ -119,7 +119,7 @@ LUA_API int moon_checkstack (lua_State *L, int n) {
     if (inuse > LUAI_MAXSTACK - n)  /* can grow without overflow? */
       res = 0;  /* no */
     else  /* try to grow stack */
-      res = luaD_growstack(L, n, 0);
+      res = moonD_growstack(L, n, 0);
   }
   if (res && ci->top < L->top + n)
     ci->top = L->top + n;  /* adjust frame top */
@@ -202,7 +202,7 @@ LUA_API void moon_settop (lua_State *L, int idx) {
   newtop = L->top + diff;
   if (diff < 0 && L->tbclist >= newtop) {
     lua_assert(hastocloseCfunc(ci->nresults));
-    luaF_close(L, newtop, CLOSEKTOP, 0);
+    moonF_close(L, newtop, CLOSEKTOP, 0);
   }
   L->top = newtop;  /* correct top only after closing any upvalue */
   lua_unlock(L);
@@ -215,7 +215,7 @@ LUA_API void moon_closeslot (lua_State *L, int idx) {
   level = index2stack(L, idx);
   api_check(L, hastocloseCfunc(L->ci->nresults) && L->tbclist == level,
      "no variable to close at given level");
-  luaF_close(L, level, CLOSEKTOP, 0);
+  moonF_close(L, level, CLOSEKTOP, 0);
   level = index2stack(L, idx);  /* stack may be moved */
   setnilvalue(s2v(level));
   lua_unlock(L);
@@ -433,7 +433,7 @@ LUA_API lua_Unsigned moon_rawlen (lua_State *L, int idx) {
     case LUA_VSHRSTR: return tsvalue(o)->shrlen;
     case LUA_VLNGSTR: return tsvalue(o)->u.lnglen;
     case LUA_VUSERDATA: return uvalue(o)->len;
-    case LUA_VTABLE: return luaH_getn(hvalue(o));
+    case LUA_VTABLE: return moonH_getn(hvalue(o));
     default: return 0;
   }
 }
@@ -590,7 +590,7 @@ LUA_API void moon_pushcclosure (lua_State *L, lua_CFunction fn, int n) {
     CClosure *cl;
     api_checknelems(L, n);
     api_check(L, n <= MAXUPVAL, "upvalue index too large");
-    cl = luaF_newCclosure(L, n);
+    cl = moonF_newCclosure(L, n);
     cl->f = fn;
     L->top -= n;
     while (n--) {
@@ -643,7 +643,7 @@ LUA_API int moon_pushthread (lua_State *L) {
 l_sinline int auxgetstr (lua_State *L, const TValue *t, const char *k) {
   const TValue *slot;
   TString *str = luaS_new(L, k);
-  if (luaV_fastget(L, t, str, slot, luaH_getstr)) {
+  if (luaV_fastget(L, t, str, slot, moonH_getstr)) {
     setobj2s(L, L->top, slot);
     api_incr_top(L);
   }
@@ -680,7 +680,7 @@ LUA_API int moon_gettable (lua_State *L, int idx) {
   TValue *t;
   lua_lock(L);
   t = index2value(L, idx);
-  if (luaV_fastget(L, t, s2v(L->top - 1), slot, luaH_get)) {
+  if (luaV_fastget(L, t, s2v(L->top - 1), slot, moonH_get)) {
     setobj2s(L, L->top - 1, slot);
   }
   else
@@ -739,7 +739,7 @@ LUA_API int moon_rawget (lua_State *L, int idx) {
   lua_lock(L);
   api_checknelems(L, 1);
   t = gettable(L, idx);
-  val = luaH_get(t, s2v(L->top - 1));
+  val = moonH_get(t, s2v(L->top - 1));
   L->top--;  /* remove key */
   return finishrawget(L, val);
 }
@@ -749,7 +749,7 @@ LUA_API int moon_rawgeti (lua_State *L, int idx, lua_Integer n) {
   Table *t;
   lua_lock(L);
   t = gettable(L, idx);
-  return finishrawget(L, luaH_getint(t, n));
+  return finishrawget(L, moonH_getint(t, n));
 }
 
 
@@ -759,18 +759,18 @@ LUA_API int moon_rawgetp (lua_State *L, int idx, const void *p) {
   lua_lock(L);
   t = gettable(L, idx);
   setpvalue(&k, cast_voidp(p));
-  return finishrawget(L, luaH_get(t, &k));
+  return finishrawget(L, moonH_get(t, &k));
 }
 
 
 LUA_API void moon_createtable (lua_State *L, int narray, int nrec) {
   Table *t;
   lua_lock(L);
-  t = luaH_new(L);
+  t = moonH_new(L);
   sethvalue2s(L, L->top, t);
   api_incr_top(L);
   if (narray > 0 || nrec > 0)
-    luaH_resize(L, t, narray, nrec);
+    moonH_resize(L, t, narray, nrec);
   luaC_checkGC(L);
   lua_unlock(L);
 }
@@ -834,7 +834,7 @@ static void auxsetstr (lua_State *L, const TValue *t, const char *k) {
   const TValue *slot;
   TString *str = luaS_new(L, k);
   api_checknelems(L, 1);
-  if (luaV_fastget(L, t, str, slot, luaH_getstr)) {
+  if (luaV_fastget(L, t, str, slot, moonH_getstr)) {
     luaV_finishfastset(L, t, slot, s2v(L->top - 1));
     L->top--;  /* pop value */
   }
@@ -862,7 +862,7 @@ LUA_API void moon_settable (lua_State *L, int idx) {
   lua_lock(L);
   api_checknelems(L, 2);
   t = index2value(L, idx);
-  if (luaV_fastget(L, t, s2v(L->top - 2), slot, luaH_get)) {
+  if (luaV_fastget(L, t, s2v(L->top - 2), slot, moonH_get)) {
     luaV_finishfastset(L, t, slot, s2v(L->top - 1));
   }
   else
@@ -902,7 +902,7 @@ static void aux_rawset (lua_State *L, int idx, TValue *key, int n) {
   lua_lock(L);
   api_checknelems(L, n);
   t = gettable(L, idx);
-  luaH_set(L, t, key, s2v(L->top - 1));
+  moonH_set(L, t, key, s2v(L->top - 1));
   invalidateTMcache(t);
   luaC_barrierback(L, obj2gco(t), s2v(L->top - 1));
   L->top -= n;
@@ -927,7 +927,7 @@ LUA_API void moon_rawseti (lua_State *L, int idx, lua_Integer n) {
   lua_lock(L);
   api_checknelems(L, 1);
   t = gettable(L, idx);
-  luaH_setint(L, t, n, s2v(L->top - 1));
+  moonH_setint(L, t, n, s2v(L->top - 1));
   luaC_barrierback(L, obj2gco(t), s2v(L->top - 1));
   L->top--;
   lua_unlock(L);
@@ -1017,10 +1017,10 @@ LUA_API void moon_callk (lua_State *L, int nargs, int nresults,
   if (k != NULL && yieldable(L)) {  /* need to prepare continuation? */
     L->ci->u.c.k = k;  /* save continuation */
     L->ci->u.c.ctx = ctx;  /* save context */
-    luaD_call(L, func, nresults);  /* do the call */
+    moonD_call(L, func, nresults);  /* do the call */
   }
   else  /* no continuation or no yieldable */
-    luaD_callnoyield(L, func, nresults);  /* just do the call */
+    moonD_callnoyield(L, func, nresults);  /* just do the call */
   adjustresults(L, nresults);
   lua_unlock(L);
 }
@@ -1038,7 +1038,7 @@ struct CallS {  /* data to 'f_call' */
 
 static void f_call (lua_State *L, void *ud) {
   struct CallS *c = cast(struct CallS *, ud);
-  luaD_callnoyield(L, c->func, c->nresults);
+  moonD_callnoyield(L, c->func, c->nresults);
 }
 
 
@@ -1064,7 +1064,7 @@ LUA_API int moon_pcallk (lua_State *L, int nargs, int nresults, int errfunc,
   c.func = L->top - (nargs+1);  /* function to be called */
   if (k == NULL || !yieldable(L)) {  /* no continuation or no yieldable? */
     c.nresults = nresults;  /* do a 'conventional' protected call */
-    status = luaD_pcall(L, f_call, &c, savestack(L, c.func), func);
+    status = moonD_pcall(L, f_call, &c, savestack(L, c.func), func);
   }
   else {  /* prepare continuation (call is already protected by 'resume') */
     CallInfo *ci = L->ci;
@@ -1076,7 +1076,7 @@ LUA_API int moon_pcallk (lua_State *L, int nargs, int nresults, int errfunc,
     L->errfunc = func;
     setoah(ci->callstatus, L->allowhook);  /* save value of 'allowhook' */
     ci->callstatus |= CIST_YPCALL;  /* function can do error recovery */
-    luaD_call(L, c.func, nresults);  /* do the call */
+    moonD_call(L, c.func, nresults);  /* do the call */
     ci->callstatus &= ~CIST_YPCALL;
     L->errfunc = ci->u.c.old_errfunc;
     status = LUA_OK;  /* if it is here, there were no errors */
@@ -1094,7 +1094,7 @@ LUA_API int moon_load (lua_State *L, lua_Reader reader, void *data,
   lua_lock(L);
   if (!chunkname) chunkname = "?";
   luaZ_init(L, &z, reader, data);
-  status = luaD_protectedparser(L, &z, chunkname, mode);
+  status = moonD_protectedparser(L, &z, chunkname, mode);
   if (status == LUA_OK) {  /* no errors? */
     LClosure *f = clLvalue(s2v(L->top - 1));  /* get newly created function */
     if (f->nupvalues >= 1) {  /* does it have an upvalue? */
@@ -1147,7 +1147,7 @@ LUA_API int moon_gc (lua_State *L, int what, ...) {
       break;
     }
     case LUA_GCRESTART: {
-      luaE_setdebt(g, 0);
+      moonE_setdebt(g, 0);
       g->gcstp = 0;  /* (GCSTPGC must be already zero here) */
       break;
     }
@@ -1170,12 +1170,12 @@ LUA_API int moon_gc (lua_State *L, int what, ...) {
       lu_byte oldstp = g->gcstp;
       g->gcstp = 0;  /* allow GC to run (GCSTPGC must be zero here) */
       if (data == 0) {
-        luaE_setdebt(g, 0);  /* do a basic step */
+        moonE_setdebt(g, 0);  /* do a basic step */
         luaC_step(L);
       }
       else {  /* add 'data' to total debt */
         debt = cast(l_mem, data) * 1024 + g->GCdebt;
-        luaE_setdebt(g, debt);
+        moonE_setdebt(g, debt);
         luaC_checkGC(L);
       }
       g->gcstp = oldstp;  /* restore previous state */
@@ -1247,7 +1247,7 @@ LUA_API int moon_error (lua_State *L) {
   if (ttisshrstring(errobj) && eqshrstr(tsvalue(errobj), G(L)->memerrmsg))
     luaM_error(L);  /* raise a memory error */
   else
-    luaG_errormsg(L);  /* raise a regular error */
+    moonG_errormsg(L);  /* raise a regular error */
   /* code unreachable; will unlock when control actually leaves the kernel */
   return 0;  /* to avoid warnings */
 }
@@ -1259,7 +1259,7 @@ LUA_API int moon_next (lua_State *L, int idx) {
   lua_lock(L);
   api_checknelems(L, 1);
   t = gettable(L, idx);
-  more = luaH_next(L, t, L->top - 1);
+  more = moonH_next(L, t, L->top - 1);
   if (more) {
     api_incr_top(L);
   }
@@ -1277,7 +1277,7 @@ LUA_API void moon_toclose (lua_State *L, int idx) {
   o = index2stack(L, idx);
   nresults = L->ci->nresults;
   api_check(L, L->tbclist < o, "given index below or equal a marked one");
-  luaF_newtbcupval(L, o);  /* create new to-be-closed upvalue */
+  moonF_newtbcupval(L, o);  /* create new to-be-closed upvalue */
   if (!hastocloseCfunc(nresults))  /* function not marked yet? */
     L->ci->nresults = codeNresults(nresults);  /* mark it */
   lua_assert(hastocloseCfunc(L->ci->nresults));
@@ -1337,7 +1337,7 @@ void moon_setwarnf (lua_State *L, lua_WarnFunction f, void *ud) {
 
 void moon_warning (lua_State *L, const char *msg, int tocont) {
   lua_lock(L);
-  luaE_warning(L, msg, tocont);
+  moonE_warning(L, msg, tocont);
   lua_unlock(L);
 }
 

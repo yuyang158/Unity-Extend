@@ -109,10 +109,10 @@ static const char *txtToken (LexState *ls, int token) {
 
 
 static l_noret lexerror (LexState *ls, const char *msg, int token) {
-  msg = luaG_addinfo(ls->L, msg, ls->source, ls->linenumber);
+  msg = moonG_addinfo(ls->L, msg, ls->source, ls->linenumber);
   if (token)
     luaO_pushfstring(ls->L, "%s near %s", msg, txtToken(ls, token));
-  luaD_throw(ls->L, LUA_ERRSYNTAX);
+  moonD_throw(ls->L, LUA_ERRSYNTAX);
 }
 
 
@@ -134,13 +134,13 @@ l_noret luaX_syntaxerror (LexState *ls, const char *msg) {
 TString *luaX_newstring (LexState *ls, const char *str, size_t l) {
   lua_State *L = ls->L;
   TString *ts = luaS_newlstr(L, str, l);  /* create new string */
-  const TValue *o = luaH_getstr(ls->h, ts);
+  const TValue *o = moonH_getstr(ls->h, ts);
   if (!ttisnil(o))  /* string already present? */
     ts = keystrval(nodefromval(o));  /* get saved copy */
   else {  /* not in use yet */
     TValue *stv = s2v(L->top++);  /* reserve stack space for string */
     setsvalue(L, stv, ts);  /* temporarily anchor the string */
-    luaH_finishset(L, ls->h, stv, o, stv);  /* t[string] = string */
+    moonH_finishset(L, ls->h, stv, o, stv);  /* t[string] = string */
     /* table is not a metatable, so it does not need to invalidate cache */
     luaC_checkGC(L);
     L->top--;  /* remove string from stack */

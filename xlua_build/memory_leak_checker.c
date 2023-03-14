@@ -34,7 +34,7 @@ static int table_size (Table *h, int fast)
 	else
 	{
 		Node *n, *limit = gnodelast(h);
-		int i = (int)luaH_getn(h);
+		int i = (int)moonH_getn(h);
 		for (n = gnode(h, 0); n < limit; n++)
 		{ 
 			if (!ttisnil(gval(n)))
@@ -188,7 +188,7 @@ LUA_API void *xlua_global_pointer(lua_State *L)
 	Table *reg = hvalue(&G(L)->l_registry);
 	const TValue *global;
     lua_lock(L);
-	global = luaH_getint(reg, LUA_RIDX_GLOBALS);
+	global = moonH_getint(reg, LUA_RIDX_GLOBALS);
 	lua_unlock(L);
 	return gcvalue(global);
 }

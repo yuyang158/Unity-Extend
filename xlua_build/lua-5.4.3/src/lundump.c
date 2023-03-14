@@ -39,7 +39,7 @@ typedef struct {
 
 static l_noret error (LoadState *S, const char *why) {
   luaO_pushfstring(S->L, "%s: bad binary format (%s)", S->name, why);
-  luaD_throw(S->L, LUA_ERRSYNTAX);
+  moonD_throw(S->L, LUA_ERRSYNTAX);
 }
 
 
@@ -196,7 +196,7 @@ static void loadProtos (LoadState *S, Proto *f) {
   for (i = 0; i < n; i++)
     f->p[i] = NULL;
   for (i = 0; i < n; i++) {
-    f->p[i] = luaF_newproto(S->L);
+    f->p[i] = moonF_newproto(S->L);
     luaC_objbarrier(S->L, f, f->p[i]);
     loadFunction(S, f->p[i], f->source);
   }
@@ -320,10 +320,10 @@ LClosure *luaU_undump(lua_State *L, ZIO *Z, const char *name) {
   S.L = L;
   S.Z = Z;
   checkHeader(&S);
-  cl = luaF_newLclosure(L, loadByte(&S));
+  cl = moonF_newLclosure(L, loadByte(&S));
   setclLvalue2s(L, L->top, cl);
   luaD_inctop(L);
-  cl->p = luaF_newproto(L);
+  cl->p = moonF_newproto(L);
   luaC_objbarrier(L, cl, cl->p);
   loadFunction(&S, cl->p, NULL);
   lua_assert(cl->nupvalues == cl->p->sizeupvalues);

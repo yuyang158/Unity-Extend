@@ -58,7 +58,7 @@ void luaT_init (lua_State *L) {
 ** tag methods
 */
 const TValue *luaT_gettm (Table *events, TMS event, TString *ename) {
-  const TValue *tm = luaH_getshortstr(events, ename);
+  const TValue *tm = moonH_getshortstr(events, ename);
   lua_assert(event <= TM_EQ);
   if (notm(tm)) {  /* no tag method? */
     events->flags |= cast_byte(1u<<event);  /* cache this fact */
@@ -80,7 +80,7 @@ const TValue *luaT_gettmbyobj (lua_State *L, const TValue *o, TMS event) {
     default:
       mt = G(L)->mt[ttype(o)];
   }
-  return (mt ? luaH_getshortstr(mt, G(L)->tmname[event]) : &G(L)->nilvalue);
+  return (mt ? moonH_getshortstr(mt, G(L)->tmname[event]) : &G(L)->nilvalue);
 }
 
 
@@ -92,7 +92,7 @@ const char *luaT_objtypename (lua_State *L, const TValue *o) {
   Table *mt;
   if ((ttistable(o) && (mt = hvalue(o)->metatable) != NULL) ||
       (ttisfulluserdata(o) && (mt = uvalue(o)->metatable) != NULL)) {
-    const TValue *name = luaH_getshortstr(mt, luaS_new(L, "__name"));
+    const TValue *name = moonH_getshortstr(mt, luaS_new(L, "__name"));
     if (ttisstring(name))  /* is '__name' a string? */
       return getstr(tsvalue(name));  /* use it as type name */
   }
@@ -110,9 +110,9 @@ void luaT_callTM (lua_State *L, const TValue *f, const TValue *p1,
   L->top = func + 4;
   /* metamethod may yield only when called from Lua code */
   if (isLuacode(L->ci))
-    luaD_call(L, func, 0);
+    moonD_call(L, func, 0);
   else
-    luaD_callnoyield(L, func, 0);
+    moonD_callnoyield(L, func, 0);
 }
 
 
@@ -126,9 +126,9 @@ void luaT_callTMres (lua_State *L, const TValue *f, const TValue *p1,
   L->top += 3;
   /* metamethod may yield only when called from Lua code */
   if (isLuacode(L->ci))
-    luaD_call(L, func, 1);
+    moonD_call(L, func, 1);
   else
-    luaD_callnoyield(L, func, 1);
+    moonD_callnoyield(L, func, 1);
   res = restorestack(L, result);
   setobjs2s(L, res, --L->top);  /* move result to its place */
 }
@@ -152,13 +152,13 @@ void luaT_trybinTM (lua_State *L, const TValue *p1, const TValue *p2,
       case TM_BAND: case TM_BOR: case TM_BXOR:
       case TM_SHL: case TM_SHR: case TM_BNOT: {
         if (ttisnumber(p1) && ttisnumber(p2))
-          luaG_tointerror(L, p1, p2);
+          moonG_tointerror(L, p1, p2);
         else
-          luaG_opinterror(L, p1, p2, "perform bitwise operation on");
+          moonG_opinterror(L, p1, p2, "perform bitwise operation on");
       }
       /* calls never return, but to avoid warnings: *//* FALLTHROUGH */
       default:
-        luaG_opinterror(L, p1, p2, "perform arithmetic on");
+        moonG_opinterror(L, p1, p2, "perform arithmetic on");
     }
   }
 }
@@ -168,7 +168,7 @@ void luaT_tryconcatTM (lua_State *L) {
   StkId top = L->top;
   if (l_unlikely(!callbinTM(L, s2v(top - 2), s2v(top - 1), top - 2,
                                TM_CONCAT)))
-    luaG_concaterror(L, s2v(top - 2), s2v(top - 1));
+    moonG_concaterror(L, s2v(top - 2), s2v(top - 1));
 }
 
 
@@ -213,7 +213,7 @@ int luaT_callorderTM (lua_State *L, const TValue *p1, const TValue *p2,
       /* else error will remove this 'ci'; no need to clear mark */
   }
 #endif
-  luaG_ordererror(L, p1, p2);  /* no metamethod found */
+  moonG_ordererror(L, p1, p2);  /* no metamethod found */
   return 0;  /* to avoid warnings */
 }
 
