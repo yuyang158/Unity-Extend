@@ -157,6 +157,6 @@ static const struct luaL_Reg chronos_reg[] = {
 };
 
 
-LUA_API void luaopen_chronos(lua_State *L){
+LUA_API void moonopen_chronos(lua_State *L){
     luaL_newlib(L, chronos_reg);
 }

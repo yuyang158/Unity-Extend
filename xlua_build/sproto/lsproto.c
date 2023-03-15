@@ -1,4 +1,4 @@
-#define LUA_LIB
+﻿#define LUA_LIB
 
 #include <string.h>
 #include <stdlib.h>
@@ -134,7 +134,7 @@ static int
 lnewproto(lua_State *L) {
 	struct sproto * sp;
 	size_t sz;
-	void * buffer = (void *)luaL_checklstring(L,1,&sz);
+	void * buffer = (void *)moonL_checklstring(L,1,&sz);
 	sp = sproto_create(buffer, sz);
 	if (sp) {
 		moon_pushlightuserdata(L, sp);
@@ -147,7 +147,7 @@ static int
 ldeleteproto(lua_State *L) {
 	struct sproto * sp = moon_touserdata(L,1);
 	if (sp == NULL) {
-		return luaL_argerror(L, 1, "Need a sproto object");
+		return moonL_argerror(L, 1, "Need a sproto object");
 	}
 	sproto_release(sp);
 	return 0;
@@ -159,7 +159,7 @@ lquerytype(lua_State *L) {
 	struct sproto *sp = moon_touserdata(L,1);
 	struct sproto_type *st;
 	if (sp == NULL) {
-		return luaL_argerror(L, 1, "Need a sproto object");
+		return moonL_argerror(L, 1, "Need a sproto object");
 	}
 	type_name = luaL_checkstring(L,2);
 	st = sproto_type(sp, type_name);
@@ -232,7 +232,7 @@ get_encodefield(const struct sproto_arg *args) {
 				}
 			}
 
-			if (luaL_getmetafield(L, self->array_index, "__pairs")) {
+			if (moonL_getmetafield(L, self->array_index, "__pairs")) {
 				moon_pushvalue(L, self->array_index);
 				lua_call(L,	1, 3);
 				int top = moon_gettop(L);
@@ -240,7 +240,7 @@ get_encodefield(const struct sproto_arg *args) {
 				self->iter_table = top - 1;
 				self->iter_key = top;
 			} else if (!lua_istable(L,self->array_index)) {
-				return luaL_error(L, ".*%s(%d) should be a table or an userdata with metamethods (Is a %s)",
+				return moonL_error(L, ".*%s(%d) should be a table or an userdata with metamethods (Is a %s)",
 					args->tagname, args->index, moon_typename(L, moon_type(L, -1)));
 			} else {
 				moon_pushnil(L);
@@ -294,7 +294,7 @@ encode_one(const struct sproto_arg *args, struct encode_ud *self) {
 		} else {
 			v = tointegerx(L, -1, &isnum);
 			if(!isnum) {
-				return luaL_error(L, ".%s[%d] is not an integer (Is a %s)", 
+				return moonL_error(L, ".%s[%d] is not an integer (Is a %s)", 
 					args->tagname, args->index, moon_typename(L, moon_type(L, -1)));
 			}
 		}
@@ -319,7 +319,7 @@ encode_one(const struct sproto_arg *args, struct encode_ud *self) {
 		int isbool;
 		int v = tobooleanx(L, -1, &isbool);
 		if (!isbool) {
-			return luaL_error(L, ".%s[%d] is not a boolean (Is a %s)",
+			return moonL_error(L, ".%s[%d] is not a boolean (Is a %s)",
 				args->tagname, args->index, moon_typename(L, moon_type(L, -1)));
 		}
 		*(int *)args->value = v;
@@ -332,7 +332,7 @@ encode_one(const struct sproto_arg *args, struct encode_ud *self) {
 		int type = moon_type(L, -1); // get the type firstly, lua_tolstring may convert value on stack to string
 		const char * str = tolstringx(L, -1, &sz, &isstring);
 		if (!isstring) {
-			return luaL_error(L, ".%s[%d] is not a string (Is a %s)", 
+			return moonL_error(L, ".%s[%d] is not a string (Is a %s)", 
 				args->tagname, args->index, moon_typename(L, type));
 		}
 		if (sz > args->length)
@@ -362,7 +362,7 @@ encode_one(const struct sproto_arg *args, struct encode_ud *self) {
 		return r;
 	}
 	default:
-		return luaL_error(L, "Invalid field type %d", args->type);
+		return moonL_error(L, "Invalid field type %d", args->type);
 	}
 }
 
@@ -371,9 +371,9 @@ encode(const struct sproto_arg *args) {
 	struct encode_ud *self = args->ud;
 	lua_State *L = self->L;
 	int code;
-	luaL_checkstack(L, 12, NULL);
+	moonL_checkstack(L, 12, NULL);
 	if (self->deep >= ENCODE_DEEPLEVEL)
-		return luaL_error(L, "The table is too deep");
+		return moonL_error(L, "The table is too deep");
 	code = get_encodefield(args);
 	if (code < 0) {
 		return code;
@@ -392,7 +392,7 @@ expand_buffer(lua_State *L, int osz, int nsz) {
 		osz *= 2;
 	} while (osz < nsz);
 	if (osz > ENCODE_MAXSIZE) {
-		luaL_error(L, "object is too large (>%d)", ENCODE_MAXSIZE);
+		moonL_error(L, "object is too large (>%d)", ENCODE_MAXSIZE);
 		return NULL;
 	}
 	output = lua_newuserdata(L, osz);
@@ -417,7 +417,7 @@ lencode(lua_State *L) {
 	int tbl_index = 2;
 	struct sproto_type * st = moon_touserdata(L, 1);
 	if (st == NULL) {
-		luaL_checktype(L, tbl_index, LUA_TNIL);
+		moonL_checktype(L, tbl_index, LUA_TNIL);
 		moon_pushstring(L, "");
 		return 1;	// response nil
 	}
@@ -463,8 +463,8 @@ decode(const struct sproto_arg *args) {
 	struct decode_ud * self = args->ud;
 	lua_State *L = self->L;
 	if (self->deep >= ENCODE_DEEPLEVEL)
-		return luaL_error(L, "The table is too deep");
-	luaL_checkstack(L, 12, NULL);
+		return moonL_error(L, "The table is too deep");
+	moonL_checkstack(L, 12, NULL);
 	if (args->index != 0) {
 		// It's array
 		if (args->tagname != self->array_tag) {
@@ -545,18 +545,18 @@ decode(const struct sproto_arg *args) {
 			if (map) {
 				moon_getfield(L, sub.result_index, args->ktagname);
 				if (lua_isnil(L, -1)) {
-					luaL_error(L, "Can't find key field in [%s]", args->tagname);
+					moonL_error(L, "Can't find key field in [%s]", args->tagname);
 				}
 				moon_getfield(L, sub.result_index, args->vtagname);
 				if (lua_isnil(L, -1)) {
-					luaL_error(L, "Can't find value field in [%s]", args->tagname);
+					moonL_error(L, "Can't find value field in [%s]", args->tagname);
 				}
 				moon_settable(L, self->array_index);
 				moon_settop(L, sub.result_index);
 			} else {
 				moon_pushvalue(L, sub.key_index);
 				if (lua_isnil(L, -1)) {
-					luaL_error(L, "Can't find main index (tag=%d) in [%s]", args->mainindex, args->tagname);
+					moonL_error(L, "Can't find main index (tag=%d) in [%s]", args->mainindex, args->tagname);
 				}
 				moon_pushvalue(L, sub.result_index);
 				moon_settable(L, self->array_index);
@@ -576,7 +576,7 @@ decode(const struct sproto_arg *args) {
 		}
 	}
 	default:
-		luaL_error(L, "Invalid type");
+		moonL_error(L, "Invalid type");
 	}
 	if (args->index > 0) {
 		moon_seti(L, self->array_index, args->index);
@@ -601,11 +601,11 @@ getbuffer(lua_State *L, int index, size_t *sz) {
 		buffer = moon_tolstring(L, index, sz);
 	} else {
 		if (t != LUA_TUSERDATA && t != LUA_TLIGHTUSERDATA) {
-			luaL_argerror(L, index, "Need a string or userdata");
+			moonL_argerror(L, index, "Need a string or userdata");
 			return NULL;
 		}
 		buffer = moon_touserdata(L, index);
-		*sz = luaL_checkinteger(L, index+1);
+		*sz = moonL_checkinteger(L, index+1);
 	}
 	return buffer;
 }
@@ -641,7 +641,7 @@ ldecode(lua_State *L) {
 	self.map_entry = 0;
 	r = sproto_decode(st, buffer, (int)sz, decode, &self);
 	if (r < 0) {
-		return luaL_error(L, "decode error");
+		return moonL_error(L, "decode error");
 	}
 	moon_settop(L, self.result_index);
 	moon_pushinteger(L, r);
@@ -652,7 +652,7 @@ static int
 ldumpproto(lua_State *L) {
 	struct sproto * sp = moon_touserdata(L, 1);
 	if (sp == NULL) {
-		return luaL_argerror(L, 1, "Need a sproto_type object");
+		return moonL_argerror(L, 1, "Need a sproto_type object");
 	}
 	sproto_dump(sp);
 
@@ -678,7 +678,7 @@ lpack(lua_State *L) {
 	}
 	bytes = sproto_pack(buffer, sz, output, maxsz);
 	if (bytes > maxsz) {
-		return luaL_error(L, "packing error, return size = %d", bytes);
+		return moonL_error(L, "packing error, return size = %d", bytes);
 	}
 	moon_pushlstring(L, output, bytes);
 
@@ -693,12 +693,12 @@ lunpack(lua_State *L) {
 	int osz = lua_tointeger(L, lua_upvalueindex(2));
 	int r = sproto_unpack(buffer, sz, output, osz);
 	if (r < 0)
-		return luaL_error(L, "Invalid unpack stream");
+		return moonL_error(L, "Invalid unpack stream");
 	if (r > osz) {
 		output = expand_buffer(L, osz, r);
 		r = sproto_unpack(buffer, sz, output, r);
 		if (r < 0)
-			return luaL_error(L, "Invalid unpack stream");
+			return moonL_error(L, "Invalid unpack stream");
 	}
 	moon_pushlstring(L, output, r);
 	return 1;
@@ -720,7 +720,7 @@ lprotocol(lua_State *L) {
 	int t;
 	int tag;
 	if (sp == NULL) {
-		return luaL_argerror(L, 1, "Need a sproto_type object");
+		return moonL_argerror(L, 1, "Need a sproto_type object");
 	}
 	t = moon_type(L,2);
 	if (t == LUA_TNUMBER) {
@@ -733,7 +733,7 @@ lprotocol(lua_State *L) {
 	} else {
 		const char * name = lua_tostring(L, 2);
 		if (name == NULL) {
-			return luaL_argerror(L, 2, "Should be number or string");
+			return moonL_argerror(L, 2, "Should be number or string");
 		}
 		tag = sproto_prototag(sp, name);
 		if (tag < 0)
@@ -767,9 +767,9 @@ static struct sproto * G_sproto[MAX_GLOBALSPROTO];
 static int
 lsaveproto(lua_State *L) {
 	struct sproto * sp = moon_touserdata(L, 1);
-	int index = luaL_optinteger(L, 2, 0);
+	int index = moonL_optinteger(L, 2, 0);
 	if (index < 0 || index >= MAX_GLOBALSPROTO) {
-		return luaL_error(L, "Invalid global slot index %d", index);
+		return moonL_error(L, "Invalid global slot index %d", index);
 	}
 	/* TODO : release old object (memory leak now, but thread safe)*/
 	G_sproto[index] = sp;
@@ -778,14 +778,14 @@ lsaveproto(lua_State *L) {
 
 static int
 lloadproto(lua_State *L) {
-	int index = luaL_optinteger(L, 1, 0);
+	int index = moonL_optinteger(L, 1, 0);
 	struct sproto * sp;
 	if (index < 0 || index >= MAX_GLOBALSPROTO) {
-		return luaL_error(L, "Invalid global slot index %d", index);
+		return moonL_error(L, "Invalid global slot index %d", index);
 	}
 	sp = G_sproto[index];
 	if (sp == NULL) {
-		return luaL_error(L, "nil sproto at index %d", index);
+		return moonL_error(L, "nil sproto at index %d", index);
 	}
 
 	moon_pushlightuserdata(L, sp);
@@ -822,7 +822,7 @@ push_default(const struct sproto_arg *args, int table) {
 		}
 		break;
 	default:
-		luaL_error(L, "Invalid type %d", args->type);
+		moonL_error(L, "Invalid type %d", args->type);
 		break;
 	}
 }
@@ -855,7 +855,7 @@ ldefault(lua_State *L) {
 	char dummy[64];
 	struct sproto_type * st = moon_touserdata(L, 1);
 	if (st == NULL) {
-		return luaL_argerror(L, 1, "Need a sproto_type object");
+		return moonL_argerror(L, 1, "Need a sproto_type object");
 	}
 	lua_newtable(L);
 	ret = sproto_encode(st, dummy, sizeof(dummy), encode_default, L);
@@ -877,7 +877,7 @@ ldefault(lua_State *L) {
 }
 
 LUAMOD_API int
-luaopen_sproto_core(lua_State *L) {
+moonopen_sproto_core(lua_State *L) {
 #ifdef luaL_checkversion
 	luaL_checkversion(L);
 #endif

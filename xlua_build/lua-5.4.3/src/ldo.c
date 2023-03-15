@@ -1,4 +1,4 @@
-/*
+﻿/*
 ** $Id: ldo.c $
 ** Stack and Call structure of Lua
 ** See Copyright Notice in lua.h
@@ -290,7 +290,7 @@ void moonD_shrinkstack (lua_State *L) {
 }
 
 
-void luaD_inctop (lua_State *L) {
+void moonD_inctop (lua_State *L) {
   luaD_checkstack(L, 1);
   L->top++;
 }
@@ -391,7 +391,7 @@ StkId moonD_tryfuncTM (lua_State *L, StkId func) {
   const TValue *tm;
   StkId p;
   checkstackGCp(L, 1, func);  /* space for metamethod */
-  tm = luaT_gettmbyobj(L, s2v(func), TM_CALL);  /* (after previous GC) */
+  tm = moonT_gettmbyobj(L, s2v(func), TM_CALL);  /* (after previous GC) */
   if (l_unlikely(ttisnil(tm)))
     moonG_callerror(L, s2v(func));  /* nothing to call */
   for (p = L->top; p > func; p--)  /* open space for metamethod */
@@ -606,7 +606,7 @@ l_sinline void ccall (lua_State *L, StkId func, int nResults, int inc) {
     moonE_checkcstack(L);
   if ((ci = moonD_precall(L, func, nResults)) != NULL) {  /* Lua function? */
     ci->callstatus = CIST_FRESH;  /* mark that it is a "fresh" execute */
-    luaV_execute(L, ci);  /* call it */
+    moonV_execute(L, ci);  /* call it */
   }
   L->nCcalls -= inc;
 }
@@ -713,8 +713,8 @@ static void unroll (lua_State *L, void *ud) {
     if (!isLua(ci))  /* C function? */
       finishCcall(L, ci);  /* complete its execution */
     else {  /* Lua function */
-      luaV_finishOp(L);  /* finish interrupted instruction */
-      luaV_execute(L, ci);  /* execute down to higher C 'boundary' */
+      moonV_finishOp(L);  /* finish interrupted instruction */
+      moonV_execute(L, ci);  /* execute down to higher C 'boundary' */
     }
   }
 }
@@ -741,7 +741,7 @@ static CallInfo *findpcall (lua_State *L) {
 */
 static int resume_error (lua_State *L, const char *msg, int narg) {
   L->top -= narg;  /* remove args from the stack */
-  setsvalue2s(L, L->top, luaS_new(L, msg));  /* push error message */
+  setsvalue2s(L, L->top, moonS_new(L, msg));  /* push error message */
   api_incr_top(L);
   lua_unlock(L);
   return LUA_ERRRUN;
@@ -766,7 +766,7 @@ static void resume (lua_State *L, void *ud) {
     L->status = LUA_OK;  /* mark that it is running (again) */
     if (isLua(ci)) {  /* yielded inside a hook? */
       L->top = firstArg;  /* discard arguments */
-      luaV_execute(L, ci);  /* just continue running Lua code */
+      moonV_execute(L, ci);  /* just continue running Lua code */
     }
     else {  /* 'common' yield */
       if (ci->u.c.k != NULL) {  /* does it have a continuation function? */
@@ -951,7 +951,7 @@ struct SParser {  /* data to 'f_parser' */
 
 static void checkmode (lua_State *L, const char *mode, const char *x) {
   if (mode && strchr(mode, x[0]) == NULL) {
-    luaO_pushfstring(L,
+    moonO_pushfstring(L,
        "attempt to load a %s chunk (mode is '%s')", x, mode);
     moonD_throw(L, LUA_ERRSYNTAX);
   }
@@ -964,11 +964,11 @@ static void f_parser (lua_State *L, void *ud) {
   int c = zgetc(p->z);  /* read first character */
   if (c == LUA_SIGNATURE[0]) {
     checkmode(L, p->mode, "binary");
-    cl = luaU_undump(L, p->z, p->name);
+    cl = moonU_undump(L, p->z, p->name);
   }
   else {
     checkmode(L, p->mode, "text");
-    cl = luaY_parser(L, p->z, &p->buff, &p->dyd, p->name, c);
+    cl = moonY_parser(L, p->z, &p->buff, &p->dyd, p->name, c);
   }
   lua_assert(cl->nupvalues == cl->p->sizeupvalues);
   moonF_initupvals(L, cl);

@@ -1,4 +1,4 @@
-/*
+﻿/*
 ** $Id: lundump.c $
 ** load precompiled Lua chunks
 ** See Copyright Notice in lua.h
@@ -38,7 +38,7 @@ typedef struct {
 
 
 static l_noret error (LoadState *S, const char *why) {
-  luaO_pushfstring(S->L, "%s: bad binary format (%s)", S->name, why);
+  moonO_pushfstring(S->L, "%s: bad binary format (%s)", S->name, why);
   moonD_throw(S->L, LUA_ERRSYNTAX);
 }
 
@@ -50,7 +50,7 @@ static l_noret error (LoadState *S, const char *why) {
 #define loadVector(S,b,n)	loadBlock(S,b,(n)*sizeof((b)[0]))
 
 static void loadBlock (LoadState *S, void *b, size_t size) {
-  if (luaZ_read(S->Z, b, size) != 0)
+  if (moonZ_read(S->Z, b, size) != 0)
     error(S, "truncated chunk");
 }
 
@@ -116,12 +116,12 @@ static TString *loadStringN (LoadState *S, Proto *p) {
   else if (--size <= LUAI_MAXSHORTLEN) {  /* short string? */
     char buff[LUAI_MAXSHORTLEN];
     loadVector(S, buff, size);  /* load string into buffer */
-    ts = luaS_newlstr(L, buff, size);  /* create string */
+    ts = moonS_newlstr(L, buff, size);  /* create string */
   }
   else {  /* long string */
-    ts = luaS_createlngstrobj(L, size);  /* create string */
+    ts = moonS_createlngstrobj(L, size);  /* create string */
     setsvalue2s(L, L->top, ts);  /* anchor it ('loadVector' can GC) */
-    luaD_inctop(L);
+    moonD_inctop(L);
     loadVector(S, getstr(ts), size);  /* load directly in final place */
     L->top--;  /* pop string */
   }
@@ -281,7 +281,7 @@ static void checkliteral (LoadState *S, const char *s, const char *msg) {
 
 static void fchecksize (LoadState *S, size_t size, const char *tname) {
   if (loadByte(S) != size)
-    error(S, luaO_pushfstring(S->L, "%s size mismatch", tname));
+    error(S, moonO_pushfstring(S->L, "%s size mismatch", tname));
 }
 
 
@@ -308,7 +308,7 @@ static void checkHeader (LoadState *S) {
 /*
 ** Load precompiled chunk.
 */
-LClosure *luaU_undump(lua_State *L, ZIO *Z, const char *name) {
+LClosure *moonU_undump(lua_State *L, ZIO *Z, const char *name) {
   LoadState S;
   LClosure *cl;
   if (*name == '@' || *name == '=')
@@ -322,7 +322,7 @@ LClosure *luaU_undump(lua_State *L, ZIO *Z, const char *name) {
   checkHeader(&S);
   cl = moonF_newLclosure(L, loadByte(&S));
   setclLvalue2s(L, L->top, cl);
-  luaD_inctop(L);
+  moonD_inctop(L);
   cl->p = moonF_newproto(L);
   luaC_objbarrier(L, cl, cl->p);
   loadFunction(&S, cl->p, NULL);

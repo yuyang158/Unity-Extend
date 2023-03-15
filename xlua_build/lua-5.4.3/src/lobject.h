@@ -781,19 +781,19 @@ typedef struct Table {
 /* size of buffer for 'luaO_utf8esc' function */
 #define UTF8BUFFSZ	8
 
-LUAI_FUNC int luaO_utf8esc (char *buff, unsigned long x);
+LUAI_FUNC int moonO_utf8esc (char *buff, unsigned long x);
 LUAI_FUNC int luaO_ceillog2 (unsigned int x);
-LUAI_FUNC int luaO_rawarith (lua_State *L, int op, const TValue *p1,
+LUAI_FUNC int moonO_rawarith (lua_State *L, int op, const TValue *p1,
                              const TValue *p2, TValue *res);
-LUAI_FUNC void luaO_arith (lua_State *L, int op, const TValue *p1,
+LUAI_FUNC void moonO_arith (lua_State *L, int op, const TValue *p1,
                            const TValue *p2, StkId res);
-LUAI_FUNC size_t luaO_str2num (const char *s, TValue *o);
-LUAI_FUNC int luaO_hexavalue (int c);
-LUAI_FUNC void luaO_tostring (lua_State *L, TValue *obj);
-LUAI_FUNC const char *luaO_pushvfstring (lua_State *L, const char *fmt,
+LUAI_FUNC size_t moonO_str2num (const char *s, TValue *o);
+LUAI_FUNC int moonO_hexavalue (int c);
+LUAI_FUNC void moonO_tostring (lua_State *L, TValue *obj);
+LUAI_FUNC const char *moonO_pushvfstring (lua_State *L, const char *fmt,
                                                        va_list argp);
-LUAI_FUNC const char *luaO_pushfstring (lua_State *L, const char *fmt, ...);
-LUAI_FUNC void luaO_chunkid (char *out, const char *source, size_t srclen);
+LUAI_FUNC const char *moonO_pushfstring (lua_State *L, const char *fmt, ...);
+LUAI_FUNC void moonO_chunkid (char *out, const char *source, size_t srclen);
 
 
 #endif

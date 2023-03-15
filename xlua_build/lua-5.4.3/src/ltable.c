@@ -164,7 +164,7 @@ static Node *mainpositionTV (const Table *t, const TValue *key) {
     }
     case LUA_VLNGSTR: {
       TString *ts = tsvalue(key);
-      return hashpow2(t, luaS_hashlongstr(ts));
+      return hashpow2(t, moonS_hashlongstr(ts));
     }
     case LUA_VFALSE:
       return hashboolean(t, 0);
@@ -229,7 +229,7 @@ static int equalkey (const TValue *k1, const Node *n2, int deadok) {
     case LUA_VLCF:
       return fvalue(k1) == fvalueraw(keyval(n2));
     case ctb(LUA_VLNGSTR):
-      return luaS_eqlngstr(tsvalue(k1), keystrval(n2));
+      return moonS_eqlngstr(tsvalue(k1), keystrval(n2));
     default:
       return gcvalue(k1) == gcvalueraw(keyval(n2));
   }
@@ -622,7 +622,7 @@ static void rehash (lua_State *L, Table *t, const TValue *ek) {
 
 
 Table *moonH_new (lua_State *L) {
-  GCObject *o = luaC_newobj(L, LUA_VTABLE, sizeof(Table));
+  GCObject *o = moonC_newobj(L, LUA_VTABLE, sizeof(Table));
   Table *t = gco2t(o);
   t->metatable = NULL;
   t->flags = cast_byte(maskflags);  /* table has no metamethod fields */
@@ -668,7 +668,7 @@ void moonH_newkey (lua_State *L, Table *t, const TValue *key, TValue *value) {
   else if (ttisfloat(key)) {
     lua_Number f = fltvalue(key);
     lua_Integer k;
-    if (luaV_flttointeger(f, &k, F2Ieq)) {  /* does key fit in an integer? */
+    if (moonV_flttointeger(f, &k, F2Ieq)) {  /* does key fit in an integer? */
       setivalue(&aux, k);
       key = &aux;  /* insert it as an integer */
     }
@@ -790,7 +790,7 @@ const TValue *moonH_get (Table *t, const TValue *key) {
     case LUA_VNIL: return &absentkey;
     case LUA_VNUMFLT: {
       lua_Integer k;
-      if (luaV_flttointeger(fltvalue(key), &k, F2Ieq)) /* integral index? */
+      if (moonV_flttointeger(fltvalue(key), &k, F2Ieq)) /* integral index? */
         return moonH_getint(t, k);  /* use specialized version */
       /* else... */
     }  /* FALLTHROUGH */

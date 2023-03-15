@@ -1,4 +1,4 @@
-/*
+﻿/*
 ** $Id: ldblib.c $
 ** Interface from Lua to its debug API
 ** See Copyright Notice in lua.h
@@ -34,7 +34,7 @@ static const char *const HOOKKEY = "_HOOKKEY";
 */
 static void checkstack (lua_State *L, lua_State *L1, int n) {
   if (l_unlikely(L != L1 && !moon_checkstack(L1, n)))
-    luaL_error(L, "stack overflow");
+    moonL_error(L, "stack overflow");
 }
 
 
@@ -45,7 +45,7 @@ static int db_getregistry (lua_State *L) {
 
 
 static int db_getmetatable (lua_State *L) {
-  luaL_checkany(L, 1);
+  moonL_checkany(L, 1);
   if (!moon_getmetatable(L, 1)) {
     moon_pushnil(L);  /* no metatable */
   }
@@ -63,7 +63,7 @@ static int db_setmetatable (lua_State *L) {
 
 
 static int db_getuservalue (lua_State *L) {
-  int n = (int)luaL_optinteger(L, 2, 1);
+  int n = (int)moonL_optinteger(L, 2, 1);
   if (moon_type(L, 1) != LUA_TUSERDATA)
     luaL_pushfail(L);
   else if (moon_getiuservalue(L, 1, n) != LUA_TNONE) {
@@ -75,9 +75,9 @@ static int db_getuservalue (lua_State *L) {
 
 
 static int db_setuservalue (lua_State *L) {
-  int n = (int)luaL_optinteger(L, 3, 1);
-  luaL_checktype(L, 1, LUA_TUSERDATA);
-  luaL_checkany(L, 2);
+  int n = (int)moonL_optinteger(L, 3, 1);
+  moonL_checktype(L, 1, LUA_TUSERDATA);
+  moonL_checkany(L, 2);
   moon_settop(L, 2);
   if (!moon_setiuservalue(L, 1, n))
     luaL_pushfail(L);
@@ -159,13 +159,13 @@ static int db_getinfo (lua_State *L) {
     moon_xmove(L, L1, 1);
   }
   else {  /* stack level */
-    if (!moon_getstack(L1, (int)luaL_checkinteger(L, arg + 1), &ar)) {
+    if (!moon_getstack(L1, (int)moonL_checkinteger(L, arg + 1), &ar)) {
       luaL_pushfail(L);  /* level out of range */
       return 1;
     }
   }
   if (!moon_getinfo(L1, options, &ar))
-    return luaL_argerror(L, arg+2, "invalid option");
+    return moonL_argerror(L, arg+2, "invalid option");
   lua_newtable(L);  /* table to collect results */
   if (strchr(options, 'S')) {
     moon_pushlstring(L, ar.source, ar.srclen);
@@ -203,7 +203,7 @@ static int db_getinfo (lua_State *L) {
 static int db_getlocal (lua_State *L) {
   int arg;
   lua_State *L1 = getthread(L, &arg);
-  int nvar = (int)luaL_checkinteger(L, arg + 2);  /* local-variable index */
+  int nvar = (int)moonL_checkinteger(L, arg + 2);  /* local-variable index */
   if (lua_isfunction(L, arg + 1)) {  /* function argument? */
     moon_pushvalue(L, arg + 1);  /* push function */
     moon_pushstring(L, moon_getlocal(L, NULL, nvar));  /* push local name */
@@ -212,9 +212,9 @@ static int db_getlocal (lua_State *L) {
   else {  /* stack-level argument */
     lua_Debug ar;
     const char *name;
-    int level = (int)luaL_checkinteger(L, arg + 1);
+    int level = (int)moonL_checkinteger(L, arg + 1);
     if (l_unlikely(!moon_getstack(L1, level, &ar)))  /* out of range? */
-      return luaL_argerror(L, arg+1, "level out of range");
+      return moonL_argerror(L, arg+1, "level out of range");
     checkstack(L, L1, 1);
     name = moon_getlocal(L1, &ar, nvar);
     if (name) {
@@ -236,11 +236,11 @@ static int db_setlocal (lua_State *L) {
   const char *name;
   lua_State *L1 = getthread(L, &arg);
   lua_Debug ar;
-  int level = (int)luaL_checkinteger(L, arg + 1);
-  int nvar = (int)luaL_checkinteger(L, arg + 2);
+  int level = (int)moonL_checkinteger(L, arg + 1);
+  int nvar = (int)moonL_checkinteger(L, arg + 2);
   if (l_unlikely(!moon_getstack(L1, level, &ar)))  /* out of range? */
-    return luaL_argerror(L, arg+1, "level out of range");
-  luaL_checkany(L, arg+3);
+    return moonL_argerror(L, arg+1, "level out of range");
+  moonL_checkany(L, arg+3);
   moon_settop(L, arg+3);
   checkstack(L, L1, 1);
   moon_xmove(L, L1, 1);
@@ -257,8 +257,8 @@ static int db_setlocal (lua_State *L) {
 */
 static int auxupvalue (lua_State *L, int get) {
   const char *name;
-  int n = (int)luaL_checkinteger(L, 2);  /* upvalue index */
-  luaL_checktype(L, 1, LUA_TFUNCTION);  /* closure */
+  int n = (int)moonL_checkinteger(L, 2);  /* upvalue index */
+  moonL_checktype(L, 1, LUA_TFUNCTION);  /* closure */
   name = get ? moon_getupvalue(L, 1, n) : moon_setupvalue(L, 1, n);
   if (name == NULL) return 0;
   moon_pushstring(L, name);
@@ -273,7 +273,7 @@ static int db_getupvalue (lua_State *L) {
 
 
 static int db_setupvalue (lua_State *L) {
-  luaL_checkany(L, 3);
+  moonL_checkany(L, 3);
   return auxupvalue(L, 0);
 }
 
@@ -284,8 +284,8 @@ static int db_setupvalue (lua_State *L) {
 */
 static void *checkupval (lua_State *L, int argf, int argnup, int *pnup) {
   void *id;
-  int nup = (int)luaL_checkinteger(L, argnup);  /* upvalue index */
-  luaL_checktype(L, argf, LUA_TFUNCTION);  /* closure */
+  int nup = (int)moonL_checkinteger(L, argnup);  /* upvalue index */
+  moonL_checktype(L, argf, LUA_TFUNCTION);  /* closure */
   id = moon_upvalueid(L, argf, nup);
   if (pnup) {
     luaL_argcheck(L, id != NULL, argnup, "invalid upvalue index");
@@ -372,11 +372,11 @@ static int db_sethook (lua_State *L) {
   }
   else {
     const char *smask = luaL_checkstring(L, arg+2);
-    luaL_checktype(L, arg+1, LUA_TFUNCTION);
-    count = (int)luaL_optinteger(L, arg + 3, 0);
+    moonL_checktype(L, arg+1, LUA_TFUNCTION);
+    count = (int)moonL_optinteger(L, arg + 3, 0);
     func = hookf; mask = makemask(smask, count);
   }
-  if (!luaL_getsubtable(L, LUA_REGISTRYINDEX, HOOKKEY)) {
+  if (!moonL_getsubtable(L, LUA_REGISTRYINDEX, HOOKKEY)) {
     /* table just created; initialize it */
     lua_pushliteral(L, "k");
     moon_setfield(L, -2, "__mode");  /** hooktable.__mode = "k" */
@@ -409,7 +409,7 @@ static int db_gethook (lua_State *L) {
     checkstack(L, L1, 1);
     moon_pushthread(L1); moon_xmove(L1, L, 1);
     moon_rawget(L, -2);   /* 1st result = hooktable[L1] */
-    lua_remove(L, -2);  /* remove hook table */
+    moon_remove(L, -2);  /* remove hook table */
   }
   moon_pushstring(L, unmakemask(mask, buff));  /* 2nd result = mask */
   moon_pushinteger(L, moon_gethookcount(L1));  /* 3rd result = count */
@@ -426,7 +426,7 @@ static int db_debug (lua_State *L) {
       return 0;
     if (luaL_loadbuffer(L, buffer, strlen(buffer), "=(debug command)") ||
         moon_pcall(L, 0, 0, 0))
-      lua_writestringerror("%s\n", luaL_tolstring(L, -1, NULL));
+      lua_writestringerror("%s\n", moonL_tolstring(L, -1, NULL));
     moon_settop(L, 0);  /* remove eventual returns */
   }
 }
@@ -439,15 +439,15 @@ static int db_traceback (lua_State *L) {
   if (msg == NULL && !lua_isnoneornil(L, arg + 1))  /* non-string 'msg'? */
     moon_pushvalue(L, arg + 1);  /* return it untouched */
   else {
-    int level = (int)luaL_optinteger(L, arg + 2, (L == L1) ? 1 : 0);
-    luaL_traceback(L, L1, msg, level);
+    int level = (int)moonL_optinteger(L, arg + 2, (L == L1) ? 1 : 0);
+    moonL_traceback(L, L1, msg, level);
   }
   return 1;
 }
 
 
 static int db_setcstacklimit (lua_State *L) {
-  int limit = (int)luaL_checkinteger(L, 1);
+  int limit = (int)moonL_checkinteger(L, 1);
   int res = moon_setcstacklimit(L, limit);
   moon_pushinteger(L, res);
   return 1;

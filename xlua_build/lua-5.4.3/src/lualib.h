@@ -46,7 +46,7 @@ LUAMOD_API int (moonopen_package) (lua_State *L);
 
 
 /* open all previous libraries */
-LUALIB_API void (luaL_openlibs) (lua_State *L);
+LUALIB_API void (moonL_openlibs) (lua_State *L);
 
 
 #endif

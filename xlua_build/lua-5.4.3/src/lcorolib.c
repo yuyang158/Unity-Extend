@@ -82,7 +82,7 @@ static int luaB_auxwrap (lua_State *L) {
     }
     if (stat != LUA_ERRMEM &&  /* not a memory error and ... */
         moon_type(L, -1) == LUA_TSTRING) {  /* ... error object is a string? */
-      luaL_where(L, 1);  /* add extra info, if available */
+      moonL_where(L, 1);  /* add extra info, if available */
       moon_insert(L, -2);
       moon_concat(L, 2);
     }
@@ -94,7 +94,7 @@ static int luaB_auxwrap (lua_State *L) {
 
 static int luaB_cocreate (lua_State *L) {
   lua_State *NL;
-  luaL_checktype(L, 1, LUA_TFUNCTION);
+  moonL_checktype(L, 1, LUA_TFUNCTION);
   NL = moon_newthread(L);
   moon_pushvalue(L, 1);  /* move function to top */
   moon_xmove(L, NL, 1);  /* move function from L to NL */
@@ -184,7 +184,7 @@ static int luaB_close (lua_State *L) {
       }
     }
     default:  /* normal or running coroutine */
-      return luaL_error(L, "cannot close a %s coroutine", statname[status]);
+      return moonL_error(L, "cannot close a %s coroutine", statname[status]);
   }
 }
 

@@ -1,4 +1,4 @@
-/*
+﻿/*
 ** $Id: ldo.h $
 ** Stack and Call structure of Lua
 ** See Copyright Notice in lua.h
@@ -58,7 +58,7 @@ LUAI_FUNC int moonD_protectedparser (lua_State *L, ZIO *z, const char *name,
 LUAI_FUNC void moonD_hook (lua_State *L, int event, int line,
                                         int fTransfer, int nTransfer);
 LUAI_FUNC void moonD_hookcall (lua_State *L, CallInfo *ci);
-LUAI_FUNC int moonD_pretailcall (lua_State *L, CallInfo *ci, StkId func,                                                    int narg1, int delta);
+LUAI_FUNC int moonD_pretailcall (lua_State *L, CallInfo *ci, StkId func, int narg1, int delta);
 LUAI_FUNC CallInfo *moonD_precall (lua_State *L, StkId func, int nResults);
 LUAI_FUNC void moonD_call (lua_State *L, StkId func, int nResults);
 LUAI_FUNC void moonD_callnoyield (lua_State *L, StkId func, int nResults);
@@ -70,7 +70,7 @@ LUAI_FUNC void moonD_poscall (lua_State *L, CallInfo *ci, int nres);
 LUAI_FUNC int moonD_reallocstack (lua_State *L, int newsize, int raiseerror);
 LUAI_FUNC int moonD_growstack (lua_State *L, int n, int raiseerror);
 LUAI_FUNC void moonD_shrinkstack (lua_State *L);
-LUAI_FUNC void luaD_inctop (lua_State *L);
+LUAI_FUNC void moonD_inctop (lua_State *L);
 
 LUAI_FUNC l_noret moonD_throw (lua_State *L, int errcode);
 LUAI_FUNC int moonD_rawrunprotected (lua_State *L, Pfunc f, void *ud);

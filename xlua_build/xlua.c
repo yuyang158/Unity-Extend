@@ -112,7 +112,7 @@ LUA_API int moon_setfenv(lua_State *L, int idx)
 }
 
 LUA_API uint32_t xmoon_objlen (lua_State *L, int idx) {
-	return (uint32_t)luaL_len (L, idx);
+	return (uint32_t)moonL_len (L, idx);
 }
 
 LUA_API uint32_t xmoon_touint (lua_State *L, int idx) {
@@ -124,12 +124,12 @@ LUA_API void xmoon_pushuint (lua_State *L, uint32_t n) {
 }
 
 #undef moon_insert
-LUA_API void lua_insert (lua_State *L, int idx) {
+LUA_API void moon_insert(lua_State *L, int idx) {
     moon_rotate(L, idx, 1);
 }
 
-#undef moon_insert
-LUA_API void moon_insert(lua_State *L, int idx) {
+#undef moon_remove
+LUA_API void moon_remove(lua_State *L, int idx) {
 	moon_rotate(L, idx, -1);
 	lua_pop(L, 1);
 }
@@ -163,7 +163,7 @@ LUA_API void xmoon_getloaders (lua_State *L) {
 #else
 	moon_getfield(L, -1, "searchers");
 #endif
-	lua_remove(L, -2);
+	moon_remove(L, -2);
 }
 
 LUA_API void xmoon_rawgeti (lua_State *L, int idx, int64_t n) {
@@ -178,7 +178,7 @@ LUA_API int xmoon_ref_indirect(lua_State *L, int indirectRef) {
 	int ret = 0;
 	moon_rawgeti(L, LUA_REGISTRYINDEX, indirectRef);
 	moon_pushvalue(L, -2);
-	ret = luaL_ref(L, -2);
+	ret = moonL_ref(L, -2);
 	lua_pop(L, 2);
 	return ret;
 }
@@ -186,7 +186,7 @@ LUA_API int xmoon_ref_indirect(lua_State *L, int indirectRef) {
 LUA_API void xmoon_getref_indirect(lua_State *L, int indirectRef, int reference) {
 	moon_rawgeti(L, LUA_REGISTRYINDEX, indirectRef);
 	moon_rawgeti(L, -1, reference);
-	lua_remove(L, -2);
+	moon_remove(L, -2);
 }
 
 LUA_API int xmoon_tointeger (lua_State *L, int idx) {
@@ -217,7 +217,7 @@ LUA_API int xmoon_pgettable(lua_State* L, int idx) {
     lua_pushcfunction(L, c_lua_gettable);
     moon_pushvalue(L, idx);
     moon_pushvalue(L, top);
-    lua_remove(L, top);
+    moon_remove(L, top);
     return moon_pcall(L, 2, 1, 0);
 }
 
@@ -242,7 +242,7 @@ static int c_lua_gettable_bypath(lua_State* L) {
 			}
 			break;
 		}
-		lua_remove(L, -2);
+		moon_remove(L, -2);
 	} while(pos);
     return 1;
 }
@@ -267,8 +267,8 @@ LUA_API int xmoon_psettable(lua_State* L, int idx) {
     moon_pushvalue(L, idx);
     moon_pushvalue(L, top - 1);
     moon_pushvalue(L, top);
-    lua_remove(L, top);
-    lua_remove(L, top - 1);
+    moon_remove(L, top);
+    moon_remove(L, top - 1);
     return moon_pcall(L, 3, 0, 0);
 }
 
@@ -292,9 +292,9 @@ static int c_lua_settable_bypath(lua_State* L) {
 		}
 		moon_gettable(L, -2);
 		if (moon_type(L, -1) != LUA_TTABLE) {
-			return luaL_error(L, "can not set value to %s", lua_tostring(L, 2));
+			return moonL_error(L, "can not set value to %s", lua_tostring(L, 2));
 		}
-		lua_remove(L, -2);
+		moon_remove(L, -2);
 	} while(pos);
     return 0;
 }
@@ -306,7 +306,7 @@ LUA_API int xmoon_psettable_bypath(lua_State* L, int idx, const char *path) {
     moon_pushvalue(L, idx);
     moon_pushstring(L, path);
     moon_pushvalue(L, top);
-    lua_remove(L, top);
+    moon_remove(L, top);
     return moon_pcall(L, 3, 0, 0);
 }
 
@@ -331,7 +331,7 @@ LUA_API int xmoon_setglobal (lua_State *L, const char *name) {
 	lua_pushcfunction(L, c_lua_setglobal);
 	moon_pushstring(L, name);
 	moon_pushvalue(L, top);
-	lua_remove(L, top);
+	moon_remove(L, top);
 	return moon_pcall(L, 2, 0, 0);
 }
 
@@ -340,7 +340,7 @@ LUA_API int xmoon_tryget_cachedud(lua_State *L, int key, int cache_ref) {
 	moon_rawgeti(L, -1, key);
 	if (!lua_isnil(L, -1))
 	{
-		lua_remove(L, -2);
+		moon_remove(L, -2);
 		return 1;
 	}
 	lua_pop(L, 2);
@@ -442,7 +442,7 @@ LUA_API int obj_indexer(lua_State *L) {
 			}
 			lua_pop(L, 1);
 			moon_getfield(L, -1, "BaseType");
-			lua_remove(L, -2);
+			moon_remove(L, -2);
 		}
 		moon_pushnil(L);
         moon_replace(L, lua_upvalueindex(4));//base = nil
@@ -451,7 +451,7 @@ LUA_API int obj_indexer(lua_State *L) {
 	if (!lua_isnil(L, lua_upvalueindex(7))) {
 		moon_settop(L, 2);
 		moon_pushvalue(L, lua_upvalueindex(7));
-		lua_insert(L, 1);
+		moon_insert(L, 1);
 		lua_call(L, 2, 1);
 		return 1;
 	} else {
@@ -514,7 +514,7 @@ LUA_API int obj_newindexer(lua_State *L) {
 			}
 			lua_pop(L, 1);
 			moon_getfield(L, -1, "BaseType");
-			lua_remove(L, -2);
+			moon_remove(L, -2);
 		}
 		moon_pushnil(L);
         moon_replace(L, lua_upvalueindex(3));//base = nil
@@ -523,11 +523,11 @@ LUA_API int obj_newindexer(lua_State *L) {
 	if (!lua_isnil(L, lua_upvalueindex(6))) {
 		moon_settop(L, 3);
 		moon_pushvalue(L, lua_upvalueindex(6));
-		lua_insert(L, 1);
+		moon_insert(L, 1);
 		lua_call(L, 3, 0);
 		return 0;
 	} else {
-		return luaL_error(L, "cannot set %s, no such field", lua_tostring(L, 2));
+		return moonL_error(L, "cannot set %s, no such field", lua_tostring(L, 2));
 	}
 }
 
@@ -572,7 +572,7 @@ LUA_API int cls_indexer(lua_State *L) {
 			}
 			lua_pop(L, 1);
 			moon_getfield(L, -1, "BaseType");
-			lua_remove(L, -2);
+			moon_remove(L, -2);
 		}
 		moon_pushnil(L);
 		moon_replace(L, lua_upvalueindex(3));//base = nil
@@ -581,7 +581,7 @@ LUA_API int cls_indexer(lua_State *L) {
 	if (!lua_isnil(L, lua_upvalueindex(5))) {
 		moon_settop(L, 2);
 		moon_pushvalue(L, lua_upvalueindex(5));
-		lua_insert(L, 1);
+		moon_insert(L, 1);
 		lua_call(L, 2, 1);
 		return 1;
 	} else {
@@ -622,7 +622,7 @@ LUA_API int cls_newindexer(lua_State *L) {
 			}
 			lua_pop(L, 1);
 			moon_getfield(L, -1, "BaseType");
-			lua_remove(L, -2);
+			moon_remove(L, -2);
 		}
 		moon_pushnil(L);
         moon_replace(L, lua_upvalueindex(2));//base = nil
@@ -631,11 +631,11 @@ LUA_API int cls_newindexer(lua_State *L) {
 	if (!lua_isnil(L, lua_upvalueindex(4))) {
 		moon_settop(L, 3);
 		moon_pushvalue(L, lua_upvalueindex(4));
-		lua_insert(L, 1);
+		moon_insert(L, 1);
 		lua_call(L, 3, 0);
 		return 0;
 	} else {
-		return luaL_error(L, "no static field %s", lua_tostring(L, 2));
+		return moonL_error(L, "no static field %s", lua_tostring(L, 2));
 	}
 }
 
@@ -648,7 +648,7 @@ LUA_API int gen_cls_newindexer(lua_State *L) {
 LUA_API int errorfunc(lua_State *L) {
 	moon_getglobal(L, "debug");
 	moon_getfield(L, -1, "traceback");
-	lua_remove(L, -2);
+	moon_remove(L, -2);
 	moon_pushvalue(L, 1);
 	moon_pushnumber(L, 2);
 	lua_call(L, 2, 1);
@@ -657,7 +657,7 @@ LUA_API int errorfunc(lua_State *L) {
 
 LUA_API int get_error_func_ref(lua_State *L) {
 	moon_pushcclosure(L, errorfunc, 0);
-	return luaL_ref(L, LUA_REGISTRYINDEX);
+	return moonL_ref(L, LUA_REGISTRYINDEX);
 }
 
 LUA_API int load_error_func(lua_State *L, int ref) {
@@ -724,7 +724,7 @@ static int profiler_set_hook(lua_State *L) {
 			
 		moon_sethook(L, 0, 0, 0);
 	} else {
-		luaL_checktype(L, 1, LUA_TFUNCTION);
+		moonL_checktype(L, 1, LUA_TFUNCTION);
 		moon_pushlightuserdata(L, &hook_index);
 		moon_pushvalue(L, 1);
 		moon_rawset(L, LUA_REGISTRYINDEX);
@@ -755,11 +755,11 @@ LUA_API void xmoon_push_csharp_function(lua_State* L, lua_CFunction fn, int n)
 { 
     lua_pushcfunction(L, fn);
 	if (n > 0) {
-		lua_insert(L, -1 - n);
+		moon_insert(L, -1 - n);
 	}
 	moon_pushboolean(L, 0);
 	if (n > 0) {
-		lua_insert(L, -1 - n);
+		moon_insert(L, -1 - n);
 	}
     moon_pushcclosure(L, csharp_function_wrap, 2 + (n > 0 ? n : 0));
 }
@@ -777,7 +777,7 @@ static int csharp_function_wrapper_wrapper(lua_State *L) {
     int ret = 0;
 	
 	if (g_csharp_wrapper_caller == NULL) {
-		return luaL_error(L, "g_csharp_wrapper_caller not set");
+		return moonL_error(L, "g_csharp_wrapper_caller not set");
 	}
 	
 	ret = g_csharp_wrapper_caller(L, xmoon_tointeger(L, lua_upvalueindex(1)), moon_gettop(L));    
@@ -1113,7 +1113,7 @@ int xmoon_struct_get_##type(lua_State *L) {\
 	int offset = xmoon_tointeger(L, lua_upvalueindex(1));\
 	type val;\
 	if (css == NULL || css->fake_id != -1 || css->len < offset + sizeof(type)) {\
-		return luaL_error(L, "invalid c# struct!");\
+		return moonL_error(L, "invalid c# struct!");\
 	} else {\
 		memcpy(&val, (&(css->data[0]) + offset), sizeof(type));\
 		push_func(L, val);\
@@ -1126,7 +1126,7 @@ int xmoon_struct_set_##type(lua_State *L) { \
 	int offset = xmoon_tointeger(L, lua_upvalueindex(1));\
 	type val;\
 	if (css == NULL || css->fake_id != -1 || css->len < offset + sizeof(type)) {\
-		return luaL_error(L, "invalid c# struct!");\
+		return moonL_error(L, "invalid c# struct!");\
 	} else {\
 	    val = (type)to_func(L, 2);\
 		memcpy((&(css->data[0]) + offset), &val, sizeof(type));\
@@ -1140,8 +1140,8 @@ DIRECT_ACCESS(int16_t, xmoon_pushinteger, xmoon_tointeger);
 DIRECT_ACCESS(uint16_t, xmoon_pushinteger, xmoon_tointeger);
 DIRECT_ACCESS(int32_t, xmoon_pushinteger, xmoon_tointeger);
 DIRECT_ACCESS(uint32_t, xmoon_pushuint, xmoon_touint);
-DIRECT_ACCESS(int64_t, lua_pushint64, lua_toint64);
-DIRECT_ACCESS(uint64_t, lua_pushuint64, lua_touint64);
+DIRECT_ACCESS(int64_t, moon_pushint64, moon_toint64);
+DIRECT_ACCESS(uint64_t, moon_pushuint64, moon_touint64);
 DIRECT_ACCESS(float, moon_pushnumber, moon_tonumber);
 DIRECT_ACCESS(double, moon_pushnumber, moon_tonumber);
 
@@ -1179,10 +1179,10 @@ LUA_API int gen_css_access(lua_State *L) {
 	int offset = xmoon_tointeger(L, 1);
 	int type = xmoon_tointeger(L, 2);
 	if (offset < 0) {
-		return luaL_error(L, "offset must larger than 0");
+		return moonL_error(L, "offset must larger than 0");
 	}
 	if (type < T_INT8 || type > T_DOUBLE) {
-		return luaL_error(L, "unknow tag[%d]", type);
+		return moonL_error(L, "unknow tag[%d]", type);
 	}
 	moon_pushvalue(L, 1);
 	moon_pushcclosure(L, direct_getters[type], 1);
@@ -1209,7 +1209,7 @@ LUA_API int css_clone(lua_State *L) {
 	CSharpStruct *from = (CSharpStruct *)moon_touserdata(L, 1);
 	CSharpStruct *to = NULL;
 	if (!is_cs_data(L, 1) || from->fake_id != -1) {
-		return luaL_error(L, "invalid c# struct!");
+		return moonL_error(L, "invalid c# struct!");
 	}
 	
 	to = (CSharpStruct *)lua_newuserdata(L, from->len + sizeof(int) + sizeof(unsigned int));
@@ -1232,8 +1232,8 @@ static const luaL_Reg xlualib[] = {
 	{NULL, NULL}
 };
 
-LUA_API void luaopen_xlua(lua_State *L) {
-	luaL_openlibs(L);
+LUA_API void moonopen_xlua(lua_State *L) {
+	moonL_openlibs(L);
 	
 #if LUA_VERSION_NUM >= 503
 	luaL_newlib(L, xlualib);

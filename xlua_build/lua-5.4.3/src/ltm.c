@@ -1,4 +1,4 @@
-/*
+﻿/*
 ** $Id: ltm.c $
 ** Tag methods
 ** See Copyright Notice in lua.h
@@ -27,7 +27,7 @@
 
 static const char udatatypename[] = "userdata";
 
-LUAI_DDEF const char *const luaT_typenames_[LUA_TOTALTYPES] = {
+LUAI_DDEF const char *const moonT_typenames_[LUA_TOTALTYPES] = {
   "no value",
   "nil", "boolean", udatatypename, "number",
   "string", "table", "function", udatatypename, "thread",
@@ -36,7 +36,7 @@ LUAI_DDEF const char *const luaT_typenames_[LUA_TOTALTYPES] = {
 
 
 void luaT_init (lua_State *L) {
-  static const char *const luaT_eventname[] = {  /* ORDER TM */
+  static const char *const moonT_eventname[] = {  /* ORDER TM */
     "__index", "__newindex",
     "__gc", "__mode", "__len", "__eq",
     "__add", "__sub", "__mul", "__mod", "__pow",
@@ -47,8 +47,8 @@ void luaT_init (lua_State *L) {
   };
   int i;
   for (i=0; i<TM_N; i++) {
-    G(L)->tmname[i] = luaS_new(L, luaT_eventname[i]);
-    luaC_fix(L, obj2gco(G(L)->tmname[i]));  /* never collect these names */
+    G(L)->tmname[i] = moonS_new(L, moonT_eventname[i]);
+    moonC_fix(L, obj2gco(G(L)->tmname[i]));  /* never collect these names */
   }
 }
 
@@ -57,7 +57,7 @@ void luaT_init (lua_State *L) {
 ** function to be used with macro "fasttm": optimized for absence of
 ** tag methods
 */
-const TValue *luaT_gettm (Table *events, TMS event, TString *ename) {
+const TValue *moonT_gettm (Table *events, TMS event, TString *ename) {
   const TValue *tm = moonH_getshortstr(events, ename);
   lua_assert(event <= TM_EQ);
   if (notm(tm)) {  /* no tag method? */
@@ -68,7 +68,7 @@ const TValue *luaT_gettm (Table *events, TMS event, TString *ename) {
 }
 
 
-const TValue *luaT_gettmbyobj (lua_State *L, const TValue *o, TMS event) {
+const TValue *moonT_gettmbyobj (lua_State *L, const TValue *o, TMS event) {
   Table *mt;
   switch (ttype(o)) {
     case LUA_TTABLE:
@@ -88,11 +88,11 @@ const TValue *luaT_gettmbyobj (lua_State *L, const TValue *o, TMS event) {
 ** Return the name of the type of an object. For tables and userdata
 ** with metatable, use their '__name' metafield, if present.
 */
-const char *luaT_objtypename (lua_State *L, const TValue *o) {
+const char *moonT_objtypename (lua_State *L, const TValue *o) {
   Table *mt;
   if ((ttistable(o) && (mt = hvalue(o)->metatable) != NULL) ||
       (ttisfulluserdata(o) && (mt = uvalue(o)->metatable) != NULL)) {
-    const TValue *name = moonH_getshortstr(mt, luaS_new(L, "__name"));
+    const TValue *name = moonH_getshortstr(mt, moonS_new(L, "__name"));
     if (ttisstring(name))  /* is '__name' a string? */
       return getstr(tsvalue(name));  /* use it as type name */
   }
@@ -100,7 +100,7 @@ const char *luaT_objtypename (lua_State *L, const TValue *o) {
 }
 
 
-void luaT_callTM (lua_State *L, const TValue *f, const TValue *p1,
+void moonT_callTM (lua_State *L, const TValue *f, const TValue *p1,
                   const TValue *p2, const TValue *p3) {
   StkId func = L->top;
   setobj2s(L, func, f);  /* push function (assume EXTRA_STACK) */
@@ -116,7 +116,7 @@ void luaT_callTM (lua_State *L, const TValue *f, const TValue *p1,
 }
 
 
-void luaT_callTMres (lua_State *L, const TValue *f, const TValue *p1,
+void moonT_callTMres (lua_State *L, const TValue *f, const TValue *p1,
                      const TValue *p2, StkId res) {
   ptrdiff_t result = savestack(L, res);
   StkId func = L->top;
@@ -136,16 +136,16 @@ void luaT_callTMres (lua_State *L, const TValue *f, const TValue *p1,
 
 static int callbinTM (lua_State *L, const TValue *p1, const TValue *p2,
                       StkId res, TMS event) {
-  const TValue *tm = luaT_gettmbyobj(L, p1, event);  /* try first operand */
+  const TValue *tm = moonT_gettmbyobj(L, p1, event);  /* try first operand */
   if (notm(tm))
-    tm = luaT_gettmbyobj(L, p2, event);  /* try second operand */
+    tm = moonT_gettmbyobj(L, p2, event);  /* try second operand */
   if (notm(tm)) return 0;
-  luaT_callTMres(L, tm, p1, p2, res);
+  moonT_callTMres(L, tm, p1, p2, res);
   return 1;
 }
 
 
-void luaT_trybinTM (lua_State *L, const TValue *p1, const TValue *p2,
+void moonT_trybinTM (lua_State *L, const TValue *p1, const TValue *p2,
                     StkId res, TMS event) {
   if (l_unlikely(!callbinTM(L, p1, p2, res, event))) {
     switch (event) {
@@ -164,7 +164,7 @@ void luaT_trybinTM (lua_State *L, const TValue *p1, const TValue *p2,
 }
 
 
-void luaT_tryconcatTM (lua_State *L) {
+void moonT_tryconcatTM (lua_State *L) {
   StkId top = L->top;
   if (l_unlikely(!callbinTM(L, s2v(top - 2), s2v(top - 1), top - 2,
                                TM_CONCAT)))
@@ -175,13 +175,13 @@ void luaT_tryconcatTM (lua_State *L) {
 void luaT_trybinassocTM (lua_State *L, const TValue *p1, const TValue *p2,
                                        int flip, StkId res, TMS event) {
   if (flip)
-    luaT_trybinTM(L, p2, p1, res, event);
+    moonT_trybinTM(L, p2, p1, res, event);
   else
-    luaT_trybinTM(L, p1, p2, res, event);
+    moonT_trybinTM(L, p1, p2, res, event);
 }
 
 
-void luaT_trybiniTM (lua_State *L, const TValue *p1, lua_Integer i2,
+void moonT_trybiniTM (lua_State *L, const TValue *p1, lua_Integer i2,
                                    int flip, StkId res, TMS event) {
   TValue aux;
   setivalue(&aux, i2);
@@ -198,7 +198,7 @@ void luaT_trybiniTM (lua_State *L, const TValue *p1, lua_Integer i2,
 ** the result of r<l); bit CIST_LEQ in the call status keeps that
 ** information.
 */
-int luaT_callorderTM (lua_State *L, const TValue *p1, const TValue *p2,
+int moonT_callorderTM (lua_State *L, const TValue *p1, const TValue *p2,
                       TMS event) {
   if (callbinTM(L, p1, p2, L->top, event))  /* try original event */
     return !l_isfalse(s2v(L->top));
@@ -218,7 +218,7 @@ int luaT_callorderTM (lua_State *L, const TValue *p1, const TValue *p2,
 }
 
 
-int luaT_callorderiTM (lua_State *L, const TValue *p1, int v2,
+int moonT_callorderiTM (lua_State *L, const TValue *p1, int v2,
                        int flip, int isfloat, TMS event) {
   TValue aux; const TValue *p2;
   if (isfloat) {
@@ -231,11 +231,11 @@ int luaT_callorderiTM (lua_State *L, const TValue *p1, int v2,
   }
   else
     p2 = &aux;
-  return luaT_callorderTM(L, p1, p2, event);
+  return moonT_callorderTM(L, p1, p2, event);
 }
 
 
-void luaT_adjustvarargs (lua_State *L, int nfixparams, CallInfo *ci,
+void moonT_adjustvarargs (lua_State *L, int nfixparams, CallInfo *ci,
                          const Proto *p) {
   int i;
   int actual = cast_int(L->top - ci->func) - 1;  /* number of arguments */
@@ -255,7 +255,7 @@ void luaT_adjustvarargs (lua_State *L, int nfixparams, CallInfo *ci,
 }
 
 
-void luaT_getvarargs (lua_State *L, CallInfo *ci, StkId where, int wanted) {
+void moonT_getvarargs (lua_State *L, CallInfo *ci, StkId where, int wanted) {
   int i;
   int nextra = ci->u.l.nextraargs;
   if (wanted < 0) {

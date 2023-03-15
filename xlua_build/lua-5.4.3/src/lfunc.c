@@ -25,7 +25,7 @@
 
 
 CClosure *moonF_newCclosure (lua_State *L, int nupvals) {
-  GCObject *o = luaC_newobj(L, LUA_VCCL, sizeCclosure(nupvals));
+  GCObject *o = moonC_newobj(L, LUA_VCCL, sizeCclosure(nupvals));
   CClosure *c = gco2ccl(o);
   c->nupvalues = cast_byte(nupvals);
   return c;
@@ -33,7 +33,7 @@ CClosure *moonF_newCclosure (lua_State *L, int nupvals) {
 
 
 LClosure *moonF_newLclosure (lua_State *L, int nupvals) {
-  GCObject *o = luaC_newobj(L, LUA_VLCL, sizeLclosure(nupvals));
+  GCObject *o = moonC_newobj(L, LUA_VLCL, sizeLclosure(nupvals));
   LClosure *c = gco2lcl(o);
   c->p = NULL;
   c->nupvalues = cast_byte(nupvals);
@@ -48,7 +48,7 @@ LClosure *moonF_newLclosure (lua_State *L, int nupvals) {
 void moonF_initupvals (lua_State *L, LClosure *cl) {
   int i;
   for (i = 0; i < cl->nupvalues; i++) {
-    GCObject *o = luaC_newobj(L, LUA_VUPVAL, sizeof(UpVal));
+    GCObject *o = moonC_newobj(L, LUA_VUPVAL, sizeof(UpVal));
     UpVal *uv = gco2upv(o);
     uv->v = &uv->u.value;  /* make it closed */
     setnilvalue(uv->v);
@@ -63,7 +63,7 @@ void moonF_initupvals (lua_State *L, LClosure *cl) {
 ** open upvalues of 'L' after entry 'prev'.
 **/
 static UpVal *newupval (lua_State *L, int tbc, StkId level, UpVal **prev) {
-  GCObject *o = luaC_newobj(L, LUA_VUPVAL, sizeof(UpVal));
+  GCObject *o = moonC_newobj(L, LUA_VUPVAL, sizeof(UpVal));
   UpVal *uv = gco2upv(o);
   UpVal *next = *prev;
   uv->v = s2v(level);  /* current value lives in the stack */
@@ -107,7 +107,7 @@ UpVal *moonF_findupval (lua_State *L, StkId level) {
 */
 static void callclosemethod (lua_State *L, TValue *obj, TValue *err, int yy) {
   StkId top = L->top;
-  const TValue *tm = luaT_gettmbyobj(L, obj, TM_CLOSE);
+  const TValue *tm = moonT_gettmbyobj(L, obj, TM_CLOSE);
   setobj2s(L, top, tm);  /* will call metamethod... */
   setobj2s(L, top + 1, obj);  /* with 'self' as the 1st argument */
   setobj2s(L, top + 2, err);  /* and error msg. as 2nd argument */
@@ -124,7 +124,7 @@ static void callclosemethod (lua_State *L, TValue *obj, TValue *err, int yy) {
 ** an error if not.
 */
 static void checkclosemth (lua_State *L, StkId level) {
-  const TValue *tm = luaT_gettmbyobj(L, s2v(level), TM_CLOSE);
+  const TValue *tm = moonT_gettmbyobj(L, s2v(level), TM_CLOSE);
   if (ttisnil(tm)) {  /* no metamethod? */
     int idx = cast_int(level - L->ci->func);  /* variable index */
     const char *vname = moonG_findlocal(L, L->ci, idx, NULL);
@@ -238,7 +238,7 @@ void moonF_close (lua_State *L, StkId level, int status, int yy) {
 
 
 Proto *moonF_newproto (lua_State *L) {
-  GCObject *o = luaC_newobj(L, LUA_VPROTO, sizeof(Proto));
+  GCObject *o = moonC_newobj(L, LUA_VPROTO, sizeof(Proto));
   Proto *f = gco2p(o);
   f->k = NULL;
   f->sizek = 0;

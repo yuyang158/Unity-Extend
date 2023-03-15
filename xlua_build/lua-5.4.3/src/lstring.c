@@ -1,4 +1,4 @@
-/*
+﻿/*
 ** $Id: lstring.c $
 ** String table (keeps all strings handled by Lua)
 ** See Copyright Notice in lua.h
@@ -31,7 +31,7 @@
 /*
 ** equality for long strings
 */
-int luaS_eqlngstr (TString *a, TString *b) {
+int moonS_eqlngstr (TString *a, TString *b) {
   size_t len = a->u.lnglen;
   lua_assert(a->tt == LUA_VLNGSTR && b->tt == LUA_VLNGSTR);
   return (a == b) ||  /* same instance or... */
@@ -40,7 +40,7 @@ int luaS_eqlngstr (TString *a, TString *b) {
 }
 
 
-unsigned int luaS_hash (const char *str, size_t l, unsigned int seed) {
+unsigned int moonS_hash (const char *str, size_t l, unsigned int seed) {
   unsigned int h = seed ^ cast_uint(l);
   for (; l > 0; l--)
     h ^= ((h<<5) + (h>>2) + cast_byte(str[l - 1]));
@@ -48,11 +48,11 @@ unsigned int luaS_hash (const char *str, size_t l, unsigned int seed) {
 }
 
 
-unsigned int luaS_hashlongstr (TString *ts) {
+unsigned int moonS_hashlongstr (TString *ts) {
   lua_assert(ts->tt == LUA_VLNGSTR);
   if (ts->extra == 0) {  /* no hash? */
     size_t len = ts->u.lnglen;
-    ts->hash = luaS_hash(getstr(ts), len, ts->hash);
+    ts->hash = moonS_hash(getstr(ts), len, ts->hash);
     ts->extra = 1;  /* now it has its hash */
   }
   return ts->hash;
@@ -82,7 +82,7 @@ static void tablerehash (TString **vect, int osize, int nsize) {
 ** (This can degrade performance, but any non-zero size should work
 ** correctly.)
 */
-void luaS_resize (lua_State *L, int nsize) {
+void moonS_resize (lua_State *L, int nsize) {
   stringtable *tb = &G(L)->strt;
   int osize = tb->size;
   TString **newvect;
@@ -107,7 +107,7 @@ void luaS_resize (lua_State *L, int nsize) {
 ** Clear API string cache. (Entries cannot be empty, so fill them with
 ** a non-collectable string.)
 */
-void luaS_clearcache (global_State *g) {
+void moonS_clearcache (global_State *g) {
   int i, j;
   for (i = 0; i < STRCACHE_N; i++)
     for (j = 0; j < STRCACHE_M; j++) {
@@ -120,7 +120,7 @@ void luaS_clearcache (global_State *g) {
 /*
 ** Initialize the string table and the string cache
 */
-void luaS_init (lua_State *L) {
+void moonS_init (lua_State *L) {
   global_State *g = G(L);
   int i, j;
   stringtable *tb = &G(L)->strt;
@@ -129,7 +129,7 @@ void luaS_init (lua_State *L) {
   tb->size = MINSTRTABSIZE;
   /* pre-create memory-error message */
   g->memerrmsg = luaS_newliteral(L, MEMERRMSG);
-  luaC_fix(L, obj2gco(g->memerrmsg));  /* it should never be collected */
+  moonC_fix(L, obj2gco(g->memerrmsg));  /* it should never be collected */
   for (i = 0; i < STRCACHE_N; i++)  /* fill cache with valid strings */
     for (j = 0; j < STRCACHE_M; j++)
       g->strcache[i][j] = g->memerrmsg;
@@ -145,7 +145,7 @@ static TString *createstrobj (lua_State *L, size_t l, int tag, unsigned int h) {
   GCObject *o;
   size_t totalsize;  /* total size of TString object */
   totalsize = sizelstring(l);
-  o = luaC_newobj(L, tag, totalsize);
+  o = moonC_newobj(L, tag, totalsize);
   ts = gco2ts(o);
   ts->hash = h;
   ts->extra = 0;
@@ -154,14 +154,14 @@ static TString *createstrobj (lua_State *L, size_t l, int tag, unsigned int h) {
 }
 
 
-TString *luaS_createlngstrobj (lua_State *L, size_t l) {
+TString *moonS_createlngstrobj (lua_State *L, size_t l) {
   TString *ts = createstrobj(L, l, LUA_VLNGSTR, G(L)->seed);
   ts->u.lnglen = l;
   return ts;
 }
 
 
-void luaS_remove (lua_State *L, TString *ts) {
+void moonS_remove (lua_State *L, TString *ts) {
   stringtable *tb = &G(L)->strt;
   TString **p = &tb->hash[lmod(ts->hash, tb->size)];
   while (*p != ts)  /* find previous element */
@@ -173,12 +173,12 @@ void luaS_remove (lua_State *L, TString *ts) {
 
 static void growstrtab (lua_State *L, stringtable *tb) {
   if (l_unlikely(tb->nuse == MAX_INT)) {  /* too many strings? */
-    luaC_fullgc(L, 1);  /* try to free some... */
+    moonC_fullgc(L, 1);  /* try to free some... */
     if (tb->nuse == MAX_INT)  /* still too many? */
       luaM_error(L);  /* cannot even create a message... */
   }
   if (tb->size <= MAXSTRTB / 2)  /* can grow string table? */
-    luaS_resize(L, tb->size * 2);
+    moonS_resize(L, tb->size * 2);
 }
 
 
@@ -189,7 +189,7 @@ static TString *internshrstr (lua_State *L, const char *str, size_t l) {
   TString *ts;
   global_State *g = G(L);
   stringtable *tb = &g->strt;
-  unsigned int h = luaS_hash(str, l, g->seed);
+  unsigned int h = moonS_hash(str, l, g->seed);
   TString **list = &tb->hash[lmod(h, tb->size)];
   lua_assert(str != NULL);  /* otherwise 'memcmp'/'memcpy' are undefined */
   for (ts = *list; ts != NULL; ts = ts->u.hnext) {
@@ -218,14 +218,14 @@ static TString *internshrstr (lua_State *L, const char *str, size_t l) {
 /*
 ** new string (with explicit length)
 */
-TString *luaS_newlstr (lua_State *L, const char *str, size_t l) {
+TString *moonS_newlstr (lua_State *L, const char *str, size_t l) {
   if (l <= LUAI_MAXSHORTLEN)  /* short string? */
     return internshrstr(L, str, l);
   else {
     TString *ts;
     if (l_unlikely(l >= (MAX_SIZE - sizeof(TString))/sizeof(char)))
-      luaM_toobig(L);
-    ts = luaS_createlngstrobj(L, l);
+      moonM_toobig(L);
+    ts = moonS_createlngstrobj(L, l);
     memcpy(getstr(ts), str, l * sizeof(char));
     return ts;
   }
@@ -238,7 +238,7 @@ TString *luaS_newlstr (lua_State *L, const char *str, size_t l) {
 ** only zero-terminated strings, so it is safe to use 'strcmp' to
 ** check hits.
 */
-TString *luaS_new (lua_State *L, const char *str) {
+TString *moonS_new (lua_State *L, const char *str) {
   unsigned int i = point2uint(str) % STRCACHE_N;  /* hash */
   int j;
   TString **p = G(L)->strcache[i];
@@ -250,7 +250,7 @@ TString *luaS_new (lua_State *L, const char *str) {
   for (j = STRCACHE_M - 1; j > 0; j--)
     p[j] = p[j - 1];  /* move out last element */
   /* new element is first in the list */
-  p[0] = luaS_newlstr(L, str, strlen(str));
+  p[0] = moonS_newlstr(L, str, strlen(str));
   return p[0];
 }
 
@@ -260,8 +260,8 @@ Udata *luaS_newudata (lua_State *L, size_t s, int nuvalue) {
   int i;
   GCObject *o;
   if (l_unlikely(s > MAX_SIZE - udatamemoffset(nuvalue)))
-    luaM_toobig(L);
-  o = luaC_newobj(L, LUA_VUSERDATA, sizeudata(nuvalue, s));
+    moonM_toobig(L);
+  o = moonC_newobj(L, LUA_VUSERDATA, sizeudata(nuvalue, s));
   u = gco2u(o);
   u->len = s;
   u->nuvalue = nuvalue;

@@ -180,11 +180,11 @@ static void setprogdir (lua_State *L) {
   DWORD nsize = sizeof(buff)/sizeof(char);
   DWORD n = GetModuleFileNameA(NULL, buff, nsize);  /* get exec. name */
   if (n == 0 || n == nsize || (lb = strrchr(buff, '\\')) == NULL)
-    luaL_error(L, "unable to get ModuleFileName");
+    moonL_error(L, "unable to get ModuleFileName");
   else {
     *lb = '\0';  /* cut name on the last '\\' to get the path */
-    luaL_gsub(L, lua_tostring(L, -1), LUA_EXEC_DIR, buff);
-    lua_remove(L, -2);  /* remove original string */
+    moonL_gsub(L, lua_tostring(L, -1), LUA_EXEC_DIR, buff);
+    moon_remove(L, -2);  /* remove original string */
   }
 }
 
@@ -309,17 +309,17 @@ static void setpath (lua_State *L, const char *fieldname,
   else {  /* path contains a ";;": insert default path in its place */
     size_t len = strlen(path);
     luaL_Buffer b;
-    luaL_buffinit(L, &b);
+    moonL_buffinit(L, &b);
     if (path < dftmark) {  /* is there a prefix before ';;'? */
-      luaL_addlstring(&b, path, dftmark - path);  /* add it */
+      moonL_addlstring(&b, path, dftmark - path);  /* add it */
       luaL_addchar(&b, *LUA_PATH_SEP);
     }
-    luaL_addstring(&b, dft);  /* add default */
+    moonL_addstring(&b, dft);  /* add default */
     if (dftmark < path + len - 2) {  /* is there a suffix after ';;'? */
       luaL_addchar(&b, *LUA_PATH_SEP);
-      luaL_addlstring(&b, dftmark + 2, (path + len - 2) - dftmark);
+      moonL_addlstring(&b, dftmark + 2, (path + len - 2) - dftmark);
     }
-    luaL_pushresult(&b);
+    moonL_pushresult(&b);
   }
   setprogdir(L);
   moon_setfield(L, -3, fieldname);  /* package[fieldname] = path value */
@@ -351,7 +351,7 @@ static void addtoclib (lua_State *L, const char *path, void *plib) {
   moon_pushlightuserdata(L, plib);
   moon_pushvalue(L, -1);
   moon_setfield(L, -3, path);  /* CLIBS[path] = plib */
-  moon_rawseti(L, -2, luaL_len(L, -2) + 1);  /* CLIBS[#CLIBS + 1] = plib */
+  moon_rawseti(L, -2, moonL_len(L, -2) + 1);  /* CLIBS[#CLIBS + 1] = plib */
   lua_pop(L, 1);  /* pop CLIBS table */
 }
 
@@ -361,7 +361,7 @@ static void addtoclib (lua_State *L, const char *path, void *plib) {
 ** handles in list CLIBS
 */
 static int gctm (lua_State *L) {
-  lua_Integer n = luaL_len(L, 1);
+  lua_Integer n = moonL_len(L, 1);
   for (; n >= 1; n--) {  /* for each handle, in reverse order */
     moon_rawgeti(L, 1, n);  /* get handle CLIBS[n] */
     lsys_unloadlib(moon_touserdata(L, -1));
@@ -470,11 +470,11 @@ static const char *getnextfilename (char **path, char *end) {
 */
 static void pusherrornotfound (lua_State *L, const char *path) {
   luaL_Buffer b;
-  luaL_buffinit(L, &b);
-  luaL_addstring(&b, "no file '");
-  luaL_addgsub(&b, path, LUA_PATH_SEP, "'\n\tno file '");
-  luaL_addstring(&b, "'");
-  luaL_pushresult(&b);
+  moonL_buffinit(L, &b);
+  moonL_addstring(&b, "no file '");
+  moonL_addgsub(&b, path, LUA_PATH_SEP, "'\n\tno file '");
+  moonL_addstring(&b, "'");
+  moonL_pushresult(&b);
 }
 
 
@@ -488,10 +488,10 @@ static const char *searchpath (lua_State *L, const char *name,
   const char *filename;
   /* separator is non-empty and appears in 'name'? */
   if (*sep != '\0' && strchr(name, *sep) != NULL)
-    name = luaL_gsub(L, name, sep, dirsep);  /* replace it by 'dirsep' */
-  luaL_buffinit(L, &buff);
+    name = moonL_gsub(L, name, sep, dirsep);  /* replace it by 'dirsep' */
+  moonL_buffinit(L, &buff);
   /* add path to the buffer, replacing marks ('?') with the file name */
-  luaL_addgsub(&buff, path, LUA_PATH_MARK, name);
+  moonL_addgsub(&buff, path, LUA_PATH_MARK, name);
   luaL_addchar(&buff, '\0');
   pathname = luaL_buffaddr(&buff);  /* writable list of file names */
   endpathname = pathname + luaL_bufflen(&buff) - 1;
@@ -499,7 +499,7 @@ static const char *searchpath (lua_State *L, const char *name,
     if (readable(filename))  /* does file exist and is readable? */
       return moon_pushstring(L, filename);  /* save and return name */
   }
-  luaL_pushresult(&buff);  /* push path to create error message */
+  moonL_pushresult(&buff);  /* push path to create error message */
   pusherrornotfound(L, lua_tostring(L, -1));  /* create error message */
   return NULL;  /* not found */
 }
@@ -526,7 +526,7 @@ static const char *findfile (lua_State *L, const char *name,
   moon_getfield(L, lua_upvalueindex(1), pname);
   path = lua_tostring(L, -1);
   if (l_unlikely(path == NULL))
-    luaL_error(L, "'package.%s' must be a string", pname);
+    moonL_error(L, "'package.%s' must be a string", pname);
   return searchpath(L, name, path, ".", dirsep);
 }
 
@@ -537,7 +537,7 @@ static int checkload (lua_State *L, int stat, const char *filename) {
     return 2;  /* return open function and file name */
   }
   else
-    return luaL_error(L, "error loading module '%s' from file '%s':\n\t%s",
+    return moonL_error(L, "error loading module '%s' from file '%s':\n\t%s",
                           lua_tostring(L, 1), filename, lua_tostring(L, -1));
 }
 
@@ -562,7 +562,7 @@ static int searcher_Lua (lua_State *L) {
 static int loadfunc (lua_State *L, const char *filename, const char *modname) {
   const char *openfunc;
   const char *mark;
-  modname = luaL_gsub(L, modname, ".", LUA_OFSEP);
+  modname = moonL_gsub(L, modname, ".", LUA_OFSEP);
   mark = strchr(modname, *LUA_IGMARK);
   if (mark) {
     int stat;
@@ -627,16 +627,16 @@ static void findloader (lua_State *L, const char *name) {
   /* push 'package.searchers' to index 3 in the stack */
   if (l_unlikely(moon_getfield(L, lua_upvalueindex(1), "searchers")
                  != LUA_TTABLE))
-    luaL_error(L, "'package.searchers' must be a table");
-  luaL_buffinit(L, &msg);
+    moonL_error(L, "'package.searchers' must be a table");
+  moonL_buffinit(L, &msg);
   /*  iterate over available searchers to find a loader */
   for (i = 1; ; i++) {
-    luaL_addstring(&msg, "\n\t");  /* error-message prefix */
+    moonL_addstring(&msg, "\n\t");  /* error-message prefix */
     if (l_unlikely(moon_rawgeti(L, 3, i) == LUA_TNIL)) {  /* no more searchers? */
       lua_pop(L, 1);  /* remove nil */
       luaL_buffsub(&msg, 2);  /* remove prefix */
-      luaL_pushresult(&msg);  /* create error message */
-      luaL_error(L, "module '%s' not found:%s", name, lua_tostring(L, -1));
+      moonL_pushresult(&msg);  /* create error message */
+      moonL_error(L, "module '%s' not found:%s", name, lua_tostring(L, -1));
     }
     moon_pushstring(L, name);
     lua_call(L, 1, 2);  /* call it */
@@ -644,7 +644,7 @@ static void findloader (lua_State *L, const char *name) {
       return;  /* module loader found */
     else if (moon_isstring(L, -2)) {  /* searcher returned error message? */
       lua_pop(L, 1);  /* remove extra return */
-      luaL_addvalue(&msg);  /* concatenate error message */
+      moonL_addvalue(&msg);  /* concatenate error message */
     }
     else {  /* no error message */
       lua_pop(L, 2);  /* remove both returns */
@@ -728,7 +728,7 @@ static void createsearcherstable (lua_State *L) {
 ** setting a finalizer to close all libraries when closing state.
 */
 static void createclibstable (lua_State *L) {
-  luaL_getsubtable(L, LUA_REGISTRYINDEX, CLIBS);  /* create CLIBS table */
+  moonL_getsubtable(L, LUA_REGISTRYINDEX, CLIBS);  /* create CLIBS table */
   moon_createtable(L, 0, 1);  /* create metatable for CLIBS */
   lua_pushcfunction(L, gctm);
   moon_setfield(L, -2, "__gc");  /* set finalizer for CLIBS table */
@@ -748,14 +748,14 @@ LUAMOD_API int moonopen_package (lua_State *L) {
                      LUA_EXEC_DIR "\n" LUA_IGMARK "\n");
   moon_setfield(L, -2, "config");
   /* set field 'loaded' */
-  luaL_getsubtable(L, LUA_REGISTRYINDEX, LUA_LOADED_TABLE);
+  moonL_getsubtable(L, LUA_REGISTRYINDEX, LUA_LOADED_TABLE);
   moon_setfield(L, -2, "loaded");
   /* set field 'preload' */
-  luaL_getsubtable(L, LUA_REGISTRYINDEX, LUA_PRELOAD_TABLE);
+  moonL_getsubtable(L, LUA_REGISTRYINDEX, LUA_PRELOAD_TABLE);
   moon_setfield(L, -2, "preload");
   lua_pushglobaltable(L);
   moon_pushvalue(L, -2);  /* set 'package' as upvalue for next lib */
-  luaL_setfuncs(L, ll_funcs, 1);  /* open lib into global table */
+  moonL_setfuncs(L, ll_funcs, 1);  /* open lib into global table */
   lua_pop(L, 1);  /* pop global table */
   return 1;  /* return 'package' table */
 }

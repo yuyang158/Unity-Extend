@@ -1,4 +1,4 @@
-/*
+﻿/*
 ** $Id: ldebug.c $
 ** Debug Interface
 ** See Copyright Notice in lua.h
@@ -275,7 +275,7 @@ static void funcinfo (lua_Debug *ar, Closure *cl) {
     ar->lastlinedefined = p->lastlinedefined;
     ar->what = (ar->linedefined == 0) ? "main" : "Lua";
   }
-  luaO_chunkid(ar->short_src, ar->source, ar->srclen);
+  moonO_chunkid(ar->short_src, ar->source, ar->srclen);
 }
 
 
@@ -695,7 +695,7 @@ static const char *formatvarinfo (lua_State *L, const char *kind,
   if (kind == NULL)
     return "";  /* no information */
   else
-    return luaO_pushfstring(L, " (%s '%s')", kind, name);
+    return moonO_pushfstring(L, " (%s '%s')", kind, name);
 }
 
 /*
@@ -721,7 +721,7 @@ static const char *varinfo (lua_State *L, const TValue *o) {
 */
 static l_noret typeerror (lua_State *L, const TValue *o, const char *op,
                           const char *extra) {
-  const char *t = luaT_objtypename(L, o);
+  const char *t = moonT_objtypename(L, o);
   moonG_runerror(L, "attempt to %s a %s value%s", op, t, extra);
 }
 
@@ -751,7 +751,7 @@ l_noret moonG_callerror (lua_State *L, const TValue *o) {
 
 l_noret moonG_forerror (lua_State *L, const TValue *o, const char *what) {
   moonG_runerror(L, "bad 'for' %s (number expected, got %s)",
-                   what, luaT_objtypename(L, o));
+                   what, moonT_objtypename(L, o));
 }
 
 
@@ -774,15 +774,15 @@ l_noret moonG_opinterror (lua_State *L, const TValue *p1,
 */
 l_noret moonG_tointerror (lua_State *L, const TValue *p1, const TValue *p2) {
   lua_Integer temp;
-  if (!luaV_tointegerns(p1, &temp, LUA_FLOORN2I))
+  if (!moonV_tointegerns(p1, &temp, LUA_FLOORN2I))
     p2 = p1;
   moonG_runerror(L, "number%s has no integer representation", varinfo(L, p2));
 }
 
 
 l_noret moonG_ordererror (lua_State *L, const TValue *p1, const TValue *p2) {
-  const char *t1 = luaT_objtypename(L, p1);
-  const char *t2 = luaT_objtypename(L, p2);
+  const char *t1 = moonT_objtypename(L, p1);
+  const char *t2 = moonT_objtypename(L, p2);
   if (strcmp(t1, t2) == 0)
     moonG_runerror(L, "attempt to compare two %s values", t1);
   else
@@ -795,11 +795,11 @@ const char *moonG_addinfo (lua_State *L, const char *msg, TString *src,
                                         int line) {
   char buff[LUA_IDSIZE];
   if (src)
-    luaO_chunkid(buff, getstr(src), tsslen(src));
+    moonO_chunkid(buff, getstr(src), tsslen(src));
   else {  /* no source available; use "?" instead */
     buff[0] = '?'; buff[1] = '\0';
   }
-  return luaO_pushfstring(L, "%s:%d: %s", buff, line, msg);
+  return moonO_pushfstring(L, "%s:%d: %s", buff, line, msg);
 }
 
 
@@ -822,7 +822,7 @@ l_noret moonG_runerror (lua_State *L, const char *fmt, ...) {
   va_list argp;
   luaC_checkGC(L);  /* error message uses memory */
   va_start(argp, fmt);
-  msg = luaO_pushvfstring(L, fmt, argp);  /* format message */
+  msg = moonO_pushvfstring(L, fmt, argp);  /* format message */
   va_end(argp);
   if (isLua(ci))  /* if Lua function, add source:line information */
     moonG_addinfo(L, msg, ci_func(ci)->p->source, getcurrentline(ci));

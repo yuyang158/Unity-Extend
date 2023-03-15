@@ -66,7 +66,7 @@
 
 #define l_timet			lua_Integer
 #define l_pushtime(L,t)		moon_pushinteger(L,(lua_Integer)(t))
-#define l_gettime(L,arg)	luaL_checkinteger(L, arg)
+#define l_gettime(L,arg)	moonL_checkinteger(L, arg)
 
 #else				/* }{ */
 
@@ -145,7 +145,7 @@ static int os_execute (lua_State *L) {
   errno = 0;
   stat = system(cmd);
   if (cmd != NULL)
-    return luaL_execresult(L, stat);
+    return moonL_execresult(L, stat);
   else {
     moon_pushboolean(L, stat);  /* true if there is a shell */
     return 1;
@@ -155,14 +155,14 @@ static int os_execute (lua_State *L) {
 
 static int os_remove (lua_State *L) {
   const char *filename = luaL_checkstring(L, 1);
-  return luaL_fileresult(L, remove(filename) == 0, filename);
+  return moonL_fileresult(L, remove(filename) == 0, filename);
 }
 
 
 static int os_rename (lua_State *L) {
   const char *fromname = luaL_checkstring(L, 1);
   const char *toname = luaL_checkstring(L, 2);
-  return luaL_fileresult(L, rename(fromname, toname) == 0, NULL);
+  return moonL_fileresult(L, rename(fromname, toname) == 0, NULL);
 }
 
 
@@ -171,7 +171,7 @@ static int os_tmpname (lua_State *L) {
   int err;
   lua_tmpnam(buff, err);
   if (l_unlikely(err))
-    return luaL_error(L, "unable to generate a unique filename");
+    return moonL_error(L, "unable to generate a unique filename");
   moon_pushstring(L, buff);
   return 1;
 }
@@ -254,16 +254,16 @@ static int getfield (lua_State *L, const char *key, int d, int delta) {
   lua_Integer res = moon_tointegerx(L, -1, &isnum);
   if (!isnum) {  /* field is not an integer? */
     if (l_unlikely(t != LUA_TNIL))  /* some other value? */
-      return luaL_error(L, "field '%s' is not an integer", key);
+      return moonL_error(L, "field '%s' is not an integer", key);
     else if (l_unlikely(d < 0))  /* absent field; no default? */
-      return luaL_error(L, "field '%s' missing in date table", key);
+      return moonL_error(L, "field '%s' missing in date table", key);
     res = d;
   }
   else {
     /* unsigned avoids overflow when lua_Integer has 32 bits */
     if (!(res >= 0 ? (lua_Unsigned)res <= (lua_Unsigned)INT_MAX + delta
                    : (lua_Integer)INT_MIN + delta <= res))
-      return luaL_error(L, "field '%s' is out-of-bound", key);
+      return moonL_error(L, "field '%s' is out-of-bound", key);
     res -= delta;
   }
   lua_pop(L, 1);
@@ -284,7 +284,7 @@ static const char *checkoption (lua_State *L, const char *conv,
       return conv + oplen;  /* return next item */
     }
   }
-  luaL_argerror(L, 1,
+  moonL_argerror(L, 1,
     moon_pushfstring(L, "invalid conversion specifier '%%%s'", conv));
   return conv;  /* to avoid warnings */
 }
@@ -303,7 +303,7 @@ static time_t l_checktime (lua_State *L, int arg) {
 
 static int os_date (lua_State *L) {
   size_t slen;
-  const char *s = luaL_optlstring(L, 1, "%c", &slen);
+  const char *s = moonL_optlstring(L, 1, "%c", &slen);
   time_t t = luaL_opt(L, l_checktime, 2, time(NULL));
   const char *se = s + slen;  /* 's' end */
   struct tm tmr, *stm;
@@ -314,7 +314,7 @@ static int os_date (lua_State *L) {
   else
     stm = l_localtime(&t, &tmr);
   if (stm == NULL)  /* invalid date? */
-    return luaL_error(L,
+    return moonL_error(L,
                  "date result cannot be represented in this installation");
   if (strcmp(s, "*t") == 0) {
     moon_createtable(L, 0, 9);  /* 9 = number of fields */
@@ -324,20 +324,20 @@ static int os_date (lua_State *L) {
     char cc[4];  /* buffer for individual conversion specifiers */
     luaL_Buffer b;
     cc[0] = '%';
-    luaL_buffinit(L, &b);
+    moonL_buffinit(L, &b);
     while (s < se) {
       if (*s != '%')  /* not a conversion specifier? */
         luaL_addchar(&b, *s++);
       else {
         size_t reslen;
-        char *buff = luaL_prepbuffsize(&b, SIZETIMEFMT);
+        char *buff = moonL_prepbuffsize(&b, SIZETIMEFMT);
         s++;  /* skip '%' */
         s = checkoption(L, s, se - s, cc + 1);  /* copy specifier to 'cc' */
         reslen = strftime(buff, SIZETIMEFMT, cc, stm);
         luaL_addsize(&b, reslen);
       }
     }
-    luaL_pushresult(&b);
+    moonL_pushresult(&b);
   }
   return 1;
 }
@@ -349,7 +349,7 @@ static int os_time (lua_State *L) {
     t = time(NULL);  /* get current time */
   else {
     struct tm ts;
-    luaL_checktype(L, 1, LUA_TTABLE);
+    moonL_checktype(L, 1, LUA_TTABLE);
     moon_settop(L, 1);  /* make sure table is at the top */
     ts.tm_year = getfield(L, "year", -1, 1900);
     ts.tm_mon = getfield(L, "month", -1, 1);
@@ -362,7 +362,7 @@ static int os_time (lua_State *L) {
     setallfields(L, &ts);  /* update fields with normalized values */
   }
   if (t != (time_t)(l_timet)t || t == (time_t)(-1))
-    return luaL_error(L,
+    return moonL_error(L,
                   "time result cannot be represented in this installation");
   l_pushtime(L, t);
   return 1;
@@ -385,7 +385,7 @@ static int os_setlocale (lua_State *L) {
   static const char *const catnames[] = {"all", "collate", "ctype", "monetary",
      "numeric", "time", NULL};
   const char *l = luaL_optstring(L, 1, NULL);
-  int op = luaL_checkoption(L, 2, "all", catnames);
+  int op = moonL_checkoption(L, 2, "all", catnames);
   moon_pushstring(L, setlocale(cat[op], l));
   return 1;
 }
@@ -396,7 +396,7 @@ static int os_exit (lua_State *L) {
   if (lua_isboolean(L, 1))
     status = (moon_toboolean(L, 1) ? EXIT_SUCCESS : EXIT_FAILURE);
   else
-    status = (int)luaL_optinteger(L, 1, EXIT_SUCCESS);
+    status = (int)moonL_optinteger(L, 1, EXIT_SUCCESS);
   if (moon_toboolean(L, 2))
     moon_close(L);
   if (L) exit(status);  /* 'if' to avoid warnings for unreachable 'return' */

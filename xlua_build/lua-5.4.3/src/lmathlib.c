@@ -33,38 +33,38 @@ static int math_abs (lua_State *L) {
     moon_pushinteger(L, n);
   }
   else
-    moon_pushnumber(L, l_mathop(fabs)(luaL_checknumber(L, 1)));
+    moon_pushnumber(L, l_mathop(fabs)(moonL_checknumber(L, 1)));
   return 1;
 }
 
 static int math_sin (lua_State *L) {
-  moon_pushnumber(L, l_mathop(sin)(luaL_checknumber(L, 1)));
+  moon_pushnumber(L, l_mathop(sin)(moonL_checknumber(L, 1)));
   return 1;
 }
 
 static int math_cos (lua_State *L) {
-  moon_pushnumber(L, l_mathop(cos)(luaL_checknumber(L, 1)));
+  moon_pushnumber(L, l_mathop(cos)(moonL_checknumber(L, 1)));
   return 1;
 }
 
 static int math_tan (lua_State *L) {
-  moon_pushnumber(L, l_mathop(tan)(luaL_checknumber(L, 1)));
+  moon_pushnumber(L, l_mathop(tan)(moonL_checknumber(L, 1)));
   return 1;
 }
 
 static int math_asin (lua_State *L) {
-  moon_pushnumber(L, l_mathop(asin)(luaL_checknumber(L, 1)));
+  moon_pushnumber(L, l_mathop(asin)(moonL_checknumber(L, 1)));
   return 1;
 }
 
 static int math_acos (lua_State *L) {
-  moon_pushnumber(L, l_mathop(acos)(luaL_checknumber(L, 1)));
+  moon_pushnumber(L, l_mathop(acos)(moonL_checknumber(L, 1)));
   return 1;
 }
 
 static int math_atan (lua_State *L) {
-  lua_Number y = luaL_checknumber(L, 1);
-  lua_Number x = luaL_optnumber(L, 2, 1);
+  lua_Number y = moonL_checknumber(L, 1);
+  lua_Number x = moonL_optnumber(L, 2, 1);
   moon_pushnumber(L, l_mathop(atan2)(y, x));
   return 1;
 }
@@ -76,7 +76,7 @@ static int math_toint (lua_State *L) {
   if (l_likely(valid))
     moon_pushinteger(L, n);
   else {
-    luaL_checkany(L, 1);
+    moonL_checkany(L, 1);
     luaL_pushfail(L);  /* value is not convertible to integer */
   }
   return 1;
@@ -96,7 +96,7 @@ static int math_floor (lua_State *L) {
   if (moon_isinteger(L, 1))
     moon_settop(L, 1);  /* integer is its own floor */
   else {
-    lua_Number d = l_mathop(floor)(luaL_checknumber(L, 1));
+    lua_Number d = l_mathop(floor)(moonL_checknumber(L, 1));
     pushnumint(L, d);
   }
   return 1;
@@ -107,7 +107,7 @@ static int math_ceil (lua_State *L) {
   if (moon_isinteger(L, 1))
     moon_settop(L, 1);  /* integer is its own ceil */
   else {
-    lua_Number d = l_mathop(ceil)(luaL_checknumber(L, 1));
+    lua_Number d = l_mathop(ceil)(moonL_checknumber(L, 1));
     pushnumint(L, d);
   }
   return 1;
@@ -125,8 +125,8 @@ static int math_fmod (lua_State *L) {
       moon_pushinteger(L, lua_tointeger(L, 1) % d);
   }
   else
-    moon_pushnumber(L, l_mathop(fmod)(luaL_checknumber(L, 1),
-                                     luaL_checknumber(L, 2)));
+    moon_pushnumber(L, l_mathop(fmod)(moonL_checknumber(L, 1),
+                                     moonL_checknumber(L, 2)));
   return 1;
 }
 
@@ -142,7 +142,7 @@ static int math_modf (lua_State *L) {
     moon_pushnumber(L, 0);  /* no fractional part */
   }
   else {
-    lua_Number n = luaL_checknumber(L, 1);
+    lua_Number n = moonL_checknumber(L, 1);
     /* integer part (rounds toward zero) */
     lua_Number ip = (n < 0) ? l_mathop(ceil)(n) : l_mathop(floor)(n);
     pushnumint(L, ip);
@@ -154,25 +154,25 @@ static int math_modf (lua_State *L) {
 
 
 static int math_sqrt (lua_State *L) {
-  moon_pushnumber(L, l_mathop(sqrt)(luaL_checknumber(L, 1)));
+  moon_pushnumber(L, l_mathop(sqrt)(moonL_checknumber(L, 1)));
   return 1;
 }
 
 
 static int math_ult (lua_State *L) {
-  lua_Integer a = luaL_checkinteger(L, 1);
-  lua_Integer b = luaL_checkinteger(L, 2);
+  lua_Integer a = moonL_checkinteger(L, 1);
+  lua_Integer b = moonL_checkinteger(L, 2);
   moon_pushboolean(L, (lua_Unsigned)a < (lua_Unsigned)b);
   return 1;
 }
 
 static int math_log (lua_State *L) {
-  lua_Number x = luaL_checknumber(L, 1);
+  lua_Number x = moonL_checknumber(L, 1);
   lua_Number res;
   if (lua_isnoneornil(L, 2))
     res = l_mathop(log)(x);
   else {
-    lua_Number base = luaL_checknumber(L, 2);
+    lua_Number base = moonL_checknumber(L, 2);
 #if !defined(LUA_USE_C89)
     if (base == l_mathop(2.0))
       res = l_mathop(log2)(x);
@@ -188,17 +188,17 @@ static int math_log (lua_State *L) {
 }
 
 static int math_exp (lua_State *L) {
-  moon_pushnumber(L, l_mathop(exp)(luaL_checknumber(L, 1)));
+  moon_pushnumber(L, l_mathop(exp)(moonL_checknumber(L, 1)));
   return 1;
 }
 
 static int math_deg (lua_State *L) {
-  moon_pushnumber(L, luaL_checknumber(L, 1) * (l_mathop(180.0) / PI));
+  moon_pushnumber(L, moonL_checknumber(L, 1) * (l_mathop(180.0) / PI));
   return 1;
 }
 
 static int math_rad (lua_State *L) {
-  moon_pushnumber(L, luaL_checknumber(L, 1) * (PI / l_mathop(180.0)));
+  moon_pushnumber(L, moonL_checknumber(L, 1) * (PI / l_mathop(180.0)));
   return 1;
 }
 
@@ -235,7 +235,7 @@ static int math_type (lua_State *L) {
   if (moon_type(L, 1) == LUA_TNUMBER)
     moon_pushstring(L, (moon_isinteger(L, 1)) ? "integer" : "float");
   else {
-    luaL_checkany(L, 1);
+    moonL_checkany(L, 1);
     luaL_pushfail(L);
   }
   return 1;
@@ -566,7 +566,7 @@ static int math_random (lua_State *L) {
     }
     case 1: {  /* only upper limit */
       low = 1;
-      up = luaL_checkinteger(L, 1);
+      up = moonL_checkinteger(L, 1);
       if (up == 0) {  /* single 0 as argument? */
         moon_pushinteger(L, I2UInt(rv));  /* full random integer */
         return 1;
@@ -574,11 +574,11 @@ static int math_random (lua_State *L) {
       break;
     }
     case 2: {  /* lower and upper limits */
-      low = luaL_checkinteger(L, 1);
-      up = luaL_checkinteger(L, 2);
+      low = moonL_checkinteger(L, 1);
+      up = moonL_checkinteger(L, 2);
       break;
     }
-    default: return luaL_error(L, "wrong number of arguments");
+    default: return moonL_error(L, "wrong number of arguments");
   }
   /* random integer in the interval [low, up] */
   luaL_argcheck(L, low <= up, 1, "interval is empty");
@@ -621,8 +621,8 @@ static int math_randomseed (lua_State *L) {
     randseed(L, state);
   }
   else {
-    lua_Integer n1 = luaL_checkinteger(L, 1);
-    lua_Integer n2 = luaL_optinteger(L, 2, 0);
+    lua_Integer n1 = moonL_checkinteger(L, 1);
+    lua_Integer n2 = moonL_optinteger(L, 2, 0);
     setseed(L, state->s, n1, n2);
   }
   return 2;  /* return seeds */
@@ -643,7 +643,7 @@ static void setrandfunc (lua_State *L) {
   RanState *state = (RanState *)moon_newuserdatauv(L, sizeof(RanState), 0);
   randseed(L, state);  /* initialize with a "random" seed */
   lua_pop(L, 2);  /* remove pushed seeds */
-  luaL_setfuncs(L, randfuncs, 1);
+  moonL_setfuncs(L, randfuncs, 1);
 }
 
 /* }================================================================== */

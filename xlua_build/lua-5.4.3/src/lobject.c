@@ -1,4 +1,4 @@
-/*
+﻿/*
 ** $Id: lobject.c $
 ** Some generic functions over Lua objects
 ** See Copyright Notice in lua.h
@@ -56,13 +56,13 @@ static lua_Integer intarith (lua_State *L, int op, lua_Integer v1,
     case LUA_OPADD: return intop(+, v1, v2);
     case LUA_OPSUB:return intop(-, v1, v2);
     case LUA_OPMUL:return intop(*, v1, v2);
-    case LUA_OPMOD: return luaV_mod(L, v1, v2);
-    case LUA_OPIDIV: return luaV_idiv(L, v1, v2);
+    case LUA_OPMOD: return moonV_mod(L, v1, v2);
+    case LUA_OPIDIV: return moonV_idiv(L, v1, v2);
     case LUA_OPBAND: return intop(&, v1, v2);
     case LUA_OPBOR: return intop(|, v1, v2);
     case LUA_OPBXOR: return intop(^, v1, v2);
-    case LUA_OPSHL: return luaV_shiftl(v1, v2);
-    case LUA_OPSHR: return luaV_shiftl(v1, -v2);
+    case LUA_OPSHL: return moonV_shiftl(v1, v2);
+    case LUA_OPSHR: return moonV_shiftl(v1, -v2);
     case LUA_OPUNM: return intop(-, 0, v1);
     case LUA_OPBNOT: return intop(^, ~l_castS2U(0), v1);
     default: lua_assert(0); return 0;
@@ -80,13 +80,13 @@ static lua_Number numarith (lua_State *L, int op, lua_Number v1,
     case LUA_OPPOW: return luai_numpow(L, v1, v2);
     case LUA_OPIDIV: return luai_numidiv(L, v1, v2);
     case LUA_OPUNM: return luai_numunm(L, v1);
-    case LUA_OPMOD: return luaV_modf(L, v1, v2);
+    case LUA_OPMOD: return moonV_modf(L, v1, v2);
     default: lua_assert(0); return 0;
   }
 }
 
 
-int luaO_rawarith (lua_State *L, int op, const TValue *p1, const TValue *p2,
+int moonO_rawarith (lua_State *L, int op, const TValue *p1, const TValue *p2,
                    TValue *res) {
   switch (op) {
     case LUA_OPBAND: case LUA_OPBOR: case LUA_OPBXOR:
@@ -123,16 +123,16 @@ int luaO_rawarith (lua_State *L, int op, const TValue *p1, const TValue *p2,
 }
 
 
-void luaO_arith (lua_State *L, int op, const TValue *p1, const TValue *p2,
+void moonO_arith (lua_State *L, int op, const TValue *p1, const TValue *p2,
                  StkId res) {
-  if (!luaO_rawarith(L, op, p1, p2, s2v(res))) {
+  if (!moonO_rawarith(L, op, p1, p2, s2v(res))) {
     /* could not perform raw operation; try metamethod */
-    luaT_trybinTM(L, p1, p2, res, cast(TMS, (op - LUA_OPADD) + TM_ADD));
+    moonT_trybinTM(L, p1, p2, res, cast(TMS, (op - LUA_OPADD) + TM_ADD));
   }
 }
 
 
-int luaO_hexavalue (int c) {
+int moonO_hexavalue (int c) {
   if (lisdigit(c)) return c - '0';
   else return (ltolower(c) - 'a') + 10;
 }
@@ -162,7 +162,7 @@ static int isneg (const char **s) {
 ** convert a hexadecimal numeric string to a number, following
 ** C99 specification for 'strtod'
 */
-static lua_Number lua_strx2number (const char *s, char **endptr) {
+static lua_Number moon_strx2number (const char *s, char **endptr) {
   int dot = lua_getlocaledecpoint();
   lua_Number r = l_mathop(0.0);  /* result (accumulator) */
   int sigdig = 0;  /* number of significant digits */
@@ -184,7 +184,7 @@ static lua_Number lua_strx2number (const char *s, char **endptr) {
       if (sigdig == 0 && *s == '0')  /* non-significant digit (zero)? */
         nosigdig++;
       else if (++sigdig <= MAXSIGDIG)  /* can read it without overflow? */
-          r = (r * l_mathop(16.0)) + luaO_hexavalue(*s);
+          r = (r * l_mathop(16.0)) + moonO_hexavalue(*s);
       else e++; /* too many digits; ignore, but still count for exponent */
       if (hasdot) e--;  /* decimal digit? correct exponent */
     }
@@ -227,7 +227,7 @@ static lua_Number lua_strx2number (const char *s, char **endptr) {
 */
 static const char *l_str2dloc (const char *s, lua_Number *result, int mode) {
   char *endptr;
-  *result = (mode == 'x') ? lua_strx2number(s, &endptr)  /* try to convert */
+  *result = (mode == 'x') ? moon_strx2number(s, &endptr)  /* try to convert */
                           : lua_str2number(s, &endptr);
   if (endptr == s) return NULL;  /* nothing recognized? */
   while (lisspace(cast_uchar(*endptr))) endptr++;  /* skip trailing spaces */
@@ -283,7 +283,7 @@ static const char *l_str2int (const char *s, lua_Integer *result) {
       (s[1] == 'x' || s[1] == 'X')) {  /* hex? */
     s += 2;  /* skip '0x' */
     for (; lisxdigit(cast_uchar(*s)); s++) {
-      a = a * 16 + luaO_hexavalue(*s);
+      a = a * 16 + moonO_hexavalue(*s);
       empty = 0;
     }
   }
@@ -305,7 +305,7 @@ static const char *l_str2int (const char *s, lua_Integer *result) {
 }
 
 
-size_t luaO_str2num (const char *s, TValue *o) {
+size_t moonO_str2num (const char *s, TValue *o) {
   lua_Integer i; lua_Number n;
   const char *e;
   if ((e = l_str2int(s, &i)) != NULL) {  /* try as an integer */
@@ -320,7 +320,7 @@ size_t luaO_str2num (const char *s, TValue *o) {
 }
 
 
-int luaO_utf8esc (char *buff, unsigned long x) {
+int moonO_utf8esc (char *buff, unsigned long x) {
   int n = 1;  /* number of bytes put in buffer (backwards) */
   lua_assert(x <= 0x7FFFFFFFu);
   if (x < 0x80)  /* ascii? */
@@ -371,10 +371,10 @@ static int tostringbuff (TValue *obj, char *buff) {
 /*
 ** Convert a number object to a Lua string, replacing the value at 'obj'
 */
-void luaO_tostring (lua_State *L, TValue *obj) {
+void moonO_tostring (lua_State *L, TValue *obj) {
   char buff[MAXNUMBER2STR];
   int len = tostringbuff(obj, buff);
-  setsvalue(L, obj, luaS_newlstr(L, buff, len));
+  setsvalue(L, obj, moonS_newlstr(L, buff, len));
 }
 
 
@@ -404,10 +404,10 @@ typedef struct BuffFS {
 */
 static void pushstr (BuffFS *buff, const char *str, size_t l) {
   lua_State *L = buff->L;
-  setsvalue2s(L, L->top, luaS_newlstr(L, str, l));
+  setsvalue2s(L, L->top, moonS_newlstr(L, str, l));
   L->top++;  /* may use one extra slot */
   buff->pushed++;
-  luaV_concat(L, buff->pushed);  /* join partial results into one */
+  moonV_concat(L, buff->pushed);  /* join partial results into one */
   buff->pushed = 1;
 }
 
@@ -467,7 +467,7 @@ static void addnum2buff (BuffFS *buff, TValue *num) {
 ** this function handles only '%d', '%c', '%f', '%p', '%s', and '%%'
    conventional formats, plus Lua-specific '%I' and '%U'
 */
-const char *luaO_pushvfstring (lua_State *L, const char *fmt, va_list argp) {
+const char *moonO_pushvfstring (lua_State *L, const char *fmt, va_list argp) {
   BuffFS buff;  /* holds last part of the result */
   const char *e;  /* points to next '%' */
   buff.pushed = buff.blen = 0;
@@ -514,7 +514,7 @@ const char *luaO_pushvfstring (lua_State *L, const char *fmt, va_list argp) {
       }
       case 'U': {  /* a 'long' as a UTF-8 sequence */
         char bf[UTF8BUFFSZ];
-        int len = luaO_utf8esc(bf, va_arg(argp, long));
+        int len = moonO_utf8esc(bf, va_arg(argp, long));
         addstr2buff(&buff, bf + UTF8BUFFSZ - len, len);
         break;
       }
@@ -536,11 +536,11 @@ const char *luaO_pushvfstring (lua_State *L, const char *fmt, va_list argp) {
 }
 
 
-const char *luaO_pushfstring (lua_State *L, const char *fmt, ...) {
+const char *moonO_pushfstring (lua_State *L, const char *fmt, ...) {
   const char *msg;
   va_list argp;
   va_start(argp, fmt);
-  msg = luaO_pushvfstring(L, fmt, argp);
+  msg = moonO_pushvfstring(L, fmt, argp);
   va_end(argp);
   return msg;
 }
@@ -554,7 +554,7 @@ const char *luaO_pushfstring (lua_State *L, const char *fmt, ...) {
 
 #define addstr(a,b,l)	( memcpy(a,b,(l) * sizeof(char)), a += (l) )
 
-void luaO_chunkid (char *out, const char *source, size_t srclen) {
+void moonO_chunkid (char *out, const char *source, size_t srclen) {
   size_t bufflen = LUA_IDSIZE;  /* free space in buffer */
   if (*source == '=') {  /* 'literal' source */
     if (srclen <= bufflen)  /* small enough? */

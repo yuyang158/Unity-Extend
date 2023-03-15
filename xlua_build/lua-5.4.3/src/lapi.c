@@ -332,7 +332,7 @@ LUA_API int moon_isuserdata (lua_State *L, int idx) {
 LUA_API int moon_rawequal (lua_State *L, int index1, int index2) {
   const TValue *o1 = index2value(L, index1);
   const TValue *o2 = index2value(L, index2);
-  return (isvalid(L, o1) && isvalid(L, o2)) ? luaV_rawequalobj(o1, o2) : 0;
+  return (isvalid(L, o1) && isvalid(L, o2)) ? moonV_rawequalobj(o1, o2) : 0;
 }
 
 
@@ -346,7 +346,7 @@ LUA_API void lua_arith (lua_State *L, int op) {
     api_incr_top(L);
   }
   /* first operand at top - 2, second at top - 1; result go to top - 2 */
-  luaO_arith(L, op, s2v(L->top - 2), s2v(L->top - 1), L->top - 2);
+  moonO_arith(L, op, s2v(L->top - 2), s2v(L->top - 1), L->top - 2);
   L->top--;  /* remove second operand */
   lua_unlock(L);
 }
@@ -361,9 +361,9 @@ LUA_API int moon_compare (lua_State *L, int index1, int index2, int op) {
   o2 = index2value(L, index2);
   if (isvalid(L, o1) && isvalid(L, o2)) {
     switch (op) {
-      case LUA_OPEQ: i = luaV_equalobj(L, o1, o2); break;
-      case LUA_OPLT: i = luaV_lessthan(L, o1, o2); break;
-      case LUA_OPLE: i = luaV_lessequal(L, o1, o2); break;
+      case LUA_OPEQ: i = moonV_equalobj(L, o1, o2); break;
+      case LUA_OPLT: i = moonV_lessthan(L, o1, o2); break;
+      case LUA_OPLE: i = moonV_lessequal(L, o1, o2); break;
       default: api_check(L, 0, "invalid option");
     }
   }
@@ -373,7 +373,7 @@ LUA_API int moon_compare (lua_State *L, int index1, int index2, int op) {
 
 
 LUA_API size_t moon_stringtonumber (lua_State *L, const char *s) {
-  size_t sz = luaO_str2num(s, s2v(L->top));
+  size_t sz = moonO_str2num(s, s2v(L->top));
   if (sz != 0)
     api_incr_top(L);
   return sz;
@@ -416,7 +416,7 @@ LUA_API const char *moon_tolstring (lua_State *L, int idx, size_t *len) {
       lua_unlock(L);
       return NULL;
     }
-    luaO_tostring(L, o);
+    moonO_tostring(L, o);
     luaC_checkGC(L);
     o = index2value(L, idx);  /* previous call may reallocate the stack */
   }
@@ -530,7 +530,7 @@ LUA_API void moon_pushinteger (lua_State *L, lua_Integer n) {
 LUA_API const char *moon_pushlstring (lua_State *L, const char *s, size_t len) {
   TString *ts;
   lua_lock(L);
-  ts = (len == 0) ? luaS_new(L, "") : luaS_newlstr(L, s, len);
+  ts = (len == 0) ? moonS_new(L, "") : moonS_newlstr(L, s, len);
   setsvalue2s(L, L->top, ts);
   api_incr_top(L);
   luaC_checkGC(L);
@@ -545,7 +545,7 @@ LUA_API const char *moon_pushstring (lua_State *L, const char *s) {
     setnilvalue(s2v(L->top));
   else {
     TString *ts;
-    ts = luaS_new(L, s);
+    ts = moonS_new(L, s);
     setsvalue2s(L, L->top, ts);
     s = getstr(ts);  /* internal copy's address */
   }
@@ -560,7 +560,7 @@ LUA_API const char *moon_pushvfstring (lua_State *L, const char *fmt,
                                       va_list argp) {
   const char *ret;
   lua_lock(L);
-  ret = luaO_pushvfstring(L, fmt, argp);
+  ret = moonO_pushvfstring(L, fmt, argp);
   luaC_checkGC(L);
   lua_unlock(L);
   return ret;
@@ -572,7 +572,7 @@ LUA_API const char *moon_pushfstring (lua_State *L, const char *fmt, ...) {
   va_list argp;
   lua_lock(L);
   va_start(argp, fmt);
-  ret = luaO_pushvfstring(L, fmt, argp);
+  ret = moonO_pushvfstring(L, fmt, argp);
   va_end(argp);
   luaC_checkGC(L);
   lua_unlock(L);
@@ -642,15 +642,15 @@ LUA_API int moon_pushthread (lua_State *L) {
 
 l_sinline int auxgetstr (lua_State *L, const TValue *t, const char *k) {
   const TValue *slot;
-  TString *str = luaS_new(L, k);
-  if (luaV_fastget(L, t, str, slot, moonH_getstr)) {
+  TString *str = moonS_new(L, k);
+  if (moonV_fastget(L, t, str, slot, moonH_getstr)) {
     setobj2s(L, L->top, slot);
     api_incr_top(L);
   }
   else {
     setsvalue2s(L, L->top, str);
     api_incr_top(L);
-    luaV_finishget(L, t, s2v(L->top - 1), L->top - 1, slot);
+    moonV_finishget(L, t, s2v(L->top - 1), L->top - 1, slot);
   }
   lua_unlock(L);
   return ttype(s2v(L->top - 1));
@@ -680,11 +680,11 @@ LUA_API int moon_gettable (lua_State *L, int idx) {
   TValue *t;
   lua_lock(L);
   t = index2value(L, idx);
-  if (luaV_fastget(L, t, s2v(L->top - 1), slot, moonH_get)) {
+  if (moonV_fastget(L, t, s2v(L->top - 1), slot, moonH_get)) {
     setobj2s(L, L->top - 1, slot);
   }
   else
-    luaV_finishget(L, t, s2v(L->top - 1), L->top - 1, slot);
+    moonV_finishget(L, t, s2v(L->top - 1), L->top - 1, slot);
   lua_unlock(L);
   return ttype(s2v(L->top - 1));
 }
@@ -701,13 +701,13 @@ LUA_API int moon_geti (lua_State *L, int idx, lua_Integer n) {
   const TValue *slot;
   lua_lock(L);
   t = index2value(L, idx);
-  if (luaV_fastgeti(L, t, n, slot)) {
+  if (moonV_fastgeti(L, t, n, slot)) {
     setobj2s(L, L->top, slot);
   }
   else {
     TValue aux;
     setivalue(&aux, n);
-    luaV_finishget(L, t, &aux, L->top, slot);
+    moonV_finishget(L, t, &aux, L->top, slot);
   }
   api_incr_top(L);
   lua_unlock(L);
@@ -832,16 +832,16 @@ LUA_API int moon_getiuservalue (lua_State *L, int idx, int n) {
 */
 static void auxsetstr (lua_State *L, const TValue *t, const char *k) {
   const TValue *slot;
-  TString *str = luaS_new(L, k);
+  TString *str = moonS_new(L, k);
   api_checknelems(L, 1);
-  if (luaV_fastget(L, t, str, slot, moonH_getstr)) {
-    luaV_finishfastset(L, t, slot, s2v(L->top - 1));
+  if (moonV_fastget(L, t, str, slot, moonH_getstr)) {
+    moonV_finishfastset(L, t, slot, s2v(L->top - 1));
     L->top--;  /* pop value */
   }
   else {
     setsvalue2s(L, L->top, str);  /* push 'str' (to make it a TValue) */
     api_incr_top(L);
-    luaV_finishset(L, t, s2v(L->top - 1), s2v(L->top - 2), slot);
+    moonV_finishset(L, t, s2v(L->top - 1), s2v(L->top - 2), slot);
     L->top -= 2;  /* pop value and key */
   }
   lua_unlock(L);  /* lock done by caller */
@@ -862,11 +862,11 @@ LUA_API void moon_settable (lua_State *L, int idx) {
   lua_lock(L);
   api_checknelems(L, 2);
   t = index2value(L, idx);
-  if (luaV_fastget(L, t, s2v(L->top - 2), slot, moonH_get)) {
-    luaV_finishfastset(L, t, slot, s2v(L->top - 1));
+  if (moonV_fastget(L, t, s2v(L->top - 2), slot, moonH_get)) {
+    moonV_finishfastset(L, t, slot, s2v(L->top - 1));
   }
   else
-    luaV_finishset(L, t, s2v(L->top - 2), s2v(L->top - 1), slot);
+    moonV_finishset(L, t, s2v(L->top - 2), s2v(L->top - 1), slot);
   L->top -= 2;  /* pop index and value */
   lua_unlock(L);
 }
@@ -884,13 +884,13 @@ LUA_API void moon_seti (lua_State *L, int idx, lua_Integer n) {
   lua_lock(L);
   api_checknelems(L, 1);
   t = index2value(L, idx);
-  if (luaV_fastgeti(L, t, n, slot)) {
-    luaV_finishfastset(L, t, slot, s2v(L->top - 1));
+  if (moonV_fastgeti(L, t, n, slot)) {
+    moonV_finishfastset(L, t, slot, s2v(L->top - 1));
   }
   else {
     TValue aux;
     setivalue(&aux, n);
-    luaV_finishset(L, t, &aux, s2v(L->top - 1), slot);
+    moonV_finishset(L, t, &aux, s2v(L->top - 1), slot);
   }
   L->top--;  /* pop value */
   lua_unlock(L);
@@ -951,7 +951,7 @@ LUA_API int moon_setmetatable (lua_State *L, int objindex) {
       hvalue(obj)->metatable = mt;
       if (mt) {
         luaC_objbarrier(L, gcvalue(obj), mt);
-        luaC_checkfinalizer(L, gcvalue(obj), mt);
+        moonC_checkfinalizer(L, gcvalue(obj), mt);
       }
       break;
     }
@@ -959,7 +959,7 @@ LUA_API int moon_setmetatable (lua_State *L, int objindex) {
       uvalue(obj)->metatable = mt;
       if (mt) {
         luaC_objbarrier(L, uvalue(obj), mt);
-        luaC_checkfinalizer(L, gcvalue(obj), mt);
+        moonC_checkfinalizer(L, gcvalue(obj), mt);
       }
       break;
     }
@@ -1093,7 +1093,7 @@ LUA_API int moon_load (lua_State *L, lua_Reader reader, void *data,
   int status;
   lua_lock(L);
   if (!chunkname) chunkname = "?";
-  luaZ_init(L, &z, reader, data);
+  moonZ_init(L, &z, reader, data);
   status = moonD_protectedparser(L, &z, chunkname, mode);
   if (status == LUA_OK) {  /* no errors? */
     LClosure *f = clLvalue(s2v(L->top - 1));  /* get newly created function */
@@ -1117,7 +1117,7 @@ LUA_API int moon_dump (lua_State *L, lua_Writer writer, void *data, int strip) {
   api_checknelems(L, 1);
   o = s2v(L->top - 1);
   if (isLfunction(o))
-    status = luaU_dump(L, getproto(o), writer, data, strip);
+    status = moonU_dump(L, getproto(o), writer, data, strip);
   else
     status = 1;
   lua_unlock(L);
@@ -1152,7 +1152,7 @@ LUA_API int moon_gc (lua_State *L, int what, ...) {
       break;
     }
     case LUA_GCCOLLECT: {
-      luaC_fullgc(L, 0);
+      moonC_fullgc(L, 0);
       break;
     }
     case LUA_GCCOUNT: {
@@ -1171,7 +1171,7 @@ LUA_API int moon_gc (lua_State *L, int what, ...) {
       g->gcstp = 0;  /* allow GC to run (GCSTPGC must be zero here) */
       if (data == 0) {
         moonE_setdebt(g, 0);  /* do a basic step */
-        luaC_step(L);
+        moonC_step(L);
       }
       else {  /* add 'data' to total debt */
         debt = cast(l_mem, data) * 1024 + g->GCdebt;
@@ -1207,7 +1207,7 @@ LUA_API int moon_gc (lua_State *L, int what, ...) {
         g->genminormul = minormul;
       if (majormul != 0)
         setgcparam(g->genmajormul, majormul);
-      luaC_changemode(L, KGC_GEN);
+      moonC_changemode(L, KGC_GEN);
       break;
     }
     case LUA_GCINC: {
@@ -1221,7 +1221,7 @@ LUA_API int moon_gc (lua_State *L, int what, ...) {
         setgcparam(g->gcstepmul, stepmul);
       if (stepsize != 0)
         g->gcstepsize = stepsize;
-      luaC_changemode(L, KGC_INC);
+      moonC_changemode(L, KGC_INC);
       break;
     }
     default: res = -1;  /* invalid option */
@@ -1289,9 +1289,9 @@ LUA_API void moon_concat (lua_State *L, int n) {
   lua_lock(L);
   api_checknelems(L, n);
   if (n > 0)
-    luaV_concat(L, n);
+    moonV_concat(L, n);
   else {  /* nothing to concatenate */
-    setsvalue2s(L, L->top, luaS_newlstr(L, "", 0));  /* push empty string */
+    setsvalue2s(L, L->top, moonS_newlstr(L, "", 0));  /* push empty string */
     api_incr_top(L);
   }
   luaC_checkGC(L);
@@ -1303,7 +1303,7 @@ LUA_API void moon_len (lua_State *L, int idx) {
   TValue *t;
   lua_lock(L);
   t = index2value(L, idx);
-  luaV_objlen(L, L->top, t);
+  moonV_objlen(L, L->top, t);
   api_incr_top(L);
   lua_unlock(L);
 }

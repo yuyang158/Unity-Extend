@@ -1,4 +1,4 @@
-/* Lua CJSON - JSON support for Lua
+﻿/* Lua CJSON - JSON support for Lua
  *
  * Copyright (c) 2010-2012  Mark Pulford <mark@kyne.com.au>
  *
@@ -201,7 +201,7 @@ static json_config_t *json_fetch_config(lua_State *l)
 
     cfg = (json_config_t *)moon_touserdata(l, lua_upvalueindex(1));
     if (!cfg)
-        luaL_error(l, "BUG: Unable to fetch CJSON configuration");
+        moonL_error(l, "BUG: Unable to fetch CJSON configuration");
 
     return cfg;
 }
@@ -228,7 +228,7 @@ static int json_integer_option(lua_State *l, int optindex, int *setting,
     int value;
 
     if (!lua_isnil(l, optindex)) {
-        value = luaL_checkinteger(l, optindex);
+        value = moonL_checkinteger(l, optindex);
         snprintf(errmsg, sizeof(errmsg), "expected integer between %d and %d", min, max);
         luaL_argcheck(l, min <= value && value <= max, 1, errmsg);
         *setting = value;
@@ -254,7 +254,7 @@ static int json_enum_option(lua_State *l, int optindex, int *setting,
         if (bool_true && lua_isboolean(l, optindex))
             *setting = moon_toboolean(l, optindex) * bool_true;
         else
-            *setting = luaL_checkoption(l, optindex, NULL, options);
+            *setting = moonL_checkoption(l, optindex, NULL, options);
     }
 
     if (bool_true && (*setting == 0 || *setting == bool_true))
@@ -454,7 +454,7 @@ static void json_encode_exception(lua_State *l, json_config_t *cfg, strbuf_t *js
 {
     if (!cfg->encode_keep_buffer)
         strbuf_free(json);
-    luaL_error(l, "Cannot serialise %s: %s",
+    moonL_error(l, "Cannot serialise %s: %s",
                   moon_typename(l, moon_type(l, lindex)), reason);
 }
 
@@ -556,7 +556,7 @@ static void json_check_encode_depth(lua_State *l, json_config_t *cfg,
     if (!cfg->encode_keep_buffer)
         strbuf_free(json);
 
-    luaL_error(l, "Cannot serialise, excessive nesting (%d)",
+    moonL_error(l, "Cannot serialise, excessive nesting (%d)",
                current_depth);
 }
 
@@ -1129,7 +1129,7 @@ static void json_throw_parse_error(lua_State *l, json_parse_t *json,
         found = json_token_type_name[token->type];
 
     /* Note: token->index is 0 based, display starting from 1 */
-    luaL_error(l, "Expected %s but found %s at character %d",
+    moonL_error(l, "Expected %s but found %s at character %d",
                exp, found, token->index + 1);
 }
 
@@ -1148,7 +1148,7 @@ static void json_decode_descend(lua_State *l, json_parse_t *json, int slots)
     }
 
     strbuf_free(json->tmp);
-    luaL_error(l, "Found too many nested data structures (%d) at character %d",
+    moonL_error(l, "Found too many nested data structures (%d) at character %d",
         json->current_depth, json->ptr - json->data);
 }
 
@@ -1279,7 +1279,7 @@ static int json_decode(lua_State *l)
     luaL_argcheck(l, moon_gettop(l) == 1, 1, "expected 1 argument");
 
     json.cfg = json_fetch_config(l);
-    json.data = luaL_checklstring(l, 1, &json_len);
+    json.data = moonL_checklstring(l, 1, &json_len);
     json.current_depth = 0;
     json.ptr = json.data;
 
@@ -1289,7 +1289,7 @@ static int json_decode(lua_State *l)
      * character is guaranteed to be ASCII (at worst: '"'). This is
      * still enough to detect whether the wrong encoding is in use. */
     if (json_len >= 2 && (!json.data[0] || !json.data[1]))
-        luaL_error(l, "JSON parser does not support UTF-16 or UTF-32");
+        moonL_error(l, "JSON parser does not support UTF-16 or UTF-32");
 
     /* Ensure the temporary buffer can hold the entire string.
      * This means we no longer need to do length checks since the decoded
@@ -1357,7 +1357,7 @@ static int json_protect_conversion(lua_State *l)
 
     /* Since we are not using a custom error handler, the only remaining
      * errors are memory related */
-    return luaL_error(l, "Memory allocation error in CJSON protected call");
+    return moonL_error(l, "Memory allocation error in CJSON protected call");
 }
 
 /* Return cjson module table */
@@ -1385,7 +1385,7 @@ static int lua_cjson_new(lua_State *l)
 
     /* Register functions with config data as upvalue */
     json_create_config(l);
-    luaL_setfuncs(l, reg, 1);
+    moonL_setfuncs(l, reg, 1);
 
     /* Set cjson.null */
     moon_pushlightuserdata(l, NULL);
@@ -1421,7 +1421,7 @@ static int lua_cjson_safe_new(lua_State *l)
     return 1;
 }
 
-CJSON_EXPORT int luaopen_cjson(lua_State *l)
+CJSON_EXPORT int moonopen_cjson(lua_State *l)
 {
     lua_cjson_new(l);
 
@@ -1435,7 +1435,7 @@ CJSON_EXPORT int luaopen_cjson(lua_State *l)
     return 1;
 }
 
-CJSON_EXPORT int luaopen_cjson_safe(lua_State *l)
+CJSON_EXPORT int moonopen_cjson_safe(lua_State *l)
 {
     lua_cjson_safe_new(l);
 

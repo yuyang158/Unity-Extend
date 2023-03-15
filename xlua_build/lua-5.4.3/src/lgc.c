@@ -1,4 +1,4 @@
-/*
+﻿/*
 ** $Id: lgc.c $
 ** Garbage Collector
 ** See Copyright Notice in lua.h
@@ -205,7 +205,7 @@ static int iscleared (global_State *g, const GCObject *o) {
 ** be done is generational mode, as its sweep does not distinguish
 ** whites from deads.)
 */
-void luaC_barrier_ (lua_State *L, GCObject *o, GCObject *v) {
+void moonC_barrier_ (lua_State *L, GCObject *o, GCObject *v) {
   global_State *g = G(L);
   lua_assert(isblack(o) && iswhite(v) && !isdead(g, v) && !isdead(g, o));
   if (keepinvariant(g)) {  /* must keep invariant? */
@@ -227,7 +227,7 @@ void luaC_barrier_ (lua_State *L, GCObject *o, GCObject *v) {
 ** barrier that moves collector backward, that is, mark the black object
 ** pointing to a white object as gray again.
 */
-void luaC_barrierback_ (lua_State *L, GCObject *o) {
+void moonC_barrierback_ (lua_State *L, GCObject *o) {
   global_State *g = G(L);
   lua_assert(isblack(o) && !isdead(g, o));
   lua_assert((g->gckind == KGC_GEN) == (isold(o) && getage(o) != G_TOUCHED1));
@@ -240,7 +240,7 @@ void luaC_barrierback_ (lua_State *L, GCObject *o) {
 }
 
 
-void luaC_fix (lua_State *L, GCObject *o) {
+void moonC_fix (lua_State *L, GCObject *o) {
   global_State *g = G(L);
   lua_assert(g->allgc == o);  /* object must be 1st in 'allgc' list! */
   set2gray(o);  /* they will be gray forever */
@@ -255,7 +255,7 @@ void luaC_fix (lua_State *L, GCObject *o) {
 ** create a new collectable object (with given type and size) and link
 ** it to 'allgc' list.
 */
-GCObject *luaC_newobj (lua_State *L, int tt, size_t sz) {
+GCObject *moonC_newobj (lua_State *L, int tt, size_t sz) {
   global_State *g = G(L);
   GCObject *o = cast(GCObject *, luaM_newobject(L, novariant(tt), sz));
   o->marked = luaC_white(g);
@@ -792,7 +792,7 @@ static void freeobj (lua_State *L, GCObject *o) {
     }
     case LUA_VSHRSTR: {
       TString *ts = gco2ts(o);
-      luaS_remove(L, ts);  /* remove it from hash table */
+      moonS_remove(L, ts);  /* remove it from hash table */
       luaM_freemem(L, ts, sizelstring(ts->shrlen));
       break;
     }
@@ -864,7 +864,7 @@ static void checkSizes (lua_State *L, global_State *g) {
   if (!g->gcemergency) {
     if (g->strt.nuse < g->strt.size / 4) {  /* string table too big? */
       l_mem olddebt = g->GCdebt;
-      luaS_resize(L, g->strt.size / 2);
+      moonS_resize(L, g->strt.size / 2);
       g->GCestimate += g->GCdebt - olddebt;  /* correct estimate */
     }
   }
@@ -902,7 +902,7 @@ static void GCTM (lua_State *L) {
   TValue v;
   lua_assert(!g->gcemergency);
   setgcovalue(L, &v, udata2finalize(g));
-  tm = luaT_gettmbyobj(L, &v, TM_GC);
+  tm = moonT_gettmbyobj(L, &v, TM_GC);
   if (!notm(tm)) {  /* is there a finalizer? */
     int status;
     lu_byte oldah = L->allowhook;
@@ -1008,7 +1008,7 @@ static void correctpointers (global_State *g, GCObject *o) {
 ** if object 'o' has a finalizer, remove it from 'allgc' list (must
 ** search the list to find it) and link it in 'finobj' list.
 */
-void luaC_checkfinalizer (lua_State *L, GCObject *o, Table *mt) {
+void moonC_checkfinalizer (lua_State *L, GCObject *o, Table *mt) {
   global_State *g = G(L);
   if (tofinalize(o) ||                 /* obj. is already marked... */
       gfasttm(g, mt, TM_GC) == NULL ||    /* or has no finalizer... */
@@ -1293,8 +1293,8 @@ static void atomic2gen (lua_State *L, global_State *g) {
 */
 static lu_mem entergen (lua_State *L, global_State *g) {
   lu_mem numobjs;
-  luaC_runtilstate(L, bitmask(GCSpause));  /* prepare to start a new cycle */
-  luaC_runtilstate(L, bitmask(GCSpropagate));  /* start new cycle */
+  moonC_runtilstate(L, bitmask(GCSpause));  /* prepare to start a new cycle */
+  moonC_runtilstate(L, bitmask(GCSpropagate));  /* start new cycle */
   numobjs = atomic(L);  /* propagates all and then do the atomic stuff */
   atomic2gen(L, g);
   return numobjs;
@@ -1321,7 +1321,7 @@ static void enterinc (global_State *g) {
 /*
 ** Change collector mode to 'newmode'.
 */
-void luaC_changemode (lua_State *L, int newmode) {
+void moonC_changemode (lua_State *L, int newmode) {
   global_State *g = G(L);
   if (newmode != g->gckind) {
     if (newmode == KGC_GEN)  /* entering generational mode? */
@@ -1377,7 +1377,7 @@ static void stepgenfull (lua_State *L, global_State *g) {
   lu_mem lastatomic = g->lastatomic;  /* count from last collection */
   if (g->gckind == KGC_GEN)  /* still in generational mode? */
     enterinc(g);  /* enter incremental mode */
-  luaC_runtilstate(L, bitmask(GCSpropagate));  /* start new cycle */
+  moonC_runtilstate(L, bitmask(GCSpropagate));  /* start new cycle */
   newatomic = atomic(L);  /* mark everybody */
   if (newatomic < lastatomic + (lastatomic >> 3)) {  /* good collection? */
     atomic2gen(L, g);  /* return to generational mode */
@@ -1386,7 +1386,7 @@ static void stepgenfull (lua_State *L, global_State *g) {
   else {  /* another bad collection; stay in incremental mode */
     g->GCestimate = gettotalbytes(g);  /* first estimate */;
     entersweep(L);
-    luaC_runtilstate(L, bitmask(GCSpause));  /* finish collection */
+    moonC_runtilstate(L, bitmask(GCSpause));  /* finish collection */
     setpause(g);
     g->lastatomic = newatomic;
   }
@@ -1501,10 +1501,10 @@ static void deletelist (lua_State *L, GCObject *p, GCObject *limit) {
 ** Call all finalizers of the objects in the given Lua state, and
 ** then free all objects, except for the main thread.
 */
-void luaC_freeallobjects (lua_State *L) {
+void moonC_freeallobjects (lua_State *L) {
   global_State *g = G(L);
   g->gcstp = GCSTPCLS;  /* no extra finalizers after here */
-  luaC_changemode(L, KGC_INC);
+  moonC_changemode(L, KGC_INC);
   separatetobefnz(g, 1);  /* separate all objects with finalizers */
   lua_assert(g->finobj == NULL);
   callallpendingfinalizers(L);
@@ -1551,7 +1551,7 @@ static lu_mem atomic (lua_State *L) {
   /* clear values from resurrected weak tables */
   clearbyvalues(g, g->weak, origweak);
   clearbyvalues(g, g->allweak, origall);
-  luaS_clearcache(g);
+  moonS_clearcache(g);
   g->currentwhite = cast_byte(otherwhite(g));  /* flip current white */
   lua_assert(g->gray == NULL);
   return work;  /* estimate of slots marked by 'atomic' */
@@ -1642,7 +1642,7 @@ static lu_mem singlestep (lua_State *L) {
 ** advances the garbage collector until it reaches a state allowed
 ** by 'statemask'
 */
-void luaC_runtilstate (lua_State *L, int statesmask) {
+void moonC_runtilstate (lua_State *L, int statesmask) {
   global_State *g = G(L);
   while (!testbit(statesmask, g->gcstate))
     singlestep(L);
@@ -1678,7 +1678,7 @@ static void incstep (lua_State *L, global_State *g) {
 /*
 ** performs a basic GC step if collector is running
 */
-void luaC_step (lua_State *L) {
+void moonC_step (lua_State *L) {
   global_State *g = G(L);
   lua_assert(!g->gcemergency);
   if (gcrunning(g)) {  /* running? */
@@ -1701,11 +1701,11 @@ static void fullinc (lua_State *L, global_State *g) {
   if (keepinvariant(g))  /* black objects? */
     entersweep(L); /* sweep everything to turn them back to white */
   /* finish any pending sweep phase to start a new cycle */
-  luaC_runtilstate(L, bitmask(GCSpause));
-  luaC_runtilstate(L, bitmask(GCScallfin));  /* run up to finalizers */
+  moonC_runtilstate(L, bitmask(GCSpause));
+  moonC_runtilstate(L, bitmask(GCScallfin));  /* run up to finalizers */
   /* estimate must be correct after a full GC cycle */
   lua_assert(g->GCestimate == gettotalbytes(g));
-  luaC_runtilstate(L, bitmask(GCSpause));  /* finish collection */
+  moonC_runtilstate(L, bitmask(GCSpause));  /* finish collection */
   setpause(g);
 }
 
@@ -1715,7 +1715,7 @@ static void fullinc (lua_State *L, global_State *g) {
 ** some operations which could change the interpreter state in some
 ** unexpected ways (running finalizers and shrinking some structures).
 */
-void luaC_fullgc (lua_State *L, int isemergency) {
+void moonC_fullgc (lua_State *L, int isemergency) {
   global_State *g = G(L);
   lua_assert(!g->gcemergency);
   g->gcemergency = isemergency;  /* set flag */

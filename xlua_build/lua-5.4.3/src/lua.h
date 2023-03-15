@@ -389,7 +389,7 @@ LUA_API void (moon_closeslot) (lua_State *L, int idx);
 
 #define moon_insert(L,idx)	moon_rotate(L, (idx), 1)
 
-#define lua_remove(L,idx)	(moon_rotate(L, (idx), -1), lua_pop(L, 1))
+#define moon_remove(L,idx)	(moon_rotate(L, (idx), -1), lua_pop(L, 1))
 
 #define moon_replace(L,idx)	(moon_copy(L, -1, (idx)), lua_pop(L, 1))
 

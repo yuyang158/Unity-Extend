@@ -92,9 +92,9 @@ static const char *utf8_decode (const char *s, utfint *val, int strict) {
 static int utflen (lua_State *L) {
   lua_Integer n = 0;  /* counter for the number of characters */
   size_t len;  /* string length in bytes */
-  const char *s = luaL_checklstring(L, 1, &len);
-  lua_Integer posi = u_posrelat(luaL_optinteger(L, 2, 1), len);
-  lua_Integer posj = u_posrelat(luaL_optinteger(L, 3, -1), len);
+  const char *s = moonL_checklstring(L, 1, &len);
+  lua_Integer posi = u_posrelat(moonL_optinteger(L, 2, 1), len);
+  lua_Integer posj = u_posrelat(moonL_optinteger(L, 3, -1), len);
   int lax = moon_toboolean(L, 4);
   luaL_argcheck(L, 1 <= posi && --posi <= (lua_Integer)len, 2,
                    "initial position out of bounds");
@@ -121,9 +121,9 @@ static int utflen (lua_State *L) {
 */
 static int codepoint (lua_State *L) {
   size_t len;
-  const char *s = luaL_checklstring(L, 1, &len);
-  lua_Integer posi = u_posrelat(luaL_optinteger(L, 2, 1), len);
-  lua_Integer pose = u_posrelat(luaL_optinteger(L, 3, posi), len);
+  const char *s = moonL_checklstring(L, 1, &len);
+  lua_Integer posi = u_posrelat(moonL_optinteger(L, 2, 1), len);
+  lua_Integer pose = u_posrelat(moonL_optinteger(L, 3, posi), len);
   int lax = moon_toboolean(L, 4);
   int n;
   const char *se;
@@ -131,16 +131,16 @@ static int codepoint (lua_State *L) {
   luaL_argcheck(L, pose <= (lua_Integer)len, 3, "out of bounds");
   if (posi > pose) return 0;  /* empty interval; return no values */
   if (pose - posi >= INT_MAX)  /* (lua_Integer -> int) overflow? */
-    return luaL_error(L, "string slice too long");
+    return moonL_error(L, "string slice too long");
   n = (int)(pose -  posi) + 1;  /* upper bound for number of returns */
-  luaL_checkstack(L, n, "string slice too long");
+  moonL_checkstack(L, n, "string slice too long");
   n = 0;  /* count the number of returns */
   se = s + pose;  /* string end */
   for (s += posi - 1; s < se;) {
     utfint code;
     s = utf8_decode(s, &code, !lax);
     if (s == NULL)
-      return luaL_error(L, "invalid UTF-8 code");
+      return moonL_error(L, "invalid UTF-8 code");
     moon_pushinteger(L, code);
     n++;
   }
@@ -149,7 +149,7 @@ static int codepoint (lua_State *L) {
 
 
 static void pushutfchar (lua_State *L, int arg) {
-  lua_Unsigned code = (lua_Unsigned)luaL_checkinteger(L, arg);
+  lua_Unsigned code = (lua_Unsigned)moonL_checkinteger(L, arg);
   luaL_argcheck(L, code <= MAXUTF, arg, "value out of range");
   moon_pushfstring(L, "%U", (long)code);
 }
@@ -165,12 +165,12 @@ static int utfchar (lua_State *L) {
   else {
     int i;
     luaL_Buffer b;
-    luaL_buffinit(L, &b);
+    moonL_buffinit(L, &b);
     for (i = 1; i <= n; i++) {
       pushutfchar(L, i);
-      luaL_addvalue(&b);
+      moonL_addvalue(&b);
     }
-    luaL_pushresult(&b);
+    moonL_pushresult(&b);
   }
   return 1;
 }
@@ -182,10 +182,10 @@ static int utfchar (lua_State *L) {
 */
 static int byteoffset (lua_State *L) {
   size_t len;
-  const char *s = luaL_checklstring(L, 1, &len);
-  lua_Integer n  = luaL_checkinteger(L, 2);
+  const char *s = moonL_checklstring(L, 1, &len);
+  lua_Integer n  = moonL_checkinteger(L, 2);
   lua_Integer posi = (n >= 0) ? 1 : len + 1;
-  posi = u_posrelat(luaL_optinteger(L, 3, posi), len);
+  posi = u_posrelat(moonL_optinteger(L, 3, posi), len);
   luaL_argcheck(L, 1 <= posi && --posi <= (lua_Integer)len, 3,
                    "position out of bounds");
   if (n == 0) {
@@ -194,7 +194,7 @@ static int byteoffset (lua_State *L) {
   }
   else {
     if (iscont(s + posi))
-      return luaL_error(L, "initial position is a continuation byte");
+      return moonL_error(L, "initial position is a continuation byte");
     if (n < 0) {
        while (n < 0 && posi > 0) {  /* move back */
          do {  /* find beginning of previous character */
@@ -223,7 +223,7 @@ static int byteoffset (lua_State *L) {
 
 static int iter_aux (lua_State *L, int strict) {
   size_t len;
-  const char *s = luaL_checklstring(L, 1, &len);
+  const char *s = moonL_checklstring(L, 1, &len);
   lua_Unsigned n = (lua_Unsigned)lua_tointeger(L, 2);
   if (n < len) {
     while (iscont(s + n)) n++;  /* skip continuation bytes */
@@ -234,7 +234,7 @@ static int iter_aux (lua_State *L, int strict) {
     utfint code;
     const char *next = utf8_decode(s + n, &code, strict);
     if (next == NULL)
-      return luaL_error(L, "invalid UTF-8 code");
+      return moonL_error(L, "invalid UTF-8 code");
     moon_pushinteger(L, n + 1);
     moon_pushinteger(L, code);
     return 2;

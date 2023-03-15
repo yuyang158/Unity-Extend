@@ -21,12 +21,12 @@
 #include "lualib.h"
 
 
-static int luaB_print (lua_State *L) {
+static int moonB_print (lua_State *L) {
   int n = moon_gettop(L);  /* number of arguments */
   int i;
   for (i = 1; i <= n; i++) {  /* for each argument */
     size_t l;
-    const char *s = luaL_tolstring(L, i, &l);  /* convert it to string */
+    const char *s = moonL_tolstring(L, i, &l);  /* convert it to string */
     if (i > 1)  /* not the first element? */
       lua_writestring("\t", 1);  /* add a tab before it */
     lua_writestring(s, l);  /* print it */
@@ -42,7 +42,7 @@ static int luaB_print (lua_State *L) {
 ** Check first for errors; otherwise an error may interrupt
 ** the composition of a warning, leaving it unfinished.
 */
-static int luaB_warn (lua_State *L) {
+static int moonB_warn (lua_State *L) {
   int n = moon_gettop(L);  /* number of arguments */
   int i;
   luaL_checkstring(L, 1);  /* at least one argument */
@@ -78,7 +78,7 @@ static const char *b_str2int (const char *s, int base, lua_Integer *pn) {
 }
 
 
-static int luaB_tonumber (lua_State *L) {
+static int moonB_tonumber (lua_State *L) {
   if (lua_isnoneornil(L, 2)) {  /* standard conversion? */
     if (moon_type(L, 1) == LUA_TNUMBER) {  /* already a number? */
       moon_settop(L, 1);  /* yes; return it */
@@ -90,15 +90,15 @@ static int luaB_tonumber (lua_State *L) {
       if (s != NULL && moon_stringtonumber(L, s) == l + 1)
         return 1;  /* successful conversion to number */
       /* else not a number */
-      luaL_checkany(L, 1);  /* (but there must be some parameter) */
+      moonL_checkany(L, 1);  /* (but there must be some parameter) */
     }
   }
   else {
     size_t l;
     const char *s;
     lua_Integer n = 0;  /* to avoid warnings */
-    lua_Integer base = luaL_checkinteger(L, 2);
-    luaL_checktype(L, 1, LUA_TSTRING);  /* no numbers as strings */
+    lua_Integer base = moonL_checkinteger(L, 2);
+    moonL_checktype(L, 1, LUA_TSTRING);  /* no numbers as strings */
     s = moon_tolstring(L, 1, &l);
     luaL_argcheck(L, 2 <= base && base <= 36, 2, "base out of range");
     if (b_str2int(s, (int)base, &n) == s + l) {
@@ -111,11 +111,11 @@ static int luaB_tonumber (lua_State *L) {
 }
 
 
-static int luaB_error (lua_State *L) {
-  int level = (int)luaL_optinteger(L, 2, 1);
+static int moonB_error (lua_State *L) {
+  int level = (int)moonL_optinteger(L, 2, 1);
   moon_settop(L, 1);
   if (moon_type(L, 1) == LUA_TSTRING && level > 0) {
-    luaL_where(L, level);   /* add extra information */
+    moonL_where(L, level);   /* add extra information */
     moon_pushvalue(L, 1);
     moon_concat(L, 2);
   }
@@ -123,38 +123,38 @@ static int luaB_error (lua_State *L) {
 }
 
 
-static int luaB_getmetatable (lua_State *L) {
-  luaL_checkany(L, 1);
+static int moonB_getmetatable (lua_State *L) {
+  moonL_checkany(L, 1);
   if (!moon_getmetatable(L, 1)) {
     moon_pushnil(L);
     return 1;  /* no metatable */
   }
-  luaL_getmetafield(L, 1, "__metatable");
+  moonL_getmetafield(L, 1, "__metatable");
   return 1;  /* returns either __metatable field (if present) or metatable */
 }
 
 
-static int luaB_setmetatable (lua_State *L) {
+static int moonB_setmetatable (lua_State *L) {
   int t = moon_type(L, 2);
-  luaL_checktype(L, 1, LUA_TTABLE);
+  moonL_checktype(L, 1, LUA_TTABLE);
   luaL_argexpected(L, t == LUA_TNIL || t == LUA_TTABLE, 2, "nil or table");
-  if (l_unlikely(luaL_getmetafield(L, 1, "__metatable") != LUA_TNIL))
-    return luaL_error(L, "cannot change a protected metatable");
+  if (l_unlikely(moonL_getmetafield(L, 1, "__metatable") != LUA_TNIL))
+    return moonL_error(L, "cannot change a protected metatable");
   moon_settop(L, 2);
   moon_setmetatable(L, 1);
   return 1;
 }
 
 
-static int luaB_rawequal (lua_State *L) {
-  luaL_checkany(L, 1);
-  luaL_checkany(L, 2);
+static int moonB_rawequal (lua_State *L) {
+  moonL_checkany(L, 1);
+  moonL_checkany(L, 2);
   moon_pushboolean(L, moon_rawequal(L, 1, 2));
   return 1;
 }
 
 
-static int luaB_rawlen (lua_State *L) {
+static int moonB_rawlen (lua_State *L) {
   int t = moon_type(L, 1);
   luaL_argexpected(L, t == LUA_TTABLE || t == LUA_TSTRING, 1,
                       "table or string");
@@ -163,18 +163,18 @@ static int luaB_rawlen (lua_State *L) {
 }
 
 
-static int luaB_rawget (lua_State *L) {
-  luaL_checktype(L, 1, LUA_TTABLE);
-  luaL_checkany(L, 2);
+static int moonB_rawget (lua_State *L) {
+  moonL_checktype(L, 1, LUA_TTABLE);
+  moonL_checkany(L, 2);
   moon_settop(L, 2);
   moon_rawget(L, 1);
   return 1;
 }
 
-static int luaB_rawset (lua_State *L) {
-  luaL_checktype(L, 1, LUA_TTABLE);
-  luaL_checkany(L, 2);
-  luaL_checkany(L, 3);
+static int moonB_rawset (lua_State *L) {
+  moonL_checktype(L, 1, LUA_TTABLE);
+  moonL_checkany(L, 2);
+  moonL_checkany(L, 3);
   moon_settop(L, 3);
   moon_rawset(L, 1);
   return 1;
@@ -196,14 +196,14 @@ static int pushmode (lua_State *L, int oldmode) {
 */
 #define checkvalres(res) { if (res == -1) break; }
 
-static int luaB_collectgarbage (lua_State *L) {
+static int moonB_collectgarbage (lua_State *L) {
   static const char *const opts[] = {"stop", "restart", "collect",
     "count", "step", "setpause", "setstepmul",
     "isrunning", "generational", "incremental", NULL};
   static const int optsnum[] = {LUA_GCSTOP, LUA_GCRESTART, LUA_GCCOLLECT,
     LUA_GCCOUNT, LUA_GCSTEP, LUA_GCSETPAUSE, LUA_GCSETSTEPMUL,
     LUA_GCISRUNNING, LUA_GCGEN, LUA_GCINC};
-  int o = optsnum[luaL_checkoption(L, 1, "collect", opts)];
+  int o = optsnum[moonL_checkoption(L, 1, "collect", opts)];
   switch (o) {
     case LUA_GCCOUNT: {
       int k = moon_gc(L, o);
@@ -213,7 +213,7 @@ static int luaB_collectgarbage (lua_State *L) {
       return 1;
     }
     case LUA_GCSTEP: {
-      int step = (int)luaL_optinteger(L, 2, 0);
+      int step = (int)moonL_optinteger(L, 2, 0);
       int res = moon_gc(L, o, step);
       checkvalres(res);
       moon_pushboolean(L, res);
@@ -221,7 +221,7 @@ static int luaB_collectgarbage (lua_State *L) {
     }
     case LUA_GCSETPAUSE:
     case LUA_GCSETSTEPMUL: {
-      int p = (int)luaL_optinteger(L, 2, 0);
+      int p = (int)moonL_optinteger(L, 2, 0);
       int previous = moon_gc(L, o, p);
       checkvalres(previous);
       moon_pushinteger(L, previous);
@@ -234,14 +234,14 @@ static int luaB_collectgarbage (lua_State *L) {
       return 1;
     }
     case LUA_GCGEN: {
-      int minormul = (int)luaL_optinteger(L, 2, 0);
-      int majormul = (int)luaL_optinteger(L, 3, 0);
+      int minormul = (int)moonL_optinteger(L, 2, 0);
+      int majormul = (int)moonL_optinteger(L, 3, 0);
       return pushmode(L, moon_gc(L, o, minormul, majormul));
     }
     case LUA_GCINC: {
-      int pause = (int)luaL_optinteger(L, 2, 0);
-      int stepmul = (int)luaL_optinteger(L, 3, 0);
-      int stepsize = (int)luaL_optinteger(L, 4, 0);
+      int pause = (int)moonL_optinteger(L, 2, 0);
+      int stepmul = (int)moonL_optinteger(L, 3, 0);
+      int stepsize = (int)moonL_optinteger(L, 4, 0);
       return pushmode(L, moon_gc(L, o, pause, stepmul, stepsize));
     }
     default: {
@@ -256,7 +256,7 @@ static int luaB_collectgarbage (lua_State *L) {
 }
 
 
-static int luaB_type (lua_State *L) {
+static int moonB_type (lua_State *L) {
   int t = moon_type(L, 1);
   luaL_argcheck(L, t != LUA_TNONE, 1, "value expected");
   moon_pushstring(L, moon_typename(L, t));
@@ -264,8 +264,8 @@ static int luaB_type (lua_State *L) {
 }
 
 
-static int luaB_next (lua_State *L) {
-  luaL_checktype(L, 1, LUA_TTABLE);
+static int moonB_next (lua_State *L) {
+  moonL_checktype(L, 1, LUA_TTABLE);
   moon_settop(L, 2);  /* create a 2nd argument if there isn't one */
   if (moon_next(L, 1))
     return 2;
@@ -281,10 +281,10 @@ static int pairscont (lua_State *L, int status, lua_KContext k) {
   return 3;
 }
 
-static int luaB_pairs (lua_State *L) {
-  luaL_checkany(L, 1);
-  if (luaL_getmetafield(L, 1, "__pairs") == LUA_TNIL) {  /* no metamethod? */
-    lua_pushcfunction(L, luaB_next);  /* will return generator, */
+static int moonB_pairs (lua_State *L) {
+  moonL_checkany(L, 1);
+  if (moonL_getmetafield(L, 1, "__pairs") == LUA_TNIL) {  /* no metamethod? */
+    lua_pushcfunction(L, moonB_next);  /* will return generator, */
     moon_pushvalue(L, 1);  /* state, */
     moon_pushnil(L);  /* and initial value */
   }
@@ -300,7 +300,7 @@ static int luaB_pairs (lua_State *L) {
 ** Traversal function for 'ipairs'
 */
 static int ipairsaux (lua_State *L) {
-  lua_Integer i = luaL_checkinteger(L, 2);
+  lua_Integer i = moonL_checkinteger(L, 2);
   i = luaL_intop(+, i, 1);
   moon_pushinteger(L, i);
   return (moon_geti(L, 1, i) == LUA_TNIL) ? 1 : 2;
@@ -311,8 +311,8 @@ static int ipairsaux (lua_State *L) {
 ** 'ipairs' function. Returns 'ipairsaux', given "table", 0.
 ** (The given "table" may not be a table.)
 */
-static int luaB_ipairs (lua_State *L) {
-  luaL_checkany(L, 1);
+static int moonB_ipairs (lua_State *L) {
+  moonL_checkany(L, 1);
   lua_pushcfunction(L, ipairsaux);  /* iteration function */
   moon_pushvalue(L, 1);  /* state */
   moon_pushinteger(L, 0);  /* initial value */
@@ -337,11 +337,11 @@ static int load_aux (lua_State *L, int status, int envidx) {
 }
 
 
-static int luaB_loadfile (lua_State *L) {
+static int moonB_loadfile (lua_State *L) {
   const char *fname = luaL_optstring(L, 1, NULL);
   const char *mode = luaL_optstring(L, 2, NULL);
   int env = (!lua_isnone(L, 3) ? 3 : 0);  /* 'env' index or 0 if no 'env' */
-  int status = luaL_loadfilex(L, fname, mode);
+  int status = moonL_loadfilex(L, fname, mode);
   return load_aux(L, status, env);
 }
 
@@ -369,7 +369,7 @@ static int luaB_loadfile (lua_State *L) {
 */
 static const char *generic_reader (lua_State *L, void *ud, size_t *size) {
   (void)(ud);  /* not used */
-  luaL_checkstack(L, 2, "too many nested functions");
+  moonL_checkstack(L, 2, "too many nested functions");
   moon_pushvalue(L, 1);  /* get function */
   lua_call(L, 0, 1);  /* call it */
   if (lua_isnil(L, -1)) {
@@ -378,13 +378,13 @@ static const char *generic_reader (lua_State *L, void *ud, size_t *size) {
     return NULL;
   }
   else if (l_unlikely(!moon_isstring(L, -1)))
-    luaL_error(L, "reader function must return a string");
+    moonL_error(L, "reader function must return a string");
   moon_replace(L, RESERVEDSLOT);  /* save string in reserved slot */
   return moon_tolstring(L, RESERVEDSLOT, size);
 }
 
 
-static int luaB_load (lua_State *L) {
+static int moonB_load (lua_State *L) {
   int status;
   size_t l;
   const char *s = moon_tolstring(L, 1, &l);
@@ -392,11 +392,11 @@ static int luaB_load (lua_State *L) {
   int env = (!lua_isnone(L, 4) ? 4 : 0);  /* 'env' index or 0 if no 'env' */
   if (s != NULL) {  /* loading a string? */
     const char *chunkname = luaL_optstring(L, 2, s);
-    status = luaL_loadbufferx(L, s, l, chunkname, mode);
+    status = moonL_loadbufferx(L, s, l, chunkname, mode);
   }
   else {  /* loading from a reader function */
     const char *chunkname = luaL_optstring(L, 2, "=(load)");
-    luaL_checktype(L, 1, LUA_TFUNCTION);
+    moonL_checktype(L, 1, LUA_TFUNCTION);
     moon_settop(L, RESERVEDSLOT);  /* create reserved slot */
     status = moon_load(L, generic_reader, NULL, chunkname, mode);
   }
@@ -412,7 +412,7 @@ static int dofilecont (lua_State *L, int d1, lua_KContext d2) {
 }
 
 
-static int luaB_dofile (lua_State *L) {
+static int moonB_dofile (lua_State *L) {
   const char *fname = luaL_optstring(L, 1, NULL);
   moon_settop(L, 1);
   if (l_unlikely(luaL_loadfile(L, fname) != LUA_OK))
@@ -422,27 +422,27 @@ static int luaB_dofile (lua_State *L) {
 }
 
 
-static int luaB_assert (lua_State *L) {
+static int moonB_assert (lua_State *L) {
   if (l_likely(moon_toboolean(L, 1)))  /* condition is true? */
     return moon_gettop(L);  /* return all arguments */
   else {  /* error */
-    luaL_checkany(L, 1);  /* there must be a condition */
-    lua_remove(L, 1);  /* remove it */
+    moonL_checkany(L, 1);  /* there must be a condition */
+    moon_remove(L, 1);  /* remove it */
     lua_pushliteral(L, "assertion failed!");  /* default message */
     moon_settop(L, 1);  /* leave only message (default if no other one) */
-    return luaB_error(L);  /* call 'error' */
+    return moonB_error(L);  /* call 'error' */
   }
 }
 
 
-static int luaB_select (lua_State *L) {
+static int moonB_select (lua_State *L) {
   int n = moon_gettop(L);
   if (moon_type(L, 1) == LUA_TSTRING && *lua_tostring(L, 1) == '#') {
     moon_pushinteger(L, n-1);
     return 1;
   }
   else {
-    lua_Integer i = luaL_checkinteger(L, 1);
+    lua_Integer i = moonL_checkinteger(L, 1);
     if (i < 0) i = n + i;
     else if (i > n) i = n;
     luaL_argcheck(L, 1 <= i, 1, "index out of range");
@@ -469,9 +469,9 @@ static int finishpcall (lua_State *L, int status, lua_KContext extra) {
 }
 
 
-static int luaB_pcall (lua_State *L) {
+static int moonB_pcall (lua_State *L) {
   int status;
-  luaL_checkany(L, 1);
+  moonL_checkany(L, 1);
   moon_pushboolean(L, 1);  /* first result if no errors */
   moon_insert(L, 1);  /* put it in place */
   status = moon_pcallk(L, moon_gettop(L) - 2, LUA_MULTRET, 0, 0, finishpcall);
@@ -484,10 +484,10 @@ static int luaB_pcall (lua_State *L) {
 ** stack will have <f, err, true, f, [args...]>; so, the function passes
 ** 2 to 'finishpcall' to skip the 2 first values when returning results.
 */
-static int luaB_xpcall (lua_State *L) {
+static int moonB_xpcall (lua_State *L) {
   int status;
   int n = moon_gettop(L);
-  luaL_checktype(L, 2, LUA_TFUNCTION);  /* check error function */
+  moonL_checktype(L, 2, LUA_TFUNCTION);  /* check error function */
   moon_pushboolean(L, 1);  /* first result */
   moon_pushvalue(L, 1);  /* function */
   moon_rotate(L, 3, 2);  /* move them below function's arguments */
@@ -497,36 +497,36 @@ static int luaB_xpcall (lua_State *L) {
 
 
 static int luaB_tostring (lua_State *L) {
-  luaL_checkany(L, 1);
-  luaL_tolstring(L, 1, NULL);
+  moonL_checkany(L, 1);
+  moonL_tolstring(L, 1, NULL);
   return 1;
 }
 
 
 static const luaL_Reg base_funcs[] = {
-  {"assert", luaB_assert},
-  {"collectgarbage", luaB_collectgarbage},
-  {"dofile", luaB_dofile},
-  {"error", luaB_error},
-  {"getmetatable", luaB_getmetatable},
-  {"ipairs", luaB_ipairs},
-  {"loadfile", luaB_loadfile},
-  {"load", luaB_load},
-  {"next", luaB_next},
-  {"pairs", luaB_pairs},
-  {"pcall", luaB_pcall},
-  {"print", luaB_print},
-  {"warn", luaB_warn},
-  {"rawequal", luaB_rawequal},
-  {"rawlen", luaB_rawlen},
-  {"rawget", luaB_rawget},
-  {"rawset", luaB_rawset},
-  {"select", luaB_select},
-  {"setmetatable", luaB_setmetatable},
-  {"tonumber", luaB_tonumber},
+  {"assert", moonB_assert},
+  {"collectgarbage", moonB_collectgarbage},
+  {"dofile", moonB_dofile},
+  {"error", moonB_error},
+  {"getmetatable", moonB_getmetatable},
+  {"ipairs", moonB_ipairs},
+  {"loadfile", moonB_loadfile},
+  {"load", moonB_load},
+  {"next", moonB_next},
+  {"pairs", moonB_pairs},
+  {"pcall", moonB_pcall},
+  {"print", moonB_print},
+  {"warn", moonB_warn},
+  {"rawequal", moonB_rawequal},
+  {"rawlen", moonB_rawlen},
+  {"rawget", moonB_rawget},
+  {"rawset", moonB_rawset},
+  {"select", moonB_select},
+  {"setmetatable", moonB_setmetatable},
+  {"tonumber", moonB_tonumber},
   {"tostring", luaB_tostring},
-  {"type", luaB_type},
-  {"xpcall", luaB_xpcall},
+  {"type", moonB_type},
+  {"xpcall", moonB_xpcall},
   /* placeholders */
   {LUA_GNAME, NULL},
   {"_VERSION", NULL},
@@ -537,7 +537,7 @@ static const luaL_Reg base_funcs[] = {
 LUAMOD_API int moonopen_base (lua_State *L) {
   /* open lib into global table */
   lua_pushglobaltable(L);
-  luaL_setfuncs(L, base_funcs, 0);
+  moonL_setfuncs(L, base_funcs, 0);
   /* set global _G */
   moon_pushvalue(L, -1);
   moon_setfield(L, -2, LUA_GNAME);
