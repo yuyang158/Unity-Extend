@@ -73,7 +73,7 @@ static int chronos_nanotime(lua_State *L)
     const double multiplier = 1.0 / 1e9;
 
     if (clock_gettime(CLOCK_MONOTONIC, &t_info) != 0) {
-        return luaL_error(L, "clock_gettime() failed:%s", strerror(errno));
+        return moonL_error(L, "clock_gettime() failed:%s", strerror(errno));
     }
     moon_pushnumber(
         L,
@@ -84,7 +84,7 @@ static int chronos_nanotime(lua_State *L)
 #else
     struct timeval t_info;
     if (gettimeofday(&t_info, NULL) < 0) {
-        return luaL_error(L, "gettimeofday() failed!:%s", strerror(errno));
+        return moonL_error(L, "gettimeofday() failed!:%s", strerror(errno));
     };
     moon_pushnumber(L, (lua_Number)t_info.tv_sec + t_info.tv_usec / 1.e6);
     return 1;

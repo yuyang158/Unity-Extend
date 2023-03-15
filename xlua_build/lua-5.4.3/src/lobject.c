@@ -152,7 +152,7 @@ static int isneg (const char **s) {
 ** ===================================================================
 */
 
-#if !defined(lua_strx2number)
+#if !defined(moon_strx2number)
 
 /* maximum number of significant digits to read (to avoid overflows
    even with single floats) */
