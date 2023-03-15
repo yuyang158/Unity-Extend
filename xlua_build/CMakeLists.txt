@@ -194,7 +194,7 @@ source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} XLUA_CORE)
 if (APPLE)
     if (IOS)
         set(CMAKE_OSX_ARCHITECTURES "$(ARCHS_STANDARD)")
-        add_library(xlua STATIC
+        add_library(moon STATIC
            ${LUA_CORE}
            ${LUA_LIB}
            # ${LUA_SOCKET}
@@ -205,7 +205,7 @@ if (APPLE)
     else ()
         ADD_DEFINITIONS(-DLUA_USE_MACOSX) #osx platform emmylua debugger must have this option or can not load cpath
         set(CMAKE_OSX_ARCHITECTURES "$(ARCHS_STANDARD_64_BIT)")
-        add_library(xlua MODULE
+        add_library(moon MODULE
             ${LUA_CORE}
             ${LUA_LIB}
             #${LUA_SOCKET}
@@ -217,7 +217,7 @@ if (APPLE)
         #set_target_properties ( xlua PROPERTIES MACOSX_RPATH TRUE )
     endif ()
 elseif ("${CMAKE_SYSTEM_NAME}" STREQUAL "Switch")
-    add_library(xlua STATIC
+    add_library(moon STATIC
         ${LUA_CORE}
         ${LUA_LIB}
         ${XLUA_CORE}
@@ -225,7 +225,7 @@ elseif ("${CMAKE_SYSTEM_NAME}" STREQUAL "Switch")
     )
     target_compile_options(xlua PRIVATE -m64 -mcpu=cortex-a57+fp+simd+crypto+crc -fno-common -fno-short-enums -ffunction-sections -fdata-sections -fPIC -fms-extensions)
 else ( )
-    add_library(xlua SHARED
+    add_library(moon SHARED
         ${LUA_CORE}
         ${LUA_LIB}
         #${LUA_SOCKET}
@@ -235,23 +235,16 @@ else ( )
 endif ( )
 
 if ( WIN32 AND NOT CYGWIN )
-    target_compile_definitions (xlua PRIVATE LUA_BUILD_AS_DLL)
+    target_compile_definitions (moon PRIVATE LUA_BUILD_AS_DLL)
 endif ( )
 
 if (GC64 AND USING_LUAJIT)
-    target_compile_definitions (xlua PRIVATE LUAJIT_ENABLE_GC64)
+    target_compile_definitions (moon PRIVATE LUAJIT_ENABLE_GC64)
 endif ()
 
 if (LUAC_COMPATIBLE_FORMAT AND NOT USING_LUAJIT)
-    target_compile_definitions (xlua PRIVATE LUAC_COMPATIBLE_FORMAT)
+    target_compile_definitions (moon PRIVATE LUAC_COMPATIBLE_FORMAT)
 endif ()
-
-# set_property(
-# 	SOURCE ${LUA_SOCKET}
-# 	APPEND
-# 	PROPERTY COMPILE_DEFINITIONS
-# 	LUA_COMPAT_APIINTCASTS LUA_LIB _CRT_SECURE_NO_WARNINGS _WINSOCK_DEPRECATED_NO_WARNINGS
-# )
 
 if(UINT_ESPECIALLY)
     ADD_DEFINITIONS(-DUINT_ESPECIALLY)
@@ -259,14 +252,14 @@ endif()
 	
 if ( WIN32 AND NOT CYGWIN )
     if (USING_LUAJIT)
-        target_link_libraries(xlua
+        target_link_libraries(moon
             ${CMAKE_SOURCE_DIR}/${LUAJIT_SRC_PATH}/lua51.lib
             ws2_32
 
             ${THIRDPART_LIB} 
         )
     else ()
-        target_link_libraries(xlua
+        target_link_libraries(moon
             ws2_32
             ${THIRDPART_LIB} 
         )
@@ -279,7 +272,7 @@ else ()
             ${THIRDPART_LIB} 
 		)
     else ()
-        target_link_libraries(xlua
+        target_link_libraries(moon
             m
             ${THIRDPART_LIB} 
         )

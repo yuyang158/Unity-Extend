@@ -3,6 +3,5 @@ cmake -DLUAC_COMPATIBLE_FORMAT=ON -DLUA_VERSION=5.4.3 -DCMAKE_TOOLCHAIN_FILE=../
 cd ..
 cmake --build build_ios_54 --config Release
 mkdir -p plugin_lua54/Plugins/iOS/
-cp build_ios_54/Release-iphoneos/libxlua.a plugin_lua54/Plugins/iOS/libxlua.a 
-cp build_ios_54/luv/deps/libuv/Release-iphoneos/libuv_a.a plugin_lua54/Plugins/iOS/libuv_a.a 
+cp build_ios_54/Release-iphoneos/libmoon.a plugin_lua54/Plugins/iOS/libmoon.a 
 

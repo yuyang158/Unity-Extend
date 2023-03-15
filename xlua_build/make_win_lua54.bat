@@ -10,6 +10,6 @@ cmake -DLUAC_COMPATIBLE_FORMAT=ON -DEMMY_LUA_VERSION=54 -DEMMY_USE_LUA_SOURCE=ON
 popd
 cmake --build build32_54 --config Release
 md plugin_lua54\Plugins\x86
-copy /Y build32_54\Release\xlua.dll plugin_lua54\Plugins\x86\xlua.dll
+copy /Y build32_54\Release\moon.dll plugin_lua54\Plugins\x86\moon.dll
 
 pause
