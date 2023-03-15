@@ -144,7 +144,7 @@ typedef void (*lua_WarnFunction) (void *ud, const char *msg, int tocont);
 /*
 ** RCS ident string
 */
-extern const char lua_ident[];
+extern const char moon_ident[];
 
 
 /*

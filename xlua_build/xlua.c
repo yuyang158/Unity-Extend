@@ -1225,7 +1225,7 @@ LUA_API void* xmoon_gl(lua_State *L) {
 	return G(L);
 }
 
-static const luaL_Reg xlualib[] = {
+static const luaL_Reg xmoonlib[] = {
 	{"sethook", profiler_set_hook},
 	{"genaccessor", gen_css_access},
 	{"structclone", css_clone},
@@ -1236,10 +1236,10 @@ LUA_API void moonopen_x(lua_State *L) {
 	moonL_openlibs(L);
 	
 #if LUA_VERSION_NUM >= 503
-	luaL_newlib(L, xlualib);
+	luaL_newlib(L, xmoonlib);
 	moon_setglobal(L, "xlua");
 #else
-	luaL_register(L, "xlua", xlualib);
+	luaL_register(L, "xlua", xmoonlib);
     lua_pop(L, 1);
 #endif
 }

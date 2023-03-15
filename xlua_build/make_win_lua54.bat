@@ -3,7 +3,7 @@ cmake -DLUAC_COMPATIBLE_FORMAT=ON -DEMMY_LUA_VERSION=54 -DEMMY_USE_LUA_SOURCE=ON
 popd
 cmake --build build64_54 --config Release
 md plugin_lua54\Plugins\x86_64
-copy /Y build64_54\Release\xlua.dll plugin_lua54\Plugins\x86_64\xlua.dll
+copy /Y build64_54\Release\moon.dll plugin_lua54\Plugins\x86_64\moon.dll
 
 mkdir build32_54 & pushd build32_54
 cmake -DLUAC_COMPATIBLE_FORMAT=ON -DEMMY_LUA_VERSION=54 -DEMMY_USE_LUA_SOURCE=ON -DLUA_VERSION=5.4.3 -G "Visual Studio 17 2022" -A Win32 ..

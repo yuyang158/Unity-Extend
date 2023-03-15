@@ -55,7 +55,7 @@ typedef struct LG {
 ** A macro to create a "random" seed when a state is created;
 ** the seed is used to randomize string hashes.
 */
-#if !defined(luai_makeseed)
+#if !defined(mooni_makeseed)
 
 #include <time.h>
 
@@ -68,7 +68,7 @@ typedef struct LG {
   { size_t t = cast_sizet(e); \
     memcpy(b + p, &t, sizeof(t)); p += sizeof(t); }
 
-static unsigned int luai_makeseed (lua_State *L) {
+static unsigned int mooni_makeseed (lua_State *L) {
   char buff[3 * sizeof(size_t)];
   unsigned int h = cast_uint(time(NULL));
   int p = 0;
@@ -228,7 +228,7 @@ static void init_registry (lua_State *L, global_State *g) {
 /*
 ** open parts of the state that may cause memory-allocation errors.
 */
-static void f_luaopen (lua_State *L, void *ud) {
+static void f_moonopen (lua_State *L, void *ud) {
   global_State *g = G(L);
   UNUSED(ud);
   stack_init(L, L);  /* init stack */
@@ -372,7 +372,7 @@ LUA_API lua_State *moon_newstate (lua_Alloc f, void *ud) {
   g->warnf = NULL;
   g->ud_warn = NULL;
   g->mainthread = L;
-  g->seed = luai_makeseed(L);
+  g->seed = mooni_makeseed(L);
   g->gcstp = GCSTPGC;  /* no GC while building state */
   g->strt.size = g->strt.nuse = 0;
   g->strt.hash = NULL;
@@ -399,7 +399,7 @@ LUA_API lua_State *moon_newstate (lua_Alloc f, void *ud) {
   setgcparam(g->genmajormul, LUAI_GENMAJORMUL);
   g->genminormul = LUAI_GENMINORMUL;
   for (i=0; i < LUA_NUMTAGS; i++) g->mt[i] = NULL;
-  if (moonD_rawrunprotected(L, f_luaopen, NULL) != LUA_OK) {
+  if (moonD_rawrunprotected(L, f_moonopen, NULL) != LUA_OK) {
     /* memory allocation error: free partial state */
     close_state(L);
     L = NULL;

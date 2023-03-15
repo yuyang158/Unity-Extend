@@ -496,7 +496,7 @@ static int moonB_xpcall (lua_State *L) {
 }
 
 
-static int luaB_tostring (lua_State *L) {
+static int moonB_tostring (lua_State *L) {
   moonL_checkany(L, 1);
   moonL_tolstring(L, 1, NULL);
   return 1;
@@ -524,7 +524,7 @@ static const luaL_Reg base_funcs[] = {
   {"select", moonB_select},
   {"setmetatable", moonB_setmetatable},
   {"tonumber", moonB_tonumber},
-  {"tostring", luaB_tostring},
+  {"tostring", moonB_tostring},
   {"type", moonB_type},
   {"xpcall", moonB_xpcall},
   /* placeholders */
