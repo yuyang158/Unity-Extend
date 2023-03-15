@@ -36,11 +36,13 @@
 #endif
 
 #if LUA_VERSION_NUM >= 503
-LUALIB_API void moon_pushint64(lua_State* L, int64_t n) {
+LUALIB_API int moon_pushint64(lua_State* L, int64_t n) {
 	moon_pushinteger(L, n);
+    return 0;
 }
-LUALIB_API void moon_pushuint64(lua_State* L, uint64_t n) {
+LUALIB_API int moon_pushuint64(lua_State* L, uint64_t n) {
 	moon_pushinteger(L, n);
+    return 0;
 }
 
 LUALIB_API int moon_isint64(lua_State* L, int pos) {
