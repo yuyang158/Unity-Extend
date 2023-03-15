@@ -140,16 +140,7 @@
 
 
 static int os_execute (lua_State *L) {
-  const char *cmd = luaL_optstring(L, 1, NULL);
-  int stat;
-  errno = 0;
-  stat = system(cmd);
-  if (cmd != NULL)
-    return moonL_execresult(L, stat);
-  else {
-    moon_pushboolean(L, stat);  /* true if there is a shell */
-    return 1;
-  }
+  return 1;
 }
 
 
