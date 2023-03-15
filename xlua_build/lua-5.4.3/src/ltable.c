@@ -411,7 +411,7 @@ static unsigned int computesizes (unsigned int nums[], unsigned int *pna) {
 static int countint (lua_Integer key, unsigned int *nums) {
   unsigned int k = arrayindex(key);
   if (k != 0) {  /* is 'key' an appropriate array index? */
-    nums[luaO_ceillog2(k)]++;  /* count as such */
+    nums[moonO_ceillog2(k)]++;  /* count as such */
     return 1;
   }
   else
@@ -483,7 +483,7 @@ static void setnodevector (lua_State *L, Table *t, unsigned int size) {
   }
   else {
     int i;
-    int lsize = luaO_ceillog2(size);
+    int lsize = moonO_ceillog2(size);
     if (lsize > MAXHBITS || (1u << lsize) > MAXHSIZE)
       moonG_runerror(L, "table overflow");
     size = twoto(lsize);

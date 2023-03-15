@@ -494,7 +494,7 @@ static void json_append_string(lua_State *l, strbuf_t *json, int lindex)
  * -1   object (not a pure array)
  * >=0  elements in array
  */
-static int lua_array_length(lua_State *l, json_config_t *cfg, strbuf_t *json)
+static int moon_array_length(lua_State *l, json_config_t *cfg, strbuf_t *json)
 {
     double k;
     int max;
@@ -690,7 +690,7 @@ static void json_append_data(lua_State *l, json_config_t *cfg,
     case LUA_TTABLE:
         current_depth++;
         json_check_encode_depth(l, cfg, current_depth, json);
-        len = lua_array_length(l, cfg, json);
+        len = moon_array_length(l, cfg, json);
         if (len > 0)
             json_append_array(l, cfg, current_depth, json, len);
         else
@@ -1361,7 +1361,7 @@ static int json_protect_conversion(lua_State *l)
 }
 
 /* Return cjson module table */
-static int lua_cjson_new(lua_State *l)
+static int moon_cjson_new(lua_State *l)
 {
     luaL_Reg reg[] = {
         { "encode", json_encode },
@@ -1373,7 +1373,7 @@ static int lua_cjson_new(lua_State *l)
         { "encode_keep_buffer", json_cfg_encode_keep_buffer },
         { "encode_invalid_numbers", json_cfg_encode_invalid_numbers },
         { "decode_invalid_numbers", json_cfg_decode_invalid_numbers },
-        { "new", lua_cjson_new },
+        { "new", moon_cjson_new },
         { NULL, NULL }
     };
 
@@ -1401,15 +1401,15 @@ static int lua_cjson_new(lua_State *l)
 }
 
 /* Return cjson.safe module table */
-static int lua_cjson_safe_new(lua_State *l)
+static int moon_cjson_safe_new(lua_State *l)
 {
     const char *func[] = { "decode", "encode", NULL };
     int i;
 
-    lua_cjson_new(l);
+    moon_cjson_new(l);
 
     /* Fix new() method */
-    lua_pushcfunction(l, lua_cjson_safe_new);
+    lua_pushcfunction(l, moon_cjson_safe_new);
     moon_setfield(l, -2, "new");
 
     for (i = 0; func[i]; i++) {
@@ -1423,7 +1423,7 @@ static int lua_cjson_safe_new(lua_State *l)
 
 CJSON_EXPORT int moonopen_cjson(lua_State *l)
 {
-    lua_cjson_new(l);
+    moon_cjson_new(l);
 
 #ifdef ENABLE_CJSON_GLOBAL
     /* Register a global "cjson" table. */
@@ -1437,7 +1437,7 @@ CJSON_EXPORT int moonopen_cjson(lua_State *l)
 
 CJSON_EXPORT int moonopen_cjson_safe(lua_State *l)
 {
-    lua_cjson_safe_new(l);
+    moon_cjson_safe_new(l);
 
     /* Return cjson.safe table */
     return 1;

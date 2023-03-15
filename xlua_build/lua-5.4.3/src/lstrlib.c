@@ -287,7 +287,7 @@ static void trymt (lua_State *L, const char *mtname) {
 
 static int arith (lua_State *L, int op, const char *mtname) {
   if (tonum(L, 1) && tonum(L, 2))
-    lua_arith(L, op);  /* result will be on the top */
+    moon_arith(L, op);  /* result will be on the top */
   else
     trymt(L, mtname);
   return 1;

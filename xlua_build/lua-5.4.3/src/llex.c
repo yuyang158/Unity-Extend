@@ -116,7 +116,7 @@ static l_noret lexerror (LexState *ls, const char *msg, int token) {
 }
 
 
-l_noret luaX_syntaxerror (LexState *ls, const char *msg) {
+l_noret moonX_syntaxerror (LexState *ls, const char *msg) {
   lexerror(ls, msg, ls->t.token);
 }
 

@@ -76,7 +76,7 @@ LUAI_FUNC const char *moonT_objtypename (lua_State *L, const TValue *o);
 LUAI_FUNC const TValue *moonT_gettm (Table *events, TMS event, TString *ename);
 LUAI_FUNC const TValue *moonT_gettmbyobj (lua_State *L, const TValue *o,
                                                        TMS event);
-LUAI_FUNC void luaT_init (lua_State *L);
+LUAI_FUNC void moonT_init (lua_State *L);
 
 LUAI_FUNC void moonT_callTM (lua_State *L, const TValue *f, const TValue *p1,
                             const TValue *p2, const TValue *p3);
@@ -85,7 +85,7 @@ LUAI_FUNC void moonT_callTMres (lua_State *L, const TValue *f,
 LUAI_FUNC void moonT_trybinTM (lua_State *L, const TValue *p1, const TValue *p2,
                               StkId res, TMS event);
 LUAI_FUNC void moonT_tryconcatTM (lua_State *L);
-LUAI_FUNC void luaT_trybinassocTM (lua_State *L, const TValue *p1,
+LUAI_FUNC void moonT_trybinassocTM (lua_State *L, const TValue *p1,
        const TValue *p2, int inv, StkId res, TMS event);
 LUAI_FUNC void moonT_trybiniTM (lua_State *L, const TValue *p1, lua_Integer i2,
                                int inv, StkId res, TMS event);

@@ -48,7 +48,7 @@ LUAI_FUNC void moonS_resize (lua_State *L, int newsize);
 LUAI_FUNC void moonS_clearcache (global_State *g);
 LUAI_FUNC void moonS_init (lua_State *L);
 LUAI_FUNC void moonS_remove (lua_State *L, TString *ts);
-LUAI_FUNC Udata *luaS_newudata (lua_State *L, size_t s, int nuvalue);
+LUAI_FUNC Udata *moonS_newudata (lua_State *L, size_t s, int nuvalue);
 LUAI_FUNC TString *moonS_newlstr (lua_State *L, const char *str, size_t l);
 LUAI_FUNC TString *moonS_new (lua_State *L, const char *str);
 LUAI_FUNC TString *moonS_createlngstrobj (lua_State *L, size_t l);

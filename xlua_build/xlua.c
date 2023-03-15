@@ -201,12 +201,12 @@ LUA_API void xmoon_pushlstring (lua_State *L, const char *s, int len) {
 	moon_pushlstring(L, s, len);
 }
 
-LUALIB_API int xluaL_loadbuffer (lua_State *L, const char *buff, int size,
+LUALIB_API int xmoonL_loadbuffer (lua_State *L, const char *buff, int size,
                                 const char *name) {
 	return luaL_loadbuffer(L, buff, size, name);
 }
 
-static int c_lua_gettable(lua_State* L) {    
+static int c_moon_gettable(lua_State* L) {    
     moon_gettable(L, 1);    
     return 1;
 }
@@ -214,14 +214,14 @@ static int c_lua_gettable(lua_State* L) {
 LUA_API int xmoon_pgettable(lua_State* L, int idx) {
     int top = moon_gettop(L);
     idx = moon_absindex(L, idx);
-    lua_pushcfunction(L, c_lua_gettable);
+    lua_pushcfunction(L, c_moon_gettable);
     moon_pushvalue(L, idx);
     moon_pushvalue(L, top);
     moon_remove(L, top);
     return moon_pcall(L, 2, 1, 0);
 }
 
-static int c_lua_gettable_bypath(lua_State* L) {
+static int c_moon_gettable_bypath(lua_State* L) {
 	size_t len = 0;
 	const char * pos = NULL;
 	const char * path = moon_tolstring(L, 2, &len);
@@ -249,13 +249,13 @@ static int c_lua_gettable_bypath(lua_State* L) {
 
 LUA_API int xmoon_pgettable_bypath(lua_State* L, int idx, const char *path) {
 	idx = moon_absindex(L, idx);
-	lua_pushcfunction(L, c_lua_gettable_bypath);
+	lua_pushcfunction(L, c_moon_gettable_bypath);
 	moon_pushvalue(L, idx);
 	moon_pushstring(L, path);
 	return moon_pcall(L, 2, 1, 0);
 }
 
-static int c_lua_settable(lua_State* L) {
+static int c_moon_settable(lua_State* L) {
     moon_settable(L, 1);
     return 0;
 }
@@ -263,7 +263,7 @@ static int c_lua_settable(lua_State* L) {
 LUA_API int xmoon_psettable(lua_State* L, int idx) {
     int top = moon_gettop(L);
     idx = moon_absindex(L, idx);
-    lua_pushcfunction(L, c_lua_settable);
+    lua_pushcfunction(L, c_moon_settable);
     moon_pushvalue(L, idx);
     moon_pushvalue(L, top - 1);
     moon_pushvalue(L, top);
@@ -272,7 +272,7 @@ LUA_API int xmoon_psettable(lua_State* L, int idx) {
     return moon_pcall(L, 3, 0, 0);
 }
 
-static int c_lua_settable_bypath(lua_State* L) {
+static int c_moon_settable_bypath(lua_State* L) {
     size_t len = 0;
 	const char * pos = NULL;
 	const char * path = moon_tolstring(L, 2, &len);
@@ -302,7 +302,7 @@ static int c_lua_settable_bypath(lua_State* L) {
 LUA_API int xmoon_psettable_bypath(lua_State* L, int idx, const char *path) {
     int top = moon_gettop(L);
     idx = moon_absindex(L, idx);
-    lua_pushcfunction(L, c_lua_settable_bypath);
+    lua_pushcfunction(L, c_moon_settable_bypath);
     moon_pushvalue(L, idx);
     moon_pushstring(L, path);
     moon_pushvalue(L, top);
@@ -310,25 +310,25 @@ LUA_API int xmoon_psettable_bypath(lua_State* L, int idx, const char *path) {
     return moon_pcall(L, 3, 0, 0);
 }
 
-static int c_lua_getglobal(lua_State* L) {
+static int c_moon_getglobal(lua_State* L) {
 	moon_getglobal(L, lua_tostring(L, 1));
 	return 1;
 }
 
 LUA_API int xmoon_getglobal (lua_State *L, const char *name) {
-	lua_pushcfunction(L, c_lua_getglobal);
+	lua_pushcfunction(L, c_moon_getglobal);
 	moon_pushstring(L, name);
 	return moon_pcall(L, 1, 1, 0);
 }
 
-static int c_lua_setglobal(lua_State* L) {
+static int c_moon_setglobal(lua_State* L) {
 	moon_setglobal(L, lua_tostring(L, 1));
 	return 0;
 }
 
 LUA_API int xmoon_setglobal (lua_State *L, const char *name) {
 	int top = moon_gettop(L);
-	lua_pushcfunction(L, c_lua_setglobal);
+	lua_pushcfunction(L, c_moon_setglobal);
 	moon_pushstring(L, name);
 	moon_pushvalue(L, top);
 	moon_remove(L, top);
@@ -1232,7 +1232,7 @@ static const luaL_Reg xlualib[] = {
 	{NULL, NULL}
 };
 
-LUA_API void moonopen_xlua(lua_State *L) {
+LUA_API void moonopen_x(lua_State *L) {
 	moonL_openlibs(L);
 	
 #if LUA_VERSION_NUM >= 503

@@ -84,7 +84,7 @@ LUAI_FUNC void moonX_setinput (lua_State *L, LexState *ls, ZIO *z,
 LUAI_FUNC TString *moonX_newstring (LexState *ls, const char *str, size_t l);
 LUAI_FUNC void moonX_next (LexState *ls);
 LUAI_FUNC int moonX_lookahead (LexState *ls);
-LUAI_FUNC l_noret luaX_syntaxerror (LexState *ls, const char *s);
+LUAI_FUNC l_noret moonX_syntaxerror (LexState *ls, const char *s);
 LUAI_FUNC const char *moonX_token2str (LexState *ls, int token);
 
 

@@ -782,7 +782,7 @@ typedef struct Table {
 #define UTF8BUFFSZ	8
 
 LUAI_FUNC int moonO_utf8esc (char *buff, unsigned long x);
-LUAI_FUNC int luaO_ceillog2 (unsigned int x);
+LUAI_FUNC int moonO_ceillog2 (unsigned int x);
 LUAI_FUNC int moonO_rawarith (lua_State *L, int op, const TValue *p1,
                              const TValue *p2, TValue *res);
 LUAI_FUNC void moonO_arith (lua_State *L, int op, const TValue *p1,

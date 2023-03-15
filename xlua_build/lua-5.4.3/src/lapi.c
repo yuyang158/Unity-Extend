@@ -33,8 +33,8 @@
 
 
 const char lua_ident[] =
-  "$LuaVersion: " LUA_COPYRIGHT " $"
-  "$LuaAuthors: " LUA_AUTHORS " $";
+  "$Version: " LUA_COPYRIGHT " $"
+  "$Authors: " LUA_AUTHORS " $";
 
 
 
@@ -336,7 +336,7 @@ LUA_API int moon_rawequal (lua_State *L, int index1, int index2) {
 }
 
 
-LUA_API void lua_arith (lua_State *L, int op) {
+LUA_API void moon_arith (lua_State *L, int op) {
   lua_lock(L);
   if (op != LUA_OPUNM && op != LUA_OPBNOT)
     api_checknelems(L, 2);  /* all other operations expect two operands */
@@ -1347,7 +1347,7 @@ LUA_API void *moon_newuserdatauv (lua_State *L, size_t size, int nuvalue) {
   Udata *u;
   lua_lock(L);
   api_check(L, 0 <= nuvalue && nuvalue < USHRT_MAX, "invalid value");
-  u = luaS_newudata(L, size, nuvalue);
+  u = moonS_newudata(L, size, nuvalue);
   setuvalue(L, s2v(L->top), u);
   api_incr_top(L);
   luaC_checkGC(L);

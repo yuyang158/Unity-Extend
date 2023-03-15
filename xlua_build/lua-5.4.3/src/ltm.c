@@ -35,7 +35,7 @@ LUAI_DDEF const char *const moonT_typenames_[LUA_TOTALTYPES] = {
 };
 
 
-void luaT_init (lua_State *L) {
+void moonT_init (lua_State *L) {
   static const char *const moonT_eventname[] = {  /* ORDER TM */
     "__index", "__newindex",
     "__gc", "__mode", "__len", "__eq",
@@ -172,7 +172,7 @@ void moonT_tryconcatTM (lua_State *L) {
 }
 
 
-void luaT_trybinassocTM (lua_State *L, const TValue *p1, const TValue *p2,
+void moonT_trybinassocTM (lua_State *L, const TValue *p1, const TValue *p2,
                                        int flip, StkId res, TMS event) {
   if (flip)
     moonT_trybinTM(L, p2, p1, res, event);
@@ -185,7 +185,7 @@ void moonT_trybiniTM (lua_State *L, const TValue *p1, lua_Integer i2,
                                    int flip, StkId res, TMS event) {
   TValue aux;
   setivalue(&aux, i2);
-  luaT_trybinassocTM(L, p1, &aux, flip, res, event);
+  moonT_trybinassocTM(L, p1, &aux, flip, res, event);
 }
 
 

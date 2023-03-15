@@ -1,4 +1,4 @@
-/*
+﻿/*
 ** $Id: lctype.c $
 ** 'ctype' functions for Lua
 ** See Copyright Notice in lua.h
@@ -25,7 +25,7 @@
 #endif
 
 
-LUAI_DDEF const lu_byte luai_ctype_[UCHAR_MAX + 2] = {
+LUAI_DDEF const lu_byte mooni_ctype_[UCHAR_MAX + 2] = {
   0x00,  /* EOZ */
   0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,	/* 0. */
   0x00,  0x08,  0x08,  0x08,  0x08,  0x08,  0x00,  0x00,

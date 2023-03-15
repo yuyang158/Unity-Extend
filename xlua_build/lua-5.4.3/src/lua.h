@@ -25,8 +25,8 @@
 
 #define LUA_VERSION	"Moon " LUA_VERSION_MAJOR "." LUA_VERSION_MINOR
 #define LUA_RELEASE	LUA_VERSION "." LUA_VERSION_RELEASE
-#define LUA_COPYRIGHT	LUA_RELEASE "  Copyright (C) 1994-2022 Moon.org"
-#define LUA_AUTHORS	"R. Ierusalimschy, L. H. de Figueiredo, W. Celes"
+#define LUA_COPYRIGHT	LUA_RELEASE "  Copyright (C) 1994-2023 Moon.org"
+#define LUA_AUTHORS	""
 
 
 /* mark for precompiled code ('<esc>Lua') */
@@ -217,7 +217,7 @@ LUA_API const void     *(moon_topointer) (lua_State *L, int idx);
 #define LUA_OPUNM	12
 #define LUA_OPBNOT	13
 
-LUA_API void  (lua_arith) (lua_State *L, int op);
+LUA_API void  (moon_arith) (lua_State *L, int op);
 
 #define LUA_OPEQ	0
 #define LUA_OPLT	1

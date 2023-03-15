@@ -255,7 +255,7 @@ TString *moonS_new (lua_State *L, const char *str) {
 }
 
 
-Udata *luaS_newudata (lua_State *L, size_t s, int nuvalue) {
+Udata *moonS_newudata (lua_State *L, size_t s, int nuvalue) {
   Udata *u;
   int i;
   GCObject *o;

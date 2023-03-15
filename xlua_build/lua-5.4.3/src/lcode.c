@@ -45,7 +45,7 @@ static int codesJ (FuncState *fs, OpCode o, int sj, int k);
 /* semantic error */
 l_noret moonK_semerror (LexState *ls, const char *msg) {
   ls->t.token = 0;  /* remove "near <token>" from final message */
-  luaX_syntaxerror(ls, msg);
+  moonX_syntaxerror(ls, msg);
 }
 
 
@@ -169,7 +169,7 @@ static void fixjump (FuncState *fs, int pc, int dest) {
   int offset = dest - (pc + 1);
   lua_assert(dest != NO_JUMP);
   if (!(-OFFSET_sJ <= offset && offset <= MAXARG_sJ - OFFSET_sJ))
-    luaX_syntaxerror(fs->ls, "control structure too long");
+    moonX_syntaxerror(fs->ls, "control structure too long");
   lua_assert(GET_OPCODE(*jmp) == OP_JMP);
   SETARG_sJ(*jmp, offset);
 }
@@ -467,7 +467,7 @@ void moonK_checkstack (FuncState *fs, int n) {
   int newstack = fs->freereg + n;
   if (newstack > fs->f->maxstacksize) {
     if (newstack >= MAXREGS)
-      luaX_syntaxerror(fs->ls,
+      moonX_syntaxerror(fs->ls,
         "function or expression needs too many registers");
     fs->f->maxstacksize = cast_byte(newstack);
   }
@@ -1749,7 +1749,7 @@ void moonK_fixline (FuncState *fs, int line) {
 
 void moonK_settablesize (FuncState *fs, int pc, int ra, int asize, int hsize) {
   Instruction *inst = &fs->f->code[pc];
-  int rb = (hsize != 0) ? luaO_ceillog2(hsize) + 1 : 0;  /* hash size */
+  int rb = (hsize != 0) ? moonO_ceillog2(hsize) + 1 : 0;  /* hash size */
   int extra = asize / (MAXARG_C + 1);  /* higher bits of array size */
   int rc = asize % (MAXARG_C + 1);  /* lower bits of array size */
   int k = (extra > 0);  /* true iff needs extra argument */

@@ -234,7 +234,7 @@ static void f_luaopen (lua_State *L, void *ud) {
   stack_init(L, L);  /* init stack */
   init_registry(L, g);
   moonS_init(L);
-  luaT_init(L);
+  moonT_init(L);
   moonX_init(L);
   g->gcstp = 0;  /* allow gc */
   setnilvalue(&g->nilvalue);  /* now state is complete */

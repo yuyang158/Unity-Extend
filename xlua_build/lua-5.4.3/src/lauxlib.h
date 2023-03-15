@@ -96,7 +96,7 @@ LUALIB_API int (moonL_loadfilex) (lua_State *L, const char *filename,
 
 LUALIB_API int (moonL_loadbufferx) (lua_State *L, const char *buff, size_t sz,
                                    const char *name, const char *mode);
-LUALIB_API int (luaL_loadstring) (lua_State *L, const char *s);
+LUALIB_API int (moonL_loadstring) (lua_State *L, const char *s);
 
 LUALIB_API lua_State *(moonL_newstate) (void);
 
@@ -145,7 +145,7 @@ LUALIB_API void (moonL_requiref) (lua_State *L, const char *modname,
 	(luaL_loadfile(L, fn) || moon_pcall(L, 0, LUA_MULTRET, 0))
 
 #define luaL_dostring(L, s) \
-	(luaL_loadstring(L, s) || moon_pcall(L, 0, LUA_MULTRET, 0))
+	(moonL_loadstring(L, s) || moon_pcall(L, 0, LUA_MULTRET, 0))
 
 #define luaL_getmetatable(L,n)	(moon_getfield(L, LUA_REGISTRYINDEX, (n)))
 

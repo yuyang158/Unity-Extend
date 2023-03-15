@@ -1,4 +1,4 @@
-/*
+﻿/*
 ** $Id: lcorolib.c $
 ** Coroutine Library
 ** See Copyright Notice in lua.h
@@ -53,7 +53,7 @@ static int auxresume (lua_State *L, lua_State *co, int narg) {
 }
 
 
-static int luaB_coresume (lua_State *L) {
+static int moonB_coresume (lua_State *L) {
   lua_State *co = getco(L);
   int r;
   r = auxresume(L, co, moon_gettop(L) - 1);
@@ -70,7 +70,7 @@ static int luaB_coresume (lua_State *L) {
 }
 
 
-static int luaB_auxwrap (lua_State *L) {
+static int moonB_auxwrap (lua_State *L) {
   lua_State *co = moon_tothread(L, lua_upvalueindex(1));
   int r = auxresume(L, co, moon_gettop(L));
   if (l_unlikely(r < 0)) {  /* error? */
@@ -92,7 +92,7 @@ static int luaB_auxwrap (lua_State *L) {
 }
 
 
-static int luaB_cocreate (lua_State *L) {
+static int moonB_cocreate (lua_State *L) {
   lua_State *NL;
   moonL_checktype(L, 1, LUA_TFUNCTION);
   NL = moon_newthread(L);
@@ -102,14 +102,14 @@ static int luaB_cocreate (lua_State *L) {
 }
 
 
-static int luaB_cowrap (lua_State *L) {
-  luaB_cocreate(L);
-  moon_pushcclosure(L, luaB_auxwrap, 1);
+static int moonB_cowrap (lua_State *L) {
+  moonB_cocreate(L);
+  moon_pushcclosure(L, moonB_auxwrap, 1);
   return 1;
 }
 
 
-static int luaB_yield (lua_State *L) {
+static int moonB_yield (lua_State *L) {
   return lua_yield(L, moon_gettop(L));
 }
 
@@ -146,28 +146,28 @@ static int auxstatus (lua_State *L, lua_State *co) {
 }
 
 
-static int luaB_costatus (lua_State *L) {
+static int moonB_costatus (lua_State *L) {
   lua_State *co = getco(L);
   moon_pushstring(L, statname[auxstatus(L, co)]);
   return 1;
 }
 
 
-static int luaB_yieldable (lua_State *L) {
+static int moonB_yieldable (lua_State *L) {
   lua_State *co = lua_isnone(L, 1) ? L : getco(L);
   moon_pushboolean(L, moon_isyieldable(co));
   return 1;
 }
 
 
-static int luaB_corunning (lua_State *L) {
+static int moonB_corunning (lua_State *L) {
   int ismain = moon_pushthread(L);
   moon_pushboolean(L, ismain);
   return 2;
 }
 
 
-static int luaB_close (lua_State *L) {
+static int moonB_close (lua_State *L) {
   lua_State *co = getco(L);
   int status = auxstatus(L, co);
   switch (status) {
@@ -190,14 +190,14 @@ static int luaB_close (lua_State *L) {
 
 
 static const luaL_Reg co_funcs[] = {
-  {"create", luaB_cocreate},
-  {"resume", luaB_coresume},
-  {"running", luaB_corunning},
-  {"status", luaB_costatus},
-  {"wrap", luaB_cowrap},
-  {"yield", luaB_yield},
-  {"isyieldable", luaB_yieldable},
-  {"close", luaB_close},
+  {"create", moonB_cocreate},
+  {"resume", moonB_coresume},
+  {"running", moonB_corunning},
+  {"status", moonB_costatus},
+  {"wrap", moonB_cowrap},
+  {"yield", moonB_yield},
+  {"isyieldable", moonB_yieldable},
+  {"close", moonB_close},
   {NULL, NULL}
 };
 

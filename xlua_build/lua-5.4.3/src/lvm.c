@@ -1501,7 +1501,7 @@ void moonV_execute (lua_State *L, CallInfo *ci) {
         TMS tm = (TMS)GETARG_C(i);
         int flip = GETARG_k(i);
         StkId result = RA(pi);
-        Protect(luaT_trybinassocTM(L, s2v(ra), imm, flip, result, tm));
+        Protect(moonT_trybinassocTM(L, s2v(ra), imm, flip, result, tm));
         vmbreak;
       }
       vmcase(OP_UNM) {

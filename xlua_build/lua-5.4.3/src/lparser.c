@@ -66,7 +66,7 @@ static void expr (LexState *ls, expdesc *v);
 
 
 static l_noret error_expected (LexState *ls, int token) {
-  luaX_syntaxerror(ls,
+  moonX_syntaxerror(ls,
       moonO_pushfstring(ls->L, "%s expected", moonX_token2str(ls, token)));
 }
 
@@ -80,7 +80,7 @@ static l_noret errorlimit (FuncState *fs, int limit, const char *what) {
                       : moonO_pushfstring(L, "function at line %d", line);
   msg = moonO_pushfstring(L, "too many %s (limit is %d) in %s",
                              what, limit, where);
-  luaX_syntaxerror(fs->ls, msg);
+  moonX_syntaxerror(fs->ls, msg);
 }
 
 
@@ -119,7 +119,7 @@ static void checknext (LexState *ls, int c) {
 }
 
 
-#define check_condition(ls,c,msg)	{ if (!(c)) luaX_syntaxerror(ls, msg); }
+#define check_condition(ls,c,msg)	{ if (!(c)) moonX_syntaxerror(ls, msg); }
 
 
 /*
@@ -132,7 +132,7 @@ static void check_match (LexState *ls, int what, int who, int where) {
     if (where == ls->linenumber)  /* all in the same line? */
       error_expected(ls, what);  /* do not need a complex message */
     else {
-      luaX_syntaxerror(ls, moonO_pushfstring(ls->L,
+      moonX_syntaxerror(ls, moonO_pushfstring(ls->L,
              "%s expected (to close %s at line %d)",
               moonX_token2str(ls, what), moonX_token2str(ls, who), where));
     }
@@ -974,7 +974,7 @@ static void parlist (LexState *ls) {
           isvararg = 1;
           break;
         }
-        default: luaX_syntaxerror(ls, "<name> or '...' expected");
+        default: moonX_syntaxerror(ls, "<name> or '...' expected");
       }
     } while (!isvararg && testnext(ls, ','));
   }
@@ -1048,7 +1048,7 @@ static void funcargs (LexState *ls, expdesc *f, int line) {
       break;
     }
     default: {
-      luaX_syntaxerror(ls, "function arguments expected");
+      moonX_syntaxerror(ls, "function arguments expected");
     }
   }
   lua_assert(f->k == VNONRELOC);
@@ -1092,7 +1092,7 @@ static void primaryexp (LexState *ls, expdesc *v) {
       return;
     }
     default: {
-      luaX_syntaxerror(ls, "unexpected symbol");
+      moonX_syntaxerror(ls, "unexpected symbol");
     }
   }
 }
@@ -1532,7 +1532,7 @@ static void fixforjump (FuncState *fs, int pc, int dest, int back) {
   if (back)
     offset = -offset;
   if (l_unlikely(offset > MAXARG_Bx))
-    luaX_syntaxerror(fs->ls, "control structure too long");
+    moonX_syntaxerror(fs->ls, "control structure too long");
   SETARG_Bx(*jmp, offset);
 }
 
@@ -1627,7 +1627,7 @@ static void forstat (LexState *ls, int line) {
   switch (ls->t.token) {
     case '=': fornum(ls, varname, line); break;
     case ',': case TK_IN: forlist(ls, varname); break;
-    default: luaX_syntaxerror(ls, "'=' or 'in' expected");
+    default: moonX_syntaxerror(ls, "'=' or 'in' expected");
   }
   check_match(ls, TK_END, TK_FOR, line);
   leaveblock(fs);  /* loop scope ('break' jumps to this point) */
