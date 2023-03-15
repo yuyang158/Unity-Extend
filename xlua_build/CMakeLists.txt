@@ -197,7 +197,7 @@ if (APPLE)
            ${XLUA_CORE}
            ${THIRDPART_SRC}
         )
-		set_xcode_property (xlua IPHONEOS_DEPLOYMENT_TARGET "7.0" "all")
+		set_xcode_property (moon IPHONEOS_DEPLOYMENT_TARGET "7.0" "all")
     else ()
         ADD_DEFINITIONS(-DLUA_USE_MACOSX) #osx platform emmylua debugger must have this option or can not load cpath
         set(CMAKE_OSX_ARCHITECTURES "$(ARCHS_STANDARD_64_BIT)")
@@ -208,7 +208,7 @@ if (APPLE)
             ${XLUA_CORE}
             ${THIRDPART_SRC}
         )
-        set_target_properties ( xlua PROPERTIES BUNDLE TRUE )
+        set_target_properties ( moon PROPERTIES BUNDLE TRUE )
         #set_target_properties ( xlua PROPERTIES FRAMEWORK TRUE )
         #set_target_properties ( xlua PROPERTIES MACOSX_RPATH TRUE )
     endif ()
@@ -219,7 +219,7 @@ elseif ("${CMAKE_SYSTEM_NAME}" STREQUAL "Switch")
         ${XLUA_CORE}
         ${THIRDPART_SRC}
     )
-    target_compile_options(xlua PRIVATE -m64 -mcpu=cortex-a57+fp+simd+crypto+crc -fno-common -fno-short-enums -ffunction-sections -fdata-sections -fPIC -fms-extensions)
+    target_compile_options(moon PRIVATE -m64 -mcpu=cortex-a57+fp+simd+crypto+crc -fno-common -fno-short-enums -ffunction-sections -fdata-sections -fPIC -fms-extensions)
 else ( )
     add_library(moon SHARED
         ${LUA_CORE}
