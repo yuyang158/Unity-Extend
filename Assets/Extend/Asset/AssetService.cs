@@ -1,14 +1,10 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Extend.Common;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
-using UnityEngine.AddressableAssets.ResourceLocators;
-using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.SceneManagement;
 using UnityEngine.U2D;
 using XLua;
@@ -45,10 +41,11 @@ namespace Extend.Asset {
 			Container.Dump();
 		}
 
+		private GameObject poolGO;
 		[BlackList]
 		public void AfterSceneLoaded(float maxInstantiateDuration) {
 			m_singleFrameMaxInstantiateDuration = maxInstantiateDuration;
-			var poolGO = new GameObject("Pool");
+			poolGO = new GameObject("Pool");
 			Object.DontDestroyOnLoad(poolGO);
 			poolGO.SetActive(false);
 			PoolRootNode = poolGO.transform;
@@ -57,22 +54,6 @@ namespace Extend.Asset {
 		[BlackList]
 		public void Initialize() {
 			m_stopwatch = new Stopwatch();
-
-			/*SpriteAtlasManager.atlasRequested += (atlasName, callback) => {
-				Debug.LogWarning("Request Atlas : " + atlasName);
-				var handle = LoadAsync<SpriteAtlas>("Assets/SpriteAtlas/" + atlasName + ".spriteatlas");
-				handle.OnComplete += loadHandle => {
-					var reference = loadHandle.Result;
-					var atlas = reference.GetObject() as SpriteAtlas;
-					if( atlas == null ) {
-						Debug.LogError($"Load Asset is : {reference.Asset.UnityObject.GetType()}");
-						reference.Dispose();
-						return;
-					}
-
-					callback(atlas);
-				};
-			};*/
 		}
 
 		public async Task InitAddressable()
@@ -89,6 +70,8 @@ namespace Extend.Asset {
 				disposable.Dispose();
 			}
 
+			Object.Destroy(poolGO);
+			Container.FullCollect();
 			Container.Clear();
 
 			Resources.UnloadUnusedAssets();
@@ -164,6 +147,10 @@ namespace Extend.Asset {
 			return LoadAsync<Sprite>(path);
 		}
 
+		public AssetAsyncLoadHandle LoadSpriteAtlasAsync(string path) {
+			return LoadAsync<SpriteAtlas>(path);
+		}
+
 		public AssetAsyncLoadHandle LoadMaterialAsync(string path) {
 			return LoadAsync<Material>(path);
 		}
@@ -186,6 +173,10 @@ namespace Extend.Asset {
 
 		public AssetAsyncLoadHandle LoadScriptableObjectAsync(string path) {
 			return LoadAsync<ScriptableObject>(path);
+		}
+
+		public AssetAsyncLoadHandle LoadAudioClipAsync(string path) {
+			return LoadAsync<AudioClip>(path);
 		}
 
 		[BlackList]
@@ -218,6 +209,14 @@ namespace Extend.Asset {
 			return Load<Texture>(path);
 		}
 
+		public AssetReference LoadTextAsset(string path) {
+			return Load<TextAsset>(path);
+		}
+
+		public AssetReference LoadUnknownAsset(string path) {
+			return Load<Object>(path);
+		}
+
 		[BlackList]
 		public AssetReference Load<T>(string path) where T : Object {
 #if UNITY_DEBUG
@@ -242,13 +241,16 @@ namespace Extend.Asset {
 		}
 
 		public static void Recycle(GameObject go) {
-			var cache = go.GetComponent<AssetServiceManagedGO>();
-#if UNITY_DEBUG
-			if( !cache ) {
-				Debug.LogError($"Recycle a destroy go : {go.name}");
+			if( !go ) {
 				return;
 			}
+			var cache = go.GetComponent<AssetServiceManagedGO>();
+			if( !cache ) {
+#if UNITY_DEBUG
+				Debug.LogError($"Recycle a destroy go : {go.name}");
 #endif
+				return;
+			}
 			var recyclable = go.GetComponent<IRecyclable>();
 			recyclable?.OnRecycle();
 			cache.Recycle();
@@ -256,6 +258,9 @@ namespace Extend.Asset {
 		}
 
 		public static void Recycle(Component component) {
+			if( !component ) {
+				return;
+			}
 			Recycle(component.gameObject);
 		}
 

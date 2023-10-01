@@ -6,13 +6,13 @@ using UnityEngine.EventSystems;
 namespace Extend.LuaBindingEvent {
 	public class LuaBindingUpDownMoveEvent : LuaBindingEventBase, IPointerDownHandler, IPointerUpHandler, IDragHandler {
 		[ReorderList, LabelText("On Down ()"), SerializeField]
-		private List<BindingEvent> m_downEvent;
+		private BindingEvent[] m_downEvent;
 		
 		[ReorderList, LabelText("On Up ()"), SerializeField]
-		private List<BindingEvent> m_upEvent;
+		private BindingEvent[] m_upEvent;
 		
 		[ReorderList, LabelText("On Move ()"), SerializeField]
-		private List<BindingEvent> m_moveEvent;
+		private BindingEvent[] m_moveEvent;
 		
 		public void OnPointerDown(PointerEventData eventData) {
 			TriggerPointerEvent("OnDown", m_downEvent, eventData);

@@ -29,7 +29,7 @@ namespace Extend.LuaBindingData {
 			if( reList == null ) {
 				Type type;
 				if( FieldType.StartsWith("CS.") ) {
-					var typeName = FieldType.Substring(3);
+					var typeName = FieldType.Substring(3, FieldType.Length - 5);
 					type = String2TypeCache.GetType(typeName);
 				}
 				else {

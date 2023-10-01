@@ -14,5 +14,8 @@ namespace Extend.Switcher.Action {
 		public override void ActiveAction() {
 			m_textGUI.text = m_text;
 		}
+
+		public override void DeactiveAction() {
+		}
 	}
 }

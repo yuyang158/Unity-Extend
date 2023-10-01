@@ -4,23 +4,30 @@ using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using XLua;
 #endif
+using System.Reflection;
 using DG.Tweening;
 using Extend.Asset;
 using Extend.Common;
 using Extend.DebugUtil;
-using Extend.LuaUtil;
 using Extend.Network;
-using Extend.Network.HttpClient;
-using Extend.UI.i18n;
-using Extend.Render;
-using Extend.SceneManagement;
+using TMPro;
 using UnityEngine;
-using XiaoIceland.Network;
-using XiaoIceland.Service;
-using XiaoIceIsland.Agora;
 
 namespace Extend {
+#if UNITY_EDITOR
+	[UnityEditor.InitializeOnLoad]
+#endif
 	internal static class StaticServiceInitializer {
+#if UNITY_EDITOR
+		static StaticServiceInitializer() {
+			TMP_Settings settings = UnityEditor.AssetDatabase.LoadAssetAtPath<TMP_Settings>("Assets/TextMesh Pro/Res/TMP Settings.asset");
+			var settingsType = settings.GetType();
+			var settingsInstanceInfo =
+				settingsType.GetField("s_Instance", BindingFlags.Static | BindingFlags.NonPublic);
+			settingsInstanceInfo.SetValue(null, settings);
+		}
+#endif
+
 		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterAssembliesLoaded)]
 		private static void OnInitAssembliesLoaded() {
 			CSharpServiceManager.Initialize();
@@ -28,16 +35,20 @@ namespace Extend {
 			CSharpServiceManager.Register(new StatService());
 			CSharpServiceManager.Register(new AssetService());
 			CSharpServiceManager.Register(new GameSystemSetting());
-			CSharpServiceManager.Register(new DownLoadService());
-			CSharpServiceManager.Register(new AgoraService());
-			#if CLOSE_UNITY_LOG
+#if CLOSE_UNITY_LOG
 				Debug.unityLogger.logEnabled = false;
-			#endif
+#endif
 		}
 
 		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
 		public static void OnInitBeforeSceneLoad() {
-			Application.runInBackground = true;
+			// Application.runInBackground = true;
+			var reference = AssetService.Get().Load<TMP_Settings>("Assets/TextMesh Pro/Res/TMP Settings.asset");
+			TMP_Settings settings = reference.GetScriptableObject<TMP_Settings>();
+			var settingsType = settings.GetType();
+			var settingsInstanceInfo =
+				settingsType.GetField("s_Instance", BindingFlags.Static | BindingFlags.NonPublic);
+			settingsInstanceInfo.SetValue(null, settings);
 			DOTween.Init(false, true, LogBehaviour.Default);
 		}
 
@@ -48,7 +59,6 @@ namespace Extend {
 			CSharpServiceManager.Register(new GlobalCoroutineRunnerService());
 
 			Application.targetFrameRate = 60;
-
 		}
 	}
 }

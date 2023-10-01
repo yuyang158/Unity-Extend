@@ -3,6 +3,7 @@ using System.Net.Sockets;
 using System.Text;
 using Extend;
 using Extend.Common;
+using Newtonsoft.Json.Linq;
 using UnityEngine;
 using XLua;
 
@@ -19,12 +20,13 @@ public static class RemoteCmdClient {
 		}
 	}
 
-	// [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+	[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
 	private static async void Start() {
 		try {
 			if( !Debug.isDebugBuild || Application.isEditor )
 				return;
-			await tcpClient.ConnectAsync("private-tunnel.site", 4101);
+			await tcpClient.ConnectAsync("182.92.116.114", 5301);
+			Debug.LogWarning("Connect Remote CMD Server.");
 
 			var id = $"{SystemInfo.deviceName} - {SystemInfo.deviceModel}";
 			var protocol = new byte[] {1};
@@ -53,7 +55,8 @@ public static class RemoteCmdClient {
 				Debug.LogWarning($"REMOTE DEBUG REQUEST : {lua}");
 				var luaService = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
 				var func = luaService.Global.Get<LuaFunction>("Global_DebugFunction");
-				var ret = func.Func<string, string>(lua);
+				var jsonCmd = JObject.Parse(lua);
+				var ret = func.Func<string, string>(jsonCmd.GetValue("body").ToString());
 
 				protocol = new byte[] {2};
 				await tcpClient.GetStream().WriteAsync(protocol, 0, protocol.Length);

@@ -113,13 +113,13 @@ namespace Extend.Asset {
 		private AssetReference m_rotateMatRef;
 
 		public void Initialize() {
-			m_packedSprites.Add(128, new PackedSprite(128, false, 2048));
+			// m_packedSprites.Add(128, new PackedSprite(128, false, 2048));
 
-			m_iconLoadingRef = AssetService.Get().Load<Sprite>("UI/Common/IconLoading.png");
+			/*m_iconLoadingRef = AssetService.Get().Load<Sprite>("UI/Common/IconLoading.png");
 			m_loadingSprite = m_iconLoadingRef.GetSprite();
 
 			m_rotateMatRef = AssetService.Get().Load<Material>("UI/Common/UIRotate.mat");
-			m_rotationMat = m_rotateMatRef.GetMaterial();
+			m_rotationMat = m_rotateMatRef.GetMaterial();*/
 		}
 
 		public void ApplyLoadingFx(Image img) {
@@ -138,8 +138,8 @@ namespace Extend.Asset {
 			}
 
 			m_packedSprites.Clear();
-			m_iconLoadingRef.Dispose();
-			m_rotateMatRef.Dispose();
+			// m_iconLoadingRef.Dispose();
+			// m_rotateMatRef.Dispose();
 		}
 
 		public void Update() {

@@ -12,11 +12,12 @@ namespace Extend.Switcher.Action.Editor {
 		private static readonly Dictionary<Type, ActionDrawer> m_drawers = new Dictionary<Type, ActionDrawer>();
 
 		static ActionDrawer() {
-			m_drawers.Add(typeof(AnimatorSwitcherAction), new AnimatorSwitcherActionDrawer());
+			m_drawers.Add(typeof(AnimatorSwitcherAction), new DefaultActionDrawer());
 			m_drawers.Add(typeof(GOActiveSwitcherAction), new GOActiveSwitcherActionDrawer());
-			m_drawers.Add(typeof(TextAssignSwitcherAction), new TextAssignSwitcherActionDrawer());
-			m_drawers.Add(typeof(GraphicMaterialSwitcherAction), new GraphicMaterialSwitcherActionDrawer());
-			m_drawers.Add(typeof(ImageSwitcherAction), new ImageSwitcherActionDrawer());
+			m_drawers.Add(typeof(TextAssignSwitcherAction), new DefaultActionDrawer());
+			m_drawers.Add(typeof(UIMaterialSwitcherAction), new DefaultActionDrawer());
+			m_drawers.Add(typeof(ImageSwitcherAction), new DefaultActionDrawer());
+			m_drawers.Add(typeof(TweenAnimationAction), new DefaultActionDrawer());
 		}
 
 		public static ActionDrawer GetDrawer(Type type) {
@@ -24,15 +25,27 @@ namespace Extend.Switcher.Action.Editor {
 		}
 	}
 
-	public class AnimatorSwitcherActionDrawer : ActionDrawer {
+	public class DefaultActionDrawer : ActionDrawer {
+		private float m_height;
 		public override void OnEditorGUI(Rect rect, SerializedProperty property) {
-			var processorProperty = property.FindPropertyRelative("m_processor");
-			EditorGUI.PropertyField(rect, processorProperty);
+			m_height = 0;
+			int depth = property.depth;
+			foreach( SerializedProperty subProp in property ) {
+				if( subProp.name == "m_fold" ) {
+					continue;
+				}
+				if( subProp.depth != depth + 1 ) {
+					continue;
+				}
+				EditorGUI.PropertyField(rect, subProp);
+				var height = EditorGUI.GetPropertyHeight(subProp);
+				rect.y += height;
+				m_height += height;
+			}
 		}
 
 		public override float GetEditorHeight(SerializedProperty property) {
-			var processorProperty = property.FindPropertyRelative("m_processor");
-			return EditorGUI.GetPropertyHeight(processorProperty);
+			return m_height;
 		}
 	}
 
@@ -53,53 +66,6 @@ namespace Extend.Switcher.Action.Editor {
 
 		public override float GetEditorHeight(SerializedProperty property) {
 			return UIEditorUtil.LINE_HEIGHT;
-		}
-	}
-
-	public class TextAssignSwitcherActionDrawer : ActionDrawer {
-		public override void OnEditorGUI(Rect rect, SerializedProperty property) {
-			rect.height = EditorGUIUtility.singleLineHeight;
-			var textGUIProperty = property.FindPropertyRelative("m_textGUI");
-			EditorGUI.PropertyField(rect, textGUIProperty);
-
-			rect.y += UIEditorUtil.LINE_HEIGHT;
-			var textProp = property.FindPropertyRelative("m_text");
-			rect.height = UIEditorUtil.LINE_HEIGHT * 3 - EditorGUIUtility.standardVerticalSpacing;
-			textProp.stringValue = EditorGUI.TextField(rect, textProp.stringValue);
-		}
-
-		public override float GetEditorHeight(SerializedProperty property) {
-			return UIEditorUtil.LINE_HEIGHT * 4;
-		}
-	}
-
-	public class GraphicMaterialSwitcherActionDrawer : ActionDrawer {
-		public override void OnEditorGUI(Rect rect, SerializedProperty property) {
-			rect.height = EditorGUIUtility.singleLineHeight;
-			var graphicProp = property.FindPropertyRelative("m_graphic");
-			EditorGUI.PropertyField(rect, graphicProp);
-			rect.y += UIEditorUtil.LINE_HEIGHT;
-			var materialProp = property.FindPropertyRelative("m_material");
-			EditorGUI.PropertyField(rect, materialProp);
-		}
-
-		public override float GetEditorHeight(SerializedProperty property) {
-			return UIEditorUtil.LINE_HEIGHT * 2;
-		}
-	}
-
-	public class ImageSwitcherActionDrawer : ActionDrawer {
-		public override void OnEditorGUI(Rect rect, SerializedProperty property) {
-			rect.height = EditorGUIUtility.singleLineHeight;
-			var imgProp = property.FindPropertyRelative("m_image");
-			EditorGUI.PropertyField(rect, imgProp);
-			rect.y += UIEditorUtil.LINE_HEIGHT;
-			var spriteProp = property.FindPropertyRelative("m_sprite");
-			EditorGUI.PropertyField(rect, spriteProp);
-		}
-
-		public override float GetEditorHeight(SerializedProperty property) {
-			return UIEditorUtil.LINE_HEIGHT * 2;
 		}
 	}
 }

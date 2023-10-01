@@ -15,6 +15,9 @@ using Extend;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.EventSystems;
+using UnityEngine.Networking;
+using UnityEngine.U2D;
 using UnityEngine.VFX;
 using XLua;
 
@@ -24,14 +27,14 @@ public static class XLuaGenConfig {
 	//--------------begin 纯lua编程配置参考----------------------------
 	private static readonly List<string> exclude = new List<string> {
 		"HideInInspector", "ExecuteInEditMode","CloudStreaming",
-		"AddComponentMenu", "ContextMenu",
+		"AddComponentMenu", "ContextMenu", "TextureMipmapLimitGroups",
 		"RequireComponent", "DisallowMultipleComponent",
 		"SerializeField", "AssemblyIsEditorAssembly",
-		"Attribute", "Types",
+		"Attribute", "Types", "MemoryUsageChangedCallback",
 		"UnitySurrogateSelector", "TrackedReference",
 		"TypeInferenceRules", "FFTWindow",
-		"RPC", "Network", "MasterServer",
-		"BitStream", "HostData",
+		"RPC", "MasterServer", "Resources",
+		"BitStream", "HostData", "ClusterNetwork",
 		"ConnectionTesterStatus", "GUI", "EventType",
 		"EventModifiers", "FontStyle", "TextAlignment",
 		"TextEditor", "TextEditorDblClickSnapping",
@@ -51,17 +54,16 @@ public static class XLuaGenConfig {
 		"DetailPrototype", "DetailRenderMode", "Wheel",
 		"MeshSubsetCombineUtility", "AOT", "Social", "Enumerator",
 		"SendMouseEvents", "Cursor", "Flash", "ActionScript",
-		"OnRequestRebuild", "Ping", "DynamicGI", "AssetBundle",
-		"ShaderVariantCollection", "Json", "Logger",
+		"OnRequestRebuild", "Ping", "DynamicGI", "ShaderVariantCollection", "Json", "Logger",
 		"CoroutineTween", "GraphicRebuildTracker", "InputManagerEntry", "InputRegistering",
 		"Advertisements", "UnityEditor", "WSA", "StateMachineBehaviour",
 		"EventProvider", "Apple", "Motion", "WindZone", "Subsystem",
 		"UnityEngine.UI.ReflectionMethodsCache", "NativeLeakDetection",
 		"NativeLeakDetectionMode", "WWWAudioExtensions", "UnityEngine.Experimental", "MeshRenderer",
 		"CanvasRenderer", "AnimatorControllerParameter", "AudioSetting", "Caching",
-		"DrivenRectTransformTracker", "LightProbeGroup", "Animation", "DefaultControls",
-		"UnityEngine.Light", "WebCam", "Human", "QualitySettings", "LOD", "ParticleSystem", "UIVertex",
-		"ClusterSerialization", "DefaultExecutionOrder", "Audio", "FrameTimingManager", "Gyroscope"
+		"DrivenRectTransformTracker", "LightProbeGroup", "DefaultControls", "UnityEngine.Avatar",
+		"UnityEngine.Light", "WebCam", "Human", "QualitySettings", "LOD", "ParticleSystem", "UIVertex", "ArticulationBody",
+		"ClusterSerialization", "DefaultExecutionOrder", "Audio", "FrameTimingManager", "Gyroscope", "GridBrush", "Cloth"
 	};
 
 	private static bool isExcluded(Type type) {
@@ -135,7 +137,9 @@ public static class XLuaGenConfig {
 			var namespaces = new List<string>() // 在这里添加名字空间
 			{
 				"UnityEngine",
-				"UnityEngine.UI"
+				"UnityEngine.UI",
+				"UnityEngine.SceneManagement",
+				"UnityEngine.Networking"
 			};
 			var unityTypes = from assembly in AppDomain.CurrentDomain.GetAssemblies()
 				where !( assembly.ManifestModule is System.Reflection.Emit.ModuleBuilder )
@@ -150,7 +154,8 @@ public static class XLuaGenConfig {
 				typeof(Vector4),
 				typeof(Color),
 				typeof(Quaternion),
-				typeof(TweenCallback)
+				typeof(TweenCallback),
+				typeof(EventSystem)
 			};
 
 			unityTypes = unityTypes.Concat(basicMathValueType);
@@ -187,7 +192,7 @@ public static class XLuaGenConfig {
 
 				foreach( var param in method.GetParameters() ) {
 					var paramType = param.ParameterType.IsByRef ? param.ParameterType.GetElementType() : param.ParameterType;
-					if( typeof(Delegate).IsAssignableFrom(paramType) && !paramType.IsPointer ) {
+					if( typeof(Delegate).IsAssignableFrom(paramType) && !paramType.IsPointer && paramType != typeof(Application.MemoryUsageChangedCallback) ) {
 						delegate_types.Add(paramType);
 					}
 				}
@@ -199,10 +204,7 @@ public static class XLuaGenConfig {
 					typeof(Action),
 					typeof(Action<float>),
 					typeof(Action<bool>),
-					typeof(WaitForSeconds),
-					typeof(VisualEffect),
-					typeof(TextMeshProUGUI),
-					typeof(TextMeshPro),
+					typeof(Action<Vector2>),
 					typeof(System.Collections.IEnumerator)
 				});
 			return list;
@@ -331,6 +333,22 @@ public static class XLuaGenConfig {
 		new List<string>() {"UnityEngine.UI.Text", "OnRebuildRequested"},
 		new List<string>() {"UnityEngine.Input", "IsJoystickPreconfigured", "System.String"},
 		new List<string>() {"UnityEngine.Texture", "imageContentsHash"},
+		new List<string>(){"UnityEngine.Material", "IsChildOf","UnityEngine.Material"},
+		new List<string>(){"UnityEngine.Material", "RevertAllPropertyOverrides"},
+		new List<string>(){"UnityEngine.Material", "IsPropertyOverriden","System.Int32"},
+		new List<string>(){"UnityEngine.Material", "IsPropertyOverriden","System.String"},
+		new List<string>(){"UnityEngine.Material", "IsPropertyLocked","System.Int32"},
+		new List<string>(){"UnityEngine.Material", "IsPropertyLocked","System.String"},
+		new List<string>(){"UnityEngine.Material", "IsPropertyLockedByAncestor","System.Int32"},
+		new List<string>(){"UnityEngine.Material", "IsPropertyLockedByAncestor","System.String"},
+		new List<string>(){"UnityEngine.Material", "SetPropertyLock","System.Int32","System.Boolean"},
+		new List<string>(){"UnityEngine.Material", "SetPropertyLock","System.String","System.Boolean"},
+		new List<string>(){"UnityEngine.Material", "ApplyPropertyOverride","UnityEngine.Material","System.Int32","System.Boolean"},
+		new List<string>(){"UnityEngine.Material", "ApplyPropertyOverride","UnityEngine.Material","System.String","System.Boolean"},
+		new List<string>(){"UnityEngine.Material", "RevertPropertyOverride","System.Int32"},
+		new List<string>(){"UnityEngine.Material", "RevertPropertyOverride","System.String"},
+		new List<string>(){"UnityEngine.Material", "parent"},
+		new List<string>(){"UnityEngine.Material", "isVariant"},
 		new List<string>() {"UnityEngine.Security", "GetChainOfTrustValue"},
 		new List<string>() {"UnityEngine.CanvasRenderer", "OnRequestRebuild"},
 		new List<string>() {"UnityEngine.Light", "areaSize"},
@@ -351,5 +369,18 @@ public static class XLuaGenConfig {
 		new List<string>() {"System.IO.DirectoryInfo", "CreateSubdirectory", "System.String", "System.Security.AccessControl.DirectorySecurity"},
 		new List<string>() {"System.IO.DirectoryInfo", "Create", "System.Security.AccessControl.DirectorySecurity"},
 		new List<string>() {"UnityEngine.MonoBehaviour", "runInEditMode"},
+		new List<string>(){ "UnityEngine.Resources", "InstanceIDsToValidArray", "System.ReadOnlySpan`1[System.Int32]", "System.Span`1[System.Boolean]"},
+		new List<string>(){ "UnityEngine.Transform", "TransformDirections", "System.ReadOnlySpan`1[UnityEngine.Vector3]","System.Span`1[UnityEngine.Vector3]" },
+		new List<string>(){ "UnityEngine.Transform", "TransformDirections", "System.Span`1[UnityEngine.Vector3]"},
+		new List<string>(){ "UnityEngine.Transform", "InverseTransformDirections", "System.ReadOnlySpan`1[UnityEngine.Vector3]","System.Span`1[UnityEngine.Vector3]" },
+		new List<string>(){ "UnityEngine.Transform", "InverseTransformDirections", "System.Span`1[UnityEngine.Vector3]"},
+		new List<string>(){ "UnityEngine.Transform", "TransformVectors" , "System.ReadOnlySpan`1[UnityEngine.Vector3]", "System.Span`1[UnityEngine.Vector3]"},
+		new List<string>(){ "UnityEngine.Transform", "TransformVectors", "System.Span`1[UnityEngine.Vector3]"},
+		new List<string>(){ "UnityEngine.Transform", "InverseTransformVectors", "System.ReadOnlySpan`1[UnityEngine.Vector3]","System.Span`1[UnityEngine.Vector3]" },
+		new List<string>(){ "UnityEngine.Transform", "InverseTransformVectors", "System.Span`1[UnityEngine.Vector3]" },
+		new List<string>(){ "UnityEngine.Transform", "TransformPoints", "System.ReadOnlySpan`1[UnityEngine.Vector3]", "System.Span`1[UnityEngine.Vector3]" },
+		new List<string>(){ "UnityEngine.Transform", "TransformPoints", "System.Span`1[UnityEngine.Vector3]"},
+		new List<string>(){ "UnityEngine.Transform", "InverseTransformPoints", "System.ReadOnlySpan`1[UnityEngine.Vector3]","System.Span`1[UnityEngine.Vector3]" },
+		new List<string>(){ "UnityEngine.Transform", "InverseTransformPoints", "System.Span`1[UnityEngine.Vector3]"},
 	};
 }

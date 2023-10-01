@@ -2,7 +2,6 @@ using Extend.Common;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
-using UnityEngine.SceneManagement;
 
 namespace Extend.Asset {
 	internal class AssetInstance : AssetRefObject {

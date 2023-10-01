@@ -11,7 +11,7 @@ namespace Extend.UI.Fx {
 		private void Awake() {
 			m_cachedImages = GetComponentsInChildren<Image>(true);
 			m_imageOriginMaterial = new Material[m_cachedImages.Length];
-			m_imgGrayMat ??= AssetService.Get().Load<Material>("Materials/UI/UI_ImageGray");
+			m_imgGrayMat ??= AssetService.Get().Load<Material>("Materials/UI/UI_ImageGray.mat");
 		}
 
 		private void OnEnable() {

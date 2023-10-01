@@ -122,7 +122,13 @@ namespace Extend.Editor {
 						return;
 					case LuaDebugSetting.DebugMode.ConnectIDE:
 					case LuaDebugSetting.DebugMode.ListenAndWait:
-						initFunc.Call();
+						#if UNITY_EDITOR_WIN
+						var appDataPath = Environment.GetEnvironmentVariable("APPDATA");
+						string searchPath = $";{appDataPath}/JetBrains/Rider2023.2/plugins/EmmyLua/debugger/emmy/windows/x64/?.dll";
+						#elif UNITY_EDITOR_OSX
+						const string searchPath = "";
+						#endif
+						initFunc.Call(searchPath);
 						if( settingObj.Mode == LuaDebugSetting.DebugMode.ListenAndWait ) {
 							listenFunc.Call(settingObj.DebugPort);
 						}

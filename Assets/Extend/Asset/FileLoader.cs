@@ -62,8 +62,10 @@ namespace Extend.Asset {
 		public static Stream LoadFileSync(string path, bool autoDetectPath = true) {
 			var assetPath = DetermineAssetLocation(path, out var underPersistent);
 			if( !autoDetectPath ) {
+				assetPath = Path.Combine(Application.streamingAssetsPath, path);
 				underPersistent = false;
 			}
+
 			if( underPersistent || Application.platform != RuntimePlatform.Android || Application.isEditor ) {
 				return new FileStream(assetPath, FileMode.Open, FileAccess.Read);
 			}
@@ -82,7 +84,17 @@ namespace Extend.Asset {
 		private static IEnumerator WebRequestFile(string assetPath, Action<byte[]> callback) {
 			using( var uwr = UnityWebRequest.Get(assetPath) ) {
 				yield return uwr.SendWebRequest();
-				callback(uwr.downloadHandler.data);
+				if( uwr.isDone ) {
+					if( uwr.result == UnityWebRequest.Result.Success ) {
+						callback(uwr.downloadHandler.data);
+						yield break;
+					}
+					else {
+						Debug.LogError($"Load asset error {assetPath}, {uwr.result}");
+					}
+				}
+
+				callback(null);
 			}
 		}
 

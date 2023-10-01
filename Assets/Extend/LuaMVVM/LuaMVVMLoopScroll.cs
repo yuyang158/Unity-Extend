@@ -4,6 +4,7 @@ using Extend.Common;
 using Extend.LuaBindingEvent;
 using Extend.UI.Scroll;
 using UnityEngine;
+using UnityEngine.UI;
 using XLua;
 
 namespace Extend.LuaMVVM {
@@ -11,13 +12,17 @@ namespace Extend.LuaMVVM {
 	public delegate AssetReference ProvideAssetReferenceCallback(LuaTable t, int index);
 	
 	[RequireComponent(typeof(LoopScrollRect))]
-	public class LuaMVVMLoopScroll : LuaBindingEventBase, ILoopScrollDataProvider, IMVVMAssetReference, ILuaMVVM {
+	public class LuaMVVMLoopScroll : LuaBindingEventBase, LoopScrollPrefabSource, LoopScrollDataSource, IMVVMAssetReference, ILuaMVVM {
 		[ReorderList, LabelText("On Scroll Value Changed ()"), SerializeField]
 		private List<BindingEvent> m_onScrollValueChanged;
 
-		private void Awake() {
+		public AssetReference ScrollCellAsset;
+
+		protected override void Awake() {
+			base.Awake();
 			m_scroll = GetComponent<LoopScrollRect>();
 			m_scroll.dataSource = this;
+			m_scroll.prefabSource = this;
 			m_scroll.onValueChanged.AddListener(value => { TriggerPointerEvent("OnScrollValueChanged", m_onScrollValueChanged, value); });
 		}
 
@@ -27,6 +32,10 @@ namespace Extend.LuaMVVM {
 
 		private LoopScrollRect m_scroll;
 		private LuaTable m_arrayData;
+		
+		private void OnEnable() {
+			LuaArrayData = LuaArrayData;
+		}
 
 		public LuaTable LuaArrayData {
 			get => m_arrayData;
@@ -34,7 +43,7 @@ namespace Extend.LuaMVVM {
 				m_arrayData?.Dispose();
 				m_arrayData = value;
 
-				if( !(m_scroll.CellAsset is {GUIDValid: true}) ) {
+				if( !(ScrollCellAsset is {GUIDValid: true}) ) {
 					m_scroll.ClearCells();
 				}
 				
@@ -61,8 +70,7 @@ namespace Extend.LuaMVVM {
 		}
 
 		public AssetReference GetMVVMReference() {
-			var scrollRect = GetComponent<LoopScrollRect>();
-			return scrollRect.CellAsset;
+			return ScrollCellAsset;
 		}
 
 		public void SetDataContext(LuaTable dataSource) {
@@ -75,6 +83,19 @@ namespace Extend.LuaMVVM {
 
 		public void Detach() {
 			LuaArrayData = null;
+		}
+
+		public GameObject GetObject(int index) {
+			if( ScrollCellAsset.GUIDValid ) {
+				return ScrollCellAsset.Instantiate();
+			}
+
+			var reference = ProvideAssetReference(index);
+			return reference.Instantiate();
+		}
+
+		public void ReturnObject(Transform trans) {
+			AssetService.Recycle(trans);
 		}
 	}
 }

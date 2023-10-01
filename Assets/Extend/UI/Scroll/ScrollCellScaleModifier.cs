@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 
 namespace Extend.UI.Scroll {
 	[DisallowMultipleComponent]

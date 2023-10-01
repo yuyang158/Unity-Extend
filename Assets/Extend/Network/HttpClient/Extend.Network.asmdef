@@ -1,0 +1,16 @@
+{
+    "name": "Extend.Network",
+    "rootNamespace": "",
+    "references": [
+        "GUID:22784c00bfb32f049827a00b892b0d3c"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

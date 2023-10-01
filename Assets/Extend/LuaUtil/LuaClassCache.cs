@@ -52,5 +52,9 @@ namespace Extend.LuaUtil {
 
 			return false;
 		}
+
+		public void Clear() {
+			m_cachedClasses.Clear();
+		}
 	}
 }

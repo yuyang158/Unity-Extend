@@ -1,4 +1,4 @@
-﻿---@class MockService
+---@class MockService
 local M = {}
 
 ---@class MockContext table key protocName value args
@@ -22,7 +22,6 @@ function M.MockServerRequestAfterRequest(protocName, context)
 	requestMocksAfterRequest[protocName] = context
 end
 
----@param client ProtocClient
 function M.OnClientRequest(protocName, client)
 	local context = responseMocks[protocName]
 	if context then
@@ -35,12 +34,10 @@ function M.OnClientRequest(protocName, client)
 	return false
 end
 
----@param client ProtocClient
 function M.OnServerResponse(protocName, client)
 	M.OnServerRequest(protocName, client)
 end
 
----@param client ProtocClient
 function M.OnServerRequest(protocName, client)
 	local context = requestMocksAfterRequest[protocName]
 	if context then

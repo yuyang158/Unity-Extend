@@ -9,9 +9,9 @@ namespace Extend.LuaBindingEvent {
 		/*IPointerExitHandler,*/ IBeginDragHandler, IDragHandler, IEndDragHandler
 	{
 		[ReorderList, LabelText("On Long Tap ()"), SerializeField]
-		private List<BindingEvent> m_longTapEvent;
+		private BindingEvent[] m_longTapEvent;
 		[ReorderList, LabelText("On Click ()"), SerializeField]
-		private List<BindingEvent> m_clickEvent;
+		private BindingEvent[] m_clickEvent;
 		public float LongTapTime = 1f;
 		public ScrollRect ScrollRect;
 		float m_downTime;

@@ -154,10 +154,12 @@ namespace Extend.DebugUtil {
 
 		public void UploadLog() {
 			ErrorLogToFile.Upload(true);
+			Close();
 		}
 
 		public void UploadLogLast() {
 			ErrorLogToFile.Upload(false);
+			Close();
 		}
 
 

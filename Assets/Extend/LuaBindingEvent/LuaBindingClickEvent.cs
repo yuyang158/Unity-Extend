@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using Extend.Common;
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,7 +6,7 @@ namespace Extend.LuaBindingEvent {
 	[RequireComponent(typeof(Button))]
 	public class LuaBindingClickEvent : LuaBindingEventBase {
 		[ReorderList, LabelText("On Click ()"), SerializeField]
-		private List<BindingEvent> m_clickEvent;
+		private BindingEvent[] m_clickEvent;
 
 		private void Start() {
 			var button = GetComponent<Button>();

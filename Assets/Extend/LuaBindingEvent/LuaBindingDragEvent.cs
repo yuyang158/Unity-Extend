@@ -6,13 +6,13 @@ using UnityEngine.EventSystems;
 namespace Extend.LuaBindingEvent {
 	public class LuaBindingDragEvent : LuaBindingEventBase, IBeginDragHandler, IDragHandler, IEndDragHandler {
 		[ReorderList, LabelText("On Drag Start ()"), SerializeField]
-		private List<BindingEvent> m_dragStartEvent;
+		private BindingEvent[] m_dragStartEvent;
 		
 		[ReorderList, LabelText("On Drag End ()"), SerializeField]
-		private List<BindingEvent> m_dragEndEvent;
+		private BindingEvent[] m_dragEndEvent;
 		
 		[ReorderList, LabelText("On Drag ()"), SerializeField]
-		private List<BindingEvent> m_dragEvent;
+		private BindingEvent[] m_dragEvent;
 		
 		public void OnBeginDrag(PointerEventData eventData) {
 			TriggerPointerEvent("OnBeginDrag", m_dragStartEvent, eventData);

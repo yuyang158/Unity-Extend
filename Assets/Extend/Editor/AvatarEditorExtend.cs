@@ -36,7 +36,7 @@ namespace Extend.Editor
 				fs.Write(byteArr, 0, byteArr.Length);
 			}
 			AssetDatabase.Refresh();
-			Debug.Log("获取动画列表成功");
+			Debug.Log("获取动画列表成功 ： " + dirPath);
 		}
 
 		private static void GetFilesName(string filePath, string resPath, List<string> list)

@@ -10,6 +10,15 @@ namespace Extend.LuaBindingEvent {
 		public static void Register(string e, LuaGlobalEventCallback callback) {
 			m_eventCallbacks.Add(e, callback);
 		}
+		
+		public static void UnRegister(string e) {
+			if(m_eventCallbacks.ContainsKey(e))
+				m_eventCallbacks.Remove(e);
+			else
+			{
+				Debug.Log($"UnRegister {e} is already Removed");
+			}
+		}
 
 		private static void Trigger(string eventName, string eventContent) {
 			if(!m_eventCallbacks.TryGetValue(eventName, out var cb)) {
@@ -25,6 +34,11 @@ namespace Extend.LuaBindingEvent {
 		[BlackList]
 		public void Dispatch() {
 			Trigger(EventName, EventContent);
+		}
+
+		[BlackList]
+		public void DispatchWithParam(string param) {
+			Trigger(EventName, param);
 		}
 	}
 }

@@ -11,7 +11,7 @@ namespace Extend.Asset {
 
 		internal virtual void Recycle() {
 			if( PrefabAsset.Release() < 0 ) {
-				Debug.Log(PrefabAsset);
+				//Debug.Log(PrefabAsset);
 			}
 		}
 	}

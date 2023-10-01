@@ -78,14 +78,18 @@ function M:RemoveEventListener(typ, func)
 		tinsert(self.wait4Remove, {typ, func})
 		return
 	end
-	local typListeners = assert(self.listeners[typ], typ)
+	local typListeners = self.listeners[typ]
+	if not typListeners then
+		warn("Unknown event type", typ)
+		return
+	end
 	for i, v in ipairs(typListeners) do
 		if v.func == func then
 			tremove(typListeners, i)
 			return
 		end
 	end
-	error("Remove function not found : ", typ)
+	warn("Remove function not found : ", typ)
 end
 
 return M

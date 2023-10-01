@@ -37,16 +37,18 @@ namespace Extend {
 			const string fileName = "SystemSetting";
 			#endif
 			var path = Path.Combine(Application.persistentDataPath, fileName + ".ini");
-			CopyToPersistent(fileName, path);
+			if( !File.Exists(path) ) {
+				CopyToPersistent(fileName, path);
+			}
 
 			using( var reader = new StreamReader(path) ) {
 				SystemSetting = IniRead.Parse(reader);
 			}
 			
-			var streamingAssetFile = FileLoader.LoadFileSync($"Config/{fileName}.ini");
+			var streamingAssetFile = FileLoader.LoadFileSync($"Config/{fileName}.ini", false);
 			using( var internalReader = new StreamReader(streamingAssetFile) ) {
 				var streamingAssetSetting = IniRead.Parse(internalReader);
-				if( SystemSetting.GetString("Game", "SettingVersion") != streamingAssetSetting.GetString("Game", "SettingVersion") ) {
+				if( SystemSetting.GetString("GAME", "SettingVersion") != streamingAssetSetting.GetString("GAME", "SettingVersion") ) {
 					CopyToPersistent(fileName, path);
 					using( var reader = new StreamReader(path) ) {
 						SystemSetting = IniRead.Parse(reader);

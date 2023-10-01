@@ -72,11 +72,11 @@ namespace Extend.Common {
 		}
 
 		public void Destroy() {
-			for( var i = 0; i < (int)StatName.COUNT; i++ ) {
-				var type = (StatName)i;
-				LogStat("Stat", type.ToString(), m_stats[i].ToString());
-			}
-
+			// for( var i = 0; i < (int)StatName.COUNT; i++ ) {
+			// 	var type = (StatName)i;
+			// 	LogStat("Stat", type.ToString(), m_stats[i].ToString());
+			// }
+			//
 			m_writer.Close();
 		}
 

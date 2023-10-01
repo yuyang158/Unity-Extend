@@ -1,4 +1,4 @@
-﻿local assert, table, ipairs, next = assert, table, ipairs, next
+local assert, table, ipairs, next = assert, table, ipairs, next
 local util = require "util"
 local M = {}
 

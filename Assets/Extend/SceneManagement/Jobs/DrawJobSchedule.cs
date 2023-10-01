@@ -85,7 +85,7 @@ namespace Extend.SceneManagement.Jobs {
 					Graphics.DrawMeshInstanced(Mesh,
 						SubMeshIndex,
 						Material,
-						matrixArray,
+						matrixArray.ToArray(),
 						visibleCount,
 						m_emptyBlock,
 						ShadowCastingMode,

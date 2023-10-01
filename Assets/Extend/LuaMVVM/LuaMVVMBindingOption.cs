@@ -5,6 +5,7 @@ using Extend.Common;
 using Extend.LuaBindingEvent;
 using Extend.LuaMVVM.PropertyChangeInvoke;
 using Extend.LuaUtil;
+using Extend.StateActionGroup;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -35,7 +36,9 @@ namespace Extend.LuaMVVM {
 			{typeof(TMP_Dropdown), typeof(DropdownValueChanged)},
 			{typeof(Slider), typeof(SliderValueChanged)},
 			{typeof(TMP_InputField), typeof(TMP_InputTextChanged)},
-			{typeof(Toggle), typeof(ToggleIsOnChanged)}
+			{typeof(InputField), typeof(UGUI_InputTextChanged)},
+			{typeof(Toggle), typeof(ToggleIsOnChanged)},
+			{typeof(ToggleSAG), typeof(ToggleIsOnChanged)}
 		};
 
 		public Component BindTarget;
@@ -61,7 +64,7 @@ namespace Extend.LuaMVVM {
 
 		public void Prepare(GameObject owner) {
 			if( !BindTarget ) {
-				Debug.LogError($"Binding target is null, Path : {Path} Property : {BindTargetProp}, Owner: {owner.name}");
+				Debug.LogError($"Binding target is null, Path : {Path} Property : {BindTargetProp}, Owner: {owner.name}", owner);
 				return;
 			}
 
@@ -137,7 +140,7 @@ namespace Extend.LuaMVVM {
 			if( Mode == BindMode.EVENT ) {
 				if( m_bindFunc == null || !BindTarget )
 					return;
-				LuaBindingEventBase.UnbindEvent(BindTargetProp, BindTarget.gameObject, m_bindFunc);
+				LuaBindingEventBase.UnbindEvent(BindTargetProp, BindTarget, m_bindFunc);
 				m_bindFunc?.Dispose();
 				m_bindFunc = null;
 				m_dataSource.Dispose();
@@ -184,6 +187,9 @@ namespace Extend.LuaMVVM {
 
 		public void Bind(LuaTable dataContext) {
 			if( m_dataSource != null ) {
+				if( m_dataSource.Equals(dataContext) ) {
+					return;
+				}
 				TryDetach();
 			}
 
@@ -203,8 +209,9 @@ namespace Extend.LuaMVVM {
 
 					if( Mode == BindMode.EVENT ) {
 						m_bindFunc = dataContext.GetInPath<LuaFunction>(Path);
-						Assert.IsNotNull(m_bindFunc);
-						LuaBindingEventBase.BindEvent(BindTargetProp, BindTarget.gameObject, m_bindFunc);
+						if( m_bindFunc != null ) {
+							LuaBindingEventBase.BindEvent(BindTargetProp, BindTarget, m_bindFunc);	
+						}
 						return;
 					}
 

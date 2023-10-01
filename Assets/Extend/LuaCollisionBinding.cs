@@ -15,6 +15,18 @@ namespace Extend {
 
 		public void AssignLuaBinding(LuaBinding binding) {
 			m_binding = binding;
+			if( !m_binding ) {
+				m_collisionEnter = null;
+				m_collisionExit = null;
+				m_triggerEnter = null;
+				m_triggerExit = null;
+				return;
+			}
+
+			m_collisionEnter = m_binding.GetLuaMethod<LuaUnityCollisionEventFunction>("collision_enter");
+			m_collisionExit = m_binding.GetLuaMethod<LuaUnityCollisionEventFunction>("collision_exit");
+			m_triggerEnter = m_binding.GetLuaMethod<NoneEventAction>("trigger_enter");
+			m_triggerExit = m_binding.GetLuaMethod<NoneEventAction>("trigger_exit");
 		}
 
 		private void Awake() {
@@ -22,14 +34,9 @@ namespace Extend {
 		}
 
 		private void Start() {
-			if (m_binding == null)
-			{
-				return;
+			if( m_binding ) {
+				AssignLuaBinding(m_binding);
 			}
-			m_collisionEnter = m_binding.GetLuaMethod<LuaUnityCollisionEventFunction>("collision_enter");
-			m_collisionExit = m_binding.GetLuaMethod<LuaUnityCollisionEventFunction>("collision_exit");
-			m_triggerEnter = m_binding.GetLuaMethod<NoneEventAction>("trigger_enter");
-			m_triggerExit = m_binding.GetLuaMethod<NoneEventAction>("trigger_exit");
 		}
 
 		private void OnCollisionEnter(Collision other) {

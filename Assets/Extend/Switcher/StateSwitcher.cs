@@ -1,8 +1,10 @@
 using System;
 using Extend.Switcher.Action;
 using UnityEngine;
+using XLua;
 
 namespace Extend.Switcher {
+	[LuaCallCSharp]
 	public class StateSwitcher : MonoBehaviour {
 		[Serializable]
 		public class State {
@@ -17,6 +19,12 @@ namespace Extend.Switcher {
 				}
 			}
 
+			public void Exit() {
+				foreach( ISwitcherAction action in SwitcherActions ) {
+					action.DeactiveAction();
+				}
+			}
+
 			public override string ToString() {
 				return StateName;
 			}
@@ -27,17 +35,16 @@ namespace Extend.Switcher {
 
 		public string CurrentState {
 			get => m_currentState;
-			set {
-				if( m_currentState == value )
-					return;
-				m_currentState = value;
-				Switch(m_currentState);
-			}
+			set => Switch(value);
 		}
+
+		private State m_activateState;
 
 		public void Switch(string stateName) {
 			if( m_currentState == stateName )
 				return;
+
+			m_activateState?.Exit();
 
 			var result = Array.Find(States, state => state.StateName == stateName);
 			if( result == null ) {
@@ -45,6 +52,7 @@ namespace Extend.Switcher {
 				return;
 			}
 
+			m_activateState = result;
 			result.Switch();
 			m_currentState = stateName;
 		}

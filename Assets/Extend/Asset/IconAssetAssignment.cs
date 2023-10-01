@@ -9,10 +9,16 @@ namespace Extend.Asset {
 		private string m_iconPath;
 		private Image m_img;
 
+		private Image GetImage() {
+			if( !m_img ) {
+				m_img = GetComponent<Image>();
+			}
+
+			return m_img;
+		}
 		private void Awake() {
-			m_img = GetComponent<Image>();
 			if( string.IsNullOrEmpty(m_iconPath) ) {
-				m_img.enabled = false;
+				GetImage().enabled = false;
 			}
 			else {
 				Refresh(m_iconPath);
@@ -35,16 +41,16 @@ namespace Extend.Asset {
 
 			m_iconPath = iconPath;
 			if( string.IsNullOrEmpty(m_iconPath) ) {
-				m_img.sprite = null;
+				GetImage().sprite = null;
 				m_element?.Release();
 				m_element = null;
-				m_img.enabled = false;
+				GetImage().enabled = false;
 			}
 			else {
 				m_element?.Release();
-				m_img.enabled = true;
+				GetImage().enabled = true;
 				var service = SpriteAssetService.Get();
-				service.ApplyLoadingFx(m_img);
+				service.ApplyLoadingFx(GetImage());
 				m_element = service.RequestIcon(m_iconPath);
 				m_element.Acquire();
 				m_element.OnSpriteLoaded += OnSpriteLoaded;
@@ -56,8 +62,8 @@ namespace Extend.Asset {
 
 		private void OnSpriteLoaded(PackedSprite.SpriteElement element) {
 			m_element.OnSpriteLoaded -= OnSpriteLoaded;
-			SpriteAssetService.Get().ClearLoadingFx(m_img);
-			m_img.sprite = element.Sprite;
+			SpriteAssetService.Get().ClearLoadingFx(GetImage());
+			GetImage().sprite = element.Sprite;
 		}
 
 		private void OnDestroy() {

@@ -1,4 +1,4 @@
-﻿local insert, xpcall, traceback = table.insert, xpcall, debug.traceback
+local insert, xpcall, traceback = table.insert, xpcall, debug.traceback
 ---@class sequence
 local M = class()
 local behaviour = require("base.action.behaviour")
@@ -19,6 +19,10 @@ function M:next(...)
 	self.current = self.current + 1
 	local action = self.actions[self.current]
 	if not action then
+		if self.current > 1000 then
+			self.on_error()
+			return
+		end
 		if self.on_complete then
 			self.on_complete(...)
 		end

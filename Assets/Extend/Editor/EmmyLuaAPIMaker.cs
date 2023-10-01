@@ -740,6 +740,9 @@ public static class EmmyLuaAPIMaker {
 			}
 		}
 
+		if( !Directory.Exists(xlsxDir) ) {
+			return;
+		}
 		var tsvFiles = Directory.GetFiles(xlsxDir, "*.tsv");
 		for( int i = 0; i < tsvFiles.Length; i++ ) {
 			var tsvFile = tsvFiles[i];

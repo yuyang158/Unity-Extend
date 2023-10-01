@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Extend.Asset;
 using Extend.Asset.Attribute;
 using Extend.Common;
@@ -20,7 +21,8 @@ namespace Extend.LuaMVVM {
 		public AssetReference Cell;
 		private LuaMVVMScrollViewComponent m_component;
 
-		private void Awake() {
+		protected override void Awake() {
+			base.Awake();
 			var scrollRect = GetComponent<ScrollRect>();
 			scrollRect.onValueChanged.AddListener(position => {
 				if( scrollRect.horizontal && position.x > 0.9999f ) {
@@ -32,7 +34,11 @@ namespace Extend.LuaMVVM {
 				}
 				TriggerPointerEvent("OnScrollValueChanged", m_onScrollValueChanged, position);
 			});
-			m_component = new LuaMVVMScrollViewComponent(Cell, scrollRect);
+			m_component = new LuaMVVMScrollViewComponent(Cell, scrollRect.content);
+		}
+
+		private void OnEnable() {
+			LuaArrayData = LuaArrayData;
 		}
 
 		public LuaTable LuaArrayData {

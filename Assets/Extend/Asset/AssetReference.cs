@@ -62,10 +62,8 @@ namespace Extend.Asset {
 				return Asset.UnityObject as T;
 			}
 
-			if( !m_assetRef.IsDone ) {
-				var handle = m_assetRef.LoadAssetAsync<T>();
-				handle.WaitForCompletion();
-			}
+			var handle = m_assetRef.LoadAssetAsync<T>();
+			handle.WaitForCompletion();
 
 			Asset = AssetService.Get().Container.TryGetAsset(m_assetRef.OperationHandle.GetHashCode()) as AssetInstance;
 			Asset ??= typeof(T) == typeof(GameObject) ? new PrefabAssetInstance(m_assetRef.OperationHandle) : new AssetInstance(m_assetRef.OperationHandle);
@@ -218,7 +216,12 @@ namespace Extend.Asset {
 				}
 
 				var go = m_ctorType == 1 ? prefabAsset.Instantiate(m_parent, m_stayWorldPosition) : prefabAsset.Instantiate(m_position, m_rotation, m_parent);
-				Callback?.Invoke(go);
+				try {
+					Callback?.Invoke(go);
+				}
+				catch( Exception e ) {
+					Debug.LogException(e);
+				}
 			}
 
 			public override string ToString() {

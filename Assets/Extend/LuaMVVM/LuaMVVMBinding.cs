@@ -28,6 +28,10 @@ namespace Extend.LuaMVVM {
 		}
 		
 		public void SetDataContext(LuaTable dataSource) {
+			if( Equals(DataSource, dataSource) ) {
+				return;
+			}
+			
 			m_dataSource?.Dispose();
 			m_dataSource = dataSource;
 			foreach( var option in BindingOptions.Options ) {

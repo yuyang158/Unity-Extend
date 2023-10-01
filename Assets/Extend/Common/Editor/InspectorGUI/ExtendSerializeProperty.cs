@@ -29,7 +29,8 @@ namespace Extend.Common.Editor.InspectorGUI {
 		}
 
 		private static object GetValue_Imp(object source, string name, int index) {
-			if( !( GetValue_Imp(source, name) is IEnumerable enumerable ) ) {
+			var array = GetValue_Imp(source, name);
+			if( !( array is IEnumerable enumerable ) ) {
 				return null;
 			}
 

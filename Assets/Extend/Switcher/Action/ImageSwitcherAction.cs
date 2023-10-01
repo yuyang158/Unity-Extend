@@ -10,9 +10,16 @@ namespace Extend.Switcher.Action {
 
 		[SerializeField]
 		private Sprite m_sprite;
+
+		private Sprite m_originSprite;
 		
 		public override void ActiveAction() {
+			m_originSprite = m_image.sprite;
 			m_image.sprite = m_sprite;
+		}
+
+		public override void DeactiveAction() {
+			m_image.sprite = m_originSprite;
 		}
 	}
 }

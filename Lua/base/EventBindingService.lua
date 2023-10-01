@@ -1,4 +1,4 @@
-﻿local M = {}
+local M = {}
 local tpack, tunpack, tinsert, tremove, tostring, assert = table.pack, table.unpack, table.insert, table.remove, tostring, assert
 local LuaBindingEventBaseType = typeof(CS.Extend.LuaBindingEvent.LuaBindingEventBase)
 local callbacks = {}
@@ -20,32 +20,31 @@ function M.Dispatch(_id, pointData)
 		warn("not found event for id:", _id)
 		return
 	end
-	tinsert(cb.pack, pointData)
-	cb.pack.n = cb.pack.n + 1
-	cb.func(tunpack(cb.pack))
+	cb.func(tunpack(cb.pack), pointData)
 end
 
-function M.AddEventListener(eventName, go, func, ...)
-	assert(callbacks[func]==nil)
-	callbacks[tostring(func) .. go:GetInstanceID()] = id
+function M.AddEventListener(eventName, component, func, ...)
+	assert(not callbacks[func])
+	callbacks[tostring(func) .. component:GetInstanceID()] = id
 	csBridgeCallbacks[id] = {pack = tpack(...), func = func}
-	local bindingEvent = go:GetComponent(LuaBindingEventBaseType)
+	local bindingEvent = component
 	if not bindingEvent then
-		error("Event binding error : ", go.name, eventName)
+		error("Event binding error : ", component.name, eventName)
+		return
 	end
 	bindingEvent:AddEventListener(eventName, id)
 	id = id + 1
 end
 
-function M.RemoveEventListener(eventName, go, func)
-	local key = tostring(func) .. go:GetInstanceID()
+function M.RemoveEventListener(eventName, component, func)
+	local key = tostring(func) .. component:GetInstanceID()
 	if not callbacks[key] then
 		return
 	end
 	local _id = callbacks[key]
 	callbacks[key] = nil
 	csBridgeCallbacks[_id] = nil
-	local bindingEvent = go:GetComponent(LuaBindingEventBaseType)
+	local bindingEvent = component
 	bindingEvent:RemoveEventListener(eventName, _id)
 end
 

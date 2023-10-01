@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Extend.Common;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.Assertions;
 
 namespace Extend.Asset {
@@ -87,6 +88,18 @@ namespace Extend.Asset {
 		}
 
 		public void Clear() {
+/*#if !UNITY_EDITOR
+			if (m_assets.Count > 0)
+			{
+				Debug.LogError($"Asset memory leak : {m_assets.Count}");
+				foreach (var asset in m_assets)
+				{
+					Debug.LogWarning($"Asset memory leak name : {asset.DebugNameCache}");
+					asset.Destroy();
+				}
+			}
+			Addressables.Shutdown();
+#endif*/
 			m_assets.Clear();
 			m_hashAssetDic.Clear();
 		}

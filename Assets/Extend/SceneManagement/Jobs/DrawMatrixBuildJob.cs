@@ -16,7 +16,7 @@ namespace Extend.SceneManagement.Jobs {
 	public interface IMatrixBuildJob {
 		void Init(DrawInstance[] instances);
 		void Reset();
-		Matrix4x4[] GetVisibleWorldArray();
+		NativeArray<Matrix4x4> GetVisibleWorldArray();
 		int GetVisibleCount();
 		int GetTotalCount();
 		void SetVisible(int index, bool visible);
@@ -51,8 +51,8 @@ namespace Extend.SceneManagement.Jobs {
 			return m_instances[index].World;
 		}
 
-		public Matrix4x4[] GetVisibleWorldArray() {
-			return m_visibleInstances.ToArray();
+		public NativeArray<Matrix4x4> GetVisibleWorldArray() {
+			return m_visibleInstances.ToArray(Allocator.Temp);
 		}
 
 		public int GetVisibleCount() {

@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections;
+﻿using Extend.Network.HttpClient;
 using UnityEngine;
-using UnityEngine.Networking;
 using UnityEngine.UI;
 using XLua;
 
@@ -10,11 +8,11 @@ namespace Extend.Asset {
 	public class ImageRemoteSpriteAssetAssignment : MonoBehaviour {
 		private Image m_img;
 		private string m_spriteRemotePath;
-		private UnityWebRequest m_request;
 		private Sprite m_downloadedSprite;
-
+		private Sprite m_defaultSprite;
 		private void Awake() {
 			m_img = GetComponent<Image>();
+			m_defaultSprite = m_img.sprite;
 		}
 		
 		public string SpriteRemotePath {
@@ -23,32 +21,26 @@ namespace Extend.Asset {
 				if( m_spriteRemotePath == value )
 					return;
 				m_spriteRemotePath = value;
-				StartCoroutine(DoRequestTexture());
-			}
-		}
-
-		private void OnDisable() {
-			m_request?.Abort();
-		}
-
-		private IEnumerator DoRequestTexture() {
-			if( m_downloadedSprite ) {
-				Destroy(m_downloadedSprite);
-				m_downloadedSprite = null;
-			}
-
-			m_request?.Abort();
-			using( m_request = UnityWebRequestTexture.GetTexture(m_spriteRemotePath) ) {
-				yield return m_request.SendWebRequest();
-				if( m_request.result != UnityWebRequest.Result.Success ) {
-					Debug.LogWarning($"Remote image {m_request.url} request error : {m_request.error}.");
-					m_request = null;
-					yield break;
+				if( string.IsNullOrEmpty(m_spriteRemotePath) ) {
+					m_img.sprite = m_defaultSprite;
+					return;
 				}
-				var texture2D = DownloadHandlerTexture.GetContent(m_request);
-				m_request = null;
-				m_img.sprite = Sprite.Create(texture2D, new Rect(0, 0, texture2D.width, texture2D.height), Vector2.zero);
-				m_downloadedSprite = m_img.sprite;
+				var fileRequest = new HttpFileRequest();
+				fileRequest.RequestImage(m_spriteRemotePath, texture => {
+					if (!m_img) {
+						return;
+					}
+
+					if (texture != null)
+					{
+						m_img.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero);
+						m_downloadedSprite = m_img.sprite;
+					}
+					else
+					{
+						m_img.sprite = m_defaultSprite;
+					}
+				});
 			}
 		}
 

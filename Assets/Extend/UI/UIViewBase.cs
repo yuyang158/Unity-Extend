@@ -57,7 +57,7 @@ namespace Extend.UI {
 		}
 
 		public void SetVisible(bool visible) {
-			CanvasGroup.alpha = visible ? 1 : 0;
+			Canvas.enabled = visible;
 			CanvasGroup.blocksRaycasts = visible;
 		}
 

@@ -1,4 +1,4 @@
-﻿local GlobalCoroutineRunnerService = CS.Extend.Common.GlobalCoroutineRunnerService.Get()
+local GlobalCoroutineRunnerService = CS.Extend.Common.GlobalCoroutineRunnerService
 
 ---@class behaviour
 local M = class()
@@ -11,7 +11,7 @@ end
 function M:wait_for_second(seconds)
 	self.sequence:add({
 		active = function()
-			GlobalCoroutineRunnerService:WaitSecond(seconds, function()
+			GlobalCoroutineRunnerService.Get():WaitSecond(seconds, function()
 				self.sequence:next()
 			end)
 		end
@@ -140,15 +140,8 @@ function M:repeat_times(times, seq)
 	return self
 end
 
-function M:interrupt(callback)
-	self.sequence:add({
-		active = function(...)
-			if callback() then
-				self.sequence:interrupt()
-			end
-			self.sequence:next(...)
-		end
-	})
+function M:interrupt()
+	self.sequence:interrupt()
 	return self
 end
 

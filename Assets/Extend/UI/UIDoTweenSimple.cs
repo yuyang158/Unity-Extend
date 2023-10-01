@@ -1,3 +1,4 @@
+using System;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -29,6 +30,10 @@ namespace Extend.UI {
 
 		public void Play() {
 			CurrentTweens = Animation.Active(transform);
+		}
+
+		private void OnDestroy() {
+			CurrentTweens = null;
 		}
 	}
 }

@@ -64,8 +64,8 @@ namespace Extend.UI {
 
 			public string CloseButtonPath;
 
-			[BlackList]
-			public Guid ViewGuid;
+			// [BlackList]
+			// public Guid ViewGuid;
 
 			[BlackList]
 			public UIViewRelation[] Relations;
@@ -74,7 +74,7 @@ namespace Extend.UI {
 
 #if UNITY_EDITOR
 			public Configuration() {
-				ViewGuid = Guid.NewGuid();
+				// ViewGuid = Guid.NewGuid();
 			}
 #endif
 
@@ -86,7 +86,7 @@ namespace Extend.UI {
 		[SerializeField]
 		private Configuration[] m_configurations;
 
-		private readonly Dictionary<Guid, Configuration> m_guidHashedConfigurations = new Dictionary<Guid, Configuration>();
+		// private readonly Dictionary<Guid, Configuration> m_guidHashedConfigurations = new Dictionary<Guid, Configuration>();
 
 		public Configuration[] Configurations => m_configurations;
 
@@ -94,9 +94,9 @@ namespace Extend.UI {
 		public static UIViewConfiguration GlobalInstance { get; private set; }
 		private const string FILE_PATH = "Config/UIViewConfiguration";
 
-		public Configuration FindWithGuid(Guid guid) {
+		/*public Configuration FindWithGuid(Guid guid) {
 			return m_configurations.FirstOrDefault(configuration => configuration.ViewGuid == guid);
-		}
+		}*/
 
 		private void OnEnable() {
 			m_configurations ??= new[] {new Configuration()};
@@ -131,7 +131,7 @@ namespace Extend.UI {
 				document.AppendChild(rootElement);
 				foreach( var configuration in m_configurations ) {
 					var element = document.CreateElement("UIView");
-					element.SetAttribute("Guid", configuration.ViewGuid.ToString());
+					// element.SetAttribute("Guid", configuration.ViewGuid.ToString());
 					element.SetAttribute("Name", configuration.Name);
 					element.SetAttribute("UIView", configuration.UIView?.AssetGUID);
 					element.SetAttribute("BackgroundFx", configuration.BackgroundFx?.AssetGUID);
@@ -170,9 +170,9 @@ namespace Extend.UI {
 			if( !File.Exists($"{Application.streamingAssetsPath}/{FILE_PATH}.xml") ) {
 				var newInstance = CreateInstance<UIViewConfiguration>();
 				newInstance.m_configurations = configurations.ToArray();
-				foreach( var configuration in configurations ) {
+				/*foreach( var configuration in configurations ) {
 					newInstance.m_guidHashedConfigurations.Add(configuration.ViewGuid, configuration);
-				}
+				}*/
 
 				GlobalInstance = newInstance;
 				return newInstance.ConvertData();
@@ -195,9 +195,9 @@ namespace Extend.UI {
 					CloseMethod = (CloseOption)Enum.Parse(typeof(CloseOption), childElement.GetAttribute("CloseMethod")),
 					CloseButtonPath = childElement.GetAttribute("CloseButtonPath")
 				};
-				if( childElement.HasAttribute("Guid") ) {
+				/*if( childElement.HasAttribute("Guid") ) {
 					configuration.ViewGuid = Guid.Parse(childElement.GetAttribute("Guid"));
-				}
+				}*/
 
 				configurations.Add(configuration);
 
@@ -216,9 +216,9 @@ namespace Extend.UI {
 
 			var instance = CreateInstance<UIViewConfiguration>();
 			instance.m_configurations = configurations.ToArray();
-			foreach( var configuration in configurations ) {
+			/*foreach( var configuration in configurations ) {
 				instance.m_guidHashedConfigurations.Add(configuration.ViewGuid, configuration);
-			}
+			}*/
 
 			GlobalInstance = instance;
 			return instance.ConvertData();

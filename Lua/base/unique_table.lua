@@ -1,4 +1,4 @@
-﻿---@class base.unique_table
+---@class base.unique_table
 local M = class()
 
 function M:ctor()

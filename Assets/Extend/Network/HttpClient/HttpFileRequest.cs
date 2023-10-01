@@ -3,12 +3,10 @@ using System.Collections;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading;
 using Extend.Common;
 using UnityEngine;
 using UnityEngine.Networking;
 using XLua;
-using Object = UnityEngine.Object;
 
 namespace Extend.Network.HttpClient {
 	[LuaCallCSharp]

@@ -1,4 +1,5 @@
-﻿using DG.Tweening;
+﻿using Cinemachine;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 using XLua;
@@ -149,6 +150,11 @@ namespace Extend {
 		public static void DoGroupFade(CanvasGroup canvasGroup, float value, float duration)
 		{
 			canvasGroup.DOFade(value, duration);
+		}
+
+		public static void DoCameraFovPunch(CinemachineVirtualCamera c, float fov, float delay, float duration, int vibrato, float elasticity,System.Action onEnd = null)
+		{
+			DOTween.Punch(() => new Vector3(fov, 0, 0), x => { c.m_Lens.FieldOfView = x.x; }, new Vector3(1, 0, 0), duration, vibrato, elasticity).SetDelay(delay).OnComplete(() => onEnd?.Invoke());
 		}
 	}
 }

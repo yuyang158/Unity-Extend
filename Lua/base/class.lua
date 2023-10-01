@@ -1,20 +1,19 @@
 ---@class integer
 local Integer = {}
 
-
----@class LuaBinding
----@field public __CSBinding CS.Extend.LuaBinding
----@field public name string
----@field public fullname string
-local LuaBinding = {}
-
-local newClassCallback;
+local newClassCallback
 function class(super)
 	local class_type = {}
 	class_type.ctor = false
 	class_type.super = super
 	local meta = {
-		__index = class_type
+		__index = class_type,
+		__tostring = function(this)
+			if this.ToString then
+				return this:ToString()
+			end
+			return ""
+		end
 	}
 	class_type.new = function(...)
 		local obj = {}
@@ -36,11 +35,13 @@ function class(super)
 	end
 
 	if super then
-		setmetatable(class_type, { __index = function(_, k)
-			local ret = super[k]
-			class_type[k] = ret
-			return ret
-		end })
+		setmetatable(class_type, {
+			__index = function(_, k)
+				local ret = super[k]
+				class_type[k] = ret
+				return ret
+			end
+		})
 	end
 
 	newClassCallback(class_type, super)

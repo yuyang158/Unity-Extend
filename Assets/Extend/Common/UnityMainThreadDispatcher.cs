@@ -105,10 +105,14 @@ limitations under the License.
 				_instance = this;
 				DontDestroyOnLoad(this.gameObject);
 			}
+			else {
+				Debug.LogError("Redundant instance.");
+			}
 		}
 
 		private void OnDestroy() {
-			_instance = null;
+			if(_instance == this)
+				_instance = null;
 		}
 	}
 }

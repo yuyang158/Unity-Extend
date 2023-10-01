@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using Extend.UI.Editor.RelationGraph;
 using ListView;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
@@ -200,6 +200,38 @@ namespace Extend.UI.Editor {
 		public void ApplyChange() {
 			serializedObject.ApplyModifiedProperties();
 		}
+
+		public void ToLua() {
+			using(var luaFileStream = new FileStream("Lua/UIViewConfiguration.lua", FileMode.Create, FileAccess.Write))
+			using( var writer = new StreamWriter(luaFileStream) ) {
+				writer.WriteLine("local Configuration = CS.Extend.UI.UIViewConfiguration.Configuration");
+				writer.WriteLine("local AssetReference = CS.Extend.Asset.AssetReference");
+				writer.WriteLine("local UILayer = CS.Extend.UI.UILayer");
+				writer.WriteLine("local CloseOption = CS.Extend.UI.CloseOption");
+				writer.WriteLine("local c");
+
+				writer.WriteLine("local configurations = {}");
+				foreach( UIViewConfiguration.Configuration configuration in configurationContext.Configurations ) {
+					writer.WriteLine("c = Configuration()");
+					writer.WriteLine($"c.Name = \"{configuration.Name}\"");
+					writer.WriteLine($"c.UIView = AssetReference(\"{configuration.UIView.AssetGUID}\")");
+					if( configuration.BackgroundFx != null ) {
+						writer.WriteLine($"c.BackgroundFx = AssetReference(\"{configuration.BackgroundFx.AssetGUID}\")");
+					}
+					writer.WriteLine($"c.FullScreen = {configuration.FullScreen.ToString().ToLower()}");
+
+					if( configuration.Transition != null ) {
+						writer.WriteLine($"c.Transition = AssetReference(\"{configuration.Transition.AssetGUID}\")");
+					}
+					writer.WriteLine($"c.AttachLayer = UILayer.{configuration.AttachLayer}");
+					writer.WriteLine($"c.CloseMethod = CloseOption.{configuration.CloseMethod}");
+					writer.WriteLine($"c.CloseButtonPath = \"{configuration.CloseButtonPath}\"");
+					writer.WriteLine($"configurations.{configuration.Name} = c");
+				}
+				
+				writer.WriteLine("return configurations");
+			}
+		}
 	}
 
 	public class UIViewEditorWindow : EditorWindow {
@@ -266,28 +298,6 @@ namespace Extend.UI.Editor {
 
 			EditorGUI.BeginChangeCheck();
 			m_listView?.OnGUI(controlRect);
-			if( UIRelationGraph.Instance != null ) {
-				var selections = m_listView.GetSelection();
-				if( selections.Count > 0 ) {
-					var selection = selections[0];
-					if( m_currentSelection != selection ) {
-						foreach( var configuration in UIViewConfiguration.GlobalInstance.Configurations ) {
-							if( configuration.GetHashCode() == selection ) {
-								m_currentSelection = selection;
-								UIRelationGraph.Instance.ChangeSourceNode(configuration);
-								break;
-							}
-						}
-					}
-				}
-				else {
-					if( m_currentSelection != -1 ) {
-						m_currentSelection = -1;
-						UIRelationGraph.Instance.ChangeSourceNode(null);
-					}
-				}
-			}
-
 			if( EditorGUI.EndChangeCheck() ) {
 				_delegate.ApplyChange();
 			}
@@ -315,8 +325,9 @@ namespace Extend.UI.Editor {
 				_delegate.Save();
 			}
 
-			if( GUILayout.Button("Relation") ) {
-				UIRelationGraph.ShowWindow();
+			if( GUILayout.Button("To Lua") ) {
+				_delegate.Save();
+				_delegate.ToLua();
 			}
 
 			GUILayout.EndHorizontal();

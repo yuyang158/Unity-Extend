@@ -1,15 +1,39 @@
 using System;
 using System.Collections.Generic;
+using Extend.Asset;
 using Extend.Common.Editor;
 using Extend.Common.Editor.InspectorGUI;
 using Extend.LuaBindingEvent;
+using TMPro;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Extend.LuaMVVM.Editor {
 	[CustomPropertyDrawer(typeof(LuaMVVMBindOptionsAttribute))]
 	public class LuaMVVMBindOptionsDrawer : PropertyDrawer {
+		private static readonly Dictionary<Type, string> m_componentTypePropertyShortcut = new() {
+			{typeof(TextMeshProUGUI), "text"},
+			{typeof(Text), "text"},
+			{typeof(Image), "sprite"},
+			{typeof(SpriteRenderer), "sprite"},
+			{typeof(ImageSpriteAssetAssignment), "SpritePath"},
+			{typeof(ImageRemoteSpriteAssetAssignment), "SpriteRemotePath"}
+		};
+
+		private static readonly Dictionary<Type, string[]> m_bindingEventNames = new() {
+			{typeof(LuaBindingClickEvent), new[] {"OnClick"}},
+			{typeof(LuaBindingFingerClickEvent), new[] {"OnClick"}},
+			{typeof(LuaBindingClickLongTapEvent), new[] {"OnClick", "OnLongTap"}},
+			{typeof(LuaBindingDragEvent), new[] {"OnBeginDrag", "OnDrag", "OnEndDrag"}},
+			{typeof(LuaBindingToggleEvent), new[] {"OnCheck"}},
+			{typeof(LuaBindingUpDownMoveEvent), new[] {"OnDown", "OnUp", "OnDrag"}},
+			{typeof(LuaBindingEnterLeaveEvent), new[] {"OnEnter", "OnExit"}},
+			{typeof(LuaBindingTextLinkEvent), new[] {"OnLink", "OnLinkClick"}},
+			{typeof(LuaBindingPressAndHoldEvent), new[] {"OnHold"}},
+		};
+
 		private ReorderableList m_mvvmBindList;
 		private LuaMVVMBinding m_extraMVVMBinding;
 		private float m_optionsListHeight;
@@ -79,6 +103,7 @@ namespace Extend.LuaMVVM.Editor {
 					EditorGUI.TextField(position, $"{option.BindTarget.name}.{option.BindTargetProp}", option.Path);
 					position.y += UIEditorUtil.LINE_HEIGHT;
 				}
+
 				return;
 			}
 
@@ -88,7 +113,7 @@ namespace Extend.LuaMVVM.Editor {
 				property.InsertArrayElementAtIndex(index);
 				var newElementProp = property.GetArrayElementAtIndex(index);
 				var bindModeProp = newElementProp.FindPropertyRelative("Mode");
-				bindModeProp.intValue = (int)LuaMVVMBindingOption.BindMode.ONE_TIME;
+				bindModeProp.intValue = (int) LuaMVVMBindingOption.BindMode.ONE_TIME;
 			};
 			m_mvvmBindList.drawHeaderCallback += rect => { EditorGUI.LabelField(rect, "MVVM Binding"); };
 			m_mvvmBindList.elementHeight = UIEditorUtil.LINE_HEIGHT * 2;
@@ -103,6 +128,7 @@ namespace Extend.LuaMVVM.Editor {
 
 				var prop = property.GetArrayElementAtIndex(index);
 				var bindTargetProp = prop.FindPropertyRelative("BindTarget");
+				var bindTargetPropProp = prop.FindPropertyRelative("BindTargetProp");
 				EditorGUI.BeginChangeCheck();
 				EditorGUI.PropertyField(enabledRect, bindTargetProp, GUIContent.none);
 				if( EditorGUI.EndChangeCheck() && bindTargetProp.objectReferenceValue ) {
@@ -124,6 +150,10 @@ namespace Extend.LuaMVVM.Editor {
 						foreach( var c in components ) {
 							menu.AddItem(new GUIContent(c.GetType().Name), false, () => {
 								bindTargetProp.objectReferenceValue = c;
+								if( m_componentTypePropertyShortcut.TryGetValue(c.GetType(), out var propertyName) ) {
+									bindTargetPropProp.stringValue = propertyName;
+								}
+
 								bindTargetProp.serializedObject.ApplyModifiedProperties();
 							});
 						}
@@ -135,24 +165,16 @@ namespace Extend.LuaMVVM.Editor {
 				var bindModeProp = prop.FindPropertyRelative("Mode");
 				EditorGUI.PropertyField(functionRect, bindModeProp, GUIContent.none);
 
-				var bindTargetPropProp = prop.FindPropertyRelative("BindTargetProp");
 				if( bindTargetProp.objectReferenceValue != null ) {
 					List<string> names;
-					if( bindModeProp.intValue == (int)LuaMVVMBindingOption.BindMode.EVENT ) {
+					if( bindModeProp.intValue == (int) LuaMVVMBindingOption.BindMode.EVENT ) {
 						var typ = bindTargetProp.objectReferenceValue.GetType();
 						names = new List<string>(8);
-						if( typ == typeof(LuaBindingClickEvent) ) {
-							names.Add("OnClick");
+						if( m_bindingEventNames.TryGetValue(typ, out var eventNames) ) {
+							names.AddRange(eventNames);
 						}
-						else if( typ == typeof(LuaBindingDragEvent) ) {
-							names.Add("OnBeginDrag");
-							names.Add("OnDrag");
-							names.Add("OnEndDrag");
-						}
-						else if( typ == typeof(LuaBindingUpDownMoveEvent) ) {
-							names.Add("OnDown");
-							names.Add("OnUp");
-							names.Add("OnDrag");
+						else {
+							Debug.LogError("Unknown event type : " + typ.FullName);
 						}
 					}
 					else {
@@ -160,19 +182,20 @@ namespace Extend.LuaMVVM.Editor {
 						var propertyInfos = typ.GetProperties();
 						names = new List<string>(128) {"SetActive"};
 						foreach( var propertyInfo in propertyInfos ) {
-							if( propertyInfo.CanRead && propertyInfo.CanWrite && propertyInfo.PropertyType.IsPublic && 
+							if( propertyInfo.CanRead && propertyInfo.CanWrite && propertyInfo.PropertyType.IsPublic &&
 							    propertyInfo.GetCustomAttributes(typeof(ObsoleteAttribute), true).Length == 0 ) {
 								if( propertyInfo.Name == "LuaArrayData" ) {
 									bindTargetPropProp.stringValue = "LuaArrayData";
 								}
-								
+
 								names.Add(propertyInfo.Name);
 							}
 						}
 					}
 
 					var nameArr = names.ToArray();
-					var select = EditorGUI.Popup(goRect, Array.IndexOf(nameArr, bindTargetPropProp.stringValue), nameArr);
+					var select = EditorGUI.Popup(goRect, Array.IndexOf(nameArr, bindTargetPropProp.stringValue),
+						nameArr);
 					if( select >= 0 && select < names.Count ) {
 						bindTargetPropProp.stringValue = names[select];
 					}

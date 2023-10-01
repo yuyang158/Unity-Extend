@@ -32,9 +32,9 @@ namespace Extend.Network.SocketClient {
 		private readonly OnRecvData m_receivePackageCallback;
 
 		[CSharpCallLua]
-		public delegate void LuaUpdate(LuaTable owner);
+		public delegate void MoonUpdate(LuaTable owner);
 
-		public readonly LuaUpdate updateCallback;
+		public readonly MoonUpdate updateCallback;
 
 		private readonly byte[] m_receiveBuffer = new byte[65536];
 		private int m_receiveOffset;
@@ -83,7 +83,7 @@ namespace Extend.Network.SocketClient {
 			m_callback = luaCallback;
 			m_statusChangedCallback = m_callback.Get<OnSocketStatusChanged>("OnStatusChanged");
 			m_receivePackageCallback = m_callback.Get<OnRecvData>("OnRecvPackage");
-			updateCallback = m_callback.Get<LuaUpdate>("OnUpdate");
+			updateCallback = m_callback.Get<MoonUpdate>("OnUpdate");
 
 			var service = CSharpServiceManager.Get<NetworkService>(CSharpServiceManager.ServiceType.NETWORK_SERVICE);
 			service.RegisterTcpClient(this);

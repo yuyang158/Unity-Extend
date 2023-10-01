@@ -7,21 +7,25 @@ namespace Extend.Asset {
 	[LuaCallCSharp, RequireComponent(typeof(Image))]
 	public class ImageSpriteAssetAssignment : SpriteAssetAssignment {
 		private Image m_image;
-		private void Awake() {
-			m_image = GetComponent<Image>();
+		private Image GetImage() {
+			if( !m_image ) {
+				m_image = GetComponent<Image>();
+			}
+
+			return m_image;
 		}
 
 		protected override void PreLoad() {
-			m_image.enabled = false;
+			GetImage().enabled = false;
 		}
 
 		protected override void PostLoad() {
-			m_image.enabled = true;
+			GetImage().enabled = true;
 		}
 
 		public override void Apply(Sprite sprite) {
 			base.Apply(sprite);
-			m_image.sprite = sprite;
+			GetImage().sprite = sprite;
 		}
 	}
 }

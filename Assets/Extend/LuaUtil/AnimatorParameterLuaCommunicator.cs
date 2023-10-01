@@ -14,8 +14,6 @@ namespace Extend.LuaUtil {
 		public LuaTable ParameterSummary { get; private set; }
 		public Animator Animator { get; private set; }
 
-		private OnRootMotionUpdate m_rootMotionUpdate;
-
 		private void Awake() {
 			Animator = GetComponent<Animator>();
 			var originController = Animator.runtimeAnimatorController as AnimatorOverrideController;
@@ -51,10 +49,6 @@ namespace Extend.LuaUtil {
 
 				context.Set("hash", parameter.nameHash);
 			}
-		}
-
-		private void OnAnimatorMove() {
-			m_rootMotionUpdate?.Invoke(Animator.deltaPosition, Animator.deltaRotation);
 		}
 
 		public void Play(int nameHash, int layer = 0) {
@@ -93,6 +87,10 @@ namespace Extend.LuaUtil {
 			Animator.SetTrigger(nameHash);
 		}
 
+		public void ResetTrigger(int nameHash) {
+			Animator.ResetTrigger(nameHash);
+		}
+
 		public void ChangeAnimatorController(RuntimeAnimatorController controller) {
 			Animator.runtimeAnimatorController = controller;
 		}
@@ -102,12 +100,11 @@ namespace Extend.LuaUtil {
 			controller[clipName] = clip;
 		}
 
-		public void SetRootMotionActivate(bool activate, OnRootMotionUpdate rootMotionUpdate = null) {
-			Animator.applyRootMotion = activate;
-			m_rootMotionUpdate = rootMotionUpdate;
-		}
-
 		public void OnEvent(EventInstance evt) {
+			if( !evt ) {
+				Debug.LogError("Animation Event Instance Is Null." + name);
+				return;
+			}
 			var callback = ParameterSummary.Get<Action<LuaTable, object>>(evt.EventName);
 			callback?.Invoke(ParameterSummary, evt.Value);
 		}

@@ -10,7 +10,8 @@
         "Extend.EventAsset",
         "Demigiant.Modules",
         "Unity.Addressables",
-        "Unity.ResourceManager"
+        "Unity.ResourceManager",
+        "LoopScrollRect.Runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using Extend.Asset;
 using Extend.Common;
 using Newtonsoft.Json.Linq;
@@ -58,7 +57,7 @@ namespace Extend.LuaUtil {
 
 				var keyArr = keys.Split('\t');
 				var typeArr = types.Split('\t');
-				
+
 				while( true ) {
 					var row = reader.ReadLine();
 					if( string.IsNullOrEmpty(row) ) {
@@ -84,11 +83,21 @@ namespace Extend.LuaUtil {
 		public static LuaTable LoadConfigFile(string filename) {
 			var service = CSharpServiceManager.Get<AssetService>(CSharpServiceManager.ServiceType.ASSET_SERVICE);
 			var path = CONFIG_PATH_PREFIX + filename + ".tsv";
-			if( !service.Exist(path) )
-				return null;
-			var assetRef = service.Load<TextAsset>(path);
-			var asset = assetRef.GetTextAsset();
-			using( var reader = new StringReader(asset.text) ) {
+			string tsvContent = null;
+#if UNITY_EDITOR
+			if( File.Exists(path) ) {
+				tsvContent = File.ReadAllText(path);
+			}
+#endif
+			if( string.IsNullOrEmpty(tsvContent) ) {
+				if( !service.Exist(path) )
+					return null;
+				var assetRef = service.Load<TextAsset>(path);
+				var asset = assetRef.GetTextAsset();
+				tsvContent = asset.text;
+				assetRef.Dispose();
+			}
+			using( var reader = new StringReader(tsvContent) ) {
 				var keys = reader.ReadLine();
 				var types = reader.ReadLine();
 
@@ -117,7 +126,6 @@ namespace Extend.LuaUtil {
 					dataIndex++;
 				}
 
-				assetRef.Dispose();
 				return LuaTable;
 			}
 		}

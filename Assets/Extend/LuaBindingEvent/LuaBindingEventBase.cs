@@ -17,8 +17,9 @@ namespace Extend.LuaBindingEvent {
 		public static BindEvent UnbindEvent => m_unbindEvent;
 
 		private Selectable m_selectable;
+		private bool m_loopEvent;
 
-		private void Awake() {
+		protected virtual void Awake() {
 			m_selectable = GetComponent<Selectable>();
 		}
 
@@ -46,6 +47,10 @@ namespace Extend.LuaBindingEvent {
 
 			foreach( var evt in events ) {
 				var emmyFunction = evt.Function;
+				if( string.IsNullOrEmpty(emmyFunction.LuaMethodName) ) {
+					Debug.LogError($"Lua method is empty", this);
+					return;
+				}
 				switch( evt.Param.Type ) {
 					case EventParam.ParamType.None:
 						var funcNone = emmyFunction.Binding.GetLuaMethod<NoneEventAction>(emmyFunction.LuaMethodName);
@@ -72,6 +77,21 @@ namespace Extend.LuaBindingEvent {
 				}
 			}
 
+			if( m_eventCache is {Count: > 0} ) {
+				m_luaEvents ??= new Dictionary<string, List<int>>();
+
+				foreach( Tuple<string,int> tuple in m_eventCache ) {
+					if( !m_luaEvents.TryGetValue(tuple.Item1, out var ids) ) {
+						ids = new List<int> {tuple.Item2};
+						m_luaEvents.Add(tuple.Item1, ids);
+					}
+					else {
+						ids.Add(tuple.Item2);
+					}
+				}
+				m_eventCache.Clear();
+			}
+
 			if( m_luaEvents == null || !m_luaEvents.TryGetValue(eventName, out var eventIds) ) {
 				return;
 			}
@@ -89,20 +109,25 @@ namespace Extend.LuaBindingEvent {
 		}
 
 		private Dictionary<string, List<int>> m_luaEvents;
+		private List<Tuple<string, int>> m_eventCache;
 
 		public void AddEventListener(string eventName, int id) {
-			m_luaEvents ??= new Dictionary<string, List<int>>();
-
-			if( !m_luaEvents.TryGetValue(eventName, out var ids) ) {
-				ids = new List<int> {id};
-				m_luaEvents.Add(eventName, ids);
-			}
-			else {
-				ids.Add(id);
-			}
+			m_eventCache ??= new List<Tuple<string, int>>();
+			m_eventCache.Add(new Tuple<string, int>(eventName, id));
 		}
 
 		public void RemoveEventListener(string eventName, int id) {
+			if( m_eventCache is {Count: > 0} ) {
+				for( int i = 0; i < m_eventCache.Count; i++ ) {
+					var tuple = m_eventCache[i];
+					if( tuple.Item2 == id ) {
+						m_eventCache.RemoveSwapAt(i);
+						break;
+					}
+				}
+			}
+			
+			
 			if( m_luaEvents == null || !m_luaEvents.TryGetValue(eventName, out var eventIds) ) {
 				return;
 			}

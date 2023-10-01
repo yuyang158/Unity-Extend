@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Assertions;
 using XLua;
+using Object = UnityEngine.Object;
 
 namespace Extend.Common {
 	public interface IService {
@@ -79,6 +80,7 @@ namespace Extend.Common {
 				if( service is IServiceUpdate update ) {
 					m_updateableServices.Add(update);
 				}
+
 				if( service is IServiceLateUpdate lateUpdate ) {
 					m_lateUpdateableServices.Add(lateUpdate);
 				}
@@ -102,9 +104,9 @@ namespace Extend.Common {
 		}
 
 		public static T Get<T>(ServiceType typ) where T : class {
-			return Get<T>((int)typ);
+			return Get<T>((int) typ);
 		}
-		
+
 		public static T Get<T>(int index) where T : class {
 			Assert.IsTrue(Initialized);
 			var service = m_services[index];
@@ -112,13 +114,13 @@ namespace Extend.Common {
 				Debug.LogError($"Service {index} not exist!");
 			}
 
-			return (T)service;
+			return (T) service;
 		}
-		
+
 		public static T TryGetAtIndex<T>(int index) where T : class {
 			Assert.IsTrue(Initialized);
 			var service = m_services[index];
-			return (T)service;
+			return (T) service;
 		}
 
 		private void Update() {
@@ -136,15 +138,19 @@ namespace Extend.Common {
 		private static void CleanUp() {
 			Application.quitting -= CleanUp;
 			m_updateableServices.Clear();
+			m_lateUpdateableServices.Clear();
 			for( int i = m_services.Length - 1; i >= 0; i-- ) {
 				var service = m_services[i];
 				if( service == null )
 					continue;
 				Unregister(service.ServiceType);
 			}
-
 			Initialized = false;
 			Debug.LogWarning("Game Exit!");
+		}
+
+		public static void Shutdown() {
+			CleanUp();
 		}
 	}
 }

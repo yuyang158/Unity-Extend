@@ -169,6 +169,12 @@ namespace Extend.Editor {
 			}
 
 			GUILayout.EndHorizontal();
-		}
+
+            if (GUILayout.Button("更新luaField"))
+            {
+				serializedObject.Update();
+				EditorUtility.SetDirty(target);
+			}
+        }
 	}
 }

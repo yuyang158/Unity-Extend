@@ -15,30 +15,32 @@ namespace Extend.Asset.Editor.Process {
 			new ShaderKeyword("_DBUFFER_MRT1"),
 			new ShaderKeyword("_DBUFFER_MRT2"),
 			new ShaderKeyword("_DBUFFER_MRT3"),
+			new ShaderKeyword("_MAIN_LIGHT_SHADOWS_CASCADE"),
+			new ShaderKeyword("_SHADOWS_SOFT")
 		};
 
 		private static readonly string[] URP_SKIP_KEYWORDS = {
 			"INSTANCING_ON",
 			"_MAIN_LIGHT_SHADOWS",
-			"_MAIN_LIGHT_SHADOWS_CASCADE",
+			// "_MAIN_LIGHT_SHADOWS_CASCADE",
 			"_MAIN_LIGHT_SHADOWS_SCREEN",
 			"_ADDITIONAL_LIGHTS",
 			// "_ADDITIONAL_LIGHTS_VERTEX",
 			"_SCREEN_SPACE_OCCLUSION",
-			"_ADDITIONAL_LIGHT_SHADOWS",
+			// "_ADDITIONAL_LIGHT_SHADOWS",
 			"_REFLECTION_PROBE_BLENDING",
 			"_REFLECTION_PROBE_BOX_PROJECTION",
-			"_SHADOWS_SOFT",
+			// "_SHADOWS_SOFT",
 			"_EMISSION",
 			"_MIXED_LIGHTING_SUBTRACTIVE",
 			"_LIGHT_LAYERS",
 			"_LIGHT_COOKIES",
-			"_DBUFFER_MRT1",
-			"_DBUFFER_MRT2",
-			"_DBUFFER_MRT3",
+			// "_DBUFFER_MRT1",
+			// "_DBUFFER_MRT2",
+			// "_DBUFFER_MRT3",
 
 			//GBUFFER
-			"_GBUFFER_NORMALS_OCT",
+			// "_GBUFFER_NORMALS_OCT",
 			"_RENDER_PASS_ENABLED",
 			"_CASTING_PUNCTUAL_LIGHT_SHADOW",
 			"PROCEDURAL_INSTANCING_ON",
@@ -98,28 +100,8 @@ namespace Extend.Asset.Editor.Process {
 			for( int i = data.Count - 1; i >= 0; i-- ) {
 				var compilerData = data[i];
 				var keywords = compilerData.shaderKeywordSet.GetShaderKeywords();
-				foreach( var shaderKeyword in keywords ) {
-					if( Array.IndexOf(STRIP_BUILD_IN_KEYWORDS, shaderKeyword) != -1 ) {
-						data.RemoveAt(i);
-						break;
-					}
-
-					var keywordName = ShaderKeyword.GetKeywordName(shader, shaderKeyword);
-					if(URP_SKIP_KEYWORDS.Contains(keywordName))
-						continue;
-
-					bool inUsed = false;
-					foreach( var collectKeyword in collectKeywords ) {
-						if( collectKeyword.Contains(keywordName) ) {
-							inUsed = true;
-							break;
-						}
-					}
-
-					if( !inUsed ) {
-						data.RemoveAt(i);
-						break;
-					}
+				if( keywords.Any(shaderKeyword => Array.IndexOf(STRIP_BUILD_IN_KEYWORDS, shaderKeyword) != -1) ) {
+					data.RemoveAt(i);
 				}
 			}
 

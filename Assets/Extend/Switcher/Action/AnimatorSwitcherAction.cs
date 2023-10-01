@@ -11,5 +11,8 @@ namespace Extend.Switcher.Action {
 		public override void ActiveAction() {
 			m_processor.Apply();
 		}
+
+		public override void DeactiveAction() {
+		}
 	}
 }

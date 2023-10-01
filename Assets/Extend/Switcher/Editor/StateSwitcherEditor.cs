@@ -18,10 +18,12 @@ namespace Extend.Switcher.Editor {
 		private static TypeCache.TypeCollection m_switchActionTypes;
 
 		static StateSwitcherEditor() {
-			m_switchActionTypes = TypeCache.GetTypesDerivedFrom<ISwitcherAction>();
+			m_switchActionTypes = TypeCache.GetTypesDerivedFrom<SwitcherAction>();
 		}
 
-		private void OnEnable() {
+		protected bool m_canAddState;
+
+		protected virtual void OnEnable() {
 			m_statesProp = serializedObject.FindProperty("States");
 			m_statesList = new ReorderableList(serializedObject, m_statesProp) {
 				onAddCallback = list => {
@@ -66,6 +68,9 @@ namespace Extend.Switcher.Editor {
 					m_switcherActionList = null;
 				}
 			};
+
+			m_statesList.displayAdd = m_canAddState;
+			m_statesList.displayRemove = m_canAddState;
 		}
 
 		private static void OnMenuClicked(object ctx) {
@@ -85,7 +90,8 @@ namespace Extend.Switcher.Editor {
 				onAddDropdownCallback = (rect, list) => {
 					var menu = new GenericMenu();
 					foreach( var type in m_switchActionTypes ) {
-						menu.AddItem(new GUIContent(type.Name), false, OnMenuClicked,
+						var name = ObjectNames.NicifyVariableName(type.Name.Substring(0, type.Name.Length - 6));
+						menu.AddItem(new GUIContent(name), false, OnMenuClicked,
 							new KeyValuePair<Type, SerializedProperty>(type, switcherActionsProp));
 					}
 
@@ -96,11 +102,7 @@ namespace Extend.Switcher.Editor {
 					var switcher = elementPropAtIndex.GetPropertyObject() as ISwitcherAction;
 					var drawer = ActionDrawer.GetDrawer(switcher.GetType());
 					var foldProp = elementPropAtIndex.FindPropertyRelative("m_fold");
-					if( !foldProp.boolValue ) {
-						return UIEditorUtil.LINE_HEIGHT;
-					}
-
-					return drawer.GetEditorHeight(elementPropAtIndex) + UIEditorUtil.LINE_HEIGHT;
+					return foldProp.boolValue ? drawer.GetEditorHeight(elementPropAtIndex) : UIEditorUtil.LINE_HEIGHT;
 				},
 				drawElementCallback = (rect, index, active, focused) => {
 					var elementPropAtIndex = switcherActionsProp.GetArrayElementAtIndex(index);
@@ -111,15 +113,14 @@ namespace Extend.Switcher.Editor {
 					var foldRect = rect;
 					foldRect.x += 10;
 					var name = ObjectNames.NicifyVariableName(switcher.GetType().Name);
-					foldProp.boolValue = EditorGUI.Foldout(foldRect, foldProp.boolValue, name);
+					foldProp.boolValue = EditorGUI.Foldout(foldRect, foldProp.boolValue, foldProp.boolValue ? string.Empty : name);
 					if( !foldProp.boolValue ) {
 						return;
 					}
 
-					rect.y += UIEditorUtil.LINE_HEIGHT;
-					EditorGUI.indentLevel += 1;
+					EditorGUI.indentLevel += 2;
 					drawer.OnEditorGUI(rect, elementPropAtIndex);
-					EditorGUI.indentLevel -= 1;
+					EditorGUI.indentLevel -= 2;
 				},
 				drawHeaderCallback = rect => { EditorGUI.LabelField(rect, "Action List"); }
 			};
