@@ -7,16 +7,12 @@
 ## 示例代码
 
 ```LUA
-local CoroutineAssetLoader = require("base.asset.CoroutineAssetLoader")
----@type base.asset.CoroutineAssetLoader
-CoroutineAssetLoader.Create(function(procedural, aaa, bbb)
-	local matAssetRef = procedural:LoadAsset("Mat_Cow", typeof(CS.UnityEngine.Material))
-	local material = matAssetRef:GetMaterial()
-	print(material.name)
-	matAssetRef:Dispose()
-	local gameObjects = procedural:InstantiatePrefab("Buildings/House01/Prefabs/house01_tell03", 10)
-	for _, v in ipairs(gameObjects) do
-		print(v.name)
-	end
+local CoroutineAssetLoader = require(" base.asset.CoroutineAssetLoader")
+CoroutineAssetLoader.new(function(this)
+    local gameObjects = this:InstantiatePrefab("XXX/ABC.prefab", 5)
+    
+    assert(#gameObjects == 5)
+    local assetRef = this:LoadAsset("XXX/ABB.anim", "LoadAnimationClipAsync")
+    local clip = assetRef:GetAnimationClip()
 end)
 ```

@@ -1,0 +1,39 @@
+﻿  lapi.c
+  lauxlib.c
+  lbaselib.c
+  lcode.c
+  lcorolib.c
+  lctype.c
+  ldblib.c
+  ldebug.c
+  ldo.c
+  ldump.c
+  lfunc.c
+  lgc.c
+  linit.c
+  liolib.c
+  llex.c
+  lmathlib.c
+  lmem.c
+  loadlib.c
+  lobject.c
+  lopcodes.c
+  Compiling...
+  loslib.c
+  lparser.c
+  lstate.c
+  lstring.c
+  lstrlib.c
+  ltable.c
+  ltablib.c
+  ltm.c
+  lua.c
+  lundump.c
+  lutf8lib.c
+  lvm.c
+  lzio.c
+  Generating code
+  Previous IPDB not found, fall back to full compilation.
+  All 1077 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Finished generating code
+  lua.vcxproj -> D:\git\lua-5.4.4\src\lua\x64\Release\lua.dll

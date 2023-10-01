@@ -45,7 +45,7 @@ endmacro(source_group_by_dir)
 
 add_definitions(-DEMMY_CORE_VERSION="1.0.16")
 
-# add_subdirectory(third-party/libuv-1.29.0)
+add_subdirectory(third-party/libuv)
 add_subdirectory(emmy_debugger)
 add_subdirectory(emmy_core)
 
