@@ -29,14 +29,14 @@ namespace Extend.SceneManagement {
 			Debug.LogWarning($"Start async load scene {scenePath}.");
 			AssetService.Get().LoadSceneAsync(scenePath, additive, instance => {
 				callback?.Invoke(instance);
-				var sceneShadowSection = $"SCENE.{instance.GetScene().name}.SHADOW.CASCADE";
+				/*var sceneShadowSection = $"SCENE.{instance.GetScene().name}.SHADOW.CASCADE";
 				if( GameSystemSetting.Get().SystemSetting.SectionExist(sceneShadowSection) ) {
 					var cascadeCount = GameSystemSetting.Get().SystemSetting.GetInt(sceneShadowSection, "CascadeCount");
 					var shadowDistance = GameSystemSetting.Get().SystemSetting.GetInt(sceneShadowSection, "ShadowDistance");
 					var renderPipelineAsset = GraphicsSettings.renderPipelineAsset as UniversalRenderPipelineAsset;
 					renderPipelineAsset.shadowCascadeCount = cascadeCount;
 					renderPipelineAsset.shadowDistance = shadowDistance;
-				}
+				}*/
 			});
 		}
 

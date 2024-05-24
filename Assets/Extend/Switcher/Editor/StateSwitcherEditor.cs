@@ -21,7 +21,7 @@ namespace Extend.Switcher.Editor {
 			m_switchActionTypes = TypeCache.GetTypesDerivedFrom<SwitcherAction>();
 		}
 
-		protected bool m_canAddState;
+		protected bool m_canAddState = true;
 
 		protected virtual void OnEnable() {
 			m_statesProp = serializedObject.FindProperty("States");
@@ -66,11 +66,10 @@ namespace Extend.Switcher.Editor {
 				onRemoveCallback = list => {
 					m_statesProp.DeleteArrayElementAtIndex(list.index);
 					m_switcherActionList = null;
-				}
+				},
+				displayAdd = m_canAddState,
+				displayRemove = m_canAddState
 			};
-
-			m_statesList.displayAdd = m_canAddState;
-			m_statesList.displayRemove = m_canAddState;
 		}
 
 		private static void OnMenuClicked(object ctx) {

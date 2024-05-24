@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Extend.Common;
 using Extend.UI.Fx;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 using XLua;
+using Object = UnityEngine.Object;
 
 namespace Extend.LuaUtil {
 	[LuaCallCSharp]
@@ -71,6 +73,10 @@ namespace Extend.LuaUtil {
 			return FindInComponents(classMeta, _bindings);
 		}
 
+		public static Component GetOrAddComponent(Component component, Type componentType) {
+			return component.GetOrAddComponent(componentType);
+		}
+		
 		public static void SetPosition(this GameObject go, float x, float y, float z) {
 			go.transform.position = new Vector3(x, y, z);
 		}

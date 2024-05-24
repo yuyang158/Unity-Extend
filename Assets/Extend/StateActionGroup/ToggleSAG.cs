@@ -31,6 +31,7 @@ namespace Extend.StateActionGroup {
 
 		protected override void Start() {
 			base.Start();
+			if(!m_onOffSAG) return;
 			m_onOffSAG.Switch(isOn ? "On" : "Off");
 			if( !group ) {
 				var parentGroup = transform.parent.GetComponent<ToggleGroup>();

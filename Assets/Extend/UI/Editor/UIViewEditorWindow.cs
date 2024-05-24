@@ -41,6 +41,7 @@ namespace Extend.UI.Editor {
 			new MultiColumnHeaderState.Column {headerContent = new GUIContent("UI View"), width = 20, canSort = false},
 			new MultiColumnHeaderState.Column {headerContent = new GUIContent("Background Fx"), width = 10, canSort = false},
 			new MultiColumnHeaderState.Column {headerContent = new GUIContent("Full Screen"), width = 5, canSort = false},
+			new MultiColumnHeaderState.Column {headerContent = new GUIContent("Multi Instance"), width = 5, canSort = false},
 			new MultiColumnHeaderState.Column {headerContent = new GUIContent("Attach Layer"), width = 10, canSort = false},
 			new MultiColumnHeaderState.Column {headerContent = new GUIContent("Transition"), width = 10, canSort = false},
 			new MultiColumnHeaderState.Column {headerContent = new GUIContent("Close"), width = 10, canSort = false},
@@ -68,6 +69,7 @@ namespace Extend.UI.Editor {
 			"UIView",
 			"BackgroundFx",
 			"FullScreen",
+			"MultiInstance",
 			"AttachLayer",
 			"Transition",
 			"CloseMethod",
@@ -219,6 +221,7 @@ namespace Extend.UI.Editor {
 						writer.WriteLine($"c.BackgroundFx = AssetReference(\"{configuration.BackgroundFx.AssetGUID}\")");
 					}
 					writer.WriteLine($"c.FullScreen = {configuration.FullScreen.ToString().ToLower()}");
+					writer.WriteLine($"c.MultiInstance = {configuration.MultiInstance.ToString().ToLower()}");
 
 					if( configuration.Transition != null ) {
 						writer.WriteLine($"c.Transition = AssetReference(\"{configuration.Transition.AssetGUID}\")");

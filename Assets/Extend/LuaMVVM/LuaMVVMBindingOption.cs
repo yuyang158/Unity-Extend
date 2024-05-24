@@ -62,9 +62,9 @@ namespace Extend.LuaMVVM {
 		public static Action<GameObject> DebugCheckCallback;
 #endif
 
-		public void Prepare(GameObject owner) {
-			if( !BindTarget ) {
-				Debug.LogError($"Binding target is null, Path : {Path} Property : {BindTargetProp}, Owner: {owner.name}", owner);
+		public void Prepare() {
+			if( !BindTarget || m_prepared ) {
+				// Debug.LogError($"Binding target is null, Path : {Path} Property : {BindTargetProp}, Owner: {owner.name}", owner);
 				return;
 			}
 
@@ -79,8 +79,8 @@ namespace Extend.LuaMVVM {
 
 		private void SetPropertyValue(object val) {
 			if( !m_prepared ) {
-				Debug.LogError($"LuaMVVMBinding {BindTarget}.{Path} not ready, dont SetDataContext in awake.");
-				return;
+				// Debug.LogError($"LuaMVVMBinding {BindTarget}.{Path} not ready, dont SetDataContext in awake.");
+				Prepare();
 			}
 			
 #if UNITY_EDITOR
@@ -170,7 +170,15 @@ namespace Extend.LuaMVVM {
 				return -1;
 			}
 
+			if( Mode == BindMode.EVENT ) {
+				return -1;
+			}
+
 			if( other.BindTargetProp == "SetActive" ) {
+				return 1;
+			}
+			
+			if( other.Mode == BindMode.EVENT ) {
 				return 1;
 			}
 
@@ -224,7 +232,7 @@ namespace Extend.LuaMVVM {
 
 
 			if( bindingValue == null && Mode != BindMode.ONE_WAY_TO_SOURCE) {
-				// Debug.LogWarning($"Not found value in path {Path}");
+				Debug.LogWarning($"Not found value in path {Path}");
 				return;
 			}
 

@@ -51,30 +51,7 @@ namespace Extend.LuaBindingEvent {
 					Debug.LogError($"Lua method is empty", this);
 					return;
 				}
-				switch( evt.Param.Type ) {
-					case EventParam.ParamType.None:
-						var funcNone = emmyFunction.Binding.GetLuaMethod<NoneEventAction>(emmyFunction.LuaMethodName);
-						funcNone(emmyFunction.Binding.LuaInstance, data);
-						break;
-					case EventParam.ParamType.Int:
-						var funcInt = emmyFunction.Binding.GetLuaMethod<IntEventAction>(emmyFunction.LuaMethodName);
-						funcInt(emmyFunction.Binding.LuaInstance, data, evt.Param.Int);
-						break;
-					case EventParam.ParamType.Float:
-						var funcFloat = emmyFunction.Binding.GetLuaMethod<FloatEventAction>(emmyFunction.LuaMethodName);
-						funcFloat(emmyFunction.Binding.LuaInstance, data, evt.Param.Float);
-						break;
-					case EventParam.ParamType.String:
-						var funcStr = emmyFunction.Binding.GetLuaMethod<StringEventAction>(emmyFunction.LuaMethodName);
-						funcStr(emmyFunction.Binding.LuaInstance, data, evt.Param.Str);
-						break;
-					case EventParam.ParamType.AssetRef:
-						var funcAsset = emmyFunction.Binding.GetLuaMethod<AssetEventAction>(emmyFunction.LuaMethodName);
-						funcAsset(emmyFunction.Binding.LuaInstance, data, evt.Param.AssetRef);
-						break;
-					default:
-						throw new ArgumentOutOfRangeException();
-				}
+				emmyFunction.Invoke(evt.Param, data);
 			}
 
 			if( m_eventCache is {Count: > 0} ) {

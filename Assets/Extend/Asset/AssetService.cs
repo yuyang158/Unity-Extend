@@ -24,7 +24,9 @@ namespace Extend.Asset {
 		private readonly Stopwatch m_instantiateStopwatch = new Stopwatch();
 		public Transform PoolRootNode { get; private set; }
 
-		private readonly Queue<AssetReference.InstantiateAsyncContext> m_deferInstantiates = new Queue<AssetReference.InstantiateAsyncContext>(64);
+		private readonly Queue<AssetReference.InstantiateAsyncContext> m_deferInstantiates =
+			new Queue<AssetReference.InstantiateAsyncContext>(64);
+
 		private float m_singleFrameMaxInstantiateDuration;
 		private readonly List<IDisposable> m_disposables = new List<IDisposable>();
 
@@ -42,6 +44,7 @@ namespace Extend.Asset {
 		}
 
 		private GameObject poolGO;
+
 		[BlackList]
 		public void AfterSceneLoaded(float maxInstantiateDuration) {
 			m_singleFrameMaxInstantiateDuration = maxInstantiateDuration;
@@ -56,13 +59,12 @@ namespace Extend.Asset {
 			m_stopwatch = new Stopwatch();
 		}
 
-		public async Task InitAddressable()
-		{
+		public async Task InitAddressable() {
 			Debug.Log("addressable is InitializeAsync complete start");
 			await Addressables.InitializeAsync().Task;
 			Debug.Log("addressable is InitializeAsync complete End...");
 		}
-		
+
 		[BlackList]
 		public void Destroy() {
 			GC.Collect();
@@ -91,15 +93,16 @@ namespace Extend.Asset {
 				Debug.LogWarning($"Defer instantiate queue : {context}");
 #endif
 				while( true ) {
-					if( !context.GetAssetReady() ) {
-						break;
-					}
-
+					if( !context.Cancel ) {
+						if( !context.GetAssetReady() ) {
+							break;
+						}
 #if ASSET_LOG
 					Debug.LogWarning($"Async instantiate : {context}");
 #endif
+						context.Instantiate();
+					}
 
-					context.Instantiate();
 					m_deferInstantiates.Dequeue();
 					if( m_deferInstantiates.Count == 0 )
 						break;
@@ -137,8 +140,12 @@ namespace Extend.Asset {
 		}
 
 		public AssetAsyncLoadHandle LoadGameObjectAsync(string path) {
+			if( path.Length == 0 ) {
+				throw new Exception("Load path is empty.");
+			}
 			return LoadAsync<GameObject>(path);
 		}
+
 		public AssetAsyncLoadHandle LoadShaderAsync(string path) {
 			return LoadAsync<Shader>(path);
 		}
@@ -185,8 +192,14 @@ namespace Extend.Asset {
 			Debug.LogWarning($"Async load asset : {path}");
 #endif
 			FormatPath(ref path);
-			var handle = Addressables.LoadAssetAsync<T>(path);
-			return new AssetAsyncLoadHandle(Container, handle);
+			try {
+				var handle = Addressables.LoadAssetAsync<T>(path);
+				return new AssetAsyncLoadHandle(Container, handle);
+			}
+			catch( Exception e ) {
+				Debug.LogException(e);
+				throw;
+			}
 		}
 
 		public AssetReference LoadGameObject(string path) {
@@ -244,6 +257,7 @@ namespace Extend.Asset {
 			if( !go ) {
 				return;
 			}
+
 			var cache = go.GetComponent<AssetServiceManagedGO>();
 			if( !cache ) {
 #if UNITY_DEBUG
@@ -251,6 +265,7 @@ namespace Extend.Asset {
 #endif
 				return;
 			}
+
 			var recyclable = go.GetComponent<IRecyclable>();
 			recyclable?.OnRecycle();
 			cache.Recycle();
@@ -261,6 +276,7 @@ namespace Extend.Asset {
 			if( !component ) {
 				return;
 			}
+
 			Recycle(component.gameObject);
 		}
 

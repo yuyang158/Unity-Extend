@@ -14,7 +14,6 @@ namespace Extend.Switcher.Action {
 		}
 
 		public override void DeactiveAction() {
-			m_go.SetActive(!m_active);
 		}
 	}
 }

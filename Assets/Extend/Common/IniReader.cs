@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using XLua;
@@ -80,7 +81,7 @@ namespace Extend.Common {
 		}
 
 		public double GetDouble(string section, string key) {
-			return FindOne(section, key, out var val) ? double.Parse(val) : default;
+			return FindOne(section, key, out var val) ? double.Parse(val, NumberStyles.Float, CultureInfo.InvariantCulture) : default;
 		}
 
 		private IniRead() {

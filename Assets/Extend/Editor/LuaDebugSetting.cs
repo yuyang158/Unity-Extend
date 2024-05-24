@@ -126,7 +126,7 @@ namespace Extend.Editor {
 						var appDataPath = Environment.GetEnvironmentVariable("APPDATA");
 						string searchPath = $";{appDataPath}/JetBrains/Rider2023.2/plugins/EmmyLua/debugger/emmy/windows/x64/?.dll";
 						#elif UNITY_EDITOR_OSX
-						const string searchPath = "";
+						const string searchPath = ";/Users/yuyang/.vscode/extensions/tangzx.emmylua-0.5.19/debugger/emmy/mac/x64/?.dylib";
 						#endif
 						initFunc.Call(searchPath);
 						if( settingObj.Mode == LuaDebugSetting.DebugMode.ListenAndWait ) {

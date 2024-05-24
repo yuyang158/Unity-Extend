@@ -18,6 +18,8 @@ namespace Extend.Switcher.Action.Editor {
 			m_drawers.Add(typeof(UIMaterialSwitcherAction), new DefaultActionDrawer());
 			m_drawers.Add(typeof(ImageSwitcherAction), new DefaultActionDrawer());
 			m_drawers.Add(typeof(TweenAnimationAction), new DefaultActionDrawer());
+			m_drawers.Add(typeof(ParticleSwitcherAction), new DefaultActionDrawer());
+			m_drawers.Add(typeof(SoundPlayAction), new DefaultActionDrawer());
 		}
 
 		public static ActionDrawer GetDrawer(Type type) {
@@ -59,7 +61,7 @@ namespace Extend.Switcher.Action.Editor {
 
 			var activeProp = property.FindPropertyRelative("m_active");
 			var toggleRect = rect;
-			toggleRect.xMin = rect.xMax;
+			toggleRect.xMin = rect.xMax - 25;
 			toggleRect.xMax += 20;
 			activeProp.boolValue = EditorGUI.ToggleLeft(toggleRect, GUIContent.none, activeProp.boolValue);
 		}

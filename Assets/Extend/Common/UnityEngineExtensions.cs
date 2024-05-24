@@ -10,7 +10,7 @@ namespace Extend.Common {
 				throw new IndexOutOfRangeException();
 			}
 
-			list[index] = list[list.Count - 1];
+			list[index] = list[^1];
 			list.RemoveAt(list.Count - 1);
 		}
 

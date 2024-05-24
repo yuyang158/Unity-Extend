@@ -63,10 +63,10 @@ namespace Extend {
 
 			var destroy = CachedClass.GetLuaMethod<LuaUnityEventFunction>("destroy");
 			destroy?.Invoke(LuaInstance);
-#if UNITY_DEBUG
+/*#if UNITY_DEBUG
 			var luaVm = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
 			LuaInstance.SetMetaTable(luaVm.DestroyedTableMeta);
-#endif
+#endif*/
 			LuaInstance?.Dispose();
 			LuaInstance = null;
 

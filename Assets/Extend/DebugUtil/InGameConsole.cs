@@ -85,15 +85,9 @@ namespace Extend.DebugUtil {
 		private readonly StringBuilder builder = new StringBuilder(4096);
 
 		private void Update() {
-			if( m_showErrorPanel ) {
-				if( Input.touchCount >= 5 ) {
-					m_errorRoot.SetActive(true);
-				}
-			}
-			
 			builder.Clear();
 			if( m_showFps ) {
-				builder.AppendFormat("FPS : {0} / {1}\n", Mathf.RoundToInt(1 / Time.smoothDeltaTime).ToString(),
+				builder.AppendFormat("FPS : {0} / {1}\n", Mathf.RoundToInt(1 / Time.unscaledDeltaTime).ToString(),
 					Application.targetFrameRate <= 0 ? "No Limit" : Application.targetFrameRate.ToString());
 			}
 

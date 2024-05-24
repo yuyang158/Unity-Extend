@@ -76,14 +76,25 @@ namespace Extend.SceneManagement.SpatialStructure {
 
 		public abstract void Build();
 
+		public void SetVisible(int combinedId, bool visible) {
+			DrawJobSchedule.SplitCombineID(combinedId, out var materialIndex, out var instanceIndex);
+			var meshMaterial = JobSchedule.GetMeshMaterial(materialIndex);
+			meshMaterial.SetVisible(instanceIndex, visible);
+		}
+
 		protected List<SpecialSceneElement> BuildCollect() {
 			JobSchedule.Prepare();
 			var meshRenderers = GetComponentsInChildren<MeshRenderer>();
 			foreach( var meshRenderer in meshRenderers ) {
+				var marker = meshRenderer.GetComponent<SpatialIgnoreMarker>();
+				if( marker ) {
+					continue;
+				}
+				
 				var meshFilter = meshRenderer.GetComponent<MeshFilter>();
 				var sharedMesh = meshFilter.sharedMesh;
 				JobSchedule.ConvertRenderer(sharedMesh, meshRenderer);
-				meshRenderer.enabled = false;
+				meshRenderer.forceRenderingOff = true;
 			}
 
 			RendererCount = JobSchedule.Instances.Count;

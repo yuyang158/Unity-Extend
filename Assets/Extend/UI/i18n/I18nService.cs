@@ -23,6 +23,7 @@ namespace Extend.UI.i18n {
 
 		public void ChangeCurrentLanguage(string lang) {
 			m_currentLang = lang;
+			Debug.LogWarning($"Static text language : {lang}");
 		}
 
 		public void Destroy() {
@@ -34,7 +35,7 @@ namespace Extend.UI.i18n {
 				return string.Empty;
 			}
 
-			return ret[m_currentLang].ToString();
+			return ret[m_currentLang].ToString().Replace("\\n", "\n");
 		}
 	}
 }

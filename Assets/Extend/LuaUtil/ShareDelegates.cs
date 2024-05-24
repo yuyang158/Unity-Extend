@@ -37,6 +37,21 @@ namespace Extend.LuaUtil {
 	public delegate void DetachLuaProperty(LuaTable self, string path, WatchCallback callback);
 
 	[CSharpCallLua]
+	public delegate void GlobalNoneEventAction(object data);
+
+	[CSharpCallLua]
+	public delegate void GlobalIntEventAction(object data, int val);
+
+	[CSharpCallLua]
+	public delegate void GlobalFloatEventAction(object data, float val);
+
+	[CSharpCallLua]
+	public delegate void GlobalStringEventAction(object data, string val);
+
+	[CSharpCallLua]
+	public delegate void GlobalAssetEventAction(object data, AssetReference val);
+
+	[CSharpCallLua]
 	public delegate void NoneEventAction(LuaTable t, object data);
 
 	[CSharpCallLua]

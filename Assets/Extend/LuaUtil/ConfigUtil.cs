@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Globalization;
+using System.IO;
 using Extend.Asset;
 using Extend.Common;
 using Newtonsoft.Json.Linq;
@@ -28,7 +29,7 @@ namespace Extend.LuaUtil {
 				case "string":
 					return val;
 				case "number":
-					return float.Parse(val);
+					return float.Parse(val, NumberStyles.Float, CultureInfo.InvariantCulture);
 				case "boolean":
 				case "bool":
 					return val == "true" || val == "1";
@@ -121,7 +122,7 @@ namespace Extend.LuaUtil {
 					}
 
 					var rowDataArr = row.Split('\t');
-					Assert.IsTrue(keyArr.Length == rowDataArr.Length, $"Table {filename} key count {keyArr.Length} != data count {rowDataArr.Length}");
+					// Assert.IsTrue(keyArr.Length == rowDataArr.Length, $"Table {filename} key count {keyArr.Length} != data count {rowDataArr.Length}");
 					dataTable.Set(dataIndex, ConvertStringArrayToLua(rowDataArr));
 					dataIndex++;
 				}

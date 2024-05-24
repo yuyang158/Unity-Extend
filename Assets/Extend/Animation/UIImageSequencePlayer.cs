@@ -19,6 +19,7 @@ namespace Extend.Animation {
 		public override void Play(string animationName, int skip = 0, float timeScale = 1) {
 			base.Play(animationName, skip, timeScale);
 			m_img.enabled = true;
+			m_img.sprite = CurrentSprite;
 		}
 
 		private void Update() {

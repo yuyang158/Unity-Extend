@@ -17,4 +17,4 @@ namespace Extend.LuaBindingEvent {
 			TriggerPointerEvent("OnClick", m_clickEvent, null);
 		}
 	}
-}
+} 

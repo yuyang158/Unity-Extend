@@ -35,7 +35,7 @@ namespace Extend.Render {
 		public AdditionalUIRenderPass(string profilerTag, RenderPassEvent renderPassEvent, string[] shaderTags, int layerMask,
 			ClearFlag clearFlag) {
 			m_profilerTag = profilerTag;
-			this.renderPassEvent = renderPassEvent + 2;
+			this.renderPassEvent = renderPassEvent;
 			m_clearFlag = clearFlag;
 			var renderQueueRange = RenderQueueRange.all;
 			m_filteringSettings = new FilteringSettings(renderQueueRange, layerMask);
@@ -58,7 +58,8 @@ namespace Extend.Render {
 			var cmd = CommandBufferPool.Get(m_profilerTag);
 			context.ExecuteCommandBuffer(cmd);
 			cmd.Clear();
-			cmd.ClearRenderTarget(( m_clearFlag & ClearFlag.Depth ) != 0, false, Color.black);
+
+			//cmd.ClearRenderTarget(( m_clearFlag & ClearFlag.Depth ) != 0, false, Color.black);
 			context.DrawRenderers(renderingData.cullResults, ref drawingSettings, ref m_filteringSettings,
 				ref m_renderStateBlock);
 

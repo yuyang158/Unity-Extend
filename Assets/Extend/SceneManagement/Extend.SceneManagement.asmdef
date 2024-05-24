@@ -8,7 +8,9 @@
         "GUID:1d0fc5bbd1c29f14db9bb80201319de6",
         "GUID:e0cd26848372d4e5c891c569017e11f1",
         "GUID:5244392fac2b89c4a9fa7a5b7a72a1b1",
-        "GUID:15fc0a57446b3144c949da3e2b9737a9"
+        "GUID:15fc0a57446b3144c949da3e2b9737a9",
+        "Unity.RenderPipeline.Universal.ShaderLibrary",
+        "GUID:1ccdc612592c2fd4d9c05aaaa1e3d40a"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

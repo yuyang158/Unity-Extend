@@ -1,5 +1,4 @@
-﻿using System;
-using Extend.Common;
+﻿using Extend.Common;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -19,12 +18,15 @@ namespace Extend.LuaBindingEvent {
 		[ReorderList, LabelText("On Hold ()"), SerializeField]
 		private BindingEvent[] m_holdEvent;
 
+		[SerializeField]
+		private bool m_ignoreOnDesktop;
+
 		private bool m_pressed;
 
 		private bool Pressed {
 			set {
 				m_pressed = value;
-				if( !m_pressed ) {
+				if( !m_pressed && m_progressFxGo ) {
 					m_progressFxGo.SetActive(false);
 				}
 			}
@@ -35,6 +37,9 @@ namespace Extend.LuaBindingEvent {
 		}
 
 		public void OnPointerDown(PointerEventData eventData) {
+			if( !Application.isMobilePlatform ) {
+				return;
+			}
 			m_timeLast = 0;
 			Pressed = true;
 			var pressedTarget = eventData.pointerEnter.transform as RectTransform;
@@ -55,6 +60,13 @@ namespace Extend.LuaBindingEvent {
 			m_progressFxGo = Instantiate(m_pressFX);
 			m_progressFxGo.SetActive(false);
 			m_progressImg = m_progressFxGo.GetComponent<Image>();
+
+			if( !Application.isMobilePlatform && !m_ignoreOnDesktop ) {
+				var button = GetComponent<Button>();
+				button.onClick.AddListener(() => {
+					TriggerPointerEvent("OnHold", m_holdEvent, null);
+				});
+			}
 		}
 
 		private float m_timeLast;

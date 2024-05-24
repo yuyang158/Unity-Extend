@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using XLua;
 
 namespace Extend.UI {
@@ -11,6 +12,7 @@ namespace Extend.UI {
 		public event Action Hidden;
 
 		public bool ControlInteractable = true;
+		public GameObject FirstSelectGameObject;
 
 		[LuaCallCSharp]
 		public enum Status {
@@ -31,6 +33,12 @@ namespace Extend.UI {
 		public CanvasGroup CanvasGroup { get; private set; }
 
 		private Status viewStatus;
+
+		private void OnEnable() {
+			if( FirstSelectGameObject && EventSystem.current ) {
+				EventSystem.current.SetSelectedGameObject(FirstSelectGameObject);
+			}
+		}
 
 		public Status ViewStatus {
 			get => viewStatus;

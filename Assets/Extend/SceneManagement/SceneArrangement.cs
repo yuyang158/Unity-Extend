@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
-using Extend.Common;
+﻿using Extend.Common;
 using Extend.SceneManagement.Culling;
-using Extend.SceneManagement.Modifier;
 using Extend.SceneManagement.SpatialStructure;
 using UnityEngine;
 using UnityEngine.Profiling;
@@ -24,17 +22,19 @@ namespace Extend.SceneManagement {
 
 		private Vector3 m_recordPosition = Vector3.negativeInfinity;
 		private readonly Plane[] m_frustumPlanes = new Plane[6];
-		private readonly List<ISceneModifier> m_modifiers = new List<ISceneModifier>();
+
+		private static SceneArrangement m_instance;
+		public static SceneArrangement Instance => m_instance;
+
+		private void Awake() {
+			m_instance = this;
+		}
 
 		private void Start() {
 			m_spatial.Build();
 			for( int i = 0; i < 6; i++ ) {
 				m_frustumPlanes[i] = new Plane();
 			}
-		}
-
-		public void AddModifier(ISceneModifier modifier) {
-			m_modifiers.Add(modifier);
 		}
 
 		private void Update() {
@@ -53,9 +53,6 @@ namespace Extend.SceneManagement {
 
 		private void LateUpdate() {
 			m_spatial.JobSchedule.Complete();
-			foreach( var modifier in m_modifiers ) {
-				modifier.Update(this);
-			}
 
 			if( m_forceNoDraw ) {
 				return;

@@ -9,6 +9,7 @@ namespace Extend.Asset {
 	[LuaCallCSharp, CSharpCallLua]
 	public class AssetAsyncLoadHandle : IEnumerator {
 		private AsyncOperationHandle m_handle;
+
 		public AssetAsyncLoadHandle(AssetContainer container, AsyncOperationHandle handle) {
 			Container = container;
 			m_handle = handle;
@@ -20,12 +21,13 @@ namespace Extend.Asset {
 				if( !m_handle.IsDone ) {
 					throw new Exception("Dont request result before load process is done.");
 				}
+
 				return new AssetReference(m_handle);
 			}
 		}
 
 		public float Progress => m_handle.PercentComplete;
-		
+
 		public bool Cancel { get; set; }
 
 		[BlackList]
@@ -35,6 +37,7 @@ namespace Extend.Asset {
 		public int AssetHashCode => m_handle.GetHashCode();
 
 		public delegate void OnAssetLoadComplete(AssetAsyncLoadHandle handle);
+
 		public event OnAssetLoadComplete OnComplete;
 
 		[BlackList]
@@ -45,13 +48,19 @@ namespace Extend.Asset {
 #if ASSET_LOG
 			Debug.LogWarning($"Asset {handle.DebugName} load complete : {handle.Status}");
 #endif
-			Asset = Container.TryGetAsset(handle.GetHashCode()) as AssetInstance ?? 
-			        (handle.Result is GameObject ? new PrefabAssetInstance(handle) : new AssetInstance(handle));
+			Asset = Container.TryGetAsset(handle.GetHashCode()) as AssetInstance ??
+			        ( handle.Result is GameObject ? new PrefabAssetInstance(handle) : new AssetInstance(handle) );
 			if( Cancel ) {
 				Asset.Release();
 				return;
 			}
-			OnComplete?.Invoke(this);
+
+			try {
+				OnComplete?.Invoke(this);
+			}
+			catch( Exception ex ) {
+				Debug.LogException(ex);
+			}
 		}
 
 		[BlackList]

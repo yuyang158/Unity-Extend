@@ -20,7 +20,8 @@ namespace Extend {
 	internal static class StaticServiceInitializer {
 #if UNITY_EDITOR
 		static StaticServiceInitializer() {
-			TMP_Settings settings = UnityEditor.AssetDatabase.LoadAssetAtPath<TMP_Settings>("Assets/TextMesh Pro/Res/TMP Settings.asset");
+			TMP_Settings settings =
+				UnityEditor.AssetDatabase.LoadAssetAtPath<TMP_Settings>("Assets/TextMesh Pro/Res/TMP Settings.asset");
 			var settingsType = settings.GetType();
 			var settingsInstanceInfo =
 				settingsType.GetField("s_Instance", BindingFlags.Static | BindingFlags.NonPublic);

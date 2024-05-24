@@ -46,9 +46,14 @@ namespace Extend.LuaMVVM {
 				if( !(ScrollCellAsset is {GUIDValid: true}) ) {
 					m_scroll.ClearCells();
 				}
-				
-				m_scroll.totalCount = m_arrayData.Length;
-				m_scroll.RefillCells();
+
+				if( m_arrayData == null ) {
+					m_scroll.totalCount = 0;
+				}
+				else {
+					m_scroll.totalCount = m_arrayData.Length;
+					m_scroll.RefillCells();
+				}
 			}
 		}
 

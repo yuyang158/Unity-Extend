@@ -15,14 +15,13 @@ namespace Extend.Common.Editor {
 				return UIEditorUtil.LINE_HEIGHT;
 			}
 
-			var controller = animator.runtimeAnimatorController as AnimatorController;
-			if( !controller ) {
+			if( !animator.runtimeAnimatorController ) {
 				return UIEditorUtil.LINE_HEIGHT;
 			}
 
 			var valueProp = property.FindPropertyRelative("m_paramValue");
 			var nameHashProp = valueProp.FindPropertyRelative("NameHash");
-			foreach( var param in controller.parameters ) {
+			foreach( var param in animator.parameters ) {
 				if( param.nameHash == nameHashProp.intValue ) {
 					switch( param.type ) {
 						case AnimatorControllerParameterType.Float:
@@ -49,14 +48,13 @@ namespace Extend.Common.Editor {
 			var animator = animatorProp.objectReferenceValue as Animator;
 			if( !animator )
 				return;
-			var controller = animator.runtimeAnimatorController as AnimatorController;
-			if( !controller ) {
+			if( !animator.runtimeAnimatorController ) {
 				return;
 			}
 
-			var paramNames = new string[controller.parameters.Length];
-			for( int i = 0; i < controller.parameters.Length; i++ ) {
-				var parameter = controller.parameters[i];
+			var paramNames = new string[animator.parameters.Length];
+			for( int i = 0; i < animator.parameters.Length; i++ ) {
+				var parameter = animator.parameters[i];
 				paramNames[i] = parameter.name;
 			}
 
@@ -68,7 +66,7 @@ namespace Extend.Common.Editor {
 				nameHashProp.intValue = Animator.StringToHash(paramNames[index]);
 			position.y += UIEditorUtil.LINE_HEIGHT;
 
-			foreach( var param in controller.parameters ) {
+			foreach( var param in animator.parameters ) {
 				if( param.nameHash != nameHashProp.intValue ) continue;
 
 				switch( param.type ) {

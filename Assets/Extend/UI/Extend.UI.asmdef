@@ -11,7 +11,9 @@
         "Demigiant.Modules",
         "Unity.Addressables",
         "Unity.ResourceManager",
-        "LoopScrollRect.Runtime"
+        "LoopScrollRect.Runtime",
+        "Unity.RenderPipeline.Universal.ShaderLibrary",
+        "Extend.Network"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

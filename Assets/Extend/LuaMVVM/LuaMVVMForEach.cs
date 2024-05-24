@@ -1,3 +1,4 @@
+using System;
 using Extend.Asset;
 using Extend.Asset.Attribute;
 using UnityEngine;
@@ -12,7 +13,12 @@ namespace Extend.LuaMVVM {
 		private LuaMVVMScrollViewComponent m_component;
 
 		private void Awake() {
+			// Debug.LogWarning("Init for : " + name);
 			m_component = new LuaMVVMScrollViewComponent(Asset, transform);
+		}
+
+		private void OnEnable() {
+			LuaArrayData = LuaArrayData;
 		}
 
 		public void SetDataContext(LuaTable dataSource) {

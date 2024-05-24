@@ -7,8 +7,9 @@ namespace Extend.LuaBindingEvent {
 	public class LuaBindingToggleEvent : LuaBindingEventBase {
 		[ReorderList, LabelText("On Check ()"), SerializeField]
 		private BindingEvent[] m_checkEvent;
-
-		private void Start() {
+		
+		protected override void Awake() {
+			base.Awake();
 			var toggle = GetComponent<Toggle>();
 			toggle.onValueChanged.AddListener(OnValueChanged);
 		}

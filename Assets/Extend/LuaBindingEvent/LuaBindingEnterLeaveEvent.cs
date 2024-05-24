@@ -10,10 +10,16 @@ namespace Extend.LuaBindingEvent {
 		private BindingEvent[] m_exitEvent;
 
 		public void OnPointerEnter(PointerEventData eventData) {
+			if( Application.isMobilePlatform ) {
+				return;
+			}
 			TriggerPointerEvent("OnEnter", m_enterEvent, eventData);
 		}
 
 		public void OnPointerExit(PointerEventData eventData) {
+			if( Application.isMobilePlatform ) {
+				return;
+			}
 			TriggerPointerEvent("OnExit", m_exitEvent, eventData);
 		}
 	}

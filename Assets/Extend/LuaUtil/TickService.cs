@@ -14,6 +14,9 @@ namespace Extend.LuaUtil {
 		[CSharpCallLua]
 		private Action m_lateTick;
 
+		[CSharpCallLua]
+		private Action m_fixedTick;
+
 		public event Action<Resolution> ResolutionChanged;
 		private Resolution m_currentResolution;
 
@@ -28,6 +31,7 @@ namespace Extend.LuaUtil {
 			var luaTickService = luaGetService(2);
 			m_tick = luaTickService.Get<Action>("Tick");
 			m_lateTick = luaTickService.Get<Action>("LateTick");
+			m_fixedTick = luaTickService.Get<Action>("FixedTick");
 		}
 
 		public void Destroy() {

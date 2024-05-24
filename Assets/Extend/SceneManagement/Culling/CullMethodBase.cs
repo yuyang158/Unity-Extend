@@ -6,5 +6,7 @@ namespace Extend.SceneManagement.Culling {
 		public abstract Vector3 BoundsCenter { get; }
 
 		public abstract bool Cull(Bounds bounds);
+
+		public Transform AttachTransform { protected get; set; }
 	}
 }

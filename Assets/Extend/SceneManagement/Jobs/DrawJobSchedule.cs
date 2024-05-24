@@ -24,6 +24,7 @@ namespace Extend.SceneManagement.Jobs {
 		private static readonly int ZWrite = Shader.PropertyToID("_ZWrite");
 		private static readonly int BaseColor = Shader.PropertyToID("_BaseColor");
 		private static readonly int Surface = Shader.PropertyToID("_Surface");
+		private static readonly int Blend = Shader.PropertyToID("_Blend");
 
 		public void Build() {
 			var count = Mathf.CeilToInt(Instances.Count / 1024.0f);
@@ -110,7 +111,8 @@ namespace Extend.SceneManagement.Jobs {
 				m_transparentMaterial.SetOverrideTag("RenderType", "Transparent");
 				m_transparentMaterial.SetInt(SrcBlend, (int)BlendMode.SrcAlpha);
 				m_transparentMaterial.SetInt(DstBlend, (int)BlendMode.OneMinusSrcAlpha);
-				m_transparentMaterial.SetInt(ZWrite, 0);
+				m_transparentMaterial.SetInt(ZWrite, 1);
+				m_transparentMaterial.SetInt(Blend, 1);
 				var baseColor = m_transparentMaterial.GetColor(BaseColor);
 				baseColor.a = 0.1f;
 				// m_transparentMaterial.DisableKeyword("_ALPHAPREMULTIPLY_ON");
@@ -167,6 +169,15 @@ namespace Extend.SceneManagement.Jobs {
 			return m_meshMaterials[index];
 		}
 
+		public static int BuildCombinedID(int materialIndex, int instanceIndex) {
+			return materialIndex * BatchMeshMaterialMap.MESH_MATERIAL_OFFSET + instanceIndex;
+		}
+
+		public static void SplitCombineID(int combineID, out int materialIndex, out int instanceIndex) {
+			materialIndex = combineID / BatchMeshMaterialMap.MESH_MATERIAL_OFFSET;
+			instanceIndex = combineID % BatchMeshMaterialMap.MESH_MATERIAL_OFFSET;
+		}
+		
 		public void ConvertRenderer(Mesh mesh, MeshRenderer renderer) {
 			if( mesh.subMeshCount != renderer.sharedMaterials.Length ) {
 				Debug.LogError("Only supports one-to-one correspondence between SubMesh and material : " + renderer.name, renderer);
@@ -204,7 +215,7 @@ namespace Extend.SceneManagement.Jobs {
 					Index = meshMaterial.Instances.Count,
 					InstanceID = renderer.gameObject.GetInstanceID()
 				};
-				batchMeshMaterialMap.CombinedIDs[subMeshIndex] = instance.MaterialIndex * BatchMeshMaterialMap.MESH_MATERIAL_OFFSET + instance.Index;
+				batchMeshMaterialMap.CombinedIDs[subMeshIndex] = BuildCombinedID(instance.MaterialIndex, instance.Index);
 				meshMaterial.Instances.Add(instance);
 				Instances.Add(instance);
 			}

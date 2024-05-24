@@ -59,9 +59,10 @@ namespace Extend.Common {
 	[AttributeUsage(AttributeTargets.Method)]
 	public class ButtonAttribute : PropertyAttribute, IExtendAttribute {
 		public readonly string ButtonName;
-		public readonly ButtonSize Size = ButtonSize.Small;
-		public ButtonAttribute(string buttonName) {
+		public readonly ButtonSize Size;
+		public ButtonAttribute(string buttonName, ButtonSize size = ButtonSize.Small) {
 			ButtonName = buttonName;
+			Size = size;
 		}
 
 		public ButtonAttribute(ButtonSize size) {

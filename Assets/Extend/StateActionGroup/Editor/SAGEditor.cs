@@ -102,7 +102,7 @@ namespace Extend.StateActionGroup.Editor {
 
 			serializedObject.ApplyModifiedProperties();
 			var sag = target as SAG;
-			if( m_stateDataList.index != -1 ) {
+			if( m_stateDataList.index != -1 && m_stateDataList.serializedProperty.arraySize > m_stateDataList.index) {
 				var stateProp = m_stateDataList.serializedProperty.GetArrayElementAtIndex(m_stateDataList.index);
 				var stateDataGroup = stateProp.GetPropertyObject() as StateDataGroup;
 				stateDataGroup.DataArray ??= Array.Empty<BehaviourDataBase>();

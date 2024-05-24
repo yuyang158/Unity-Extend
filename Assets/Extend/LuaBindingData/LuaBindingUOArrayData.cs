@@ -40,7 +40,7 @@ namespace Extend.LuaBindingData {
 					elementHeight = UnityEditor.EditorGUIUtility.singleLineHeight
 				};
 				reList.drawHeaderCallback += rect => {
-					UnityEditor.EditorGUI.LabelField(rect, FieldName);
+					UnityEditor.EditorGUI.LabelField(rect, UnityEditor.ObjectNames.NicifyVariableName(FieldName));
 				};
 				reList.drawElementCallback += (rect, index, active, focused) => {
 					var elemProp = reList.serializedProperty.GetArrayElementAtIndex(index);

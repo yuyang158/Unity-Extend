@@ -11,7 +11,7 @@ namespace Extend.LuaBindingData {
 
 		public override void ApplyToLuaInstance(LuaTable instance) {
 			if( !Data ) {
-				Debug.LogWarning($"Field {FieldName} value is null!");
+				// Debug.LogWarning($"Field {FieldName} value is null!");
 				return;
 			}
 			instance.Set(FieldName, Data);

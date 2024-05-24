@@ -44,6 +44,7 @@ namespace Extend {
 		private LuaFunction OnClearCache;
 		private static LuaEnv Default { get; set; }
 		public LuaTable Global => Default.Global;
+		public LuaEnv Env => Default;
 		public LuaTable DestroyedTableMeta { private set; get; }
 		public SendCSharpMessage SendCSharpMessage { get; private set; }
 
@@ -215,7 +216,7 @@ namespace Extend {
 				// Default.AddBuildin("lpeg", Lua.LoadLpeg);
 				// Default.AddBuildin("sproto.core", Lua.LoadSprotoCore);
 				// Default.AddBuildin("luv", Lua.LoadLUV);
-				// Default.AddBuildin("lsqlite", Lua.LoadLSqlite3);
+				Default.AddBuildin("lsqlite", Lua.LoadLSqlite3);
 
 				Lua.OverrideLogFunction(Default.L);
 				LuaClassCache = new LuaClassCache();
@@ -257,15 +258,8 @@ namespace Extend {
 			DestroyedTableMeta = Global.Get<LuaTable>("DestroyedTableMeta");
 		}
 
-
-		public void Restart() {
-			Destroy();
-			Initialize();
-			StartUp();
-		}
-
-		public void StartUp() {
-			OnInit.Action<Func<string, byte[]>>(filename => LoadFile(ref filename, ".lua"));
+		public void StartUp(string initState) {
+			OnInit.Action(initState);
 
 			SendCSharpMessage = Default.Global.GetInPath<SendCSharpMessage>("_CSMessageService.OnMessage");
 			m_bindingEnv = Default.Global.GetInPath<LuaTable>("_BindingEnv");

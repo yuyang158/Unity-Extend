@@ -29,7 +29,9 @@ namespace Extend.Animation {
 		public virtual void Play(string animationName, int skip = 0, float timeScale = 1) {
 			if( !gameObject.activeInHierarchy ) {
 				Debug.LogWarning("GameObject is not active", gameObject);
-				return;
+				if( transform.parent ) {
+					Debug.LogWarning($"I am {transform.parent.name}.{gameObject.name}");
+				}
 			}
 
 			if( !m_animator ) {
@@ -69,6 +71,8 @@ namespace Extend.Animation {
 		private Sprite GetSprite(string spriteName) {
 			return m_animator.GetSprite(spriteName);
 		}
+
+		protected Sprite CurrentSprite => m_currentSprite;
 
 		protected Sprite CalculateCurrentSprite() {
 			if( !m_animator || m_currentAnimation == null ) {

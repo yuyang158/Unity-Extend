@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System;
 using System.Reflection;
 using System.Linq;
+using BehaviorDesigner.Runtime;
 using DG.Tweening;
 using Extend;
 using TMPro;
@@ -20,6 +21,7 @@ using UnityEngine.Networking;
 using UnityEngine.U2D;
 using UnityEngine.VFX;
 using XLua;
+using Cinemachine;
 
 //配置的详细介绍请看Doc下《XLua的配置.doc》
 public static class XLuaGenConfig {
@@ -61,7 +63,7 @@ public static class XLuaGenConfig {
 		"UnityEngine.UI.ReflectionMethodsCache", "NativeLeakDetection",
 		"NativeLeakDetectionMode", "WWWAudioExtensions", "UnityEngine.Experimental", "MeshRenderer",
 		"CanvasRenderer", "AnimatorControllerParameter", "AudioSetting", "Caching",
-		"DrivenRectTransformTracker", "LightProbeGroup", "DefaultControls", "UnityEngine.Avatar",
+		"DrivenRectTransformTracker", "LightProbeGroup", "DefaultControls", "UnityEngine.Avatar", "Microphone",
 		"UnityEngine.Light", "WebCam", "Human", "QualitySettings", "LOD", "ParticleSystem", "UIVertex", "ArticulationBody",
 		"ClusterSerialization", "DefaultExecutionOrder", "Audio", "FrameTimingManager", "Gyroscope", "GridBrush", "Cloth"
 	};
@@ -138,6 +140,7 @@ public static class XLuaGenConfig {
 			{
 				"UnityEngine",
 				"UnityEngine.UI",
+				"UnityEngine.AI",
 				"UnityEngine.SceneManagement",
 				"UnityEngine.Networking"
 			};
@@ -155,7 +158,9 @@ public static class XLuaGenConfig {
 				typeof(Color),
 				typeof(Quaternion),
 				typeof(TweenCallback),
-				typeof(EventSystem)
+				typeof(EventSystem),
+				typeof(Behavior),
+				typeof(CinemachineVirtualCamera)
 			};
 
 			unityTypes = unityTypes.Concat(basicMathValueType);

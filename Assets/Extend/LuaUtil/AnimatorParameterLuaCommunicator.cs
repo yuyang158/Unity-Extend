@@ -14,16 +14,20 @@ namespace Extend.LuaUtil {
 		public LuaTable ParameterSummary { get; private set; }
 		public Animator Animator { get; private set; }
 
+		public virtual bool RootMotionCommunicator => false;
+
 		private void Awake() {
 			Animator = GetComponent<Animator>();
 			var originController = Animator.runtimeAnimatorController as AnimatorOverrideController;
-			List<KeyValuePair<AnimationClip, AnimationClip>> overrides = new List<KeyValuePair<AnimationClip, AnimationClip>>(originController.overridesCount);
-			originController.GetOverrides(overrides);
+			if( originController ) {
+				List<KeyValuePair<AnimationClip, AnimationClip>> overrides = new List<KeyValuePair<AnimationClip, AnimationClip>>(originController.overridesCount);
+				originController.GetOverrides(overrides);
 
-			var clonedController = new AnimatorOverrideController(Animator.runtimeAnimatorController);
-			clonedController.ApplyOverrides(overrides);
-			Animator.runtimeAnimatorController = clonedController;
-			
+				var clonedController = new AnimatorOverrideController(Animator.runtimeAnimatorController);
+				clonedController.ApplyOverrides(overrides);
+				Animator.runtimeAnimatorController = clonedController;
+			}
+
 			var luaVM = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
 			ParameterSummary = luaVM.NewTable();
 			for( int i = 0; i < Animator.parameterCount; i++ ) {
@@ -55,6 +59,10 @@ namespace Extend.LuaUtil {
 			Animator.Play(nameHash, layer);
 		}
 
+		public void Evaluate(float deltaTime) {
+			Animator.Update(deltaTime);
+		}
+		
 		public void CrossFade(int nameHash, float transitionDuration, int layer = 0) {
 			Animator.CrossFade(nameHash, transitionDuration, layer);
 		}
@@ -98,6 +106,7 @@ namespace Extend.LuaUtil {
 		public void ChangeClip(string clipName, AnimationClip clip) {
 			var controller = Animator.runtimeAnimatorController as AnimatorOverrideController;
 			controller[clipName] = clip;
+			// Debug.Log($"{Time.frameCount}:Change clip {clipName} --> {clip.name}");
 		}
 
 		public void OnEvent(EventInstance evt) {
@@ -105,13 +114,47 @@ namespace Extend.LuaUtil {
 				Debug.LogError("Animation Event Instance Is Null." + name);
 				return;
 			}
-			var callback = ParameterSummary.Get<Action<LuaTable, object>>(evt.EventName);
-			callback?.Invoke(ParameterSummary, evt.Value);
+
+			if( m_pauseEventFrame == Time.frameCount ) {
+				return;
+			}
+
+			var callback = ParameterSummary.Get<LuaFunction>(evt.EventName);
+			callback?.Action(evt.Value);
+		}
+
+		public void OnEvent_String(string evt) {
+			if( m_pauseEventFrame == Time.frameCount ) {
+				return;
+			}
+
+			var lastIndex = evt.LastIndexOf('_');
+			var clipName = evt[..lastIndex];
+			var value = evt[(lastIndex+1)..];
+			var callback = ParameterSummary.Get<LuaFunction>("OnEvent_Check");
+			callback?.Action(value, clipName);
 		}
 
 		public int GetLayerCurrentStateNameHash(int layerIndex) {
 			var stateInfo = Animator.GetCurrentAnimatorStateInfo(layerIndex);
 			return stateInfo.shortNameHash;
+		}
+
+		public void SetLayerWeight(int layer, float weight) {
+			Animator.SetLayerWeight(layer, weight);
+		}
+
+		public void SetUpdateMode(int updateMode) {
+			Animator.updateMode = (AnimatorUpdateMode)updateMode;
+		}
+
+		public bool HasState(int layer, int stateID) {
+			return Animator.HasState(layer, stateID);
+		}
+
+		private int m_pauseEventFrame;
+		public void PauseOneFrameFireEvent() {
+			m_pauseEventFrame = Time.frameCount;
 		}
 	}
 }

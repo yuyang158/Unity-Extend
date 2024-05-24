@@ -30,7 +30,7 @@ namespace Extend {
 		}
 
 		private void Awake() {
-			m_binding ??= GetComponent<LuaBinding>();
+			m_binding ??= GetComponentInParent<LuaBinding>();
 		}
 
 		private void Start() {
@@ -39,20 +39,22 @@ namespace Extend {
 			}
 		}
 
-		private void OnCollisionEnter(Collision other) {
+		public void OnCollisionEnter(Collision other) {
 			m_collisionEnter?.Invoke(m_binding.LuaInstance, other);
 		}
 
-		private void OnCollisionExit(Collision other) {
+		public void OnCollisionExit(Collision other) {
 			m_collisionExit?.Invoke(m_binding.LuaInstance, other);
 		}
 
-		private void OnTriggerEnter(Collider other) {
+		public void OnTriggerEnter(Collider other) {
 			m_triggerEnter?.Invoke(m_binding.LuaInstance, other);
 		}
 
-		private void OnTriggerExit(Collider other) {
+		public void OnTriggerExit(Collider other) {
 			m_triggerExit?.Invoke(m_binding.LuaInstance, other);
 		}
+
+		public LuaBinding Binding => m_binding;
 	}
 }

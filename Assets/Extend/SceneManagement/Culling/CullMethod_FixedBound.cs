@@ -10,8 +10,6 @@ namespace Extend.SceneManagement.Culling {
 		[SerializeField]
 		private Vector3 m_offset;
 		private Bounds m_cullBounds;
-
-		public Transform AttachTransform { private get; set; }
 		public override Vector3 BoundsCenter => m_cullBounds.center;
 
 		private void Awake() {

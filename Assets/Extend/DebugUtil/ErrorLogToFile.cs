@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
 using System.Net.Sockets;
@@ -57,10 +58,13 @@ namespace Extend.DebugUtil {
 			m_writeThread = new Thread(WriteThread);
 			m_writeThread.Start();
 
+#if UNITY_ANDROID || UNITY_STANDALONE
 			m_netStreamThread = new Thread(LogServerThread);
 			m_netStreamThread.Start();
+#endif
 		}
 
+#if UNITY_ANDROID || UNITY_STANDALONE
 		private void LogServerThread() {
 			using UdpClient udpClient = new UdpClient(36677);
 			while( true ) {
@@ -115,7 +119,7 @@ namespace Extend.DebugUtil {
 				}
 			}
 		}
-
+#endif
 		private string m_log;
 		private string m_stackTrace;
 
@@ -137,20 +141,16 @@ namespace Extend.DebugUtil {
 			}
 		}
 
+		// private readonly HashSet<string> m_uploadedLogs = new HashSet<string>();
+		
 		private void HandleLogThreaded(string message, string stackTrace, LogType type) {
 			if( type is LogType.Assert or LogType.Error or LogType.Exception or LogType.Warning ) {
 				var now = DateTime.Now;
 				var typeStr = type.ToString().ToUpper();
 				lock( m_writer ) {
-					m_log = $"[{now.ToShortDateString()} {now.ToLongTimeString()}] [{typeStr}]: {message}";
-					if( type is LogType.Assert or LogType.Exception or LogType.Error ) {
-						m_stackTrace = stackTrace;
-					}
-					else {
-						m_stackTrace = string.Empty;
-					}
+					m_log = $"[{now.ToShortDateString()} {now.ToLongTimeString()}.{now.Millisecond:000}] [{typeStr}]: {message}";
+					m_stackTrace = type is LogType.Assert or LogType.Exception or LogType.Error ? stackTrace : string.Empty;
 				}
-
 				m_autoEvent.Set();
 			}
 		}
@@ -170,10 +170,15 @@ namespace Extend.DebugUtil {
 				{"os", SystemInfo.operatingSystem},
 				{"version", Application.version},
 				{"other", releaseType},
-				{"whoami", "bing"}
+				{"whoami", "netherworld_covenant"}
 			};
-			var url = IniRead.SystemSetting.GetString("DEBUG", "LogUploadUrl");
-			Utility.HttpFileUpload(url, qs, filePath);
+			try {
+				var url = IniRead.SystemSetting.GetString("DEBUG", "LogUploadUrl");
+				Utility.HttpFileUpload(url, qs, filePath);
+			}
+			catch( Exception ) {
+				// ignored
+			}
 		}
 
 		public void Destroy() {

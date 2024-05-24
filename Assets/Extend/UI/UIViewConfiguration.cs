@@ -64,6 +64,8 @@ namespace Extend.UI {
 
 			public string CloseButtonPath;
 
+			public bool MultiInstance;
+
 			// [BlackList]
 			// public Guid ViewGuid;
 
@@ -129,6 +131,7 @@ namespace Extend.UI {
 				document.AppendChild(declaration);
 				var rootElement = document.CreateElement("Configurations");
 				document.AppendChild(rootElement);
+				Array.Sort(m_configurations, (a, b) => string.Compare(a.Name, b.Name, StringComparison.InvariantCulture));
 				foreach( var configuration in m_configurations ) {
 					var element = document.CreateElement("UIView");
 					// element.SetAttribute("Guid", configuration.ViewGuid.ToString());
@@ -141,6 +144,7 @@ namespace Extend.UI {
 					element.SetAttribute("CloseMethod", configuration.CloseMethod.ToString());
 					element.SetAttribute("CloseButtonPath", configuration.CloseButtonPath);
 					element.SetAttribute("FrameRate", configuration.FrameRate.ToString());
+					element.SetAttribute("MultiInstance", configuration.MultiInstance ? "1" : "0");
 
 					if( configuration.Relations != null && configuration.Relations.Length > 0 ) {
 						foreach( var relation in configuration.Relations ) {
@@ -193,7 +197,8 @@ namespace Extend.UI {
 					Transition = CreateAssetRef(childElement.GetAttribute("Transition")),
 					AttachLayer = (UILayer)Enum.Parse(typeof(UILayer), childElement.GetAttribute("AttachLayer")),
 					CloseMethod = (CloseOption)Enum.Parse(typeof(CloseOption), childElement.GetAttribute("CloseMethod")),
-					CloseButtonPath = childElement.GetAttribute("CloseButtonPath")
+					CloseButtonPath = childElement.GetAttribute("CloseButtonPath"),
+					MultiInstance = childElement.GetAttribute("MultiInstance") == "1"
 				};
 				/*if( childElement.HasAttribute("Guid") ) {
 					configuration.ViewGuid = Guid.Parse(childElement.GetAttribute("Guid"));
