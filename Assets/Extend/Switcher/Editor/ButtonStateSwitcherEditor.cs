@@ -7,8 +7,8 @@ namespace Extend.Switcher.Editor {
 			m_canAddState = false;
 
 			var buttonStateSwitcher = target as ButtonStateSwitcher;
-			if( !( buttonStateSwitcher.States is {Length: 4} ) ) {
-				buttonStateSwitcher.States = new StateSwitcher.State[4];
+			if( !( buttonStateSwitcher.States is {Length: 5} ) ) {
+				buttonStateSwitcher.States = new StateSwitcher.State[5];
 				buttonStateSwitcher.States[0] = new StateSwitcher.State() {
 					StateName = "Normal"
 				};
@@ -20,6 +20,9 @@ namespace Extend.Switcher.Editor {
 				};
 				buttonStateSwitcher.States[3] = new StateSwitcher.State() {
 					StateName = "Highlighted"
+				};
+				buttonStateSwitcher.States[4] = new StateSwitcher.State() {
+					StateName = "Selected"
 				};
 			}
 			serializedObject.Update();

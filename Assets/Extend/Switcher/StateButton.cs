@@ -31,7 +31,7 @@ namespace Extend.Switcher {
 					m_switcher.CurrentState = "Pressed";
 					break;
 				case SelectionState.Selected:
-					m_switcher.CurrentState = "Normal";
+					m_switcher.CurrentState = "Selected";
 					break;
 				case SelectionState.Disabled:
 					m_switcher.CurrentState = "Disabled";

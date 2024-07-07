@@ -93,6 +93,9 @@ namespace Extend.SceneManagement.SpatialStructure {
 				
 				var meshFilter = meshRenderer.GetComponent<MeshFilter>();
 				var sharedMesh = meshFilter.sharedMesh;
+				if(!sharedMesh) {
+					continue;
+				}
 				JobSchedule.ConvertRenderer(sharedMesh, meshRenderer);
 				meshRenderer.forceRenderingOff = true;
 			}

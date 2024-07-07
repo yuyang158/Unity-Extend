@@ -7,7 +7,7 @@ namespace Extend.UI.i18n {
 	[LuaCallCSharp]
 	public class I18nService : IService {
 		public int ServiceType => (int)CSharpServiceManager.ServiceType.I18N;
-		private string m_currentLang = "en";
+		private string m_currentLang = "cn";
 		private readonly JObject m_i18nContent;
 
 		public static I18nService Get() {

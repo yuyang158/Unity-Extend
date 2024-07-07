@@ -126,9 +126,24 @@ namespace Extend.Switcher.Editor {
 		}
 
 		public override void OnInspectorGUI() {
+			EditorGUI.BeginChangeCheck();
 			m_statesList.DoLayoutList();
+			if( m_statesList.index != -1 ) {
+				var stateProp = m_statesList.serializedProperty.GetArrayElementAtIndex(m_statesList.index);
+				var stateNameProp = stateProp.FindPropertyRelative("StateName");
+				EditorGUILayout.PropertyField(stateNameProp);
+			}
 			m_switcherActionList?.DoLayoutList();
-			serializedObject.ApplyModifiedProperties();
+			if( EditorGUI.EndChangeCheck() ) {
+				serializedObject.ApplyModifiedProperties();
+			}
+
+			if( Application.isPlaying ) {
+				var switcher = target as StateSwitcher;
+				GUI.enabled = false;
+				EditorGUILayout.LabelField("State Name", switcher.CurrentState);
+				GUI.enabled = true;
+			}
 		}
 	}
 }

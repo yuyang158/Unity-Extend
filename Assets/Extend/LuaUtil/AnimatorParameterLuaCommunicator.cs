@@ -16,6 +16,13 @@ namespace Extend.LuaUtil {
 
 		public virtual bool RootMotionCommunicator => false;
 
+		private int m_enabledFrame;
+		public int EnabledFrame => m_enabledFrame;
+		
+		private void OnEnable() {
+			m_enabledFrame = Time.frameCount;
+		}
+
 		private void Awake() {
 			Animator = GetComponent<Animator>();
 			var originController = Animator.runtimeAnimatorController as AnimatorOverrideController;
@@ -106,7 +113,6 @@ namespace Extend.LuaUtil {
 		public void ChangeClip(string clipName, AnimationClip clip) {
 			var controller = Animator.runtimeAnimatorController as AnimatorOverrideController;
 			controller[clipName] = clip;
-			// Debug.Log($"{Time.frameCount}:Change clip {clipName} --> {clip.name}");
 		}
 
 		public void OnEvent(EventInstance evt) {
@@ -124,10 +130,6 @@ namespace Extend.LuaUtil {
 		}
 
 		public void OnEvent_String(string evt) {
-			if( m_pauseEventFrame == Time.frameCount ) {
-				return;
-			}
-
 			var lastIndex = evt.LastIndexOf('_');
 			var clipName = evt[..lastIndex];
 			var value = evt[(lastIndex+1)..];
@@ -155,6 +157,11 @@ namespace Extend.LuaUtil {
 		private int m_pauseEventFrame;
 		public void PauseOneFrameFireEvent() {
 			m_pauseEventFrame = Time.frameCount;
+		}
+
+		public float Speed {
+			get => Animator.speed;
+			set => Animator.speed = value;
 		}
 	}
 }

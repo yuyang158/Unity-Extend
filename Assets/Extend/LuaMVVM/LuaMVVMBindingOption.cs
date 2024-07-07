@@ -6,6 +6,7 @@ using Extend.LuaBindingEvent;
 using Extend.LuaMVVM.PropertyChangeInvoke;
 using Extend.LuaUtil;
 using Extend.StateActionGroup;
+using Extend.Switcher;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -38,7 +39,8 @@ namespace Extend.LuaMVVM {
 			{typeof(TMP_InputField), typeof(TMP_InputTextChanged)},
 			{typeof(InputField), typeof(UGUI_InputTextChanged)},
 			{typeof(Toggle), typeof(ToggleIsOnChanged)},
-			{typeof(ToggleSAG), typeof(ToggleIsOnChanged)}
+			{typeof(ToggleSAG), typeof(ToggleIsOnChanged)},
+			{typeof(StateToggle), typeof(ToggleIsOnChanged)}
 		};
 
 		public Component BindTarget;
@@ -232,7 +234,7 @@ namespace Extend.LuaMVVM {
 
 
 			if( bindingValue == null && Mode != BindMode.ONE_WAY_TO_SOURCE) {
-				Debug.LogWarning($"Not found value in path {Path}");
+				// Debug.LogWarning($"Not found value in path {Path}");
 				return;
 			}
 

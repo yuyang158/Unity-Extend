@@ -82,7 +82,7 @@ namespace Extend.Asset {
 
 			m_timeLast = 0;
 			waitForPS = false;
-			if( SelfDestroyMode != SelfDestroy.DURATION ) {
+			if( SelfDestroyMode == SelfDestroy.DURATION_AFTER_STOP ) {
 				enabled = false;
 			}
 
@@ -99,12 +99,10 @@ namespace Extend.Asset {
 						continue;
 					}
 
-					if( p.main.ringBufferMode != ParticleSystemRingBufferMode.Disabled ) {
-						p.Stop(false, ParticleSystemStopBehavior.StopEmittingAndClear);
-					}
-					else {
-						p.Stop(false, ParticleSystemStopBehavior.StopEmitting);
-					}
+					p.Stop(false,
+						p.main.ringBufferMode != ParticleSystemRingBufferMode.Disabled
+							? ParticleSystemStopBehavior.StopEmittingAndClear
+							: ParticleSystemStopBehavior.StopEmitting);
 				}
 
 				if( m_autoPause ) {

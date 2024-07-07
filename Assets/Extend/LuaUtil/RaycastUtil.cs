@@ -9,6 +9,12 @@ namespace Extend.LuaUtil {
 	public static class RaycastUtil {
 		private static readonly RaycastHit[] _hits = new RaycastHit[16];
 
+		public static Vector3 GetPlanePoint(Ray mouseRay, Vector3 source) {
+			var plane = new Plane(Vector3.up, source);
+			plane.Raycast(mouseRay, out var enter);
+			return mouseRay.GetPoint(enter);
+		}
+
 		public static int RaycastWithPlane(Ray mouseRay, Vector3 source, float maxDistance, int layerMask) {
 			var plane = new Plane(Vector3.up, source);
 			plane.Raycast(mouseRay, out var enter);

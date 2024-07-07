@@ -18,7 +18,12 @@ namespace Extend.Switcher {
 				m_toggleSwitcher.CurrentState = isOn ? "On" : "Off";
 			});
 		}
-		
+
+		protected override void Start() {
+			base.Start();
+			group = GetComponentInParent<ToggleGroup>();
+		}
+
 		protected override void DoStateTransition(SelectionState state, bool instant) {
 			// base.DoStateTransition(state, instant);
 
@@ -26,24 +31,14 @@ namespace Extend.Switcher {
 				return;
 			}
 
-			switch( state ) {
-				case SelectionState.Normal:
-					m_selectableSwitcher.CurrentState = "Normal";
-					break;
-				case SelectionState.Highlighted:
-					m_selectableSwitcher.CurrentState = "Highlighted";
-					break;
-				case SelectionState.Pressed:
-					m_selectableSwitcher.CurrentState = "Pressed";
-					break;
-				case SelectionState.Selected:
-					break;
-				case SelectionState.Disabled:
-					m_selectableSwitcher.CurrentState = "Disabled";
-					break;
-				default:
-					throw new ArgumentOutOfRangeException(nameof(state), state, null);
-			}
+			m_selectableSwitcher.CurrentState = state switch {
+				SelectionState.Normal => "Normal",
+				SelectionState.Highlighted => "Highlighted",
+				SelectionState.Pressed => "Pressed",
+				SelectionState.Selected => "Selected",
+				SelectionState.Disabled => "Disabled",
+				_ => throw new ArgumentOutOfRangeException(nameof(state), state, null)
+			};
 		}
 	}
 }

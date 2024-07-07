@@ -18,12 +18,17 @@ namespace Extend.UI.i18n {
 
 		public bool ForceDynamic => m_forceDynamic;
 		private void Awake() {
-			if( ForceDynamic ) {
+			if( ForceDynamic || string.IsNullOrEmpty(m_key) ) {
 				return;
 			}
 			var txt = GetComponent<TextMeshProUGUI>();
 			var i18NService = CSharpServiceManager.Get<I18nService>(CSharpServiceManager.ServiceType.I18N);
 			txt.text = i18NService.GetText(m_key);
+		}
+
+		public string GetI18nText() {
+			var i18NService = CSharpServiceManager.Get<I18nService>(CSharpServiceManager.ServiceType.I18N);
+			return i18NService.GetText(m_key);
 		}
 	}
 }

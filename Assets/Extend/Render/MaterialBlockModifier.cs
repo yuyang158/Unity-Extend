@@ -71,6 +71,12 @@ namespace Extend.Render {
 			}
 		}
 
+		public void SetVector(int propId, Vector4 value) {
+			foreach( MaterialPropertyBlock block in m_blocks ) {
+				block.SetVector(propId, value);
+			}
+		}
+
 		public void SetColor(int propId, Color value) {
 			foreach( MaterialPropertyBlock block in m_blocks ) {
 				block.SetColor(propId, value);

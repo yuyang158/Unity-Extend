@@ -1,9 +1,10 @@
 using Extend.StateActionGroup;
 using Extend.StateActionGroup.Behaviour;
+using UnityEngine;
 using XLua;
 
 namespace Extend.UI {
-	[LuaCallCSharp]
+	[LuaCallCSharp, RequireComponent(typeof(SAG))]
 	public class UIViewSAG : UIViewBase {
 		private SAG m_sag;
 		

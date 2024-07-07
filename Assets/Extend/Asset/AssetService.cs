@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Extend.Common;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
+using UnityEngine.Audio;
 using UnityEngine.SceneManagement;
 using UnityEngine.U2D;
 using XLua;
@@ -18,17 +19,16 @@ namespace Extend.Asset {
 		public int ServiceType => (int) CSharpServiceManager.ServiceType.ASSET_SERVICE;
 
 		[BlackList]
-		public AssetContainer Container { get; } = new AssetContainer();
+		public AssetContainer Container { get; } = new();
 
-		private Stopwatch m_stopwatch = new Stopwatch();
-		private readonly Stopwatch m_instantiateStopwatch = new Stopwatch();
+		private Stopwatch m_stopwatch = new();
+		private readonly Stopwatch m_instantiateStopwatch = new();
 		public Transform PoolRootNode { get; private set; }
 
-		private readonly Queue<AssetReference.InstantiateAsyncContext> m_deferInstantiates =
-			new Queue<AssetReference.InstantiateAsyncContext>(64);
+		private readonly Queue<AssetReference.InstantiateAsyncContext> m_deferInstantiates = new(64);
 
 		private float m_singleFrameMaxInstantiateDuration;
-		private readonly List<IDisposable> m_disposables = new List<IDisposable>();
+		private readonly List<IDisposable> m_disposables = new();
 
 		[BlackList]
 		public void AddAfterDestroy(IDisposable disposable) {
@@ -135,6 +135,10 @@ namespace Extend.Asset {
 			return false;
 		}
 
+		public AssetAsyncLoadHandle LoadAudioMixerAsync(string path) {
+			return LoadAsync<AudioMixer>(path);
+		}
+		
 		public AssetAsyncLoadHandle LoadTextAsync(string path) {
 			return LoadAsync<TextAsset>(path);
 		}
@@ -200,6 +204,10 @@ namespace Extend.Asset {
 				Debug.LogException(e);
 				throw;
 			}
+		}
+
+		public AssetReference LoadAudioMixer(string path) {
+			return Load<AudioMixer>(path);
 		}
 
 		public AssetReference LoadGameObject(string path) {

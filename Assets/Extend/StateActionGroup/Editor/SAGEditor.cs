@@ -97,10 +97,15 @@ namespace Extend.StateActionGroup.Editor {
 		}
 
 		public override void OnInspectorGUI() {
+			EditorGUI.BeginChangeCheck();
 			m_behaviourList.DoLayoutList();
 			m_stateDataList.DoLayoutList();
 
-			serializedObject.ApplyModifiedProperties();
+			var blackListsProp = serializedObject.FindProperty("m_blackLists");
+			EditorGUILayout.PropertyField(blackListsProp);
+			if( EditorGUI.EndChangeCheck() ) {
+				serializedObject.ApplyModifiedProperties();
+			}
 			var sag = target as SAG;
 			if( m_stateDataList.index != -1 && m_stateDataList.serializedProperty.arraySize > m_stateDataList.index) {
 				var stateProp = m_stateDataList.serializedProperty.GetArrayElementAtIndex(m_stateDataList.index);

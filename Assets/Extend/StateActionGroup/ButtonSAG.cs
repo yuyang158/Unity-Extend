@@ -6,6 +6,7 @@ namespace Extend.StateActionGroup {
 	[RequireComponent(typeof(SAG))]
 	public class ButtonSAG : Button {
 		private SAG m_sag;
+
 		protected override void Awake() {
 			base.Awake();
 			m_sag = GetComponent<SAG>();
@@ -19,7 +20,7 @@ namespace Extend.StateActionGroup {
 			}
 
 			var stateName = Enum.GetName(state.GetType(), state);
-			m_sag.Switch(stateName == "Selected" ? "Normal" : stateName);
+			m_sag.Switch(m_sag.HasGroup(stateName) ? stateName : "Normal");
 		}
 	}
 }

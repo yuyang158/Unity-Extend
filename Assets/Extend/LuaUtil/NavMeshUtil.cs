@@ -17,6 +17,14 @@ namespace Extend.LuaUtil {
 			Quaternion.Euler(0, -30, 0)
 		};
 
+		public static Vector3 RaycastDirection(Vector3 start, Vector3 end, int areaMask) {
+			if( NavMesh.Raycast(start, end, out var hit, areaMask) ) {
+				return hit.position;
+			}
+
+			return end;
+		}
+
 		public static bool CalculateValidDirection(Vector3 start, Vector3 end, int areaMask, out Vector3 result) {
 			var vOffset = end - start;
 			for( int i = 0; i < 5; i++ ) {
@@ -52,9 +60,12 @@ namespace Extend.LuaUtil {
 				float z = ringCenter.z + radius * Mathf.Sin(radians);
 
 				randomPoint = new Vector3(x, ringCenter.y, z);
-
+				if( NavMesh.Raycast(ringCenter, randomPoint, out var hit, 1) ) {
+					return hit.position;
+				}
+				
 				// Check if the random point is on the NavMesh
-				if( NavMesh.SamplePosition(randomPoint, out NavMeshHit hit, 1.0f, 1) ) {
+				if( NavMesh.SamplePosition(randomPoint, out hit, 1.0f, 1) ) {
 					randomPoint = hit.position;
 					foundValidPoint = true;
 				}

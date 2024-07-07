@@ -10,6 +10,24 @@ using Object = UnityEngine.Object;
 namespace Extend.LuaUtil {
 	[LuaCallCSharp]
 	public static class UnityExtension4XLua {
+		public static LuaTable FindAllWithLuaClass(LuaTable klass) {
+			var luaBindings = Object.FindObjectsByType<LuaBinding>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+			return FindInComponents(klass, luaBindings);
+		}
+		
+		public static LuaTable FindAllWithTag(string tag) {
+			var gosWithTag = GameObject.FindGameObjectsWithTag(tag);
+			var luaVm = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
+			var t = luaVm.NewTable();
+			var index = 1;
+			foreach( GameObject go in gosWithTag ) {
+				t.Set(index, go);
+				index++;
+			}
+
+			return t;
+		}
+		
 		public static void AppendCamera(this UniversalAdditionalCameraData cameraData, Camera camera) {
 			cameraData.cameraStack.Add(camera);
 		}

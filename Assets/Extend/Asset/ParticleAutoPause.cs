@@ -2,6 +2,9 @@ using System;
 using UnityEngine;
 
 namespace Extend.Asset {
+	/// <summary>
+	/// 开始后自动暂停粒子
+	/// </summary>
 	[RequireComponent(typeof(AutoRecycle))]
 	public class ParticleAutoPause : MonoBehaviour {
 		[SerializeField]

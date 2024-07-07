@@ -13,7 +13,8 @@
         "Unity.ResourceManager",
         "LoopScrollRect.Runtime",
         "Unity.RenderPipeline.Universal.ShaderLibrary",
-        "Extend.Network"
+        "Extend.Network",
+        "Unity.InputSystem"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

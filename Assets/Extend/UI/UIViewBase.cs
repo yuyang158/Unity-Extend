@@ -12,7 +12,6 @@ namespace Extend.UI {
 		public event Action Hidden;
 
 		public bool ControlInteractable = true;
-		public GameObject FirstSelectGameObject;
 
 		[LuaCallCSharp]
 		public enum Status {
@@ -33,12 +32,6 @@ namespace Extend.UI {
 		public CanvasGroup CanvasGroup { get; private set; }
 
 		private Status viewStatus;
-
-		private void OnEnable() {
-			if( FirstSelectGameObject && EventSystem.current ) {
-				EventSystem.current.SetSelectedGameObject(FirstSelectGameObject);
-			}
-		}
 
 		public Status ViewStatus {
 			get => viewStatus;
@@ -66,7 +59,7 @@ namespace Extend.UI {
 
 		public void SetVisible(bool visible) {
 			Canvas.enabled = visible;
-			CanvasGroup.blocksRaycasts = visible;
+			CanvasGroup.interactable = visible;
 		}
 
 		protected abstract void OnShow();
@@ -74,6 +67,7 @@ namespace Extend.UI {
 		public void Show(Action shown = null) {
 			if( Canvas )
 				Canvas.enabled = true;
+			CanvasGroup.interactable = false;
 			ViewStatus = Status.Showing;
 			Showing?.Invoke();
 			Showing = null;
@@ -88,6 +82,7 @@ namespace Extend.UI {
 		protected abstract void OnHide();
 
 		public void Hide(Action hidden = null) {
+			CanvasGroup.interactable = false;
 			ViewStatus = Status.Hiding;
 			Hiding?.Invoke();
 			Hiding = null;
@@ -101,6 +96,7 @@ namespace Extend.UI {
 		protected abstract void OnLoop();
 
 		protected void Loop() {
+			CanvasGroup.interactable = true;
 			ViewStatus = Status.Loop;
 			Shown?.Invoke();
 			Shown = null;

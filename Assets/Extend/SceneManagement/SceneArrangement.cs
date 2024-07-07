@@ -48,12 +48,11 @@ namespace Extend.SceneManagement {
 				m_spatial.CullVisible(m_cullMethod);
 			}
 			m_spatial.JobSchedule.Schedule();
+			m_spatial.JobSchedule.Complete();
 			Profiler.EndSample();
 		}
 
 		private void LateUpdate() {
-			m_spatial.JobSchedule.Complete();
-
 			if( m_forceNoDraw ) {
 				return;
 			}
