@@ -13,5 +13,10 @@ namespace Extend.Switcher.Action {
 		public override void ActiveAction() {
 			m_graphic.material = m_material;
 		}
-	}
+
+        public override void DeactiveAction()
+        {
+            m_graphic.material = null;
+        }
+    }
 }
