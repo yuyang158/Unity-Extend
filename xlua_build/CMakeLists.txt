@@ -242,7 +242,7 @@ if (LUAC_COMPATIBLE_FORMAT AND NOT USING_LUAJIT)
     target_compile_definitions (xlua PRIVATE LUAC_COMPATIBLE_FORMAT)
 endif ()
 
-if (LUA_USE_IOS AND)
+if (LUA_USE_IOS)
     target_compile_definitions (xlua PRIVATE LUA_USE_IOS)
 endif ()
 
