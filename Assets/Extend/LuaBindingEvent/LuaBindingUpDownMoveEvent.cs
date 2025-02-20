@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Extend.Common;
 using UnityEngine;
 using UnityEngine.EventSystems;

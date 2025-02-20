@@ -4,7 +4,7 @@ using UnityEngine;
 using XLua;
 
 namespace Extend.Switcher {
-	[LuaCallCSharp]
+	[LuaCallCSharp, DisallowMultipleComponent]
 	public class StateSwitcher : MonoBehaviour {
 		[Serializable]
 		public class State {
@@ -13,8 +13,11 @@ namespace Extend.Switcher {
 			[SerializeReference]
 			public ISwitcherAction[] SwitcherActions;
 
-			public void Switch() {
+			public void Switch(bool mute = false) {
 				foreach( var action in SwitcherActions ) {
+					if( mute && action is SoundPlayAction ) {
+						continue;
+					}
 					action.ActiveAction();
 				}
 			}
@@ -32,15 +35,23 @@ namespace Extend.Switcher {
 
 		public State[] States;
 		private string m_currentState;
+		public string DefaultStateName;
 
 		public string CurrentState {
 			get => m_currentState;
 			set => Switch(value);
 		}
 
+		private void Start() {
+			if( string.IsNullOrEmpty(DefaultStateName) ) {
+				return;
+			}
+			Switch(DefaultStateName, true);
+		}
+
 		private State m_activateState;
 
-		public void Switch(string stateName) {
+		public void Switch(string stateName, bool mute = false) {
 			if( m_currentState == stateName )
 				return;
 
@@ -48,12 +59,12 @@ namespace Extend.Switcher {
 
 			var result = Array.Find(States, state => state.StateName == stateName);
 			if( result == null ) {
-				Debug.LogError($"Can not find state {stateName}");
+				Debug.LogError($"Can not find state {stateName}", this);
 				return;
 			}
 
 			m_activateState = result;
-			result.Switch();
+			result.Switch(mute);
 			m_currentState = stateName;
 		}
 	}

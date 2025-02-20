@@ -18,12 +18,16 @@ namespace Extend.LuaMVVM.Editor {
 			{typeof(Text), "text"},
 			{typeof(Image), "sprite"},
 			{typeof(SpriteRenderer), "sprite"},
+			{typeof(Slider), "value"},
+			{typeof(LuaMVVMImageSpriteNSelectOne), "SelectIndex"},
+			{typeof(TMP_Dropdown), "value"},
 			{typeof(ImageSpriteAssetAssignment), "SpritePath"},
 			{typeof(ImageRemoteSpriteAssetAssignment), "SpriteRemotePath"}
 		};
 
 		private static readonly Dictionary<Type, string[]> m_bindingEventNames = new() {
 			{typeof(LuaBindingClickEvent), new[] {"OnClick"}},
+			{typeof(LuaBindingSelectEvent), new[] {"OnSelect", "OnDeselect"}},
 			{typeof(LuaBindingFingerClickEvent), new[] {"OnClick"}},
 			{typeof(LuaBindingClickLongTapEvent), new[] {"OnClick", "OnLongTap"}},
 			{typeof(LuaBindingDragEvent), new[] {"OnBeginDrag", "OnDrag", "OnEndDrag"}},
@@ -204,11 +208,24 @@ namespace Extend.LuaMVVM.Editor {
 					}
 				}
 
-				var bindPathProp = prop.FindPropertyRelative("Path");
-				EditorGUI.PropertyField(argRect, bindPathProp, GUIContent.none);
+				var option = prop.GetPropertyObject() as LuaMVVMBindingOption;
+				if( Application.isPlaying && option.LuaValue != null ) {
+					argRect.width *= 0.5f;
+					var bindPathProp = prop.FindPropertyRelative("Path");
+					EditorGUI.PropertyField(argRect, bindPathProp, GUIContent.none);
 
-				var expressionProp = prop.FindPropertyRelative("m_expression");
-				EditorGUI.PropertyField(globalRect, expressionProp, GUIContent.none);
+					var width = argRect.width;
+					argRect.xMin = argRect.xMax;
+					argRect.width = width;
+					EditorGUI.LabelField(argRect, option.LuaValue.ToString());
+				}
+				else {
+					var bindPathProp = prop.FindPropertyRelative("Path");
+					EditorGUI.PropertyField(argRect, bindPathProp, GUIContent.none);
+
+					var expressionProp = prop.FindPropertyRelative("m_expression");
+					EditorGUI.PropertyField(globalRect, expressionProp, GUIContent.none);
+				}
 			};
 
 			m_mvvmBindList.onSelectCallback += list => {
@@ -222,11 +239,14 @@ namespace Extend.LuaMVVM.Editor {
 
 				var mvvmProp = list.serializedProperty.GetArrayElementAtIndex(list.index);
 				var option = mvvmProp.GetPropertyObject() as LuaMVVMBindingOption;
-				if( !( option.BindTarget is IMVVMAssetReference refGetter ) )
+				if( option != null && option.BindTarget ) {
+					EditorGUIUtility.PingObject(option.BindTarget);
+				}
+				if( option.BindTarget is not IMVVMAssetReference refGetter )
 					return;
 
 				var assetRef = refGetter.GetMVVMReference();
-				if( !( assetRef is {GUIDValid: true} ) )
+				if( assetRef is not {GUIDValid: true} )
 					return;
 
 				var assetPath = AssetDatabase.GUIDToAssetPath(assetRef.AssetGUID);

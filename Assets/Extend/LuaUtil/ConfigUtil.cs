@@ -85,11 +85,9 @@ namespace Extend.LuaUtil {
 			var service = CSharpServiceManager.Get<AssetService>(CSharpServiceManager.ServiceType.ASSET_SERVICE);
 			var path = CONFIG_PATH_PREFIX + filename + ".tsv";
 			string tsvContent = null;
-#if UNITY_EDITOR
-			if( File.Exists(path) ) {
+			if( Debug.isDebugBuild && File.Exists(path) ) {
 				tsvContent = File.ReadAllText(path);
 			}
-#endif
 			if( string.IsNullOrEmpty(tsvContent) ) {
 				if( !service.Exist(path) )
 					return null;

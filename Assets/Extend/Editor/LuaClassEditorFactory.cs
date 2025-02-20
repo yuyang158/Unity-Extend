@@ -91,14 +91,19 @@ namespace Extend.Editor {
 						continue;
 					}
 
-					var methodName = line.Substring(methodStart.Length, length);
-					if( !methodName.StartsWith("_") && methodName[0] == char.ToUpper(methodName[0]) ) {
-						if( methodName.StartsWith("DEBUG") ) {
-							DebugMethods.Add(methodName);
+					try {
+						var methodName = line.Substring(methodStart.Length, length);
+						if( !methodName.StartsWith("_") && methodName[0] == char.ToUpper(methodName[0]) ) {
+							if( methodName.StartsWith("DEBUG") ) {
+								DebugMethods.Add(methodName);
+							}
+							else {
+								Methods.Add(methodName);
+							}
 						}
-						else {
-							Methods.Add(methodName);
-						}
+					}
+					catch (Exception) {
+						Debug.LogError($"Lua line parse error : {line}.");
 					}
 				}
 			}

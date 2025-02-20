@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Extend.Common;
 using UnityEngine;
 using UnityEngine.VFX;
@@ -21,7 +22,7 @@ namespace Extend.Asset {
 			NONE = 0,
 			PARTICLE = 1,
 			TRAIL = 2,
-			VFX = 4
+			X_WEAPON = 4
 		}
 
 		[SerializeField]
@@ -37,7 +38,7 @@ namespace Extend.Asset {
 
 		private ParticleSystem[] m_particles;
 		private TrailRenderer[] m_trails;
-		private VisualEffect[] m_vfx;
+		private IActivateComponent[] m_activates;
 		private float m_timeLast;
 		private ParticleAutoPause m_autoPause;
 
@@ -58,8 +59,8 @@ namespace Extend.Asset {
 
 			if( ( m_resFlag & ResourceFlag.TRAIL ) != 0 )
 				m_trails = GetComponentsInChildren<TrailRenderer>();
-			if( ( m_resFlag & ResourceFlag.VFX ) != 0 )
-				m_vfx = GetComponentsInChildren<VisualEffect>();
+			if( ( m_resFlag & ResourceFlag.X_WEAPON ) != 0 )
+				m_activates = GetComponentsInChildren<IActivateComponent>();
 		}
 
 		private bool waitForPS;
@@ -70,15 +71,25 @@ namespace Extend.Asset {
 		public void ResetAll() {
 			if( ( m_resFlag & ResourceFlag.PARTICLE ) != 0 ) {
 				foreach( ParticleSystem ps in m_particles ) {
+					ps.Stop(false, ParticleSystemStopBehavior.StopEmittingAndClear);
 					ps.Play();
 				}
 			}
 
 			if( ( m_resFlag & ResourceFlag.TRAIL ) != 0 ) {
 				foreach( var trail in m_trails ) {
+					trail.Clear();
 					trail.emitting = true;
 				}
 			}
+
+			if( ( m_resFlag & ResourceFlag.X_WEAPON ) != 0 ) {
+				foreach( IActivateComponent activate in m_activates ) {
+					var c = activate as Component;
+					c.gameObject.SetActive(true);
+				}
+			}
+				
 
 			m_timeLast = 0;
 			waitForPS = false;
@@ -122,14 +133,25 @@ namespace Extend.Asset {
 				}
 
 				enabled = true;
+				/*if( transform.parent ) {
+					transform.SetParent(null, true);
+				}*/
 			}
 			else {
-				if( ParticleKey != -1 ) {
-					ClearAction?.Invoke(ParticleKey);
-					ParticleKey = -1;
+				try {
+					if( ParticleKey != -1 ) {
+						ClearAction?.Invoke(ParticleKey);
+						ParticleKey = -1;
+					}
+					AssetService.Recycle(gameObject);
+					if( gameObject.activeInHierarchy ) {
+						gameObject.SetActive(false);
+					}
 				}
-
-				AssetService.Recycle(gameObject);
+				catch( Exception e ) {
+					Debug.LogError($"{gameObject.name} : {e.Message}", this);
+					Destroy(gameObject);
+				}
 			}
 		}
 

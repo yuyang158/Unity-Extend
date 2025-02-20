@@ -4,6 +4,7 @@ using UnityEngine;
 using XLua;
 
 namespace Extend.Common {
+	[LuaCallCSharp]
 	public static class UnityEngineExtensions {
 		public static void RemoveSwapAt<T>(this List<T> list, int index) {
 			if( index < 0 || index >= list.Count ) {
@@ -47,10 +48,9 @@ namespace Extend.Common {
 		public static T GetOrAddComponent<T>(this Component component) where T : Component {
 			return component.GetComponent<T>() ?? component.gameObject.AddComponent<T>();
 		}
-		
-		[LuaCallCSharp]
-		public static Component GetOrAddComponent(this GameObject gameObject, Type componentType) {
-			return gameObject.GetComponent(componentType) ?? gameObject.AddComponent(componentType);
+
+		public static Component GetOrAddComponentWithType(GameObject go, Type type) {
+			return go.GetComponent(type) ?? go.AddComponent(type);
 		}
 
 		[LuaCallCSharp]

@@ -73,7 +73,6 @@ namespace Extend {
 			typeof(VisualEffect),
 			typeof(DOTweenAnimation),
 			typeof(SpriteAtlas)
-			
 		};
 
 #if LUA_WRAP_CHECK && UNITY_EDITOR
@@ -208,24 +207,24 @@ namespace Extend {
 			}
 #endif
 
-			if( Default == null ) {
-				Default = new LuaEnv();
-				Default.AddBuildin("cjson", Lua.LoadLuaCJson);
-				Default.AddBuildin("chronos", Lua.LoadChronos);
+			// if( Default == null ) {
+			Default = new LuaEnv();
+			Default.AddBuildin("cjson", Lua.LoadLuaCJson);
+			Default.AddBuildin("chronos", Lua.LoadChronos);
 
-				// Default.AddBuildin("lpeg", Lua.LoadLpeg);
-				// Default.AddBuildin("sproto.core", Lua.LoadSprotoCore);
-				// Default.AddBuildin("luv", Lua.LoadLUV);
-				Default.AddBuildin("lsqlite", Lua.LoadLSqlite3);
+			// Default.AddBuildin("lpeg", Lua.LoadLpeg);
+			// Default.AddBuildin("sproto.core", Lua.LoadSprotoCore);
+			// Default.AddBuildin("luv", Lua.LoadLUV);
+			// Default.AddBuildin("lsqlite", Lua.LoadLSqlite3);
 
-				Lua.OverrideLogFunction(Default.L);
-				LuaClassCache = new LuaClassCache();
+			Lua.OverrideLogFunction(Default.L);
+			LuaClassCache = new LuaClassCache();
 #if UNITY_EDITOR
-				Default.AddLoader((ref string filename) => LoadFile(ref filename, ".lua"));
+			Default.AddLoader((ref string filename) => LoadFile(ref filename, ".lua"));
 #else
 				Default.AddLoader((ref string filename) => LoadFile(ref filename, ".lua"));
 #endif
-			}
+			// }
 
 			m_newClassCallback = OnLuaNewClass;
 
@@ -258,8 +257,8 @@ namespace Extend {
 			DestroyedTableMeta = Global.Get<LuaTable>("DestroyedTableMeta");
 		}
 
-		public void StartUp(string initState) {
-			OnInit.Action(initState);
+		public void StartUp(string startState) {
+			OnInit.Call(startState);
 
 			SendCSharpMessage = Default.Global.GetInPath<SendCSharpMessage>("_CSMessageService.OnMessage");
 			m_bindingEnv = Default.Global.GetInPath<LuaTable>("_BindingEnv");
@@ -294,6 +293,7 @@ namespace Extend {
 
 		public void Destroy() {
 			try {
+				if( OnDestroy == null ) return;
 				OnDestroy.Call();
 			}
 			catch( Exception e ) {

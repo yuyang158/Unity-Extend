@@ -3,7 +3,7 @@ using UnityEngine;
 using XLua;
 
 namespace Extend {
-	[LuaCallCSharp]
+	[LuaCallCSharp, DisallowMultipleComponent]
 	public class LuaCollisionBinding : MonoBehaviour {
 		private LuaBinding m_binding;
 
@@ -29,11 +29,8 @@ namespace Extend {
 			m_triggerExit = m_binding.GetLuaMethod<NoneEventAction>("trigger_exit");
 		}
 
-		private void Awake() {
-			m_binding ??= GetComponentInParent<LuaBinding>();
-		}
-
 		private void Start() {
+			m_binding ??= GetComponentInParent<LuaBinding>();
 			if( m_binding ) {
 				AssignLuaBinding(m_binding);
 			}

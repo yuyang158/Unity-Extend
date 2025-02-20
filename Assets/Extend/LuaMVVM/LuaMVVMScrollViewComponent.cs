@@ -55,6 +55,10 @@ namespace Extend.LuaMVVM {
 							context = assetRef.InstantiateAsync(m_itemRoot);
 						}
 						context.Callback += go => {
+							if( LuaArrayData == null ) {
+								AssetService.Recycle(go);
+								return;
+							}
 							var luaData = LuaArrayData.Get<int, LuaTable>(index + 1);
 							if( luaData == null ) {
 								AssetService.Recycle(go);

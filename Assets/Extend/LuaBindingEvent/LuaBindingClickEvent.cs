@@ -8,13 +8,14 @@ namespace Extend.LuaBindingEvent {
 		[ReorderList, LabelText("On Click ()"), SerializeField]
 		private BindingEvent[] m_clickEvent;
 
+		private Button m_button;
 		private void Start() {
-			var button = GetComponent<Button>();
-			button.onClick.AddListener(OnPointerClick);
+			m_button = GetComponent<Button>();
+			m_button.onClick.AddListener(OnPointerClick);
 		}
 
 		public void OnPointerClick() {
-			TriggerPointerEvent("OnClick", m_clickEvent, null);
+			TriggerPointerEvent("OnClick", m_clickEvent, m_button);
 		}
 	}
 } 

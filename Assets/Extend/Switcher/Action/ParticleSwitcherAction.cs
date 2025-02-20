@@ -15,6 +15,10 @@ namespace Extend.Switcher.Action {
 		
 		public override void ActiveAction() {
 			m_allPs.Clear();
+			if( !m_psRootGo ) {
+				Debug.LogError($"{nameof(m_psRootGo)} is null");
+				return;
+			}
 			m_psRootGo.GetComponentsInChildren(m_allPs);
 			if( m_isOn ) {
 				foreach( ParticleSystem ps in m_allPs ) {

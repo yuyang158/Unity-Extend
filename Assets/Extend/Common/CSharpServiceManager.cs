@@ -51,7 +51,8 @@ namespace Extend.Common {
 
 		public static void Initialize() {
 			if( Initialized ) {
-				throw new Exception("CSharpServiceManager already initialized");
+				CleanUp();
+				// throw new Exception("CSharpServiceManager already initialized");
 			}
 
 			Initialized = true;

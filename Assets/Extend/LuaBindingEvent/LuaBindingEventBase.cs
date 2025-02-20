@@ -19,6 +19,9 @@ namespace Extend.LuaBindingEvent {
 		private Selectable m_selectable;
 		private bool m_loopEvent;
 
+		[SerializeField]
+		private bool m_ignoreInteractable;
+
 		protected virtual void Awake() {
 			m_selectable = GetComponent<Selectable>();
 		}
@@ -42,8 +45,10 @@ namespace Extend.LuaBindingEvent {
 		}
 
 		protected void TriggerPointerEvent(string eventName, IEnumerable<BindingEvent> events, object data) {
-			if( m_selectable != null && !m_selectable.interactable )
-				return;
+			if( !m_ignoreInteractable ) {
+				if( m_selectable != null && !m_selectable.IsInteractable() )
+					return;
+			}
 
 			foreach( var evt in events ) {
 				var emmyFunction = evt.Function;

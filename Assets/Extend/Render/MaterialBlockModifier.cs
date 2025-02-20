@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Extend.Common;
 using UnityEngine;
 using XLua;
 
@@ -65,6 +64,12 @@ namespace Extend.Render {
 			}
 		}
 
+		public void SetVisible(bool bVisible) {
+			foreach( var renderer in Renderers ) {
+				renderer.forceRenderingOff = !bVisible;
+			}
+		}
+
 		public void SetFloat(int propId, float value) {
 			foreach( MaterialPropertyBlock block in m_blocks ) {
 				block.SetFloat(propId, value);
@@ -99,6 +104,22 @@ namespace Extend.Render {
 				EndValue = endValue,
 				Duration = duration
 			});
+		}
+
+		public void ModifySingleKeyword(string keyword, bool active, int index) {
+			var materials = new List<Material>();
+			var r = Renderers[index];
+			r.GetMaterials(materials);
+			r.SetMaterials(materials);
+
+			foreach( Material material in materials ) {
+				if( active ) {
+					material.EnableKeyword(keyword);
+				}
+				else {
+					material.DisableKeyword(keyword);
+				}
+			}
 		}
 
 		public void ModifyKeyword(string keyword, bool active) {

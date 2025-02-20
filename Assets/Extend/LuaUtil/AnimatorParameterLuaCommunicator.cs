@@ -8,7 +8,7 @@ using XLua;
 namespace Extend.LuaUtil {
 	[CSharpCallLua]
 	public delegate void OnRootMotionUpdate(Vector3 deltaPosition, Quaternion deltaRotation);
-	
+
 	[RequireComponent(typeof(Animator)), LuaCallCSharp]
 	public class AnimatorParameterLuaCommunicator : MonoBehaviour {
 		public LuaTable ParameterSummary { get; private set; }
@@ -18,25 +18,33 @@ namespace Extend.LuaUtil {
 
 		private int m_enabledFrame;
 		public int EnabledFrame => m_enabledFrame;
-		
+
 		private void OnEnable() {
 			m_enabledFrame = Time.frameCount;
 		}
 
+		private void OnDestroy() {
+			ParameterSummary.Dispose();
+		}
+
 		private void Awake() {
 			Animator = GetComponent<Animator>();
+
+			var luaVM = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
+			ParameterSummary = luaVM.NewTable();
+			if( !Animator.runtimeAnimatorController ) {
+				return;
+			}
 			var originController = Animator.runtimeAnimatorController as AnimatorOverrideController;
 			if( originController ) {
-				List<KeyValuePair<AnimationClip, AnimationClip>> overrides = new List<KeyValuePair<AnimationClip, AnimationClip>>(originController.overridesCount);
+				List<KeyValuePair<AnimationClip, AnimationClip>> overrides =
+					new List<KeyValuePair<AnimationClip, AnimationClip>>(originController.overridesCount);
 				originController.GetOverrides(overrides);
 
 				var clonedController = new AnimatorOverrideController(Animator.runtimeAnimatorController);
 				clonedController.ApplyOverrides(overrides);
 				Animator.runtimeAnimatorController = clonedController;
 			}
-
-			var luaVM = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
-			ParameterSummary = luaVM.NewTable();
 			for( int i = 0; i < Animator.parameterCount; i++ ) {
 				AnimatorControllerParameter parameter = Animator.GetParameter(i);
 				LuaTable context = luaVM.NewTable();
@@ -63,13 +71,20 @@ namespace Extend.LuaUtil {
 		}
 
 		public void Play(int nameHash, int layer = 0) {
+			if( !Animator.HasState(layer, nameHash) ) {
+				return;
+			}
 			Animator.Play(nameHash, layer);
 		}
 
 		public void Evaluate(float deltaTime) {
+			if( !gameObject.activeInHierarchy ) {
+				return;
+			}
+
 			Animator.Update(deltaTime);
 		}
-		
+
 		public void CrossFade(int nameHash, float transitionDuration, int layer = 0) {
 			Animator.CrossFade(nameHash, transitionDuration, layer);
 		}
@@ -115,6 +130,23 @@ namespace Extend.LuaUtil {
 			controller[clipName] = clip;
 		}
 
+		public bool IsInTransition(int layerIndex) {
+			return Animator.IsInTransition(layerIndex);
+		}
+
+		public void MoveToAnimationClipEvent(AnimationClip clip, string eventName, int layer = -1) {
+			var events = clip.events;
+			foreach( AnimationEvent e in events ) {
+				var evtInstance = e.objectReferenceParameter as EventInstance;
+				if( evtInstance.name == eventName ) {
+					var state = e.animatorStateInfo;
+					Animator.Play(state.fullPathHash, -1, e.time / clip.length);
+					Animator.Update(0);
+					break;
+				}
+			}
+		}
+
 		public void OnEvent(EventInstance evt) {
 			if( !evt ) {
 				Debug.LogError("Animation Event Instance Is Null." + name);
@@ -132,7 +164,7 @@ namespace Extend.LuaUtil {
 		public void OnEvent_String(string evt) {
 			var lastIndex = evt.LastIndexOf('_');
 			var clipName = evt[..lastIndex];
-			var value = evt[(lastIndex+1)..];
+			var value = evt[( lastIndex + 1 )..];
 			var callback = ParameterSummary.Get<LuaFunction>("OnEvent_Check");
 			callback?.Action(value, clipName);
 		}
@@ -142,12 +174,29 @@ namespace Extend.LuaUtil {
 			return stateInfo.shortNameHash;
 		}
 
+		public void GetLayerCurrentStateFullNameHashAndTime(int layerIndex, out int fullNameHash,
+			out float normalizedTime) {
+			if( Animator.IsInTransition(layerIndex) ) {
+				var stateInfo = Animator.GetNextAnimatorStateInfo(layerIndex);
+				fullNameHash = stateInfo.fullPathHash;
+				normalizedTime = stateInfo.normalizedTime;
+			}
+			else {
+				var stateInfo = Animator.GetCurrentAnimatorStateInfo(layerIndex);
+				fullNameHash = stateInfo.fullPathHash;
+				normalizedTime = stateInfo.normalizedTime;
+			}
+		}
+
 		public void SetLayerWeight(int layer, float weight) {
+			if( layer >= Animator.layerCount ) {
+				return;
+			}
 			Animator.SetLayerWeight(layer, weight);
 		}
 
 		public void SetUpdateMode(int updateMode) {
-			Animator.updateMode = (AnimatorUpdateMode)updateMode;
+			Animator.updateMode = (AnimatorUpdateMode) updateMode;
 		}
 
 		public bool HasState(int layer, int stateID) {
@@ -155,6 +204,7 @@ namespace Extend.LuaUtil {
 		}
 
 		private int m_pauseEventFrame;
+
 		public void PauseOneFrameFireEvent() {
 			m_pauseEventFrame = Time.frameCount;
 		}
@@ -162,6 +212,9 @@ namespace Extend.LuaUtil {
 		public float Speed {
 			get => Animator.speed;
 			set => Animator.speed = value;
+		}
+
+		public virtual void SetRootMotionActivate(bool activate, OnRootMotionUpdate rootMotionUpdate = null) {
 		}
 	}
 }

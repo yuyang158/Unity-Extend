@@ -14,10 +14,11 @@ namespace Extend.LuaUtil {
 		}
 
 		public void ManualAnimatorMove(float offset) {
+			if(m_rootMotionActive) return;
 			m_rootMotionUpdate?.Invoke(offset * transform.forward, Quaternion.identity);
 		}
 
-		public void SetRootMotionActivate(bool activate, OnRootMotionUpdate rootMotionUpdate = null) {
+		public override void SetRootMotionActivate(bool activate, OnRootMotionUpdate rootMotionUpdate = null) {
 			m_rootMotionActive = activate;
 			Animator.applyRootMotion = activate;
 			m_rootMotionUpdate = rootMotionUpdate;

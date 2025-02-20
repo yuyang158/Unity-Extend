@@ -9,7 +9,9 @@ namespace Extend.StateActionGroup {
 
 		protected override void Awake() {
 			base.Awake();
-			m_sag = GetComponent<SAG>();
+			if( !m_sag ) {
+				m_sag = GetComponent<SAG>();
+			}
 		}
 
 		protected override void DoStateTransition(SelectionState state, bool instant) {
@@ -19,6 +21,9 @@ namespace Extend.StateActionGroup {
 				return;
 			}
 
+			if( !m_sag ) {
+				m_sag = GetComponent<SAG>();
+			}
 			var stateName = Enum.GetName(state.GetType(), state);
 			m_sag.Switch(m_sag.HasGroup(stateName) ? stateName : "Normal");
 		}

@@ -1,6 +1,5 @@
 ﻿using System;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using XLua;
 
 namespace Extend.UI {
@@ -24,8 +23,10 @@ namespace Extend.UI {
 		protected virtual void Awake() {
 			CanvasGroup = GetComponent<CanvasGroup>();
 			Canvas = GetComponent<Canvas>();
-			if( Canvas )
-				Canvas.additionalShaderChannels = AdditionalCanvasShaderChannels.None;
+			if(!Canvas) {
+				throw new Exception("Canvas is null, " + name);
+			}
+			Canvas.additionalShaderChannels = AdditionalCanvasShaderChannels.None;
 		}
 
 		public Canvas Canvas { get; private set; }
@@ -82,15 +83,20 @@ namespace Extend.UI {
 		protected abstract void OnHide();
 
 		public void Hide(Action hidden = null) {
-			CanvasGroup.interactable = false;
-			ViewStatus = Status.Hiding;
-			Hiding?.Invoke();
-			Hiding = null;
+			try {
+				CanvasGroup.interactable = false;
+				ViewStatus = Status.Hiding;
+				Hiding?.Invoke();
+				Hiding = null;
 
-			if( hidden != null ) {
-				Hidden += hidden;
+				if( hidden != null ) {
+					Hidden += hidden;
+				}
+				OnHide();
 			}
-			OnHide();
+			catch( Exception e ) {
+				Debug.LogException(e);
+			}
 		}
 
 		protected abstract void OnLoop();

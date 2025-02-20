@@ -8,6 +8,7 @@ namespace Extend.LuaUtil {
 	[LuaCallCSharp]
 	public static class RaycastUtil {
 		private static readonly RaycastHit[] _hits = new RaycastHit[16];
+		private static readonly Collider[] _colliders = new Collider[16];
 
 		public static Vector3 GetPlanePoint(Ray mouseRay, Vector3 source) {
 			var plane = new Plane(Vector3.up, source);
@@ -52,7 +53,20 @@ namespace Extend.LuaUtil {
 		}
 
 		public static RaycastHit[] Hits => _hits;
+		public static Collider[] Overlaps => _colliders;
 
+		public static int ColliderCastNonAlloc(Collider collider, Vector3 direction, float maxDistance, int layerMask) {
+			if( collider is BoxCollider boxCollider ) {
+				return BoxCastNonAlloc(boxCollider, direction, maxDistance, layerMask);
+			}
+			if( collider is CapsuleCollider capsuleCollider ) {
+				return CapsuleCastNonAlloc(capsuleCollider, direction, maxDistance, layerMask);
+			}
+			if( collider is SphereCollider sphereCollider ) {
+				return SphereCastNonAlloc(sphereCollider, direction, maxDistance, layerMask);
+			}
+			throw new NotImplementedException();
+		}
 		//
 		// Box
 		//
@@ -87,11 +101,10 @@ namespace Extend.LuaUtil {
 			return Physics.CheckBox(center, halfExtents, orientation, layerMask, queryTriggerInteraction);
 		}
 
-		public static int OverlapBoxNonAlloc(BoxCollider box, Collider[] results,
-			int layerMask = Physics.DefaultRaycastLayers,
+		public static int OverlapBoxNonAlloc(BoxCollider box, int layerMask = Physics.DefaultRaycastLayers,
 			QueryTriggerInteraction queryTriggerInteraction = QueryTriggerInteraction.UseGlobal) {
 			box.ToWorldSpaceBox(out Vector3 center, out Vector3 halfExtents, out Quaternion orientation);
-			return Physics.OverlapBoxNonAlloc(center, halfExtents, results, orientation, layerMask,
+			return Physics.OverlapBoxNonAlloc(center, halfExtents, _colliders, orientation, layerMask,
 				queryTriggerInteraction);
 		}
 
@@ -130,11 +143,10 @@ namespace Extend.LuaUtil {
 			return Physics.CheckSphere(center, radius, layerMask, queryTriggerInteraction);
 		}
 
-		public static int OverlapSphereNonAlloc(SphereCollider sphere, Collider[] results,
-			int layerMask = Physics.DefaultRaycastLayers,
+		public static int OverlapSphereNonAlloc(SphereCollider sphere, int layerMask = Physics.DefaultRaycastLayers,
 			QueryTriggerInteraction queryTriggerInteraction = QueryTriggerInteraction.UseGlobal) {
 			sphere.ToWorldSpaceSphere(out Vector3 center, out var radius);
-			return Physics.OverlapSphereNonAlloc(center, radius, results, layerMask, queryTriggerInteraction);
+			return Physics.OverlapSphereNonAlloc(center, radius, _colliders, layerMask, queryTriggerInteraction);
 		}
 
 		public static void ToWorldSpaceSphere(this SphereCollider sphere, out Vector3 center, out float radius) {
@@ -168,11 +180,10 @@ namespace Extend.LuaUtil {
 			return Physics.CheckCapsule(point0, point1, radius, layerMask, queryTriggerInteraction);
 		}
 
-		public static int OverlapCapsuleNonAlloc(CapsuleCollider capsule, Collider[] results,
-			int layerMask = Physics.DefaultRaycastLayers,
+		public static int OverlapCapsuleNonAlloc(CapsuleCollider capsule, int layerMask = Physics.DefaultRaycastLayers,
 			QueryTriggerInteraction queryTriggerInteraction = QueryTriggerInteraction.UseGlobal) {
 			capsule.ToWorldSpaceCapsule(out Vector3 point0, out Vector3 point1, out var radius);
-			return Physics.OverlapCapsuleNonAlloc(point0, point1, radius, results, layerMask, queryTriggerInteraction);
+			return Physics.OverlapCapsuleNonAlloc(point0, point1, radius, _colliders, layerMask, queryTriggerInteraction);
 		}
 
 		public static void ToWorldSpaceCapsule(this CapsuleCollider capsule, out Vector3 point0, out Vector3 point1,

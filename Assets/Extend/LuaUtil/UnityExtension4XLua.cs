@@ -40,6 +40,17 @@ namespace Extend.LuaUtil {
 			return unityObject;
 		}
 
+		private static readonly List<Component> m_components = new (16);
+		public static int GetComponentsInChildren(Component component, Type type, bool includeInactive = false) {
+			m_components.Clear();
+			m_components.AddRange(component.GetComponentsInChildren(type, includeInactive));
+			return m_components.Count;
+		}
+
+		public static Component GetComponentAtIndex(int index) {
+			return m_components[index];
+		}
+
 		private static readonly List<LuaBinding> _bindings = new List<LuaBinding>(8);
 		public static LuaTable GetLuaBinding(this GameObject go, LuaTable classMeta) {
 			go.GetComponents(_bindings);
@@ -120,10 +131,6 @@ namespace Extend.LuaUtil {
 		public static void SetGray(this RectTransform transform, bool active) {
 			var grayScale = transform.GetOrAddComponent<UIGrayScale>();
 			grayScale.enabled = active;	
-		}
-
-		public static void ChangeOverrideAnimatorClip(AnimatorOverrideController controller, string clipName, AnimationClip clip) {
-			controller[clipName] = clip;
 		}
 
 		public static int GetRendererMaterialCount(this Renderer renderer) {

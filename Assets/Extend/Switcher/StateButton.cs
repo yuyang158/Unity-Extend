@@ -19,26 +19,15 @@ namespace Extend.Switcher {
 				return;
 			}
 
-			Debug.LogWarning($"{name} Current State : {state}");
-			switch( state ) {
-				case SelectionState.Normal:
-					m_switcher.CurrentState = "Normal";
-					break;
-				case SelectionState.Highlighted:
-					m_switcher.CurrentState = "Highlighted";
-					break;
-				case SelectionState.Pressed:
-					m_switcher.CurrentState = "Pressed";
-					break;
-				case SelectionState.Selected:
-					m_switcher.CurrentState = "Selected";
-					break;
-				case SelectionState.Disabled:
-					m_switcher.CurrentState = "Disabled";
-					break;
-				default:
-					throw new ArgumentOutOfRangeException(nameof(state), state, null);
-			}
+			// Debug.LogWarning($"{name} Current State : {state}");
+			m_switcher.CurrentState = state switch {
+				SelectionState.Normal => "Normal",
+				SelectionState.Highlighted => "Highlighted",
+				SelectionState.Pressed => "Pressed",
+				SelectionState.Selected => "Selected",
+				SelectionState.Disabled => "Disabled",
+				_ => throw new ArgumentOutOfRangeException(nameof(state), state, null)
+			};
 		}
 	}
 }

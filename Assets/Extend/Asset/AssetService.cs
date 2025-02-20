@@ -234,6 +234,10 @@ namespace Extend.Asset {
 			return Load<TextAsset>(path);
 		}
 
+		public AssetReference LoadScriptableObjectAsset(string path) {
+			return Load<ScriptableObject>(path);
+		}
+
 		public AssetReference LoadUnknownAsset(string path) {
 			return Load<Object>(path);
 		}

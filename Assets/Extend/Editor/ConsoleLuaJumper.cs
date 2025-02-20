@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using UnityEditor;
 using UnityEditor.Callbacks;
 using UnityEngine;
@@ -64,19 +65,11 @@ namespace Extend.Editor {
 		}
 
 		private static void ParseFilepathAndLineInFirstLine(string firstLine, out string filepath, out string line) {
-			string[] parts = firstLine.Split(':');
+			string[] parts = firstLine.Split(':', StringSplitOptions.RemoveEmptyEntries);
 			for( int i = 0; i < parts.Length; i++ ) {
 				if( int.TryParse(parts[i], out _) ) {
 					line = parts[i];
-					int startIdx = 0;
-					for( int j = parts[i - 1].Length - 1; j >= 0; j-- ) {
-						if( !char.IsLetter(parts[i - 1][j]) && !parts[i - 1][j].Equals('/') && !parts[i - 1][j].Equals('.') ) {
-							startIdx = j + 1;
-							break;
-						}
-					}
-
-					filepath = Application.dataPath.Replace("Assets", "Lua/") + parts[i - 1].Substring(startIdx);
+					filepath = "Lua/" + parts[i - 1].Trim();
 					return;
 				}
 			}

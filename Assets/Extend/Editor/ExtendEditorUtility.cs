@@ -1,17 +1,8 @@
-﻿using System;
-using System.Collections;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
-using CSObjectWrapEditor;
 using Extend.Common.Editor;
-using Unity.EditorCoroutines.Editor;
 using UnityEditor;
-using UnityEditor.AddressableAssets;
-using UnityEditor.AddressableAssets.Build;
-using UnityEditor.AddressableAssets.Settings;
 using UnityEditor.Animations;
-using UnityEditor.Build.Reporting;
-using UnityEditor.Callbacks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -46,6 +37,14 @@ namespace Extend.Editor {
 			EditorUtility.ClearProgressBar();
 		}
 
+		
+		[MenuItem("Tools/常用工具/Remove Missing MonoBehaviour In Select")]
+		private static void RemoveMissingMonoBehaviourInSelect() {
+			var go = Selection.activeGameObject;
+			var count = GameObjectUtility.RemoveMonoBehavioursWithMissingScript(go);
+			Debug.Log(count);
+		}
+		
 		private static void FindMissingMonoBehaviourInTransform(Transform t, bool selectPrefabRoot = false) {
 			var components = t.GetComponents<Component>();
 			if( components.Any(component => !component) ) {
@@ -76,6 +75,23 @@ namespace Extend.Editor {
 			input.ShowModal();
 		}
 
+		[MenuItem("Tools/Asset/Duplicate Select Asset")]
+		public static void DuplicateSelectAsset() {
+			var input = InputWindow.CreateWindow("Input Names", true, false);
+			input.Callback += s => {
+				var path = AssetDatabase.GetAssetPath(Selection.activeObject);
+				using( var reader = new StringReader(s) ) {
+					var line = reader.ReadLine();
+					while( !string.IsNullOrEmpty(line) ) {
+						AssetDatabase.CopyAsset(path, Path.Combine(Path.GetDirectoryName(path) ??
+							string.Empty, line + Path.GetExtension(path)));
+						line = reader.ReadLine();
+					}
+				}
+			};
+			input.ShowModal();
+		}
+
 		[MenuItem("Tools/Animation/Find Blend Tree Parameter")]
 		public static void FindBlendTreeParameter() {
 			var controller = Selection.activeObject as AnimatorController;
@@ -88,6 +104,15 @@ namespace Extend.Editor {
 					FindInStateMachine(sm, layer);
 				}
 			}
+		}
+		
+		[MenuItem("Tools/Animation/Animator Hash Convert")]
+		public static void AnimatorHashConvert() {
+			var window = InputWindow.CreateWindow("Animator Hash Convert");
+			window.Callback += s => {
+				Debug.Log(Animator.StringToHash(s));
+			};
+			window.ShowModal();
 		}
 
 		[MenuItem("Tools/Animation/Convert Animator Name")]

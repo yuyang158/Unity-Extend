@@ -19,7 +19,7 @@ namespace Extend.Editor {
 				return UIEditorUtil.LINE_HEIGHT * 2;
 			}
 
-			var height = descriptor.Fields.Count * UIEditorUtil.LINE_HEIGHT + descriptor.Methods.Count * UIEditorUtil.LINE_HEIGHT;
+			var height = descriptor.Methods.Count * UIEditorUtil.LINE_HEIGHT;
 			return UIEditorUtil.LINE_HEIGHT * 2 + height;
 		}
 

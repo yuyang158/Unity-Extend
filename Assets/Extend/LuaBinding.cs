@@ -33,7 +33,7 @@ namespace Extend {
 				return;
 			var luaVM = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
 			var ret = luaVM.LoadFileAtPath(LuaFile);
-			if( !(ret[0] is LuaTable klass) )
+			if( ret[0] is not LuaTable klass )
 				return;
 			LuaClass = klass;
 

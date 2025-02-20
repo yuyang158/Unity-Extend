@@ -24,7 +24,7 @@ namespace Extend.StateActionGroup {
 				group = null;
 			}
 			else {
-				var parentGroup = transform.parent.GetComponent<ToggleGroup>();
+				var parentGroup = transform.GetComponentInParent<ToggleGroup>();
 				group = parentGroup;
 			}
 		}
@@ -34,13 +34,17 @@ namespace Extend.StateActionGroup {
 			if(!m_onOffSAG) return;
 			m_onOffSAG.Switch(isOn ? "On" : "Off");
 			if( !group ) {
-				var parentGroup = transform.parent.GetComponent<ToggleGroup>();
+				var parentGroup = transform.GetComponentInParent<ToggleGroup>();
 				group = parentGroup;
 			}
 		}
 
 		protected override void DoStateTransition(SelectionState state, bool instant) {
 			if( !gameObject.activeInHierarchy || !Application.isPlaying || !m_stateSAG ) {
+				return;
+			}
+
+			if( m_stateSAG == m_onOffSAG && isOn ) {
 				return;
 			}
 

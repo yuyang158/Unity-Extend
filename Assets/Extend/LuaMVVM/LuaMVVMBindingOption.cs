@@ -89,9 +89,6 @@ namespace Extend.LuaMVVM {
 			if( BindTarget ) {
 				DebugCheckCallback?.Invoke(BindTarget.gameObject);
 			}
-			else {
-				Debug.Log("");
-			}
 #endif
 
 #if UNITY_DEBUG
@@ -172,15 +169,7 @@ namespace Extend.LuaMVVM {
 				return -1;
 			}
 
-			if( Mode == BindMode.EVENT ) {
-				return -1;
-			}
-
 			if( other.BindTargetProp == "SetActive" ) {
-				return 1;
-			}
-			
-			if( other.Mode == BindMode.EVENT ) {
 				return 1;
 			}
 
@@ -194,6 +183,9 @@ namespace Extend.LuaMVVM {
 		public string GetExpressionKey() {
 			return $"{Path}_{BindTarget.gameObject.GetInstanceID().ToString()}".GetHashCode().ToString();
 		}
+
+		private object m_luaValue;
+		public object LuaValue => m_luaValue;
 
 		public void Bind(LuaTable dataContext) {
 			if( m_dataSource != null ) {
@@ -232,7 +224,7 @@ namespace Extend.LuaMVVM {
 				Debug.LogException(e);
 			}
 
-
+			m_luaValue = bindingValue;
 			if( bindingValue == null && Mode != BindMode.ONE_WAY_TO_SOURCE) {
 				// Debug.LogWarning($"Not found value in path {Path}");
 				return;
@@ -242,7 +234,10 @@ namespace Extend.LuaMVVM {
 				case BindMode.ONE_WAY:
 				case BindMode.TWO_WAY:
 				case BindMode.ONE_TIME: {
-					if( Mode == BindMode.ONE_WAY || Mode == BindMode.TWO_WAY ) {
+					if( Mode is BindMode.ONE_WAY or BindMode.TWO_WAY ) {
+						if( !m_prepared ) {
+							Prepare();
+						}
 						var watch = dataContext.GetInPath<WatchLuaProperty>("watch");
 						watch(dataContext, m_expression ? GetExpressionKey() : Path, watchCallback, m_expression);
 						detach = dataContext.Get<DetachLuaProperty>("detach");

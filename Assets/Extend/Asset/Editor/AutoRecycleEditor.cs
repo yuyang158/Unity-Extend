@@ -1,4 +1,5 @@
-﻿using Extend.Common.Editor.InspectorGUI;
+﻿using System.Collections.Generic;
+using Extend.Common.Editor.InspectorGUI;
 using UnityEditor;
 using UnityEngine;
 
@@ -24,6 +25,24 @@ namespace Extend.Asset.Editor {
 			}
 
 			serializedObject.ApplyModifiedProperties();
+		}
+		
+		[MenuItem("Tools/Auto Recycle Check")]
+		private static void AutoRecycleTopNodeCheck() {
+			var prefabs = AssetDatabase.FindAssets("t:prefab", new[] { "Assets/Res" });
+			var autoRecycles = new List<AutoRecycle>();
+			foreach( var guid in prefabs ) {
+				var assetPath = AssetDatabase.GUIDToAssetPath(guid);
+				var go = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
+				autoRecycles.Clear();
+				go.GetComponentsInChildren(true, autoRecycles);
+
+				foreach( AutoRecycle autoRecycle in autoRecycles ) {
+					if( autoRecycle.transform.parent != null ) {
+						Debug.LogError($"Auto Recycle Check Error {assetPath}", go);
+					}
+				}
+			}
 		}
 	}
 }

@@ -13,8 +13,8 @@ namespace Extend.SceneManagement.Jobs {
 		public ShadowCastingMode ShadowCastingMode;
 		public bool ReceiveShadow;
 		public int MeshMaterialIndex;
-		public List<DrawInstance> Instances = new List<DrawInstance>();
-		private static readonly MaterialPropertyBlock m_emptyBlock = new MaterialPropertyBlock();
+		public List<DrawInstance> Instances = new();
+		private static readonly MaterialPropertyBlock m_emptyBlock = new();
 
 		private DrawMatrixBuildSingleJob[] m_buildJob;
 		private JobHandle[] m_jobHandle;
@@ -25,18 +25,30 @@ namespace Extend.SceneManagement.Jobs {
 		private static readonly int BaseColor = Shader.PropertyToID("_BaseColor");
 		private static readonly int Surface = Shader.PropertyToID("_Surface");
 		private static readonly int Blend = Shader.PropertyToID("_Blend");
+		
+		private RenderParams m_renderParams;
 
 		public void Build() {
 			var count = Mathf.CeilToInt(Instances.Count / 1024.0f);
 			m_buildJob = new DrawMatrixBuildSingleJob[count];
 			m_jobHandle = new JobHandle[count];
+			Bounds worldBounds = new Bounds(Vector3.zero, Vector3.zero);
 			for( int i = 0; i < count; i++ ) {
 				m_buildJob[i] = new DrawMatrixBuildSingleJob();
 				DrawInstance[] instances = i + 1 == count ? new DrawInstance[Instances.Count - i * 1024] : new DrawInstance[1024];
 				Instances.CopyTo(i * 1024, instances, 0, instances.Length);
 				m_buildJob[i].Init(instances);
+				foreach( DrawInstance instance in instances ) {
+					worldBounds.Encapsulate(instance.Bounds);
+				}
 			}
 			Instances = null;
+			m_renderParams = new RenderParams(Material) {
+				receiveShadows = ReceiveShadow,
+				shadowCastingMode = ShadowCastingMode,
+				worldBounds = worldBounds,
+				layer = 0
+			};
 		}
 
 		public void SetVisible(int index, bool visible) {
@@ -83,15 +95,7 @@ namespace Extend.SceneManagement.Jobs {
 					Graphics.DrawMesh(Mesh, matrixArray[0], Material, 0, Camera.main, SubMeshIndex, m_emptyBlock, ShadowCastingMode, ReceiveShadow);
 				}
 				else {
-					Graphics.DrawMeshInstanced(Mesh,
-						SubMeshIndex,
-						Material,
-						matrixArray.ToArray(),
-						visibleCount,
-						m_emptyBlock,
-						ShadowCastingMode,
-						ReceiveShadow,
-						0);
+					Graphics.RenderMeshInstanced(m_renderParams, Mesh, SubMeshIndex, matrixArray, visibleCount);
 				}
 			}
 		}

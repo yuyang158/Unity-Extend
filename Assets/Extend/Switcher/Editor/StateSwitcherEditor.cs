@@ -127,6 +127,8 @@ namespace Extend.Switcher.Editor {
 
 		public override void OnInspectorGUI() {
 			EditorGUI.BeginChangeCheck();
+			var defaultStateNameProp = serializedObject.FindProperty("DefaultStateName");
+			EditorGUILayout.PropertyField(defaultStateNameProp);
 			m_statesList.DoLayoutList();
 			if( m_statesList.index != -1 ) {
 				var stateProp = m_statesList.serializedProperty.GetArrayElementAtIndex(m_statesList.index);

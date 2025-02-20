@@ -29,13 +29,14 @@ namespace Extend.UI.i18n {
 		public void Destroy() {
 		}
 
-		public string GetText(string key) {
+		public bool GetText(string key, out string text) {
 			if( !m_i18nContent.TryGetValue(key, out var ret) ) {
-				Debug.LogWarning($"key {key} not present in static-i18n config");
-				return string.Empty;
+				text = string.Empty;
+				return false;
 			}
 
-			return ret[m_currentLang].ToString().Replace("\\n", "\n");
+			text = ret[m_currentLang].ToString().Replace("\\n", "\n");
+			return true;
 		}
 	}
 }

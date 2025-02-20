@@ -16,6 +16,23 @@ namespace Extend.Common {
 			m_service = CSharpServiceManager.Instance;
 		}
 
+		private MonoBehaviour m_stateCoroutine;
+		public void SetStateCoroutineBehavior(MonoBehaviour coroutine) {
+			m_stateCoroutine = coroutine;
+		}
+		
+		public Coroutine StartStateCoroutine(IEnumerator enumerator) {
+			return m_stateCoroutine.StartCoroutine(enumerator);
+		}
+		
+		public Coroutine StartBindingCoroutine(MonoBehaviour binding, IEnumerator enumerator) {
+			return binding.StartCoroutine(enumerator);
+		}
+
+		public void StopBindingCoroutine(MonoBehaviour binding, Coroutine coroutine) {
+			binding.StopCoroutine(coroutine);
+		}
+
 		public Coroutine StartCoroutine(IEnumerator enumerator) {
 			return m_service.StartCoroutine(enumerator);
 		}

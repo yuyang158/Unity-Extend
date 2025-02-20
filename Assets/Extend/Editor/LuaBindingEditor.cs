@@ -14,13 +14,15 @@ namespace Extend.Editor {
 	[CustomEditor(typeof(LuaBinding), true)]
 	public class LuaBindingEditor : ExtendInspector {
 		private LuaBinding binding;
-		private static readonly string[] basicTypes = {"string", "number", "boolean", "integer"};
+		private static readonly string[] basicTypes = {"string", "number", "boolean", "integer", "string[]", "integer[]"};
 
 		private static readonly Type[] basicBindingTypes = {
 			typeof(LuaBindingStringData),
 			typeof(LuaBindingNumberData),
 			typeof(LuaBindingBooleanData),
-			typeof(LuaBindingIntegerData)
+			typeof(LuaBindingIntegerData),
+			typeof(LuaBindingStringArrayData),
+			typeof(LuaBindingIntegerArrayData),
 		};
 
 		private LuaClassDescriptor descriptor;
@@ -84,7 +86,12 @@ namespace Extend.Editor {
 			
 			isUsedBinding.Clear();
 			foreach( var field in descriptor.Fields.Where(field => !field.FieldName.StartsWith("_")) ) {
-				if( field.FieldType.Contains("[]") ) {
+				var index = Array.IndexOf(basicTypes, field.FieldType);
+				if( index >= 0 ) {
+					var typ = basicBindingTypes[index];
+					CheckBinding(field, typ);
+				}
+				else if( field.FieldType.Contains("[]") ) {
 					CheckBinding<LuaBindingUOArrayData>(field);
 				}
 				else if( field.FieldType.StartsWith("CS.") ) {
@@ -106,14 +113,7 @@ namespace Extend.Editor {
 					}
 				}
 				else {
-					var index = Array.IndexOf(basicTypes, field.FieldType);
-					if( index >= 0 ) {
-						var typ = basicBindingTypes[index];
-						CheckBinding(field, typ);
-					}
-					else {
-						CheckBinding<LuaBindingUOData>(field);
-					}
+					CheckBinding<LuaBindingUOData>(field);
 				}
 			}
 

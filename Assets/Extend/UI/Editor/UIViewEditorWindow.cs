@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Extend.UI.GamePad;
 using ListView;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
@@ -45,7 +46,7 @@ namespace Extend.UI.Editor {
 			new MultiColumnHeaderState.Column {headerContent = new GUIContent("Attach Layer"), width = 10, canSort = false},
 			new MultiColumnHeaderState.Column {headerContent = new GUIContent("Transition"), width = 10, canSort = false},
 			new MultiColumnHeaderState.Column {headerContent = new GUIContent("Close"), width = 10, canSort = false},
-			// new MultiColumnHeaderState.Column {headerContent = new GUIContent("Frame Rate"), width = 10, canSort = false},
+			new MultiColumnHeaderState.Column {headerContent = new GUIContent("Mute"), width = 10, canSort = false},
 			new MultiColumnHeaderState.Column {headerContent = new GUIContent("Close Button Path"), width = 10, canSort = false}
 		}));
 
@@ -73,7 +74,7 @@ namespace Extend.UI.Editor {
 			"AttachLayer",
 			"Transition",
 			"CloseMethod",
-			// "FrameRate",
+			"Mute",
 			"CloseButtonPath"
 		};
 
@@ -206,7 +207,6 @@ namespace Extend.UI.Editor {
 		public void ToLua() {
 			using(var luaFileStream = new FileStream("Lua/UIViewConfiguration.lua", FileMode.Create, FileAccess.Write))
 			using( var writer = new StreamWriter(luaFileStream) ) {
-				writer.WriteLine("local Configuration = CS.Extend.UI.UIViewConfiguration.Configuration");
 				writer.WriteLine("local AssetReference = CS.Extend.Asset.AssetReference");
 				writer.WriteLine("local UILayer = CS.Extend.UI.UILayer");
 				writer.WriteLine("local CloseOption = CS.Extend.UI.CloseOption");
@@ -214,14 +214,19 @@ namespace Extend.UI.Editor {
 
 				writer.WriteLine("local configurations = {}");
 				foreach( UIViewConfiguration.Configuration configuration in configurationContext.Configurations ) {
-					writer.WriteLine("c = Configuration()");
+					writer.WriteLine("c = {}");
 					writer.WriteLine($"c.Name = \"{configuration.Name}\"");
 					writer.WriteLine($"c.UIView = AssetReference(\"{configuration.UIView.AssetGUID}\")");
+					var assetPath = AssetDatabase.GUIDToAssetPath(configuration.UIView.AssetGUID);
+					var go = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
+					var support = go.GetComponent<UIViewGamePadSupport>();
+					writer.WriteLine($"c.GamepadSupport = " + (support != null ? "true" : "false"));
 					if( configuration.BackgroundFx != null ) {
 						writer.WriteLine($"c.BackgroundFx = AssetReference(\"{configuration.BackgroundFx.AssetGUID}\")");
 					}
 					writer.WriteLine($"c.FullScreen = {configuration.FullScreen.ToString().ToLower()}");
 					writer.WriteLine($"c.MultiInstance = {configuration.MultiInstance.ToString().ToLower()}");
+					writer.WriteLine($"c.Mute = {configuration.Mute.ToString().ToLower()}");
 
 					if( configuration.Transition != null ) {
 						writer.WriteLine($"c.Transition = AssetReference(\"{configuration.Transition.AssetGUID}\")");

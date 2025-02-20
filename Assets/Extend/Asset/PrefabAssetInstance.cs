@@ -74,11 +74,15 @@ namespace Extend.Asset {
 				cached.Instantiated();
 			}
 
-			if( m_autoRecyclePrefab ) {
-				var autoRecycle = go.GetComponent<AutoRecycle>();
-				autoRecycle.ResetAll();
+			try {
+				if( m_autoRecyclePrefab ) {
+					var autoRecycle = go.GetComponent<AutoRecycle>();
+					autoRecycle.ResetAll();
+				}
 			}
-
+			catch( Exception e ) {
+				Debug.LogException(e);
+			}
 #if ASSET_LOG
 			Debug.LogWarning($"Instantiate {UnityObject} parent : {parent}");
 #endif

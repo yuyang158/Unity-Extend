@@ -9,9 +9,14 @@ using DG.Tweening;
 using Extend.Asset;
 using Extend.Common;
 using Extend.DebugUtil;
+using Extend.LuaUtil;
 using Extend.Network;
+using Extend.Network.HttpClient;
+using Extend.SceneManagement;
+using Extend.UI.i18n;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Extend {
 #if UNITY_EDITOR
@@ -58,8 +63,32 @@ namespace Extend {
 			CSharpServiceManager.InitializeServiceGameObject();
 			CSharpServiceManager.Register(new NetworkService());
 			CSharpServiceManager.Register(new GlobalCoroutineRunnerService());
+			CSharpServiceManager.Register(new LuaVM());
+			CSharpServiceManager.Register(new TickService());
+			CSharpServiceManager.Register(new I18nService(ConfigUtil.LoadConfigToJson("StaticText")));
+			CSharpServiceManager.Register(new SceneLoadManager());
+			var lua = CSharpServiceManager.Get<LuaVM>(CSharpServiceManager.ServiceType.LUA_SERVICE);
+#if DEMO_VERSION
+			lua.Global.SetInPath("__DEMO_VERSION__", true);
+#else
+			lua.Global.SetInPath("__DEMO_VERSION__", false);
+#endif
 
-			Application.targetFrameRate = 60;
+			HttpFileRequest.CacheFileExpireCheck();
+			var scene = SceneManager.GetActiveScene();
+			if( scene.name == "StartUp" ) {
+				lua.StartUp(null);
+			}
+			else if( scene.name == "AbilityScene" ) {
+				lua.StartUp("Game.State.AbilityTestState");
+			}
+			else {
+				lua.StartUp("Game.State.DummyState");
+			}
+#if !DISABLESTEAMWORKS
+			var instance = Platforms.Steam.SteamManager.Instance;
+#endif
+			Application.targetFrameRate = -1;
 		}
 	}
 }

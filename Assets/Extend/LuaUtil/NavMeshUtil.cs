@@ -41,37 +41,59 @@ namespace Extend.LuaUtil {
 			return false;
 		}
 
-		public static Vector3 CalculateRandomPointOnRing(Vector3 ringCenter, float innerRadius, float outerRadius) {
-			Vector3 randomPoint = Vector3.zero;
+		public static Vector3 CalculateRandomPointOnRing(Vector3 ringCenter, float innerRadius, float outerRadius,
+			float angleMin = 0, float angleMax = 360) {
+			Vector3 randomPoint = ringCenter;
 			bool foundValidPoint = false;
 
+			// Generate random angle
+			float angle = Random.Range(angleMin, angleMax);
+			// Generate random radius between inner and outer radius
+			float radius = Random.Range(innerRadius, outerRadius);
+			var tryTimes = 0;
 			while( !foundValidPoint ) {
-				// Generate random angle
-				float angle = Random.Range(0f, 360f);
-
 				// Convert angle to radians
 				float radians = angle * Mathf.Deg2Rad;
-
-				// Generate random radius between inner and outer radius
-				float radius = Random.Range(innerRadius, outerRadius);
 
 				// Calculate cartesian coordinates
 				float x = ringCenter.x + radius * Mathf.Cos(radians);
 				float z = ringCenter.z + radius * Mathf.Sin(radians);
 
 				randomPoint = new Vector3(x, ringCenter.y, z);
-				if( NavMesh.Raycast(ringCenter, randomPoint, out var hit, 1) ) {
-					return hit.position;
-				}
-				
-				// Check if the random point is on the NavMesh
-				if( NavMesh.SamplePosition(randomPoint, out hit, 1.0f, 1) ) {
-					randomPoint = hit.position;
+				NavMesh.Raycast(ringCenter, randomPoint, out var hit, 1);
+				if( hit.distance > radius * 0.75f ) {
 					foundValidPoint = true;
+					randomPoint = hit.position;
 				}
+
+				tryTimes++;
+				if( tryTimes > 10 ) {
+					foundValidPoint = true;
+					randomPoint = ringCenter;
+				}
+
+				angle += 30;
 			}
 
 			return randomPoint;
+		}
+		
+		public static Vector3 CalculatePointOnRingCameraForward(Vector3 ringCenter, float innerRadius, float outerRadius) {
+			float radius = Random.Range(innerRadius, outerRadius);
+			var cameraForward = Camera.main.transform.forward;
+			cameraForward.y = 0;
+			cameraForward.Normalize();
+			for( int i = 0; i < 7; i++ ) {
+				float angle = i * 30;
+				Quaternion q = Quaternion.AngleAxis(angle, Vector3.up);
+				var offset = q * cameraForward;
+				
+				NavMesh.Raycast(ringCenter, ringCenter + offset, out var hit, 1);
+				if( hit.distance > radius * 0.75f ) {
+					return hit.position;
+				}
+			}
+			return ringCenter;
 		}
 	}
 }

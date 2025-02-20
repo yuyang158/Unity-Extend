@@ -12,26 +12,50 @@ namespace Extend.UI.GamePad {
 		[SerializeField]
 		private bool m_pauseGame;
 
+		[SerializeField]
+		private bool m_clearSelect;
+
 		public bool PauseGame => m_pauseGame;
 
 		public GameObject FirstSelectGameObject {
 			get => m_firstSelectGameObject;
-			set => m_firstSelectGameObject = value;
+			set {
+				m_firstSelectGameObject = value;
+				SelectGameObject();
+			}
+		}
+
+		private GameObject m_topElement;
+		public void TopElement() {
+			if( m_topElement ) {
+				EventSystem.current.SetSelectedGameObject(m_topElement);
+				return;
+			}
+			SelectGameObject();
+		}
+
+		public void RecordTopElement() {
+			m_topElement = EventSystem.current.currentSelectedGameObject;
 		}
 
 		private void Start() {
 			var input = FindObjectOfType<PlayerInput>();
-			input.controlsChangedEvent.AddListener(SelectGameObject);
+			input.controlsChangedEvent.AddListener(_ => {
+				SelectGameObject();
+			});
 
-			SelectGameObject(input);
+			SelectGameObject();
 		}
 
-		private void SelectGameObject(PlayerInput input) {
-			if( EventSystem.current.currentSelectedGameObject ) {
-				return;
+		private void OnEnable() {
+			if( m_clearSelect ) {
+				EventSystem.current.SetSelectedGameObject(null);
 			}
-			
-			if( input.currentControlScheme == "Gamepad" && m_firstSelectGameObject ) {
+			SelectGameObject();
+		}
+
+		private void SelectGameObject() {
+			if( m_firstSelectGameObject ) {
 				EventSystem.current.SetSelectedGameObject(m_firstSelectGameObject);
 			}
 		}

@@ -53,7 +53,7 @@ namespace Extend.Editor {
 					if( !renderer )
 						continue;
 					foreach( var bone in renderer.bones ) {
-						if( !bone.parent ) {
+						if( !bone || !bone.parent ) {
 							continue;
 						}
 

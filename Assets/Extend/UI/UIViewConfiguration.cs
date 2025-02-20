@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Xml;
 using Extend.Asset;
 using Extend.Asset.Attribute;
@@ -66,11 +65,10 @@ namespace Extend.UI {
 
 			public bool MultiInstance;
 
+			public bool Mute;
+
 			// [BlackList]
 			// public Guid ViewGuid;
-
-			[BlackList]
-			public UIViewRelation[] Relations;
 
 			public int FrameRate = 60;
 
@@ -143,17 +141,8 @@ namespace Extend.UI {
 					element.SetAttribute("AttachLayer", configuration.AttachLayer.ToString());
 					element.SetAttribute("CloseMethod", configuration.CloseMethod.ToString());
 					element.SetAttribute("CloseButtonPath", configuration.CloseButtonPath);
-					element.SetAttribute("FrameRate", configuration.FrameRate.ToString());
+					element.SetAttribute("Mute", configuration.Mute ? "1" : "0");
 					element.SetAttribute("MultiInstance", configuration.MultiInstance ? "1" : "0");
-
-					if( configuration.Relations != null && configuration.Relations.Length > 0 ) {
-						foreach( var relation in configuration.Relations ) {
-							var relationElement = document.CreateElement("Relation");
-							relationElement.SetAttribute("Guid", relation.RelationViewGuid.ToString());
-							relationElement.SetAttribute("Method", relation.Method.ToString());
-							element.AppendChild(relationElement);
-						}
-					}
 
 					rootElement.AppendChild(element);
 				}
@@ -198,25 +187,14 @@ namespace Extend.UI {
 					AttachLayer = (UILayer)Enum.Parse(typeof(UILayer), childElement.GetAttribute("AttachLayer")),
 					CloseMethod = (CloseOption)Enum.Parse(typeof(CloseOption), childElement.GetAttribute("CloseMethod")),
 					CloseButtonPath = childElement.GetAttribute("CloseButtonPath"),
-					MultiInstance = childElement.GetAttribute("MultiInstance") == "1"
+					MultiInstance = childElement.GetAttribute("MultiInstance") == "1",
+					Mute = childElement.GetAttribute("Mute") == "1"
 				};
 				/*if( childElement.HasAttribute("Guid") ) {
 					configuration.ViewGuid = Guid.Parse(childElement.GetAttribute("Guid"));
 				}*/
 
 				configurations.Add(configuration);
-
-				if( childElement.HasChildNodes ) {
-					var count = childElement.ChildNodes.Count;
-					configuration.Relations = new Configuration.UIViewRelation[count];
-					for( int i = 0; i < count; i++ ) {
-						var relationElement = childElement.ChildNodes[i] as XmlElement;
-						configuration.Relations[i] = new Configuration.UIViewRelation {
-							Method = (Configuration.PreloadMethod)Enum.Parse(typeof(Configuration.PreloadMethod), relationElement.GetAttribute("Method")),
-							RelationViewGuid = Guid.Parse(relationElement.GetAttribute("Guid"))
-						};
-					}
-				}
 			}
 
 			var instance = CreateInstance<UIViewConfiguration>();

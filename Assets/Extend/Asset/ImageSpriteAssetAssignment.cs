@@ -7,6 +7,9 @@ namespace Extend.Asset {
 	[LuaCallCSharp, RequireComponent(typeof(Image))]
 	public class ImageSpriteAssetAssignment : SpriteAssetAssignment {
 		private Image m_image;
+
+		[SerializeField]
+		private bool m_override = true;
 		private Image GetImage() {
 			if( !m_image ) {
 				m_image = GetComponent<Image>();
@@ -16,7 +19,11 @@ namespace Extend.Asset {
 		}
 
 		protected override void PreLoad() {
-			GetImage().enabled = false;
+			var img = GetImage();
+			if( img.overrideSprite || img.sprite ) {
+				return;
+			}
+			img.enabled = false;
 		}
 
 		protected override void PostLoad() {
@@ -25,7 +32,13 @@ namespace Extend.Asset {
 
 		public override void Apply(Sprite sprite) {
 			base.Apply(sprite);
-			GetImage().sprite = sprite;
+			if( m_override ) {
+				GetImage().overrideSprite = sprite;
+			}
+			else {
+				GetImage().sprite = sprite;
+				GetImage().enabled = sprite != null;
+			}
 		}
 	}
 }
